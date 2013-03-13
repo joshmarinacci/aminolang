@@ -135,19 +135,22 @@ function core(cb) {
     parseit(parsersjs);
     
     var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    //stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
     var tree = JoshParser.matchAll(stdDefs,'top');
     console.log("parsed defs");
-    //console.log(u.inspect(tree,false,20));
+    console.log(u.inspect(tree,false,20));
 
-    //js code    
-    var jscode = Josh2JS.matchAll([tree], 'blocks');
-    console.log("generated js code");
-    var jsoutdir = outdir+"/"+"jscanvas";
-    jb.mkdir(jsoutdir);
-    var jsout = jsoutdir+"/out.js";
-    fs.writeFileSync(jsout,jscode);
-    console.log("wrote out " + jsout);
+    /*
+    {
+        //js code    
+        var jscode = Josh2JS.matchAll([tree], 'blocks');
+        console.log("generated js code");
+        var jsoutdir = outdir+"/"+"jscanvas";
+        jb.mkdir(jsoutdir);
+        var jsout = jsoutdir+"/out.js";
+        fs.writeFileSync(jsout,jscode);
+        console.log("wrote out " + jsout);
+    }
     
 
 
@@ -164,6 +167,25 @@ function core(cb) {
         
         fs.writeFileSync(java2dout, javatemplate);
         console.log("wrote out " + java2dout);
+    }
+    */
+    
+    {
+        //C++ code
+        var code = Amino2CPP.matchAll([tree], 'blocks');
+        //console.log(code);
+//        console.log("hfile = " + Amino2CPP.getHFile());
+//        console.log("cppfile = " + Amino2CPP.getCPPFile());
+        
+        var cppoutdir = outdir+"/cpp/";
+        jb.mkdir(cppoutdir);
+        fs.writeFileSync(cppoutdir+"out.h",
+            '#include <string>\n'+
+            'using namespace std;'+
+            Amino2CPP.getHFile());
+        fs.writeFileSync(cppoutdir+"out.cpp",
+            '#include "out.h"\n'+
+            Amino2CPP.getCPPFile());
     }
 
     if(cb) cb();

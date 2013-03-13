@@ -34,14 +34,6 @@ value Bounds {
 }
     
 
-class Core {
-    func Stage createStage() { 
-        return null;
-    }
-    func void start(Callback fn) {
-    }
-}
-
 class Events {
     const Press;
     const Action;
@@ -64,6 +56,21 @@ class XEvent {
     prop Object target;
     prop Point  point;
     prop Point  delta;
+}
+
+class Node {
+    prop Node parent;
+    prop boolean visible = true;
+    prop double tx = 0;
+    prop double ty = 0;
+    func Bounds getBounds() { return null; }
+    func void draw(GFX ctx) { }
+    func boolean contains(Point pt) {
+        return false;
+    }
+    func void markDirty() {
+        if(this.parent!=null){ this.parent.markDirty();}
+    }
 }
 
 class EventManager {
@@ -129,12 +136,13 @@ class EventManager {
     }
 }
 
-class Accelerometer {
-    func boolean isAvailable() { return false; }
-}
-
-class Joystick {
-    func boolean isAvailable() { return false; }
+class PropAnim {
+    prop Node target = null;
+    prop String name = null;
+    prop boolean loop = false;
+    prop double startvalue = 0;
+    prop double endvalue = 100;
+    prop int duration = 1000;
 }
 
 class Stage {
@@ -147,20 +155,23 @@ class Stage {
     func void addAnim(PropAnim anim) { }
 }
 
-class Node {
-    prop Node parent;
-    prop boolean visible = true;
-    prop double tx = 0;
-    prop double ty = 0;
-    func Bounds getBounds() { return null; }
-    func void draw(GFX ctx) { }
-    func boolean contains(Point pt) {
-        return false;
+class Core {
+    func Stage createStage() { 
+        return null;
     }
-    func void markDirty() {
-        if(this.parent!=null){ this.parent.markDirty();}
+    func void start(Callback fn) {
     }
 }
+
+
+class Accelerometer {
+    func boolean isAvailable() { return false; }
+}
+
+class Joystick {
+    func boolean isAvailable() { return false; }
+}
+
 
 class Parent extends Node {
     func int getChildCount() { return 0;}
@@ -221,15 +232,6 @@ class Circle extends Node {
         if(pt.y > this.cy + this.radius) { return false; }
         return true;
     }
-}
-
-class PropAnim {
-    prop Node target = null;
-    prop String name = null;
-    prop boolean loop = false;
-    prop double startvalue = 0;
-    prop double endvalue = 100;
-    prop int duration = 1000;
 }
 
 class ParallelAnim {

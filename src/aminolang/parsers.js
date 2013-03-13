@@ -380,3 +380,89 @@ Josh2Java.resetIt = function() {
     propcache = [];
 }
 
+function log(s) {
+    console.log(""+s);
+    return s;
+}
+
+function genCppFunc(klass,fname,fargs,rettype) {
+  //  console.log("=== making a c++ function for class " + klass + " :: " + fname);
+    var strargs = fargs.join(", ");
+    cppfile += rettype + " " 
+        + klass + "::" +fname
+        + "("
+        + strargs
+        + ")"
+        + "{"+nl
+        + "}"+nl
+        ;
+        return "virtual "+rettype+" "+fname+"("+strargs+")" + ";"+nl
+    ;
+}
+
+var hfile = "";
+var cppfile = "";
+function genCppProp(klass, pname, type, value) {
+//    console.log("=== making a C++ prop for class " + klass + " :: " + pname);
+    var name = camelize(pname);
+    var initter = "private "+type+" m"+name+" = " + value +";"+nl;
+    var getter = type + " " + klass + "::get"+name +"(){ return m"+name+";}"+nl;
+    var setter = "void "+klass+"::set"+name+"(in"+name+"){"
+    +" m"+name+"=in"+name+";"
+    +"}";
+    cppfile += [initter+getter+setter].join("");
+    return ""+
+        "virtual "+type+" get"+name+"();"+nl+
+        "virtual void set"+name+"("+type+" in"+name+");"+nl
+        
+    ;
+}
+
+function genCppClass(klass, members) {
+    var tab = "    ";
+//    console.log("=== making a C++ class " + klass);
+    hfile += "class " + klass + " {"+nl
+    +"public:"+nl
+    +tab+klass+"() {}"+nl
+    +tab+"virtual ~"+klass+"() {}"+nl
+    +nl
+    +members.join("")
+    +"};"+nl
+    ;
+        
+    return "classdef";
+}
+
+
+ometa Amino2CPP {
+    blocks   = [#blocks [#classes [classdef*:x]]]         -> x.join(""),
+    classdef = [#classdef :type [#name :name] :ex [member(type,name)*:members]] 
+        -> genCppClass(name, members),
+    member :t :n = (propdef(n) | funcdef(n) | constdef | anything):m -> m,
+    propdef  :kl 
+    = [#propdef :name [#type type:type] [#value value:value]? anything*] 
+        -> genCppProp(kl,name,type,value),
+    constdef     = [#constdef anything*] -> "", 
+    funcdef  :kl  
+        = [#func [#name :name] [#args [(funcarg*):fargs]] [#rettype type:ret] anything*] 
+        -> genCppFunc(kl,name,fargs,ret),
+    funcarg  = [ #Object :name ] -> ("void* "+name)
+             | [ #boolean :name] -> ("bool "+name)
+             | [ :type :name ] -> (type + " " + name),
+    type = #Object  -> "void*"
+         | #boolean -> "bool"
+         | #String  -> "string"
+         | :type    -> type,
+    
+    value = [#literal :v] -> v,
+    foo = bar
+}
+Amino2CPP.getHFile = function() {
+    return hfile;
+}
+Amino2CPP.getCPPFile = function() {
+    return cppfile;
+}
+
+
+

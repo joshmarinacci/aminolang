@@ -34,6 +34,8 @@ function javac(src, dir, opts, cb) {
     }
     if(recomp) {
         doExec("javac " + src.join(" ") + " -d " + dir, cb);
+    } else {
+        if(cb) cb();
     }
 }
 
@@ -56,3 +58,4 @@ function mkdir(dir) {
 
 exports.javac = javac;
 exports.mkdir = mkdir;
+exports.exec = doExec;

@@ -178,10 +178,8 @@ function java2dcore(cb) {
         "tests/General.java"
     ];
     var outdir = "build/java2d/classes";
-  //  jb.mkdir(outdir);
-//    doExec("javac " +files.join(" ") + " -d " + outdir, cb);
     //the javac task can't handle *.java paths yet
-    jb.javac(files,outdir, {classpath:null},cb);
+    jb.javac(files, outdir, {classpath:null},cb);
 }
 
 function compiletest(cb) {
@@ -200,22 +198,6 @@ function compiletest(cb) {
         //callback
         cb);
 }
-
-/*
-call java but
-
-java
-    infiles
-    outfiles
-    settings
-src = [ "build/out.java", "java2d/com//*.java", "tests/ComponentsTest.java"]
-compileJava(src, "build/java2d/classes", {classpath:null})
-    
-recompile if infiles more recent than outfiles.
-how do we know what the outfiles are? 
-just use the oldest file in the output dir?
-
-*/
 
 function joglcore(cb) {
     exec("node generatejogl.js",function(er,out,err) {
@@ -247,7 +229,7 @@ function joglcore(cb) {
 }
 
 function javatest(cb) {
-    doExec("java -cp build/java2d/classes General", cb);
+    jb.exec("java -cp build/java2d/classes General", cb);
 }
 
 function runjogl(cb) {
@@ -301,7 +283,7 @@ function help(cb) {
 tasks = {
     help:        new Task(help,       [],            "Help Info"),
     core:        new Task(core,       [],            "Core AminoLang classes"),
-    java2dcore:  new Task(java2dcore, ["core"],      "Java2D Core"),
+    java2dcore:  new Task(java2dcore, [],      "Java2D Core"),
     javatest:    new Task(javatest,    ["java2dcore"],  "running java"),
     /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),

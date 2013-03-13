@@ -1,0 +1,243 @@
+interface Callback {
+    func void call(Object obj){}
+}
+class GFX {
+    func void translate(double x, double y) {}
+    func void scale(double x, double y) { }
+    func void rotate(double theta) { }
+}
+value Point {
+    prop double x;
+    prop double y;
+    func Point minus(Point p) {
+        var pt:Point;
+        pt = new Point(this.x-p.x,this.y-p.y);
+        return pt;
+    }
+}
+class Color {
+}
+
+value Bounds {
+    prop double x = 0;
+    prop double y = 0;
+    prop double w = 99;
+    prop double h = 99;
+    
+    func boolean containsBounds(Bounds b){
+        if(b.x < this.x) { return false; }
+        if(b.x+b.w > this.x+this.w) { return false; }
+        if(b.y < this.y) { return false; }
+        if(b.y+b.h > this.y+this.h) { return false; }
+        return true;
+    }
+}
+    
+
+class Core {
+    func Stage createStage() { 
+        return null;
+    }
+    func void start(Callback fn) {
+    }
+}
+
+class Events {
+    const Press;
+    const Action;
+    const Drag;
+    const Release;
+    const ScrollV;
+    const ScrollH;
+    const KeyPress;
+    const KeyRelease;
+    const KeyType;
+    const AccelChanged;
+    const LocationChanged;
+    const OrientationChanged;
+    const JoystickChanged;
+    const AccelerometerChanged;
+}
+
+class XEvent {
+    prop Object type;
+    prop Object target;
+    prop Point  point;
+    prop Point  delta;
+}
+
+class EventManager {
+    prop Point mousestart;
+    prop Point mouselast;
+    prop Node  dragFocus = null;
+    prop Node  keyboardFocus = null;
+    func Node  findNode(Point point) {
+        return null;
+    }
+    
+    func XEvent createEvent() {
+        return null;
+    }
+    
+    func void fireEvent(XEvent event) {
+    }
+    
+    func void on(Object type, Object target, Callback fn) { }
+    func void later(Callback fn) { }
+    func void repeat(int interval, Callback fn) { }
+    
+    func void processPointerEvent(Object type, Point point) {
+        var event:XEvent;
+        event = this.createEvent();
+        event.type = type;
+        
+        if(type == Events.Press) {
+            this.mousestart = point;
+            this.mouselast = point;
+            event.point = point;
+        }
+        if(type == Events.Drag) {
+            var delta:Point;
+            delta = point.minus(this.mouselast);
+            event.delta = delta;
+            this.mouselast = point;
+            event.point = point;
+        }
+        
+        
+        var node:Node;
+        node = this.findNode(point);
+        
+        
+        if(type == Events.Press) {
+            this.dragFocus = node;
+            this.keyboardFocus = node;
+        }
+        if(type == Events.Drag) {
+            if(this.dragFocus != null) {
+                node = this.dragFocus;
+            }
+        }
+        
+        if(type == Events.Release) {
+            this.dragFocus = null;
+        }
+        if(node != null) {
+            event.target = node;
+            this.fireEvent(event);
+        }
+    }
+}
+
+class Accelerometer {
+    func boolean isAvailable() { return false; }
+}
+
+class Joystick {
+    func boolean isAvailable() { return false; }
+}
+
+class Stage {
+    prop EventManager eventManager;
+    prop boolean focused;
+    prop Node root;
+    func void redraw() { }
+    func void markDirty() {    }
+    func void on(Object type, Object target, Callback fn) { }
+    func void addAnim(PropAnim anim) { }
+}
+
+class Node {
+    prop Node parent;
+    prop boolean visible = true;
+    prop double tx = 0;
+    prop double ty = 0;
+    func Bounds getBounds() { return null; }
+    func void draw(GFX ctx) { }
+    func boolean contains(Point pt) {
+        return false;
+    }
+    func void markDirty() {
+        if(this.parent!=null){ this.parent.markDirty();}
+    }
+}
+
+class Parent extends Node {
+    func int getChildCount() { return 0;}
+    func Node getChild(int i) { return null; }
+    func Point toInnerCoords(Point pt) { return pt; }
+}
+
+class Transform extends Parent {
+    prop double scalex = 1;
+    prop double scaley = 1;
+    prop double rotate = 0;
+    prop Node child;
+}
+
+class Group extends Parent {
+    prop array nodes;
+    func void add(Node child) {
+    }
+    func void clear() { }
+}
+
+class Clip extends Group {
+    prop double w = 10;
+    prop double h = 10;
+}
+
+class Buffer {
+    prop int w;
+    prop int h;
+}
+
+class Rect extends Node {
+    prop double x = 0;
+    prop double y = 0;
+    prop double w = 10;
+    prop double h = 10;
+    prop Color fill;
+    func boolean contains(Point pt){
+        if(pt.x < this.x){ return false; }
+        if(pt.x > this.x + this.w) { return false; }
+        if(pt.y < this.y) { return false; }
+        if(pt.y > this.y + this.h) { return false; }
+        
+        return true;
+    }
+}
+
+
+class Circle extends Node {
+    prop double cx = 0;
+    prop double cy = 0;
+    prop double radius = 100;
+    prop Color fill;
+    func boolean contains(Point pt){
+        if(pt.x < this.cx - this.radius) { return false; }
+        if(pt.x > this.cx + this.radius) { return false; }
+        if(pt.y < this.cy - this.radius) { return false; }
+        if(pt.y > this.cy + this.radius) { return false; }
+        return true;
+    }
+}
+
+class PropAnim {
+    prop Node target = null;
+    prop String name = null;
+    prop boolean loop = false;
+    prop double startvalue = 0;
+    prop double endvalue = 100;
+    prop int duration = 1000;
+}
+
+class ParallelAnim {
+    func void add() { }
+}
+
+class SerialAnim {
+    func void add() { }
+}
+
+

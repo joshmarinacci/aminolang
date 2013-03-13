@@ -1,0 +1,85 @@
+class Control extends Node {
+    prop double x = 0;
+    prop double y = 0;
+    prop double w = 100;
+    prop double h = 30;
+    prop boolean leftanchored = false;
+    prop boolean rightanchored = false;
+    prop boolean topanchored = false;
+    prop boolean bottomanchored = false;
+    prop Color baseColor;
+    func boolean contains(Point pt){
+        if(pt.x < this.x){ return false; }
+        if(pt.x > this.x + this.w) { return false; }
+        if(pt.y < this.y) { return false; }
+        if(pt.y > this.y + this.h) { return false; }
+        return true;
+    }
+}
+
+class PushButton extends Control {
+    prop Color textColor;
+    prop String text;
+    prop boolean pressed = false;
+}
+
+
+class ToggleButton extends Control {
+    prop boolean selected = false;
+    prop Color textColor;
+    prop Color accentColor;
+    prop String text;
+}
+
+
+class Label extends Control {
+    prop Color textColor;
+    prop String text;
+    prop double fontsize = 12;
+}
+
+class ImageView extends Control {
+    prop String url;
+    prop boolean autoscale = false;
+    prop boolean scaletofit = true;
+}
+
+class Slider extends Control {
+    prop Color accentColor;
+    prop double minvalue = 0;
+    prop double maxvalue = 100;
+    prop double value = 50;
+}
+
+class Textbox extends Control {
+    prop String text;
+}
+
+class Spinner extends Control {
+    prop boolean active = false;
+}
+
+class AnchorPanel extends Control {
+    prop array nodes;
+    func void add(Control child) {
+    }
+}
+
+class ListView extends Control {
+    prop array data;
+    prop int selectedIndex = 0;
+    prop Object selectedObject = null;
+}
+
+class FlickrQuery {
+    prop boolean active = false;
+    prop boolean execute = false;
+    prop double w;
+    prop double h;
+    prop double tx;
+    prop double ty;
+    prop String query;
+    prop array results;
+    prop boolean visible;
+}
+

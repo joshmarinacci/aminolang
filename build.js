@@ -57,6 +57,8 @@ var wrench = require('wrench');
 var u = require('util');
 var fs = require('fs');
 var exec = require('child_process').exec;
+
+require('./bin/ometa.js');
 /*
 function path(p) {
 	return '../ometa-js/'+p;
@@ -120,8 +122,49 @@ function doExec(cmd, cb) {
     });
 }
 
+var outdir = "build";
+
+
 function core(cb) {
-    doExec("node generate.js",cb);
+//    doExec("node generate.js",cb);
+    function translateCode(s) {
+      var translationError = function(m, i) { 
+        console.log("Translation error - please tell Alex about this!"); throw fail 
+      };
+      
+      var tree = BSOMetaJSParser.matchAll(s, "topLevel", undefined, 
+          function(m, i) {
+              console.log("in failure: " + m + " " + i);
+              throw objectThatDelegatesTo(fail, {errorPos: i}) 
+          });
+      return BSOMetaJSTranslator.match(tree, "trans", undefined, translationError);
+    }
+    
+    function parseit(str) {
+        eval(translateCode(str));
+    }
+
+    //parse parsers.js
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    
+    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    var tree = JoshParser.matchAll(stdDefs,'top');
+    console.log("parsed defs");
+    //console.log(u.inspect(tree,false,20));
+    
+    var jscode = Josh2JS.matchAll([tree], 'blocks');
+    console.log("generated js code");
+    
+    var jsoutdir = outdir+"/"+"jscanvas";
+    jb.mkdir(jsoutdir);
+    var jsout = jsoutdir+"/out.js";
+    fs.writeFileSync(jsout,jscode);
+    console.log("wrote out " + jsout);
+    
+
+
 }
 
 function javacore(cb) {
@@ -248,21 +291,6 @@ function help(cb) {
     }
 }
 
-function testXMLTransform(cb) {
-    var text = fs.readFileSync("xml2js.js",'utf8');
-    
-    var errorHandler = function(m, i) { 
-        console.log("Translation error - please tell Alex about this!"); throw fail 
-    };
-    var tree = BSOMetaJSParser.matchAll(text, "topLevel", undefined, 
-        function(m, i) {
-            console.log("in failure: " + m + " " + i);
-            throw objectThatDelegatesTo(fail, {errorPos: i}) 
-        });
-    var out = BSOMetaJSTranslator.match(tree, "trans", undefined, errorHandler);
-    eval(out);
-}
-
 tasks = {
     help:       new Task(help,      [],            "Help Info"),
     core:       new Task(core,      [],            "Core AminoLang classes"),
@@ -273,7 +301,6 @@ tasks = {
     runjogl:    new Task(runjogl   ,["joglcore"], "running Java AminoLang Tests"),
     runjscore:  new Task(runjscore, [], "running JS AminoLang Tests"),
     runjavacore:new Task(runjavacore,["coretests"], "running Java AminoLang Tests"),
-    testxml:    new Task(testXMLTransform,[],"turn XML into js code"),
     testcompile:    new Task(compiletest,[],"compile test"),
 }
 

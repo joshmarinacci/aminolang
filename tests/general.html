@@ -1,0 +1,214 @@
+<html>
+<head>
+<script src='../src/jscanvas/init.js'></script>
+<script src='../build/jscanvas/out.js'></script>
+<script src='../src/jscanvas/handcoded7.js'></script>
+<script src='../src/jscanvas/monkeypatch.js'></script>
+<style type="text/css">
+canvas { border: 1px solid black; }
+</style>
+</head>
+<body>
+<canvas id='mycanvas' width='300' height='300'></canvas>
+<script language="JavaScript">
+Corex.start(function(core) {
+    var root = core.createStage('mycanvas');
+    
+    function shapes(c) {
+        var rect = new Rect();
+        rect.setx(100).sety(100).setw(50).seth(25).setfill("green");
+        c.add(rect);
+        
+        root.on(Events.Press, rect, function() { 
+            if(rect.getfill() == 'blue') {
+                rect.setfill("red");
+            } else {
+                rect.setfill('blue'); 
+            }
+        }); 
+        
+        var circle = new Circle();
+        circle.setcx(50).setcy(100).setradius(30).setfill('green');
+        c.add(circle);
+    
+        
+        //e.target is a generic reference to the drag target.
+        //e.deltaX is how much the x moved between events, regardless of the current
+        //coordinate space's movement (ie: setting the x and y)
+        //drag works even if you drag quickly and go outside the target, thus it
+        //preserves the drag target through the entire gesture
+        root.on(Events.Drag, circle, function(e) {
+            e.target.setcx(e.target.getcx() + e.delta.getx());
+            e.target.setcy(e.target.getcy() + e.delta.gety());
+        });
+    }
+
+    
+    
+    
+    
+    function comps(c) {
+        
+        var button = new PushButton();
+        button.settext("button");
+        button.setx(200);
+        button.sety(50);
+        c.add(button);
+        
+    
+        var tbutton = new ToggleButton();
+        tbutton.settext("toggle");
+        tbutton.setx(200);
+        tbutton.sety(100);
+        c.add(tbutton);
+        
+        var label = new Label();
+        label.settext("label");
+        label.setx(200);
+        label.sety(130);
+        c.add(label);
+        
+        var slider = new Slider();
+        slider.setx(200);
+        
+        slider.sety(160);
+        slider.setw(100);
+        slider.seth(20);
+        root.on(Events.Drag, slider, function(e) {
+            var r = e.target;
+            r.setvalue(r.pointToValue(e.point.x-r.getx()));
+        });
+        c.add(slider);
+        
+        
+        var textbox = new Textbox();
+        textbox.setx(200);
+        textbox.sety(190);
+        textbox.setw(100);
+        textbox.seth(20);
+        textbox.settext("foo");
+        root.on(Events.KeyPress, textbox, function(e) {
+            var t = textbox.gettext();
+            if(!t) t = "";
+            
+            if(e.e.keyCode == 45 || e.e.keyCode == 8) {
+                if(t.length > 0) {
+                    t = t.substring(0,t.length-1);
+                    textbox.settext(t);
+                    return;
+                }
+            }
+            var ch = String.fromCharCode(e.e.keyCode);
+            if(e.e.shiftKey) {
+                ch = ch.toUpperCase();
+            } else {
+                ch = ch.toLowerCase();
+            }
+            textbox.settext(t+ch);
+        });
+        c.add(textbox);
+    }
+    
+    
+    function events(c) {
+        
+        var b1 = new PushButton().settext("no transform, xy")
+            .setx(5).sety(100);
+        c.add(b1);
+        
+        var b2 = new PushButton().settext("trans xy")
+            .settx(120).setty(100);
+        c.add(b2);
+        
+        
+        var b3 = new PushButton().settext("group trans")
+            .settx(0).setty(0);
+        var g3 = new Group().settx(10).setty(150);
+        g3.add(b3);
+        c.add(g3);
+        
+        
+        var b4 = new PushButton().settext("trans rot")
+            .settx(0).setty(0);
+        var g4 = new Transform().settx(100).setty(150)
+            .setrotate(0);
+        g4.setchild(b4);
+        c.add(g4);
+        
+        var b5 = new PushButton().settext("group trans")
+            .settx(0).setty(0);
+        var g5 = new Transform().settx(100).setty(150)
+            .setscalex(1).setscaley(1);
+        g5.setchild(b5);
+        c.add(g5);
+    }
+    
+    function anims(c) {
+        var rect = new Rect();    
+        rect.setx(0);
+        rect.sety(0);
+        rect.setw(20);
+        rect.seth(20);
+        rect.setfill("red");
+        c.add(rect);
+        function a(node, prop, start, finish, dur) {
+            return new PropAnim()
+                .settarget(node)
+                .setname(prop)
+                .setstartvalue(start)
+                .setendvalue(finish)
+                .setduration(dur);
+        }
+        var anim = chain(
+            together(
+                a(rect,"x",0,100,1000),
+                a(rect,"y",0,100,1000)
+            ),
+            chain(
+                a(rect,"x",100, 200,1000).setEase(elasticOut),
+                a(rect,"y",100,  50,500).setEase(cubicInOut),
+                a(rect,"x",200, 100,500).setEase(cubicInOut)
+            ),
+            together(
+                a(rect,"x",100,0,500).setEase(cubicInOut),
+                a(rect,"y",50, 0,500).setEase(cubicInOut)
+            )
+            ).after(function() {
+                console.log("all done!");
+            });
+        root.addAnim(anim);
+    }
+    
+    var tests = [shapes,comps,events,anims];
+    var current = -1;
+    var testgroup = new Group();
+    root.add(testgroup);
+    
+    
+    var prevButton = new PushButton();
+    prevButton.settext("prev").setx(10).sety(10).setw(80).seth(20);
+    root.add(prevButton);
+    root.on(Events.Press,prevButton,function(e){
+        testgroup.clear();
+        current = current - 1;
+        if(current < 0) {
+            current = tests.length-1;
+        }
+        tests[current](testgroup);
+    });
+    
+    var nextButton = new PushButton();
+    nextButton.settext("next").setx(100).sety(10).setw(80).seth(20);
+    root.add(nextButton);
+    root.on(Events.Press,nextButton,function(e) {
+        testgroup.clear();
+        current = current + 1;
+        if(current >= tests.length) {
+            current = 0;
+        }
+        tests[current](testgroup);
+    });
+});
+</script>
+</body>
+</html>

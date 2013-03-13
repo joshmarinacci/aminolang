@@ -162,9 +162,6 @@ function core(cb) {
     var jsout = jsoutdir+"/out.js";
     fs.writeFileSync(jsout,jscode);
     console.log("wrote out " + jsout);
-    
-
-
 }
 
 function javacore(cb) {
@@ -294,6 +291,7 @@ function help(cb) {
 tasks = {
     help:       new Task(help,      [],            "Help Info"),
     core:       new Task(core,      [],            "Core AminoLang classes"),
+    /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),
     javacore:   new Task(javacore,  ["core"],      "Java Core"),
     joglcore:   new Task(joglcore,  [],      "JOGL Java Core"),
@@ -302,6 +300,7 @@ tasks = {
     runjscore:  new Task(runjscore, [], "running JS AminoLang Tests"),
     runjavacore:new Task(runjavacore,["coretests"], "running Java AminoLang Tests"),
     testcompile:    new Task(compiletest,[],"compile test"),
+    */
 }
 
 if(!command) {

@@ -1,5 +1,6 @@
 var fs = require('fs');
 var wrench = require('wrench');
+var exec = require('child_process').exec;
 
 function javac(src, dir, opts, cb) {
     var recomp = false;
@@ -35,6 +36,17 @@ function javac(src, dir, opts, cb) {
         doExec("javac " + src.join(" ") + " -d " + dir, cb);
     }
 }
+
+function doExec(cmd, cb) {
+    p("[EXEC] " + cmd);
+    exec(cmd,function(er,out,err) {
+        p(out);
+        p(err);
+        if(cb) cb();
+    });
+}
+
+function p(s) { console.log(s); }
 
 function mkdir(dir) {
     if(!fs.existsSync(dir)) {

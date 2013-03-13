@@ -51,27 +51,13 @@ always input, output, options, callback
 */
 
 var jb = require('./bin/joshbuild');
-console.log(jb);
 
 var wrench = require('wrench');
 var u = require('util');
 var fs = require('fs');
 var exec = require('child_process').exec;
-
 require('./bin/ometa.js');
-/*
-function path(p) {
-	return '../ometa-js/'+p;
-}
-var LIB = require(path('lib.js'));
-require(path('ometa-base.js'));
-require(path('parser.js'));
-require(path('bs-js-compiler.js'));
-require(path('bs-ometa-compiler.js'));
-var StringBuffer = LIB.StringBuffer;
-require(path('bs-ometa-optimizer.js'));
-require(path('bs-ometa-js-compiler.js'));
-*/
+
 function p(s) { console.log(s); }
 
 var command = process.argv[2];
@@ -153,25 +139,49 @@ function core(cb) {
     var tree = JoshParser.matchAll(stdDefs,'top');
     console.log("parsed defs");
     //console.log(u.inspect(tree,false,20));
-    
+
+    //js code    
     var jscode = Josh2JS.matchAll([tree], 'blocks');
     console.log("generated js code");
-    
     var jsoutdir = outdir+"/"+"jscanvas";
     jb.mkdir(jsoutdir);
     var jsout = jsoutdir+"/out.js";
     fs.writeFileSync(jsout,jscode);
     console.log("wrote out " + jsout);
+    
+
+
+    {
+        //java code
+        var java2dcode = Josh2Java.matchAll([tree], 'blocks');
+        console.log("generated java code");
+        var java2doutdir = outdir+"/"+"java2d";
+        jb.mkdir(java2doutdir);
+        var java2dout = java2doutdir+"/out.java";
+        
+        var javatemplate = fs.readFileSync('src/java2d/template_java','utf8');
+        javatemplate = javatemplate.replace("${test}",java2dcode);
+        
+        fs.writeFileSync(java2dout, javatemplate);
+        console.log("wrote out " + java2dout);
+    }
+
+    if(cb) cb();
 }
 
-function javacore(cb) {
+function java2dcore(cb) {
+    console.log("doing the java2d core now");
     var files = [
-        "build/out.java",
-        "java2d/com/joshondesign/aminogen/generated/*.java",
-        "java2d/com/joshondesign/aminogen/custom/*.java",
-        "tests/ComponentsTest.java"
+        "build/java2d/out.java",
+        "src/java2d/com/joshondesign/aminogen/generated/CommonObject.java",
+        "src/java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
+        "tests/General.java"
     ];
-    doExec("javac " +files.join(" ") + " -d build", cb);
+    var outdir = "build/java2d/classes";
+  //  jb.mkdir(outdir);
+//    doExec("javac " +files.join(" ") + " -d " + outdir, cb);
+    //the javac task can't handle *.java paths yet
+    jb.javac(files,outdir, {classpath:null},cb);
 }
 
 function compiletest(cb) {
@@ -236,8 +246,8 @@ function joglcore(cb) {
     
 }
 
-function runjava(cb) {
-    doExec("java -cp build ComponentsTest", cb);
+function javatest(cb) {
+    doExec("java -cp build/java2d/classes General", cb);
 }
 
 function runjogl(cb) {
@@ -289,13 +299,13 @@ function help(cb) {
 }
 
 tasks = {
-    help:       new Task(help,      [],            "Help Info"),
-    core:       new Task(core,      [],            "Core AminoLang classes"),
+    help:        new Task(help,       [],            "Help Info"),
+    core:        new Task(core,       [],            "Core AminoLang classes"),
+    java2dcore:  new Task(java2dcore, ["core"],      "Java2D Core"),
+    javatest:    new Task(javatest,    ["java2dcore"],  "running java"),
     /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),
-    javacore:   new Task(javacore,  ["core"],      "Java Core"),
     joglcore:   new Task(joglcore,  [],      "JOGL Java Core"),
-    runjava:    new Task(runjava,   ["javacore"],  "running java"),
     runjogl:    new Task(runjogl   ,["joglcore"], "running Java AminoLang Tests"),
     runjscore:  new Task(runjscore, [], "running JS AminoLang Tests"),
     runjavacore:new Task(runjavacore,["coretests"], "running Java AminoLang Tests"),

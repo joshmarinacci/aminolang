@@ -112,7 +112,7 @@ var outdir = "build";
 
 
 function core(cb) {
-//    doExec("node generate.js",cb);
+    //    doExec("node generate.js",cb);
     function translateCode(s) {
       var translationError = function(m, i) { 
         console.log("Translation error - please tell Alex about this!"); throw fail 
@@ -174,8 +174,6 @@ function core(cb) {
         //C++ code
         var code = Amino2CPP.matchAll([tree], 'blocks');
         //console.log(code);
-//        console.log("hfile = " + Amino2CPP.getHFile());
-//        console.log("cppfile = " + Amino2CPP.getCPPFile());
         
         var cppoutdir = outdir+"/cpp/";
         jb.mkdir(cppoutdir);
@@ -202,7 +200,7 @@ function java2dcore(cb) {
     ];
     var outdir = "build/java2d/classes";
     //the javac task can't handle *.java paths yet
-    jb.javac(files, outdir, {classpath:null},cb);
+    jb.javac(files, outdir, { classpath: null},cb);
 }
 
 function compiletest(cb) {
@@ -223,17 +221,31 @@ function compiletest(cb) {
 }
 
 function joglcore(cb) {
+    var files = [
+        "build/java2d/out.java",
+        "src/jogl/com/joshondesign/aminogen/generated/CommonObject.java",
+        "src/jogl/com/joshondesign/aminogen/custom/CoreImpl.java",
+        "src/jogl/com/joshondesign/aminogen/custom/Shader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/ColorShader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/TextureShader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/FontShader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/Insets.java",
+        "src/jogl/com/joshondesign/aminogen/custom/VUtils.java",
+        //"tests/ComponentsTest.java"
+    ];
+    var outdir = "build/jogl/classes";
+    var classpath = [
+        "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
+        "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
+    ]
+
+    jb.javac(files,outdir,{classpath:classpath.join(":")},cb);
+    /*
     exec("node generatejogl.js",function(er,out,err) {
         p("exec completed");
         p(out);
         p(err);
         
-        var files = [
-            "joglbuild/out.java",
-            "javajogl/com/joshondesign/aminogen/generated/*.java",
-            "javajogl/com/joshondesign/aminogen/custom/*.java",
-            "tests/ComponentsTest.java"
-        ];
         if(!fs.existsSync("joglbuild/compiled")) {
             fs.mkdirSync("joglbuild/compiled");
         }
@@ -248,6 +260,7 @@ function joglcore(cb) {
             if(cb) cb();
         });
     });
+    */
     
 }
 
@@ -308,9 +321,9 @@ tasks = {
     core:        new Task(core,       [],            "Core AminoLang classes"),
     java2dcore:  new Task(java2dcore, [],      "Java2D Core"),
     javatest:    new Task(javatest,    ["java2dcore"],  "running java"),
+    joglcore:    new Task(joglcore,  [],      "JOGL Java Core"),
     /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),
-    joglcore:   new Task(joglcore,  [],      "JOGL Java Core"),
     runjogl:    new Task(runjogl   ,["joglcore"], "running Java AminoLang Tests"),
     runjscore:  new Task(runjscore, [], "running JS AminoLang Tests"),
     runjavacore:new Task(runjavacore,["coretests"], "running Java AminoLang Tests"),

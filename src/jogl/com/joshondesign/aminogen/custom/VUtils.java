@@ -2,13 +2,6 @@ package com.joshondesign.aminogen.custom;
 
 import java.util.Arrays;
 
-/**
- * Created with IntelliJ IDEA.
- * User: josh
- * Date: 3/10/13
- * Time: 12:24 PM
- * To change this template use File | Settings | File Templates.
- */
 public class VUtils {
     public static float[] make_z_rot_matrix(float angle)
     {

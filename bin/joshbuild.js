@@ -3,6 +3,7 @@ var wrench = require('wrench');
 var exec = require('child_process').exec;
 
 function javac(src, dir, opts, cb) {
+    p(opts);
     var recomp = false;
     if(!fs.existsSync(dir)) {
         wrench.mkdirSyncRecursive(dir);
@@ -27,13 +28,22 @@ function javac(src, dir, opts, cb) {
         }
     });
     
-    //    console.log("newest input  = " + newestIn);
-    //    console.log("oldest output = " + oldestOut);
+//    console.log("newest input  = " + newestIn);
+//    console.log("oldest output = " + oldestOut);
     if(newestIn > oldestOut) {
         recomp = true;
     }
+    var cmd = "javac " + src.join(" ");
+    cmd += " -d " + dir;
+    
+    p("opts = ",opts);
+    if(opts && opts.classpath) {
+        cmd += " -cp "+opts.classpath;
+    }
     if(recomp) {
-        doExec("javac " + src.join(" ") + " -d " + dir, cb);
+        p("final command");
+        p(cmd);
+        doExec(cmd, cb);
     } else {
         if(cb) cb();
     }

@@ -1,44 +1,46 @@
 #include "build/cpp/out.h"
+#include "src/cppgles/impl.h"
 
-
-class TGroup : public Group {
-public:
-    virtual void add(Node* child);
-    virtual void markDirty();
-}
-
-class TRect : public Rect {
-public:
-    TRect();
-    virtual void draw(GFX* gfx);
-};
 
 void TGroup::markDirty() {
 }
 
 void TGroup::add(Node* child) {
-    this->children.add(child);
+    this->nodes.push_back(child);
     child->setParent(this);
     this->markDirty();
 }
 
-int TGroup::getChildCount() {
-    return this->children.size();
-}
-
-Node* TGroup::getChild(int i) {
-    return this->children.get(i);
-}
-    
 
 /* ========== rect impl ============ */
-
+TRect::TRect() {
+    setVisible(true);
+}
+Bounds* TRect::getBounds() {
+    Bounds* b = new TBounds();
+    b->setX(this->getX());
+    b->setY(this->getY());
+    b->setW(this->getW());
+    b->setH(this->getH());
+    return b;
+}
+    
 void TRect::draw(GFX* gfx) {
     Bounds* bounds = getBounds();
-    gfx.fillQuadColor(GFX::RED, bounds);
-    bounds.destroy();
+    GLGFX* g = (GLGFX*)gfx;
+    g->fillQuadColor(GLGFX::RED, bounds);
+    //delete bounds;
 }
 
+
+
+/* ==== Bounds Impl ========== */
+float TBounds::getX2() {
+    return this->getX() + this->getW();
+}
+float TBounds::getY2() {
+    return this->getY() + this->getH();
+}
 
 
 

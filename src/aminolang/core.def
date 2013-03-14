@@ -73,6 +73,7 @@ class Node {
     func void markDirty() {
         if(this.parent!=null){ this.parent.markDirty();}
     }
+    func boolean isParent() { return false; }
 }
 
 class EventManager {

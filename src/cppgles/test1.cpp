@@ -3,6 +3,7 @@
 #include <gui/SurfaceComposerClient.h>
 
 #include "build/cpp/out.h"
+#include "src/cppgles/impl.h"
 
 
 //using namespace android;
@@ -19,13 +20,6 @@ public:
     virtual Stage* createStage();
     TStage* _stage;
 };
-
-class TRect : public Rect {
-public:
-    TRect();
-    virtual void draw(GFX* gfx);
-};
-
 
 int main(int argc, char** argv) {
     printf("i'm the C++ program here.\n");
@@ -224,6 +218,13 @@ make_scale_matrix(GLfloat xs, GLfloat ys, GLfloat zs, GLfloat *m)
 
 
 static void
+make_identity_matrix(GLfloat *m) {
+    m[0] = 1;
+    m[5] = 1;
+    m[10] = 1;
+    m[15] = 1;
+}
+static void
 mul_matrix(GLfloat *prod, const GLfloat *a, const GLfloat *b)
 {
 #define A(row,col)  a[(col<<2)+row]
@@ -291,21 +292,18 @@ void TCore::start() {
     } 
 }
 
-class GLGFX: public GFX {
-public:
-    GLfloat mat[16]
-};
-
-void drawIt(GFX* gfx, Node* root) {
+void drawIt(GLGFX* gfx, Node* root) {
     if(!root->getVisible()) return;
+    printf("drawing a node %d\n",root);
     gfx->save();
     gfx->translate(root->getTx(), root->getTy());
     root->draw(gfx);
-    if(root instanceof Group) {
+    if(root->isParent()) {
         Group* group = (Group*)root;
-        for(int i=0; i<group->children->size(); i++) {
-            Node* child = group->children.at(i);
-            draw(gfx,child);
+        for(int i=0; i<group->nodes.size(); i++) {
+            Node* child = (Node*)group->nodes.at(i);
+            //printf("drawing a child\n");
+            drawIt(gfx,child);
         }
     }
     gfx->restore();
@@ -324,8 +322,9 @@ void TStage::draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
    
-    GFX* gfx = new GLGFX();
+    GLGFX* gfx = new GLGFX();
     drawIt(gfx,root);
+    delete gfx;
     /*
     for(long i=0; i<root->size(); i++) {
         Rect* rect = root->at(i);
@@ -334,8 +333,10 @@ void TStage::draw() {
     */
 }
 
-GLGFX:GLGFX() {
-    transform = make_identity_matrix();
+
+GLGFX::GLGFX() {
+    GLfloat transform[16];
+    make_identity_matrix(transform);
     /*
             this.gl = gl;
             this.test2 = test2;
@@ -357,7 +358,7 @@ void GLGFX::restore() {
     */
 }
 
-void GLGFX::translate(float x, float y) {
+void GLGFX::translate(double x, double y) {
     /*
             //System.out.println("translating by : " + x + " " + y);
             float[] tr = VUtils.make_trans_matrix(x, y);
@@ -365,19 +366,12 @@ void GLGFX::translate(float x, float y) {
             */
 }
 
-void GLGFX::translate(double x, double y) {
-    /*
-    //System.out.println("translating by : " + x + " " + y);
-    float[] tr = VUtils.make_trans_matrix((float)x, (float)y);
-    transform = VUtils.mul_matrix(transform,tr);
-    */
-}
 
 
 //class ColorShader
 //static ColorShader colorShader = new ColorShader();
 
-void colorShaderApply(GLfloat verts[6][2],GLfloat colors[6][3]) {
+void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
     glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
     glEnableVertexAttribArray(attr_pos);
@@ -390,10 +384,14 @@ void colorShaderApply(GLfloat verts[6][2],GLfloat colors[6][3]) {
 }    
 
 void GLGFX::fillQuadColor(int color, Bounds* bounds) {
+    printf("fill quad color %d %d\n", color, bounds);
     float x =  bounds->getX();
     float y =  bounds->getY();
-    float x2 = bounds->getX2();
-    float y2 = bounds->getY2();
+    printf("xy = %d %d\n",x,y);
+    float x2 = ((TBounds*)bounds)->getX2();
+    float y2 = ((TBounds*)bounds)->getY2();
+    printf("x2y2 = %d %d\n",x2,y2);
+    
     
     GLfloat verts[6][2];
     GLfloat colors[6][3];
@@ -425,19 +423,19 @@ void GLGFX::fillQuadColor(int color, Bounds* bounds) {
     }
     verts[0][0] = x;
     verts[0][1] = y;
-    verts[1][0] = x+w;
+    verts[1][0] = x2;
     verts[1][1] = y;
-    verts[2][0] = x+w;
-    verts[2][1] = y+h;
+    verts[2][0] = x2;
+    verts[2][1] = y2;
     
-    verts[3][0] = x+w;
-    verts[3][1] = y+h;
+    verts[3][0] = x2;
+    verts[3][1] = y2;
     verts[4][0] = x;
-    verts[4][1] = y+h;
+    verts[4][1] = y2;
     verts[5][0] = x;
     verts[5][1] = y;
     
-    colorShaderapply(&transform,&verts,&colors);
+    colorShaderApply(verts,colors);
     
 /*
             float x = (float)bounds.getX();

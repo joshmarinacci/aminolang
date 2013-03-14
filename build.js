@@ -181,6 +181,7 @@ function core(cb) {
         jb.mkdir(cppoutdir);
         fs.writeFileSync(cppoutdir+"out.h",
             '#include <string>\n'+
+            '#include <vector>\n'+
             'using namespace std;'+
             Amino2CPP.getHFile());
         fs.writeFileSync(cppoutdir+"out.cpp",

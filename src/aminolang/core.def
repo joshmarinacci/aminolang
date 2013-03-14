@@ -96,6 +96,7 @@ class EventManager {
     func void repeat(int interval, Callback fn) { }
     
     func void processPointerEvent(Object type, Point point) {
+    /*
         var event:XEvent;
         event = this.createEvent();
         event.type = type;
@@ -135,6 +136,7 @@ class EventManager {
             event.target = node;
             this.fireEvent(event);
         }
+    */
     }
 }
 

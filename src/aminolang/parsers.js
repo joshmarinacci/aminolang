@@ -456,7 +456,7 @@ ometa Amino2CPP {
          | #boolean -> "bool"
          | #String  -> "string"
          | #double  -> "double"
-         | #array   -> "vector"
+         | #array   -> "vector<void*>"
          | :type    -> (type+"*"),
          
     block    = [#block [c*:line]] -> line,

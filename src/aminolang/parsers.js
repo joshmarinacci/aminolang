@@ -51,7 +51,7 @@ ometa JoshParser {
         ,
     fcall = (ref:r fcallargs:a )              -> [#fcall, r, a]
         |  name:n "()"                        -> [#fcall, n],
-    fcallargs = "(" listOf(#ref,','):args ")" -> [#cargs, args],
+    fcallargs = "(" listOf(#exp,','):args ")" -> [#cargs, args],
     cstr  = "new" sp* name:n "(" listOf(#exp,","):args ")"             -> [#cstr,  n, [#cargs, args]],
     stmt  = (stmtRet|stmtAss|stmtFcall|stmtDec):s ";" sp* -> s,
     stmt  = cond:c -> c,
@@ -385,16 +385,16 @@ function log(s) {
     return s;
 }
 
-function genCppFunc(klass,fname,fargs,rettype) {
+function genCppFunc(klass,fname,fargs,rettype,block) {
   //  console.log("=== making a c++ function for class " + klass + " :: " + fname);
     var strargs = fargs.join(", ");
+    var blk = "{"+nl+block.join(nl)+tab+"}"+nl;
     cppfile += rettype + " " 
         + klass + "::" +fname
         + "("
         + strargs
         + ")"
-        + "{"+nl
-        + "}"+nl
+        + blk
         ;
         return "virtual "+rettype+" "+fname+"("+strargs+")" + ";"+nl
     ;
@@ -405,13 +405,15 @@ var cppfile = "";
 function genCppProp(klass, pname, type, value) {
 //    console.log("=== making a C++ prop for class " + klass + " :: " + pname);
     var name = camelize(pname);
-    var initter = "private "+type+" m"+name+" = " + value +";"+nl;
-    var getter = type + " " + klass + "::get"+name +"(){ return m"+name+";}"+nl;
-    var setter = "void "+klass+"::set"+name+"(in"+name+"){"
-    +" m"+name+"=in"+name+";"
-    +"}";
-    cppfile += [initter+getter+setter].join("");
+    var storagedec = type+" "+pname+";";
+    var initter = "private "+type+" "+pname+" = " + value +";"+nl;
+    var getter = type + " " + klass + "::get"+name +"(){ return "+pname+";}"+nl;
+    var setter = "void "+klass+"::set"+name+"("+type+" in"+name+"){"
+        +" "+pname+"=in"+name+";"
+        +"}"+nl;
+    cppfile += [getter+setter].join("");
     return ""+
+        storagedec+nl+
         "virtual "+type+" get"+name+"();"+nl+
         "virtual void set"+name+"("+type+" in"+name+");"+nl
         
@@ -426,7 +428,7 @@ function genCppClass(klass, members) {
     +tab+klass+"() {}"+nl
     +tab+"virtual ~"+klass+"() {}"+nl
     +nl
-    +members.join("")
+    +members.join(tab)
     +"};"+nl
     ;
         
@@ -444,15 +446,56 @@ ometa Amino2CPP {
         -> genCppProp(kl,name,type,value),
     constdef     = [#constdef anything*] -> "", 
     funcdef  :kl  
-        = [#func [#name :name] [#args [(funcarg*):fargs]] [#rettype type:ret] anything*] 
-        -> genCppFunc(kl,name,fargs,ret),
+    = [#func [#name :name] [#args [(funcarg*):fargs]] [#rettype type:ret] block:block] 
+        -> genCppFunc(kl,name,fargs,ret,block),
     funcarg  = [ #Object :name ] -> ("void* "+name)
              | [ #boolean :name] -> ("bool "+name)
-             | [ :type :name ] -> (type + " " + name),
+             | [ type:type :name ] -> (type + " " + name),
     type = #Object  -> "void*"
+         | #void    -> "void"
          | #boolean -> "bool"
          | #String  -> "string"
-         | :type    -> type,
+         | #double  -> "double"
+         | #array   -> "vector"
+         | :type    -> (type+"*"),
+         
+    block    = [#block [c*:line]] -> line,
+    block    = [#block [c*:line]]                         -> line, 
+    value    = [#value c:v]                               -> v,
+    value    = []                                         -> null,
+//    type     = ['type' :t]                                -> t,
+    c        = ['rettype' :t]                             -> t,
+    
+    c        = [#literal #null]                           -> "NULL",
+    c        = [#literal [#string :v]]                    -> ('"'+v+'"'),
+    c        = [#literal :v]                              -> v,
+    c        = [#if c:ex block:b]                         -> ("if("+ex+"){"+nl+b.join("")+"}"+nl),
+    c        = [#return   c:v]                            -> ("return "+v+";"+nl),
+    c        = [#assign   c:v c:v2]                       -> (v +" = " + v2 + ";"+nl),
+    c        = [#dec [#ref [#name :n]] [#name :t]]         -> (t+"*" + " " + n +";"+nl),
+    c        = [#cstr c:n c:args]                         -> ("new "+n+"("+args+")"),
+    c        = [#exp [#lt  c:v c:v2]]                     -> (v+"<" +v2),
+    c        = [#exp [#sub c:v c:v2]]                     -> (v+"-" +v2),
+    c        = [#exp [#add c:v c:v2]]                     -> (v+"+" +v2),
+    c        = [#exp [#eq  c:v c:v2]]                     -> (v+"=="+v2),
+    c        = [#exp [#ne  c:v c:v2]]                     -> (v+"!="+v2),
+    c        = [#exp [#gt  c:v c:v2]]                     -> (v+">" +v2),
+    
+    c        = [#ref c:v c:v2]                            -> (v+"->"+v2),
+    c        = [#ref c:v]                                 -> v,
+    c        = [#exp c:v]                                 -> v,
+    
+    c        = [#fcall c:n c:args]                        -> (n + "(" +args+");"),
+    c        = [#cargs [c*:a]] -> a.join(","),
+    
+    c        = [#args    :v]                -> v,
+    c        = [#name    #null]                -> "NULL",
+    c        = [#name    :v]                -> v,
+    c        = [#extend  [c :v]]            -> v,
+    
+    c = [],
+    c = :x -> ("  =:"+x+":="),
+    c = [c:x] -> x.join(""),
     
     value = [#literal :v] -> v,
     foo = bar

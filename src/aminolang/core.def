@@ -11,7 +11,9 @@ value Point {
     prop double y;
     func Point minus(Point p) {
         var pt:Point;
-        pt = new Point(this.x-p.x,this.y-p.y);
+        pt = new Point();
+        pt.setX(this.x-p.x);
+        pt.setY(this.y-p.y);
         return pt;
     }
 }

@@ -24,8 +24,6 @@ class TRect : public Rect {
 public:
     TRect();
     virtual void draw(GFX* gfx);
-    GLfloat verts[6][2];
-    GLfloat colors[6][3];
 };
 
 
@@ -121,23 +119,14 @@ void klaatu_init_graphics(int *width, int *height)
 static void
 create_shaders(void)
 {
-//#ifndef KLAATU
-/*
-   static const char *fragShaderText =
-      "varying vec4 v_color;\n"
-      "void main() {\n"
-      "   gl_FragColor = v_color;\n"
-      "}\n";
-      */
-//#else
    static const char *fragShaderText =
       "precision mediump float;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
-      "   gl_FragColor = v_color;\n"
-//      "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
+//      "   gl_FragColor = v_color;\n"
+      "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
       "}\n";
-//#endif //KLAATU
+      
    static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
       "attribute vec4 pos;\n"
@@ -303,8 +292,25 @@ void TCore::start() {
 }
 
 class GLGFX: public GFX {
-    
+public:
+    GLfloat mat[16]
 };
+
+void drawIt(GFX* gfx, Node* root) {
+    if(!root->getVisible()) return;
+    gfx->save();
+    gfx->translate(root->getTx(), root->getTy());
+    root->draw(gfx);
+    if(root instanceof Group) {
+        Group* group = (Group*)root;
+        for(int i=0; i<group->children->size(); i++) {
+            Node* child = group->children.at(i);
+            draw(gfx,child);
+        }
+    }
+    gfx->restore();
+}
+    
 void TStage::draw() {
     printf("drawing the stage\n");
     GLfloat mat[16], rot[16], scale[16];
@@ -319,20 +325,198 @@ void TStage::draw() {
    
    
     GFX* gfx = new GLGFX();
-    root->draw(gfx);
-    
-    
+    drawIt(gfx,root);
     /*
     for(long i=0; i<root->size(); i++) {
         Rect* rect = root->at(i);
         rect->draw(attr_pos, attr_color);
     }
     */
-    
+}
+
+GLGFX:GLGFX() {
+    transform = make_identity_matrix();
+    /*
+            this.gl = gl;
+            this.test2 = test2;
+            this.stack = new ArrayDeque<float[]>();
+            transform = VUtils.identityMatrix();
+    */
+}
+void GLGFX::save() {
+    printf("saving the stack\n");
+    /*
+                stack.push(transform);
+            transform = VUtils.copy(transform);
+*/
+}
+void GLGFX::restore() {
+    printf("restoring the stack\n");
+    /*
+            transform = stack.pop();
+    */
+}
+
+void GLGFX::translate(float x, float y) {
+    /*
+            //System.out.println("translating by : " + x + " " + y);
+            float[] tr = VUtils.make_trans_matrix(x, y);
+            transform = VUtils.mul_matrix(transform,tr);
+            */
+}
+
+void GLGFX::translate(double x, double y) {
+    /*
+    //System.out.println("translating by : " + x + " " + y);
+    float[] tr = VUtils.make_trans_matrix((float)x, (float)y);
+    transform = VUtils.mul_matrix(transform,tr);
+    */
 }
 
 
+//class ColorShader
+//static ColorShader colorShader = new ColorShader();
 
+void colorShaderApply(GLfloat verts[6][2],GLfloat colors[6][3]) {
+    glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
+    glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(attr_pos);
+    glEnableVertexAttribArray(attr_color);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray(attr_pos);
+    glDisableVertexAttribArray(attr_color);
+}    
+
+void GLGFX::fillQuadColor(int color, Bounds* bounds) {
+    float x =  bounds->getX();
+    float y =  bounds->getY();
+    float x2 = bounds->getX2();
+    float y2 = bounds->getY2();
+    
+    GLfloat verts[6][2];
+    GLfloat colors[6][3];
+    
+    static GLfloat sverts[6][2] = {
+      { -1, -1 },
+      {  1, -1 },
+      {  1,  1 },
+      {  1,  1 },
+      { -1,  1 },
+      { -1, -1 }
+    };
+    static GLfloat scolors[6][3] = {
+      { 1, 0, 0 },
+      { 0, 1, 0 },
+      { 1, 0, 0 },
+      { 0, 1, 0 },
+      { 0, 1, 0 },
+      { 0, 0, 1 }
+    };
+    
+    for(int i=0; i<6; i++) {
+        for(int j=0; j<2; j++) {
+            verts[i][j] = sverts[i][j];
+        }
+        for(int j=0; j<3; j++) {
+            colors[i][j] = scolors[i][j];
+        }
+    }
+    verts[0][0] = x;
+    verts[0][1] = y;
+    verts[1][0] = x+w;
+    verts[1][1] = y;
+    verts[2][0] = x+w;
+    verts[2][1] = y+h;
+    
+    verts[3][0] = x+w;
+    verts[3][1] = y+h;
+    verts[4][0] = x;
+    verts[4][1] = y+h;
+    verts[5][0] = x;
+    verts[5][1] = y;
+    
+    colorShaderapply(&transform,&verts,&colors);
+    
+/*
+            float x = (float)bounds.getX();
+            float y = (float)bounds.getY();
+            float x2 = bounds.getX2();
+            float y2 = bounds.getY2();
+            FloatBuffer verts = Buffers.newDirectFloatBuffer(new float[]{
+                    x, y,
+                    x2, y,
+                    x2, y2,
+                    x2, y2,
+                    x, y2,
+                    x, y
+            });
+            FloatBuffer colors = Buffers.newDirectFloatBuffer(new float[]{
+                    1, 0, 0,
+                    1, 0, 0,
+                    1, 0, 0,
+                    1, 0, 0,
+                    1, 0, 0,
+                    1, 0, 0
+            });
+
+            test2.colorShader.apply(gl,transform,verts,colors);
+*/
+}
+
+
+/*
+        public void fillQuadTexture(Tex tex, Bounds bounds,  Bounds textureBounds) {
+            float x = (float)bounds.getX();
+            float y = (float)bounds.getY();
+            float x2 = bounds.getX2();
+            float y2 = bounds.getY2();
+            FloatBuffer verts = Buffers.newDirectFloatBuffer(new float[]{
+                    x, y,
+                    x2, y,
+                    x2, y2,
+                    x2, y2,
+                    x, y2,
+                    x, y
+            });
+
+            float iw = test2.textureShader.mainTexture.getImageWidth();
+            float ih = test2.textureShader.mainTexture.getImageHeight();
+
+            float tx  = (float)textureBounds.getX()/iw;
+            float ty  = (float)textureBounds.getY()/ih;
+            float tx2 = textureBounds.getX2()/iw;
+            float ty2 = textureBounds.getY2()/ih;
+
+            FloatBuffer texcoords = Buffers.newDirectFloatBuffer(new float[]{
+                    tx,  ty,
+                    tx2, ty,
+                    tx2, ty2,
+                    tx2, ty2,
+                    tx,  ty2,
+                    tx,  ty
+            });
+            test2.textureShader.apply(gl,transform,verts, texcoords);
+        }
+        public void fillQuadTexture(Tex tex, Bounds bounds, Bounds textureBounds, Insets insets) {
+            //upper left
+            float[] xs = new float[]{(float)bounds.getX(), insets.getLeft(), bounds.getX2() - insets.getRight(), bounds.getX2()};
+            float[] ys = new float[]{(float)bounds.getY(), insets.getTop(), bounds.getY2() - insets.getBottom(), bounds.getY2()};
+            for(int j=0; j<3; j++) {
+                for (int i = 0; i < 3; i++) {
+                    Bounds b2 = new Bounds(xs[i], ys[j], xs[i + 1]-xs[i], ys[j+1]-ys[j]);
+                    fillQuadTexture(tex, b2, textureBounds);
+                }
+            }
+        }
+        public void fillQuadText(Color color, String text, double x, double y) {
+            test2.fontShader.apply(gl,transform,text);
+        }
+*/
+
+
+/*
 TRect::TRect() {
 }
 
@@ -388,4 +572,4 @@ void TRect::draw(GFX* gfx) {
     glDisableVertexAttribArray(attr_pos);
     glDisableVertexAttribArray(attr_color);
 }
-
+*/

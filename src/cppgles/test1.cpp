@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
     TRect* r1 = new TRect();
     r1->setW(300);
     r1->setH(100);
+    r1->setFill(new TColor(1,0,0));
     
     TRect* r2 = new TRect();
     r2->setTx(800);
@@ -40,9 +41,17 @@ int main(int argc, char** argv) {
     r2->setW(100);
     r2->setH(100);
     
+    TRect* r3 = new TRect();
+    r3->setTx(-300);
+    r3->setTy(0);
+    r3->setW(100);
+    r3->setH(300);
+    r3->setFill(new TColor(0,1,0));
+    
     TGroup* g = new TGroup();
     g->add(r1);
     g->add(r2);
+    g->add(r3);
     
     stage->setRoot(g);
     
@@ -129,8 +138,8 @@ create_shaders(void)
       "precision mediump float;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
-//      "   gl_FragColor = v_color;\n"
-      "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
+      "   gl_FragColor = v_color;\n"
+//      "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
       "}\n";
       
    static const char *vertShaderText =
@@ -279,6 +288,9 @@ Stage* TCore::createStage(){
     _stage = new TStage();
     return _stage;
   }
+  
+  
+ColorShader* colorShader;
 
 void TCore::start() {
     printf("the core is starting\n");
@@ -312,6 +324,7 @@ void TCore::start() {
     glClearColor(1.0, 1.0, 1.0, 1.0);
 
     create_shaders();
+    colorShader = new ColorShader();
     
     for (;;) {
         _stage->draw();
@@ -324,13 +337,10 @@ void drawIt(GLGFX* gfx, Node* root) {
     gfx->save();
     gfx->translate(root->getTx(), root->getTy());
     root->draw(gfx);
-    printf("drawing node\n");
     if(root->isParent()) {
-        printf("is a parent\n");
         Group* group = (Group*)root;
         for(int i=0; i<group->nodes.size(); i++) {
             Node* child = (Node*)group->nodes.at(i);
-            //printf("drawing a child\n");
             drawIt(gfx,child);
         }
     }
@@ -364,7 +374,6 @@ void TStage::draw() {
 
 GLGFX::GLGFX() {
     make_identity_matrix(transform);
-    printf("identity = %f =\n",transform[0]);
     /*
             this.gl = gl;
             this.test2 = test2;
@@ -373,14 +382,12 @@ GLGFX::GLGFX() {
     */
 }
 void GLGFX::save() {
-    printf("saving the stack\n");
     /*
                 stack.push(transform);
             transform = VUtils.copy(transform);
 */
 }
 void GLGFX::restore() {
-    printf("restoring the stack\n");
     /*
             transform = stack.pop();
     */
@@ -394,28 +401,13 @@ void printMat(GLfloat *m) {
     printf("\n");
 }
 void GLGFX::translate(double x, double y) {
-    printf("translating by %2f %2f\n",x,y);
     GLfloat tr[16];
     GLfloat trans2[16];
     make_trans_matrix((float)x,(float)y,tr);
-    //printMat(tr);
-    //make_identity_matrix(tr);
     mul_matrix(trans2, transform, tr);
-    //printMat(trans2);
     for (int i = 0; i < 16; i++) transform[i] = trans2[i];
-    printMat(transform);
-    
-    /*
-            //System.out.println("translating by : " + x + " " + y);
-            float[] tr = VUtils.make_trans_matrix(x, y);
-            transform = VUtils.mul_matrix(transform,tr);
-            */
 }
 
-
-
-//class ColorShader
-//static ColorShader colorShader = new ColorShader();
 
 void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
@@ -429,18 +421,27 @@ void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
     glDisableVertexAttribArray(attr_color);
 }    
 
-void GLGFX::fillQuadColor(int color, Bounds* bounds) {
-//    printf("fill quad color %d %d\n", color, bounds);
+void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     float x =  bounds->getX();
     float y =  bounds->getY();
-//    printf("xy = %d %d\n",x,y);
     float x2 = ((TBounds*)bounds)->getX2();
     float y2 = ((TBounds*)bounds)->getY2();
-//    printf("x2y2 = %d %d\n",x2,y2);
-    
+
     
     GLfloat verts[6][2];
     GLfloat colors[6][3];
+    
+    TColor* tcol = (TColor*)color;
+    for(int j=0; j<3; j++) {
+        printf("%f ",tcol->comps[j]);
+    }
+    printf("\n");
+    
+    for(int i=0; i<6; i++) {
+        for(int j=0; j<3; j++) {
+            colors[i][j] = tcol->comps[j];
+        }
+    }
     
     static GLfloat sverts[6][2] = {
       { -1, -1 },
@@ -450,21 +451,19 @@ void GLGFX::fillQuadColor(int color, Bounds* bounds) {
       { -1,  1 },
       { -1, -1 }
     };
+    
     static GLfloat scolors[6][3] = {
       { 1, 0, 0 },
-      { 0, 1, 0 },
       { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 }
+      { 1, 0, 0 },
+      { 1, 0, 0 },
+      { 1, 0, 0 },
+      { 1, 0, 0 }
     };
     
     for(int i=0; i<6; i++) {
         for(int j=0; j<2; j++) {
             verts[i][j] = sverts[i][j];
-        }
-        for(int j=0; j<3; j++) {
-            colors[i][j] = scolors[i][j];
         }
     }
     verts[0][0] = x;
@@ -481,8 +480,9 @@ void GLGFX::fillQuadColor(int color, Bounds* bounds) {
     verts[5][0] = x;
     verts[5][1] = y;
     
-    glUniformMatrix4fv(u_trans, 1, GL_FALSE, transform);
-    colorShaderApply(verts,colors);
+//    glUniformMatrix4fv(u_trans, 1, GL_FALSE, transform);
+    colorShader->apply(transform,verts,colors);
+//    colorShaderApply(verts,colors);
     
 /*
             float x = (float)bounds.getX();

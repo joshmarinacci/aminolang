@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     r1->setH(1280/2);
     r1->setFill(new TColor(1,0,0));
     g->add(r1);
-//    em->on(NULL,r1,new J1Callback());
+    //em->on(NULL,r1,new J1Callback());
     
     r2 = new TRect();
     r2->setTx(0);
@@ -90,6 +90,14 @@ int main(int argc, char** argv) {
     r2->setFill(new TColor(0,1,1));
     g->add(r2);
     em->on(NULL, r2, new J2Callback());
+    
+    
+    PushButton* b1 = new TPushButton();
+    b1->setTx(100);
+    b1->setTy(100);
+    b1->setW(200);
+    b1->setH(100);
+    g->add(b1);
     
     
     
@@ -516,8 +524,7 @@ void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     colorShader->apply(modelView, transform,verts,colors);
 }
 void GLGFX::fillQuadText(char* text, double x, double y) {
-    //printf("drawing text at %f %f\n",x,y);
-    fontShader->apply(modelView,transform,text);
+    fontShader->apply(modelView,transform,text,x,y);
 }
 void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
     float x =  bounds->getX();

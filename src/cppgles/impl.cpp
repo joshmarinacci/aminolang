@@ -54,6 +54,21 @@ void TRect::draw(GFX* gfx) {
 //    g->fillQuadText(text,bounds->getX(),bounds->getY());
 }
 
+TPushButton::TPushButton() {
+    setVisible(true);
+}
+
+void TPushButton::draw(GFX* gfx) {
+    GLGFX* g = (GLGFX*)gfx;
+    Bounds* b = new TBounds();
+    b->setX(this->getX());
+    b->setY(this->getY());
+    b->setW(this->getW());
+    b->setH(this->getH());
+    g->fillQuadColor(new TColor(0.5,0.5,0.5), b);
+    g->fillQuadText("ABC", b->getX()+10,b->getY()+10);
+}
+
 
 
 /* ==== Bounds Impl ========== */
@@ -212,7 +227,7 @@ FontShader::FontShader() {
     texID = png_texture_load("/data/klaatu/font3.png",&w,&h);
     printf("font texture = %d %d x %d\n",texID,w,h);
 }
-void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text) {
+void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
@@ -235,9 +250,9 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text) {
         float ih = 256;
 
         float tx  = cho/iw;
-        float ty  = 1.0-(25/ih);//7/ih;
+        float ty2  = 1.0-(25/ih);//7/ih;
         float tx2 = (cho+chw)/iw;
-        float ty2 = 1.0-(7/ih);//(25*3)/ih;
+        float ty = 1.0-(7/ih);//(25*3)/ih;
 
         GLfloat texcoords[6][2];
         texcoords[0][0] = tx;    texcoords[0][1] = ty;
@@ -258,10 +273,10 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text) {
         bounds->setY(0);
         bounds->setW(chw);
         bounds->setH(17);
-        float x = (float)bounds->getX();
-        float y = (float)bounds->getY();
-        float x2 = (float)bounds->getX2();
-        float y2 = (float)bounds->getY2();
+        float x = (float)bounds->getX()+offX;
+        float y = (float)bounds->getY()+offY;
+        float x2 = (float)bounds->getX2()+offX;
+        float y2 = (float)bounds->getY2()+offY;
         GLfloat verts[6][2];
         //printf("drawing at %f\n",x);
         verts[0][0] = x;    verts[0][1] = y;

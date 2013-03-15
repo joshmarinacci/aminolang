@@ -54,6 +54,12 @@ public:
     virtual Bounds* getBounds();
 };
 
+class TPushButton : public PushButton {
+public:
+    TPushButton();
+    virtual void draw(GFX* gfx);
+};
+
 class TBounds : public Bounds {
 public:
     virtual float getX2();
@@ -83,7 +89,7 @@ public:
 class FontShader: public Shader {
 public:
     FontShader();
-    virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text);
+    virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text, float x, float y);
     int prog;
     GLint u_matrix, u_trans;
     GLint attr_pos;

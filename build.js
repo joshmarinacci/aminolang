@@ -135,7 +135,7 @@ function core(cb) {
     parseit(parsersjs);
     
     var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    //stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
     var tree = JoshParser.matchAll(stdDefs,'top');
     console.log("parsed defs");
     console.log(u.inspect(tree,false,20));

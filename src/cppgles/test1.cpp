@@ -64,11 +64,6 @@ static sp<android::SurfaceComposerClient> mSession;
 static sp<android::SurfaceControl>        mControl;
 static sp<android::Surface>               mAndroidSurface;
 
-//globals for shaders
-static GLint attr_pos = 0, attr_color = 1;
-static GLint u_matrix = -1;
-static GLint u_trans  = -1;
-
 //globals for geom
 static GLfloat view_rotx = 0.0, view_roty = 0.0;
 
@@ -122,86 +117,6 @@ void klaatu_init_graphics(int *width, int *height)
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
   
 
-}
-
-
-static void
-create_shaders(void)
-{
-   static const char *fragShaderText =
-      "precision mediump float;\n"
-      "varying vec4 v_color;\n"
-      "void main() {\n"
-      "   gl_FragColor = v_color;\n"
-      "}\n";
-      
-   static const char *vertShaderText =
-      "uniform mat4 modelviewProjection;\n"
-      "uniform mat4 trans;\n"
-      "attribute vec4 pos;\n"
-      "attribute vec4 color;\n"
-      "varying vec4 v_color;\n"
-      "void main() {\n"
-      "   gl_Position = modelviewProjection * trans * pos;\n"
-      "   v_color = color;\n"
-      "}\n";
-
-   GLuint fragShader, vertShader, program;
-   GLint stat;
-
-
-   fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-   glShaderSource(fragShader, 1, (const char **) &fragShaderText, NULL);
-   glCompileShader(fragShader);
-   glGetShaderiv(fragShader, GL_COMPILE_STATUS, &stat);
-   if (!stat) {
-      printf("Error: fragment shader did not compile!\n");
-      exit(1);
-   }
-
-   vertShader = glCreateShader(GL_VERTEX_SHADER);
-   glShaderSource(vertShader, 1, (const char **) &vertShaderText, NULL);
-   glCompileShader(vertShader);
-   glGetShaderiv(vertShader, GL_COMPILE_STATUS, &stat);
-   if (!stat) {
-      printf("Error: vertex shader did not compile!\n");
-      exit(1);
-   }
-
-   program = glCreateProgram();
-   glAttachShader(program, fragShader);
-   glAttachShader(program, vertShader);
-   glLinkProgram(program);
-
-   glGetProgramiv(program, GL_LINK_STATUS, &stat);
-   if (!stat) {
-      char log[1000];
-      GLsizei len;
-      glGetProgramInfoLog(program, 1000, &len, log);
-      printf("Error: linking:\n%s\n", log);
-      exit(1);
-   }
-
-   glUseProgram(program);
-
-   if (1) {
-      /* test setting attrib locations */
-      glBindAttribLocation(program, attr_pos, "pos");
-      glBindAttribLocation(program, attr_color, "color");
-      glLinkProgram(program);  /* needed to put attribs into effect */
-   }
-   else {
-      /* test automatic attrib locations */
-      attr_pos = glGetAttribLocation(program, "pos");
-      attr_color = glGetAttribLocation(program, "color");
-   }
-
-   u_matrix = glGetUniformLocation(program, "modelviewProjection");
-   u_trans  = glGetUniformLocation(program, "trans");
-   printf("Uniform modelviewProjection at %d\n", u_matrix);
-   printf("Uniform trans at %d\n", u_trans);
-   printf("Attrib pos at %d\n", attr_pos);
-   printf("Attrib color at %d\n", attr_color);
 }
 
 
@@ -318,9 +233,8 @@ void TCore::start() {
     
     glClearColor(1.0, 1.0, 1.0, 1.0);
 
-    create_shaders();
-    //colorShader = new ColorShader();
-    //textureShader = new TextureShader();
+    colorShader = new ColorShader();
+    textureShader = new TextureShader();
     fontShader = new FontShader();
     
     for (;;) {
@@ -344,16 +258,18 @@ void drawIt(GLGFX* gfx, Node* root) {
     gfx->restore();
 }
     
+static GLfloat* modelView;
 void TStage::draw() {
-    GLfloat mat[16], rot[16], scale[16], trans[16];
+    GLfloat /*mat[16], */rot[16], scale[16], trans[16];
+    modelView = new GLfloat[16];
     
     // Set the modelview/projection matrix
     make_trans_matrix(-720/2,-1280/2,trans);
     //make_z_rot_matrix(view_rotx, rot);
     float sc = 0.00162;
     make_scale_matrix(sc*1.73,sc,sc, scale);
-    mul_matrix(mat, scale, trans);
-    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
+    mul_matrix(modelView, scale, trans);
+    //glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
@@ -397,20 +313,6 @@ void GLGFX::translate(double x, double y) {
     for (int i = 0; i < 16; i++) transform[i] = trans2[i];
 }
 
-/*
-void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
-    glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
-    glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
-    glEnableVertexAttribArray(attr_pos);
-    glEnableVertexAttribArray(attr_color);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    
-    glDisableVertexAttribArray(attr_pos);
-    glDisableVertexAttribArray(attr_color);
-}    
-
-*/
 void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     float x =  bounds->getX();
     float y =  bounds->getY();
@@ -466,10 +368,11 @@ void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     verts[5][0] = x;
     verts[5][1] = y;
     
-    colorShader->apply(transform,verts,colors);
+    colorShader->apply(modelView, transform,verts,colors);
 }
 void GLGFX::fillQuadText(char* text, double x, double y) {
-    fontShader->apply(transform,text);
+    //printf("drawing text at %f %f\n",x,y);
+    fontShader->apply(modelView,transform,text);
 }
 void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
     float x =  bounds->getX();
@@ -500,39 +403,6 @@ void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
     texcoords[4][0] = tx;    texcoords[4][1] = ty2;
     texcoords[5][0] = tx;    texcoords[5][1] = ty;
 
-    textureShader->apply(transform,verts,texcoords);
+    textureShader->apply(modelView,transform,verts,texcoords);
 }
-
-/*
-            float x = (float)bounds.getX();
-            float y = (float)bounds.getY();
-            float x2 = bounds.getX2();
-            float y2 = bounds.getY2();
-            FloatBuffer verts = Buffers.newDirectFloatBuffer(new float[]{
-                    x, y,
-                    x2, y,
-                    x2, y2,
-                    x2, y2,
-                    x, y2,
-                    x, y
-            });
-
-            float iw = test2.textureShader.mainTexture.getImageWidth();
-            float ih = test2.textureShader.mainTexture.getImageHeight();
-
-            float tx  = (float)textureBounds.getX()/iw;
-            float ty  = (float)textureBounds.getY()/ih;
-            float tx2 = textureBounds.getX2()/iw;
-            float ty2 = textureBounds.getY2()/ih;
-
-            FloatBuffer texcoords = Buffers.newDirectFloatBuffer(new float[]{
-                    tx,  ty,
-                    tx2, ty,
-                    tx2, ty2,
-                    tx2, ty2,
-                    tx,  ty2,
-                    tx,  ty
-            });
-            test2.textureShader.apply(gl,transform,verts, texcoords);
-*/
 

@@ -2,7 +2,13 @@
 #include "src/cppgles/impl.h"
 
 
+TGroup::TGroup() {
+    setVisible(true);
+}
 void TGroup::markDirty() {
+}
+bool TGroup::isParent() {
+    return true;
 }
 
 void TGroup::add(Node* child) {

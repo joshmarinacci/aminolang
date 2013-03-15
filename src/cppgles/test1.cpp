@@ -31,9 +31,20 @@ int main(int argc, char** argv) {
     printf("created a stage\n");
     
     TRect* r1 = new TRect();
-    r1->setW(100);
+    r1->setW(300);
     r1->setH(100);
-    stage->setRoot(r1);
+    
+    TRect* r2 = new TRect();
+    r2->setTx(800);
+    r2->setTy(800);
+    r2->setW(100);
+    r2->setH(100);
+    
+    TGroup* g = new TGroup();
+    g->add(r1);
+    g->add(r2);
+    
+    stage->setRoot(g);
     
     core->start();
 }
@@ -53,6 +64,7 @@ static sp<android::Surface>               mAndroidSurface;
 //globals for shaders
 static GLint attr_pos = 0, attr_color = 1;
 static GLint u_matrix = -1;
+static GLint u_trans  = -1;
 
 //globals for geom
 static GLfloat view_rotx = 0.0, view_roty = 0.0;
@@ -123,11 +135,12 @@ create_shaders(void)
       
    static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
+      "uniform mat4 trans;\n"
       "attribute vec4 pos;\n"
       "attribute vec4 color;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
-      "   gl_Position = modelviewProjection * pos;\n"
+      "   gl_Position = modelviewProjection * trans * pos;\n"
       "   v_color = color;\n"
       "}\n";
 
@@ -182,7 +195,9 @@ create_shaders(void)
    }
 
    u_matrix = glGetUniformLocation(program, "modelviewProjection");
+   u_trans  = glGetUniformLocation(program, "trans");
    printf("Uniform modelviewProjection at %d\n", u_matrix);
+   printf("Uniform trans at %d\n", u_trans);
    printf("Attrib pos at %d\n", attr_pos);
    printf("Attrib color at %d\n", attr_color);
 }
@@ -219,11 +234,23 @@ make_scale_matrix(GLfloat xs, GLfloat ys, GLfloat zs, GLfloat *m)
 
 static void
 make_identity_matrix(GLfloat *m) {
+   int i;
+   for (i = 0; i < 16; i++)
+      m[i] = 0.0;
     m[0] = 1;
     m[5] = 1;
     m[10] = 1;
     m[15] = 1;
 }
+
+static void 
+make_trans_matrix(GLfloat x, GLfloat y, GLfloat *m)
+{
+    make_identity_matrix(m);
+    m[12] = x;
+    m[13] = y;
+}
+
 static void
 mul_matrix(GLfloat *prod, const GLfloat *a, const GLfloat *b)
 {
@@ -294,11 +321,12 @@ void TCore::start() {
 
 void drawIt(GLGFX* gfx, Node* root) {
     if(!root->getVisible()) return;
-    printf("drawing a node %d\n",root);
     gfx->save();
     gfx->translate(root->getTx(), root->getTy());
     root->draw(gfx);
+    printf("drawing node\n");
     if(root->isParent()) {
+        printf("is a parent\n");
         Group* group = (Group*)root;
         for(int i=0; i<group->nodes.size(); i++) {
             Node* child = (Node*)group->nodes.at(i);
@@ -310,12 +338,12 @@ void drawIt(GLGFX* gfx, Node* root) {
 }
     
 void TStage::draw() {
-    printf("drawing the stage\n");
     GLfloat mat[16], rot[16], scale[16];
     
     // Set the modelview/projection matrix
     make_z_rot_matrix(view_rotx, rot);
-    make_scale_matrix(0.01, 0.01, 0.01, scale);
+    float sc = 0.001;
+    make_scale_matrix(sc,sc,sc, scale);
     mul_matrix(mat, rot, scale);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
     
@@ -335,8 +363,8 @@ void TStage::draw() {
 
 
 GLGFX::GLGFX() {
-    GLfloat transform[16];
     make_identity_matrix(transform);
+    printf("identity = %f =\n",transform[0]);
     /*
             this.gl = gl;
             this.test2 = test2;
@@ -358,7 +386,25 @@ void GLGFX::restore() {
     */
 }
 
+void printMat(GLfloat *m) {
+    printf("matrix: ");
+    for(int i=0; i<16; i++) {
+        printf(" %2.2f",m[i]);
+    }
+    printf("\n");
+}
 void GLGFX::translate(double x, double y) {
+    printf("translating by %2f %2f\n",x,y);
+    GLfloat tr[16];
+    GLfloat trans2[16];
+    make_trans_matrix((float)x,(float)y,tr);
+    //printMat(tr);
+    //make_identity_matrix(tr);
+    mul_matrix(trans2, transform, tr);
+    //printMat(trans2);
+    for (int i = 0; i < 16; i++) transform[i] = trans2[i];
+    printMat(transform);
+    
     /*
             //System.out.println("translating by : " + x + " " + y);
             float[] tr = VUtils.make_trans_matrix(x, y);
@@ -384,13 +430,13 @@ void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
 }    
 
 void GLGFX::fillQuadColor(int color, Bounds* bounds) {
-    printf("fill quad color %d %d\n", color, bounds);
+//    printf("fill quad color %d %d\n", color, bounds);
     float x =  bounds->getX();
     float y =  bounds->getY();
-    printf("xy = %d %d\n",x,y);
+//    printf("xy = %d %d\n",x,y);
     float x2 = ((TBounds*)bounds)->getX2();
     float y2 = ((TBounds*)bounds)->getY2();
-    printf("x2y2 = %d %d\n",x2,y2);
+//    printf("x2y2 = %d %d\n",x2,y2);
     
     
     GLfloat verts[6][2];
@@ -435,6 +481,7 @@ void GLGFX::fillQuadColor(int color, Bounds* bounds) {
     verts[5][0] = x;
     verts[5][1] = y;
     
+    glUniformMatrix4fv(u_trans, 1, GL_FALSE, transform);
     colorShaderApply(verts,colors);
     
 /*

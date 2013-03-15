@@ -16,8 +16,10 @@ public:
 
 class TGroup : public Group {
 public:
+    TGroup();
     virtual void add(Node* child);
     virtual void markDirty();
+    virtual bool isParent();
 };
 
 class TRect : public Rect {

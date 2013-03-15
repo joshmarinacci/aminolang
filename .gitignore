@@ -5,3 +5,5 @@ build
 *.jar
 *.war
 *.ear
+
+tests/toddler.cpp

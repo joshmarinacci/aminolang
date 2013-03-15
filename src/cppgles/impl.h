@@ -6,6 +6,19 @@
 
 using std::stack;
 
+class TStage : public Stage {
+public:
+    virtual void draw();
+};
+
+class TCore : public Core {
+public:
+    virtual void start();
+    virtual Stage* createStage();
+    TStage* _stage;
+};
+
+
 class GLGFX: public GFX {
 public:
     GLGFX();
@@ -15,6 +28,7 @@ public:
     virtual void translate(double x, double y);
     virtual void fillQuadColor(Color* color, Bounds* bounds);
     virtual void fillQuadTexture(Bounds* bounds,  Bounds* textureBounds);
+    virtual void fillQuadText(char* text, double x, double y);
     stack<void*> matrixStack;
 };
 
@@ -65,7 +79,7 @@ public:
 class FontShader: public Shader {
 public:
     FontShader();
-    virtual void apply(GLfloat* trans, string text);
+    virtual void apply(GLfloat trans[16], char* text);
 };
 
 class TextureShader: public Shader {

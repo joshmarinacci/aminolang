@@ -9,18 +9,6 @@
 
 using android::sp;
 
-class TStage : public Stage {
-public:
-    virtual void draw();
-};
-
-class TCore : public Core {
-public:
-    virtual void start();
-    virtual Stage* createStage();
-    TStage* _stage;
-};
-
 
 
 int main(int argc, char** argv) {
@@ -297,6 +285,7 @@ Stage* TCore::createStage(){
   
 ColorShader* colorShader;
 TextureShader* textureShader;
+FontShader* fontShader;
 
 void TCore::start() {
     printf("the core is starting\n");
@@ -330,8 +319,9 @@ void TCore::start() {
     glClearColor(1.0, 1.0, 1.0, 1.0);
 
     create_shaders();
-    colorShader = new ColorShader();
-    textureShader = new TextureShader();
+    //colorShader = new ColorShader();
+    //textureShader = new TextureShader();
+    fontShader = new FontShader();
     
     for (;;) {
         _stage->draw();
@@ -478,7 +468,9 @@ void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     
     colorShader->apply(transform,verts,colors);
 }
-
+void GLGFX::fillQuadText(char* text, double x, double y) {
+    fontShader->apply(transform,text);
+}
 void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
     float x =  bounds->getX();
     float y =  bounds->getY();

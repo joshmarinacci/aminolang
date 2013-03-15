@@ -152,6 +152,7 @@ ColorShader::ColorShader() {
 //void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
 void ColorShader::apply(GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]) {
     glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
+    
 
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
     glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);

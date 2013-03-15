@@ -5,8 +5,6 @@
 #include "build/cpp/out.h"
 #include "src/cppgles/impl.h"
 
-
-//using namespace android;
 using android::sp;
 
 class TStage : public Stage {
@@ -26,27 +24,30 @@ int main(int argc, char** argv) {
     
     
     TCore* core = new TCore();   
-    printf("created a core\n");
     Stage* stage = core->createStage();    
-    printf("created a stage\n");
     
     TRect* r1 = new TRect();
-    r1->setW(300);
-    r1->setH(100);
+    r1->setTx(720/2);
+    r1->setTy(1280/2);
+    r1->setW(720/2);
+    r1->setH(1280/2);
     r1->setFill(new TColor(1,0,0));
     
     TRect* r2 = new TRect();
-    r2->setTx(800);
-    r2->setTy(800);
-    r2->setW(100);
-    r2->setH(100);
+    r2->setTx(0);
+    r2->setTy(0);
+    r2->setW(720/2);
+    r2->setH(1280/2);
+    r2->setFill(new TColor(0,1,1));
+    
     
     TRect* r3 = new TRect();
-    r3->setTx(-300);
-    r3->setTy(0);
+    r3->setTx(720/2);
+    r3->setTy(1280/2);
     r3->setW(100);
-    r3->setH(300);
+    r3->setH(100);
     r3->setFill(new TColor(0,1,0));
+    
     
     TGroup* g = new TGroup();
     g->add(r1);
@@ -139,7 +140,6 @@ create_shaders(void)
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_FragColor = v_color;\n"
-//      "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
       "}\n";
       
    static const char *vertShaderText =
@@ -348,13 +348,14 @@ void drawIt(GLGFX* gfx, Node* root) {
 }
     
 void TStage::draw() {
-    GLfloat mat[16], rot[16], scale[16];
+    GLfloat mat[16], rot[16], scale[16], trans[16];
     
     // Set the modelview/projection matrix
-    make_z_rot_matrix(view_rotx, rot);
-    float sc = 0.001;
-    make_scale_matrix(sc,sc,sc, scale);
-    mul_matrix(mat, rot, scale);
+    make_trans_matrix(-720/2,-1280/2,trans);
+    //make_z_rot_matrix(view_rotx, rot);
+    float sc = 0.00162;
+    make_scale_matrix(sc*1.73,sc,sc, scale);
+    mul_matrix(mat, scale, trans);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -363,34 +364,25 @@ void TStage::draw() {
     GLGFX* gfx = new GLGFX();
     drawIt(gfx,root);
     delete gfx;
-    /*
-    for(long i=0; i<root->size(); i++) {
-        Rect* rect = root->at(i);
-        rect->draw(attr_pos, attr_color);
-    }
-    */
 }
 
 
 GLGFX::GLGFX() {
+    transform = new GLfloat[16];
     make_identity_matrix(transform);
-    /*
-            this.gl = gl;
-            this.test2 = test2;
-            this.stack = new ArrayDeque<float[]>();
-            transform = VUtils.identityMatrix();
-    */
 }
 void GLGFX::save() {
-    /*
-                stack.push(transform);
-            transform = VUtils.copy(transform);
-*/
+    GLfloat* t2 = new GLfloat[16];
+    for(int i=0; i<16; i++) {
+        t2[i] = transform[i];
+    }
+    matrixStack.push(transform);
+    transform = t2;
 }
+
 void GLGFX::restore() {
-    /*
-            transform = stack.pop();
-    */
+    transform = (GLfloat*)matrixStack.top();
+    matrixStack.pop();
 }
 
 void printMat(GLfloat *m) {
@@ -407,7 +399,6 @@ void GLGFX::translate(double x, double y) {
     mul_matrix(trans2, transform, tr);
     for (int i = 0; i < 16; i++) transform[i] = trans2[i];
 }
-
 
 void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
@@ -432,10 +423,6 @@ void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     GLfloat colors[6][3];
     
     TColor* tcol = (TColor*)color;
-    for(int j=0; j<3; j++) {
-        printf("%f ",tcol->comps[j]);
-    }
-    printf("\n");
     
     for(int i=0; i<6; i++) {
         for(int j=0; j<3; j++) {

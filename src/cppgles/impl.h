@@ -2,16 +2,19 @@
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
 #include <string>
+#include <stack>
 
+using std::stack;
 
 class GLGFX: public GFX {
 public:
     GLGFX();
-    GLfloat transform[16];
+    GLfloat* transform;
     virtual void save();
     virtual void restore();
     virtual void translate(double x, double y);
     virtual void fillQuadColor(Color* color, Bounds* bounds);
+    stack<void*> matrixStack;
 };
 
 

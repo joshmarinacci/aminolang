@@ -50,8 +50,8 @@ void TRect::draw(GFX* gfx) {
     GLGFX* g = (GLGFX*)gfx;
 //    g->fillQuadColor(getFill(), bounds);
     g->fillQuadTexture(bounds, NULL);
-//    char* text = "ABCDEF";
-//    g->fillQuadText(text,bounds->getX(),bounds->getY());
+    char* text = "ABCDEF";
+    g->fillQuadText(text,bounds->getX(),bounds->getY());
 }
 
 
@@ -201,8 +201,6 @@ FontShader::FontShader() {
     prog = compileProgram(vert,frag);
     
     glUseProgram(prog);
-    //glEnable(GL_TEXTURE_2D);
-    
     attr_pos = glGetAttribLocation(prog,"pos");
     attr_texcoords = glGetAttribLocation(prog, "texcoords");
     attr_tex = glGetAttribLocation(prog, "tex");

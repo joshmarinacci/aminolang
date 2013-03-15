@@ -41,11 +41,18 @@ int main(int argc, char** argv) {
     r3->setH(100);
     r3->setFill(new TColor(0,1,0));
     
+    TRect* r4 = new TRect();
+    r4->setTx(0);
+    r4->setTy(500);
+    r4->setW(100);
+    r4->setH(100);
+    r4->setFill(new TColor(0,1,0));
     
     TGroup* g = new TGroup();
     g->add(r1);
     g->add(r2);
     g->add(r3);
+    g->add(r4);
     
     stage->setRoot(g);
     
@@ -266,7 +273,8 @@ void TStage::draw() {
     // Set the modelview/projection matrix
     make_trans_matrix(-720/2,-1280/2,trans);
     //make_z_rot_matrix(view_rotx, rot);
-    float sc = 0.00162;
+    //float sc = 0.00162;
+    float sc = 0.0015;
     make_scale_matrix(sc*1.73,sc,sc, scale);
     mul_matrix(modelView, scale, trans);
     //glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);

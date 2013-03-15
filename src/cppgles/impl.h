@@ -14,6 +14,7 @@ public:
     virtual void restore();
     virtual void translate(double x, double y);
     virtual void fillQuadColor(Color* color, Bounds* bounds);
+    virtual void fillQuadTexture(Bounds* bounds,  Bounds* textureBounds);
     stack<void*> matrixStack;
 };
 
@@ -70,6 +71,6 @@ public:
 class TextureShader: public Shader {
 public:
     TextureShader();
-    virtual void apply(GLfloat* trans, GLfloat* verts, GLfloat* colors);
+    virtual void apply(GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2]);
 };
 

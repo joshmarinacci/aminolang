@@ -2,6 +2,8 @@
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
 
+#include <png.h>
+
 #include "build/cpp/out.h"
 #include "src/cppgles/impl.h"
 
@@ -19,8 +21,11 @@ public:
     TStage* _stage;
 };
 
+
+
 int main(int argc, char** argv) {
     printf("i'm the C++ program here.\n");
+    
     
     
     TCore* core = new TCore();   
@@ -291,6 +296,7 @@ Stage* TCore::createStage(){
   
   
 ColorShader* colorShader;
+TextureShader* textureShader;
 
 void TCore::start() {
     printf("the core is starting\n");
@@ -325,6 +331,7 @@ void TCore::start() {
 
     create_shaders();
     colorShader = new ColorShader();
+    textureShader = new TextureShader();
     
     for (;;) {
         _stage->draw();
@@ -400,6 +407,7 @@ void GLGFX::translate(double x, double y) {
     for (int i = 0; i < 16; i++) transform[i] = trans2[i];
 }
 
+/*
 void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
     glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
@@ -412,6 +420,7 @@ void colorShaderApply(GLfloat verts[][2], GLfloat colors[][3]) {
     glDisableVertexAttribArray(attr_color);
 }    
 
+*/
 void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     float x =  bounds->getX();
     float y =  bounds->getY();
@@ -467,39 +476,42 @@ void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
     verts[5][0] = x;
     verts[5][1] = y;
     
-//    glUniformMatrix4fv(u_trans, 1, GL_FALSE, transform);
     colorShader->apply(transform,verts,colors);
-//    colorShaderApply(verts,colors);
-    
-/*
-            float x = (float)bounds.getX();
-            float y = (float)bounds.getY();
-            float x2 = bounds.getX2();
-            float y2 = bounds.getY2();
-            FloatBuffer verts = Buffers.newDirectFloatBuffer(new float[]{
-                    x, y,
-                    x2, y,
-                    x2, y2,
-                    x2, y2,
-                    x, y2,
-                    x, y
-            });
-            FloatBuffer colors = Buffers.newDirectFloatBuffer(new float[]{
-                    1, 0, 0,
-                    1, 0, 0,
-                    1, 0, 0,
-                    1, 0, 0,
-                    1, 0, 0,
-                    1, 0, 0
-            });
-
-            test2.colorShader.apply(gl,transform,verts,colors);
-*/
 }
 
+void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
+    float x =  bounds->getX();
+    float y =  bounds->getY();
+    float x2 = ((TBounds*)bounds)->getX2();
+    float y2 = ((TBounds*)bounds)->getY2();
+    
+    GLfloat verts[6][2];
+    verts[0][0] = x;    verts[0][1] = y;
+    verts[1][0] = x2;   verts[1][1] = y;
+    verts[2][0] = x2;   verts[2][1] = y2;
+    
+    verts[3][0] = x2;   verts[3][1] = y2;
+    verts[4][0] = x;    verts[4][1] = y2;
+    verts[5][0] = x;    verts[5][1] = y;
+    
+    GLfloat texcoords[6][2];
+    
+    float tx = 0;
+    float ty = 0;
+    float tx2 = 1;
+    float ty2 = 1;
+    texcoords[0][0] = tx;    texcoords[0][1] = ty;
+    texcoords[1][0] = tx2;   texcoords[1][1] = ty;
+    texcoords[2][0] = tx2;   texcoords[2][1] = ty2;
+    
+    texcoords[3][0] = tx2;   texcoords[3][1] = ty2;
+    texcoords[4][0] = tx;    texcoords[4][1] = ty2;
+    texcoords[5][0] = tx;    texcoords[5][1] = ty;
+
+    textureShader->apply(transform,verts,texcoords);
+}
 
 /*
-        public void fillQuadTexture(Tex tex, Bounds bounds,  Bounds textureBounds) {
             float x = (float)bounds.getX();
             float y = (float)bounds.getY();
             float x2 = bounds.getX2();
@@ -530,78 +542,5 @@ void GLGFX::fillQuadColor(Color* color, Bounds* bounds) {
                     tx,  ty
             });
             test2.textureShader.apply(gl,transform,verts, texcoords);
-        }
-        public void fillQuadTexture(Tex tex, Bounds bounds, Bounds textureBounds, Insets insets) {
-            //upper left
-            float[] xs = new float[]{(float)bounds.getX(), insets.getLeft(), bounds.getX2() - insets.getRight(), bounds.getX2()};
-            float[] ys = new float[]{(float)bounds.getY(), insets.getTop(), bounds.getY2() - insets.getBottom(), bounds.getY2()};
-            for(int j=0; j<3; j++) {
-                for (int i = 0; i < 3; i++) {
-                    Bounds b2 = new Bounds(xs[i], ys[j], xs[i + 1]-xs[i], ys[j+1]-ys[j]);
-                    fillQuadTexture(tex, b2, textureBounds);
-                }
-            }
-        }
-        public void fillQuadText(Color color, String text, double x, double y) {
-            test2.fontShader.apply(gl,transform,text);
-        }
 */
 
-
-/*
-TRect::TRect() {
-}
-
-void TRect::draw(GFX* gfx) {
-    printf("creating a rect\n");
-    
-    static GLfloat sverts[6][2] = {
-      { -1, -1 },
-      {  1, -1 },
-      {  1,  1 },
-      {  1,  1 },
-      { -1,  1 },
-      { -1, -1 }
-    };
-    static GLfloat scolors[6][3] = {
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 }
-    };
-    
-    for(int i=0; i<6; i++) {
-        for(int j=0; j<2; j++) {
-            verts[i][j] = sverts[i][j];
-        }
-        for(int j=0; j<3; j++) {
-            colors[i][j] = scolors[i][j];
-        }
-    }
-    verts[0][0] = x;
-    verts[0][1] = y;
-    verts[1][0] = x+w;
-    verts[1][1] = y;
-    verts[2][0] = x+w;
-    verts[2][1] = y+h;
-    
-    verts[3][0] = x+w;
-    verts[3][1] = y+h;
-    verts[4][0] = x;
-    verts[4][1] = y+h;
-    verts[5][0] = x;
-    verts[5][1] = y;
-    
-    glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, &(verts));
-    glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, &(colors));
-    glEnableVertexAttribArray(attr_pos);
-    glEnableVertexAttribArray(attr_color);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    
-    glDisableVertexAttribArray(attr_pos);
-    glDisableVertexAttribArray(attr_color);
-}
-*/

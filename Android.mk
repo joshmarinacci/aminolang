@@ -9,8 +9,10 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/skia/include/core \
 	bionic \
 	external/stlport/stlport \
+	external/libpng \
+	external/zlib \
 	frameworks/base/include/surfaceflinger
-LOCAL_STATIC_LIBRARIES := libcutils libc 
+LOCAL_STATIC_LIBRARIES := libcutils libc libpng libz
 LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput
 
 include $(BUILD_EXECUTABLE)

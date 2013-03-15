@@ -48,10 +48,10 @@ Bounds* TRect::getBounds() {
 void TRect::draw(GFX* gfx) {
     Bounds* bounds = getBounds();
     GLGFX* g = (GLGFX*)gfx;
-//    g->fillQuadColor(getFill(), bounds);
-    g->fillQuadTexture(bounds, NULL);
-    char* text = "ABCDEF";
-    g->fillQuadText(text,bounds->getX(),bounds->getY());
+    g->fillQuadColor(getFill(), bounds);
+//    g->fillQuadTexture(bounds, NULL);
+//    char* text = "ABCDEF";
+//    g->fillQuadText(text,bounds->getX(),bounds->getY());
 }
 
 

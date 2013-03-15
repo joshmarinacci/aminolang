@@ -12,6 +12,57 @@
 
 using android::sp;
 
+
+class Event : public XEvent {
+public:
+    float x;
+    float y;
+    float deltaX;
+    float deltaY;
+    int keycode;
+    int keychar;
+};
+
+
+
+class TEventManager : public EventManager {
+public:
+    Callback* cb;
+    virtual void on(void* type, void* target, Callback* fn) {
+        cb = fn;
+    }
+    virtual XEvent* createEvent() {
+        return new Event();
+    }
+
+    virtual void fireEvent(XEvent* event) {
+        cb->call(event);
+    }
+};
+
+static TEventManager* em = new TEventManager();
+
+TRect* r1;
+class J1Callback : public Callback {
+public:
+    virtual void call(void* obj) {
+        printf("got a callback for rect at %f\n",r1->getTx());
+        r1->setFill(new TColor(0,1,0));
+    }
+};
+
+
+TRect* r2;
+class J2Callback : public Callback {
+public:
+    virtual void call(void* obj) {
+        Event* evt  = (Event*)obj;
+        //printf("event point = %f %f\n",evt->deltaX,evt->deltaY);
+        r2->setTx(r2->getTx()+evt->deltaX);
+        r2->setTy(r2->getTy()+evt->deltaY);
+    }
+};
+
 int main(int argc, char** argv) {
     printf("i'm the C++ program here.\n");
     
@@ -20,22 +71,29 @@ int main(int argc, char** argv) {
     
     TCore* core = new TCore();   
     Stage* stage = core->createStage();    
+    TGroup* g = new TGroup();
     
-    TRect* r1 = new TRect();
+    r1 = new TRect();
     r1->setTx(720/2);
     r1->setTy(1280/2);
     r1->setW(720/2);
     r1->setH(1280/2);
     r1->setFill(new TColor(1,0,0));
+    g->add(r1);
+//    em->on(NULL,r1,new J1Callback());
     
-    TRect* r2 = new TRect();
+    r2 = new TRect();
     r2->setTx(0);
     r2->setTy(0);
     r2->setW(720/2);
     r2->setH(1280/2);
     r2->setFill(new TColor(0,1,1));
+    g->add(r2);
+    em->on(NULL, r2, new J2Callback());
     
     
+    
+    /*
     TRect* r3 = new TRect();
     r3->setTx(720/2);
     r3->setTy(1280/2);
@@ -49,12 +107,12 @@ int main(int argc, char** argv) {
     r4->setW(100);
     r4->setH(100);
     r4->setFill(new TColor(0,1,0));
+    */
     
-    TGroup* g = new TGroup();
-    g->add(r1);
-    g->add(r2);
+    /*
     g->add(r3);
     g->add(r4);
+    */
     
     stage->setRoot(g);
     
@@ -214,8 +272,65 @@ EventSingleton* eventSingleton;
 
 class EVDispatcher : public EventSingleton {
 public:
+    bool down;
+    EVDispatcher() {
+        down = false;
+    }
+    float startX;
+    float startY;
+    float prevX;
+    float prevY;
     virtual void touchStart(float x, float y, unsigned int tap_count=0) { 
-        printf("getting touches\n");
+        Event* evt = (Event*)em->createEvent();
+        evt->x = x;
+        evt->y = y;
+        Point* pt = new Point();
+        pt->setX(x);
+        pt->setY(y);
+        evt->setPoint(pt);
+        if(down) {
+            //printf("touch moving\n");
+            evt->deltaX = x-prevX;
+            evt->deltaY = y-prevY;
+        } else {
+            //printf("touch starting\n");
+            startX = x;
+            startY = y;
+            evt->deltaX = 0;
+            evt->deltaY = 0;
+            down = true;
+        }
+        prevX = x;
+        prevY = y;
+        em->fireEvent(evt);
+    }
+    
+    virtual void touchMove(float x, float y, unsigned int tap_count=0) { 
+        //printf("touch moving\n");
+        Event* evt = (Event*)em->createEvent();
+        evt->x = x;
+        evt->y = y;
+        evt->deltaX = x;
+        evt->deltaY = y;
+        Point* pt = new Point();
+        pt->setX(x);
+        pt->setY(y);
+        evt->setPoint(pt);
+        em->fireEvent(evt);
+    }
+    virtual void touchEnd(float x, float y, unsigned int tap_count=0) { 
+        //printf("touch ending\n");
+        Event* evt = (Event*)em->createEvent();
+        evt->x = x;
+        evt->y = y;
+        evt->deltaX = 0;
+        evt->deltaY = 0;
+        Point* pt = new Point();
+        pt->setX(x);
+        pt->setY(y);
+        evt->setPoint(pt);
+        em->fireEvent(evt);
+        down = false;
     }
 };
 
@@ -297,7 +412,7 @@ void TStage::draw() {
     //make_z_rot_matrix(view_rotx, rot);
     //float sc = 0.00162;
     float sc = 0.0015;
-    make_scale_matrix(sc*1.73,sc,sc, scale);
+    make_scale_matrix(sc*1.73,sc*-1,sc, scale);
     mul_matrix(modelView, scale, trans);
     //glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
     

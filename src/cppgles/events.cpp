@@ -121,12 +121,14 @@ void event_process(void)
             pbuf[0] = 0;
             int jj;
             for (jj = 0; jj <= point_data_index; jj++) {
-                if (point_data[jj].up)
+                //printf("point up = %d\n",point_data[jj].up);
+                if (point_data[jj].up) {
                     sprintf(pstr, " %03d UUUUUUUU", point_data[jj].tracking_id);
-                else if (point_data[jj].seen) {
+                    eventSingleton->touchEnd(point_data[jj].x, point_data[jj].y, 1);
+                } else if (point_data[jj].seen) {
                     sprintf(pstr, " %03d %03d.%04d", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
                     eventSingleton->touchStart(point_data[jj].x, point_data[jj].y, 1);
-                    printf(" %03d %03d.%04d\n", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
+                    sprintf(pstr, " %03d %03d.%04d\n", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
                     //printf("handling touchpoint %03d\n",point_data[jj].x);
                 }
                 pstr += strlen(pstr);

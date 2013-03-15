@@ -7,3 +7,5 @@ build
 *.ear
 
 tests/toddler.cpp
+node_modules
+

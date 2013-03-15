@@ -6,13 +6,15 @@
 
 #include "build/cpp/out.h"
 #include "src/cppgles/impl.h"
+#include "src/cppgles/events.h"
+
+
 
 using android::sp;
 
-
-
 int main(int argc, char** argv) {
     printf("i'm the C++ program here.\n");
+    
     
     
     
@@ -208,6 +210,14 @@ Stage* TCore::createStage(){
 ColorShader* colorShader;
 TextureShader* textureShader;
 FontShader* fontShader;
+EventSingleton* eventSingleton;
+
+class EVDispatcher : public EventSingleton {
+public:
+    virtual void touchStart(float x, float y, unsigned int tap_count=0) { 
+        printf("getting touches\n");
+    }
+};
 
 void TCore::start() {
     printf("the core is starting\n");
@@ -238,6 +248,15 @@ void TCore::start() {
     printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
 
     
+    
+    printf("window size = %d %d\n",winWidth,winHeight);
+    
+    
+    eventSingleton = new EVDispatcher();
+    enable_touch(winWidth,winHeight);
+
+
+    
     glClearColor(1.0, 1.0, 1.0, 1.0);
 
     colorShader = new ColorShader();
@@ -245,6 +264,9 @@ void TCore::start() {
     fontShader = new FontShader();
     
     for (;;) {
+        if(event_indication) {
+            event_process();
+        }
         _stage->draw();
         eglSwapBuffers(mEglDisplay, mEglSurface);
     } 

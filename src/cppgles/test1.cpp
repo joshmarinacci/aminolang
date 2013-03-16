@@ -600,7 +600,8 @@ void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
     float y =  bounds->getY();
     float x2 = ((TBounds*)bounds)->getX2();
     float y2 = ((TBounds*)bounds)->getY2();
-    
+    //printf("%f %f %f %f\n",bounds->getX(),bounds->getY(),bounds->getW(),bounds->getH());
+    //printMat(transform);
     GLfloat verts[6][2];
     verts[0][0] = x;    verts[0][1] = y;
     verts[1][0] = x2;   verts[1][1] = y;
@@ -613,9 +614,9 @@ void GLGFX::fillQuadTexture(Bounds* bounds,  Bounds* textureBounds) {
     GLfloat texcoords[6][2];
     
     float tx = 0;
-    float ty = 0;
+    float ty = 1;
     float tx2 = 1;
-    float ty2 = 1;
+    float ty2 = 0;
     texcoords[0][0] = tx;    texcoords[0][1] = ty;
     texcoords[1][0] = tx2;   texcoords[1][1] = ty;
     texcoords[2][0] = tx2;   texcoords[2][1] = ty2;

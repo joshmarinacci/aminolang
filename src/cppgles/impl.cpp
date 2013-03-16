@@ -101,6 +101,20 @@ void TLabel::draw(GFX* gfx) {
 }
 
 
+TImageView::TImageView() {
+    setVisible(true);
+}
+void TImageView::draw(GFX* gfx) {
+    GLGFX* g = (GLGFX*)gfx;
+    Bounds* b = new TBounds();
+    b->setX(this->getX());
+    b->setY(this->getY());
+    b->setW(this->getW());
+    b->setH(this->getH());
+    g->fillQuadTexture(b, NULL);
+}
+
+
 /* ==== Bounds Impl ========== */
 float TBounds::getX2() {
     return this->getX() + this->getW();
@@ -360,7 +374,7 @@ TextureShader::TextureShader() {
     
     int w;
     int h;
-    texID = png_texture_load("/data/klaatu/blue.png",&w,&h);
+    texID = png_texture_load("/data/klaatu/snacktime.png",&w,&h);
     printf("texture = %d %d x %d\n",texID,w,h);
 }
 

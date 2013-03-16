@@ -93,6 +93,13 @@ public:
     virtual void draw(GFX* gfx);
 };
 
+class TImageView : public ImageView {
+public:
+    TImageView();
+    GLint texture;
+    virtual void draw(GFX* gfx);
+};
+
 class TBounds : public Bounds {
 public:
     virtual float getX2();

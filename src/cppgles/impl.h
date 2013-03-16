@@ -87,10 +87,17 @@ public:
     TColor* fill;
 };
 
+class TLabel : public Label {
+public:
+    TLabel();
+    virtual void draw(GFX* gfx);
+};
+
 class TBounds : public Bounds {
 public:
     virtual float getX2();
     virtual float getY2();
+    virtual TBounds* add(float x, float y);
 };
 
 

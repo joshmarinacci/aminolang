@@ -49,6 +49,14 @@ Bounds* TRect::getBounds() {
     b->setH(this->getH());
     return b;
 }
+TBounds* TBounds::add(float x, float y) {
+    TBounds* b2 = new TBounds();
+    b2->setX(getX()+x);
+    b2->setY(getY()+y);
+    b2->setW(getW());
+    b2->setH(getH());
+    return b2;
+}
     
 
 void TRect::draw(GFX* gfx) {
@@ -77,6 +85,20 @@ void TPushButton::draw(GFX* gfx) {
     g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
 }
 
+
+TLabel::TLabel() {
+    setVisible(true);
+}
+void TLabel::draw(GFX* gfx) {
+    GLGFX* g = (GLGFX*)gfx;
+    Bounds* b = new TBounds();
+    b->setX(this->getX());
+    b->setY(this->getY());
+    b->setW(this->getW());
+    b->setH(this->getH());
+    char* cstr = (char*)this->getText().c_str();
+    g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
+}
 
 
 /* ==== Bounds Impl ========== */

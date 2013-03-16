@@ -420,10 +420,14 @@ function genCppProp(klass, pname, type, value) {
     ;
 }
 
-function genCppClass(klass, members) {
+function genCppClass(klass, members, ex) {
+    var ext = " ";
+    if(ex != "[]") {
+        ext = " : public " + ex[1][1] + " ";
+    }
     var tab = "    ";
 //    console.log("=== making a C++ class " + klass);
-    hfile += "class " + klass + " {"+nl
+    hfile += "class " + klass + ext + " {"+nl
     +"public:"+nl
     +tab+klass+"() {}"+nl
     +tab+"virtual ~"+klass+"() {}"+nl
@@ -439,7 +443,7 @@ function genCppClass(klass, members) {
 ometa Amino2CPP {
     blocks   = [#blocks [#classes [classdef*:x]]]         -> x.join(""),
     classdef = [#classdef :type [#name :name] :ex [member(type,name)*:members]] 
-        -> genCppClass(name, members),
+        -> genCppClass(name, members, ex),
     member :t :n = (propdef(n) | funcdef(n) | constdef | anything):m -> m,
     propdef  :kl 
     = [#propdef :name [#type type:type] [#value value:value]? anything*] 
@@ -456,6 +460,7 @@ ometa Amino2CPP {
          | #boolean -> "bool"
          | #String  -> "string"
          | #double  -> "double"
+         | #int     -> "int"
          | #array   -> "vector<void*>"
          | :type    -> (type+"*"),
          

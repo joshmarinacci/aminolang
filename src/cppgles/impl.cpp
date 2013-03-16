@@ -30,6 +30,12 @@ void TGroup::add(Node* child) {
 }
 
 
+TPropAnim::TPropAnim() {
+    alive = true;
+    startTime = -1;
+}
+
+
 /* ========== rect impl ============ */
 TRect::TRect() {
     setVisible(true);

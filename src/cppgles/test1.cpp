@@ -8,6 +8,7 @@
 #include "src/cppgles/impl.h"
 #include "src/cppgles/events.h"
 
+#include <time.h>
 
 
 using android::sp;
@@ -251,6 +252,10 @@ Stage* TCore::createStage(){
     return _stage;
   }
   
+void TStage::addAnim(PropAnim* anim) {
+    anims.push_back(anim);
+}
+
   
 ColorShader* colorShader;
 TextureShader* textureShader;
@@ -365,6 +370,43 @@ public:
     }
 };
 
+void processAnims(TStage* stage) {
+    for(int i=0; i<stage->anims.size(); i++) {
+        TPropAnim* anim = (TPropAnim*)stage->anims.at(i);
+        if(!anim->alive) continue;
+        
+        if(anim->startTime == -1) {
+            anim->startTime = clock();
+            anim->currTime = anim->startTime;
+        } else {
+            anim->currTime = clock();
+        }
+        
+        float elapsed = ((float)(anim->currTime-anim->startTime))/((float)CLOCKS_PER_SEC);
+        //printf("ellapsed = %f\n",elapsed);
+        float t = elapsed / ((float)anim->getDuration()/1000.0);
+        //printf("time = %f\n",t);
+        if(t > 1) {
+            anim->alive = false;
+            t = 1;
+        }
+        float sv = anim->getStartvalue();
+        float ev = anim->getEndvalue();
+        float v = t*(ev-sv)+sv;
+        //printf("v = %f\n",v);
+        
+        string prop = anim->getName();
+        Node* target = anim->getTarget();
+        if(prop == "tx") {
+            target->setTx(v);
+        }
+        if(prop == "ty") {
+            target->setTy(v);
+        }
+    }
+}
+
+
 void TCore::start() {
     printf("the core is starting\n");
     int winWidth = 300, winHeight = 300;
@@ -413,10 +455,12 @@ void TCore::start() {
         if(event_indication) {
             event_process();
         }
+        processAnims(_stage);
         _stage->draw();
         eglSwapBuffers(mEglDisplay, mEglSurface);
     } 
 }
+
 
 void drawIt(GLGFX* gfx, Node* root) {
     if(!root->getVisible()) return;

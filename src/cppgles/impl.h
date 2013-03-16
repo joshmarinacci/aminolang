@@ -25,6 +25,16 @@ static int RELEASE = 2;
 class TStage : public Stage {
 public:
     virtual void draw();
+    virtual void addAnim(PropAnim* anim);
+    vector<PropAnim*> anims;
+};
+
+class TPropAnim : public PropAnim {
+public:
+    TPropAnim();
+    clock_t currTime;
+    clock_t startTime;
+    bool alive;
 };
 
 class TCore : public Core {

@@ -66,7 +66,7 @@ void TPushButton::draw(GFX* gfx) {
     b->setW(this->getW());
     b->setH(this->getH());
     g->fillQuadColor(new TColor(0.5,0.5,0.5), b);
-    g->fillQuadText("ABC", b->getX()+10,b->getY()+10);
+    g->fillQuadText("Greetings Earthling!", b->getX()+10,b->getY()+10);
 }
 
 
@@ -224,7 +224,7 @@ FontShader::FontShader() {
     
     int w;
     int h;
-    texID = png_texture_load("/data/klaatu/font3.png",&w,&h);
+    texID = png_texture_load("/data/klaatu/font2.png",&w,&h);
     printf("font texture = %d %d x %d\n",texID,w,h);
 }
 void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY) {
@@ -235,24 +235,19 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
     
     float charX = 0;
     int len = strlen(text);
-    //printf("drawing text %s %d\n",text,len);
 
     for(int i=0; i<len; i++) {
         int ch = text[i];
         int n = keys[ch];
         float cho = (float) offsets[n*2];
         float chw = (float) offsets[n*2+1];
-        //printf("drawing: %c key %d width = %f %f \n", ch, n, chw, cho);
-        //p("drawing " + ch + " " + (char)ch + " key = " + n + " width = " + chw + " " + cho + " ");
-        //float iw = 1121;//mainTexture.getImageWidth();
-        //float ih = 34;//mainTexture.getImageHeight();
-        float iw = 256;
-        float ih = 256;
+        float iw = 1121;
+        float ih = 34;
 
         float tx  = cho/iw;
-        float ty2  = 1.0-(25/ih);//7/ih;
+        float ty2  = 1.0-(35/ih);
         float tx2 = (cho+chw)/iw;
-        float ty = 1.0-(7/ih);//(25*3)/ih;
+        float ty = 1.0-(7/ih);
 
         GLfloat texcoords[6][2];
         texcoords[0][0] = tx;    texcoords[0][1] = ty;
@@ -272,13 +267,12 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         bounds->setX(charX);
         bounds->setY(0);
         bounds->setW(chw);
-        bounds->setH(17);
+        bounds->setH(35-8);
         float x = (float)bounds->getX()+offX;
         float y = (float)bounds->getY()+offY;
         float x2 = (float)bounds->getX2()+offX;
         float y2 = (float)bounds->getY2()+offY;
         GLfloat verts[6][2];
-        //printf("drawing at %f\n",x);
         verts[0][0] = x;    verts[0][1] = y;
         verts[1][0] = x2;   verts[1][1] = y;
         verts[2][0] = x2;   verts[2][1] = y2;
@@ -486,9 +480,12 @@ GLuint png_texture_load(const char * file_name, int * width, int * height)
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, temp_width, temp_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, temp_width, temp_height, 0, 
+            GL_RGB, GL_UNSIGNED_BYTE, image_data);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // clean up
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);

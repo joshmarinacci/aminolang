@@ -308,12 +308,12 @@ public:
         pt->setY(y);
         evt->setPoint(pt);
         if(down) {
-            printf("touch moving\n");
+            //printf("touch moving\n");
             evt->deltaX = x-prevX;
             evt->deltaY = y-prevY;
             evt->type = MOVE;
         } else {
-            printf("touch starting\n");
+            //printf("touch starting\n");
             startX = x;
             startY = y;
             evt->deltaX = 0;
@@ -440,7 +440,7 @@ void TStage::draw() {
     
     // Set the modelview/projection matrix
     //float sc = 0.0015;
-    float sc = 0.0030;
+    float sc = 0.0031;
     make_scale_matrix(sc*1.73,sc*-1,sc, scale);
     make_trans_matrix(-1280/4,-720/4,trans);
     make_z_rot_matrix(90, rot);

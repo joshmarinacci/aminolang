@@ -6,6 +6,22 @@
 
 using std::stack;
 
+class Event : public XEvent {
+public:
+    float x;
+    float y;
+    float deltaX;
+    float deltaY;
+    int keycode;
+    int keychar;
+    int type;
+};
+
+static int MOVE = 0;
+static int PRESS = 1;
+static int RELEASE = 2;
+
+
 class TStage : public Stage {
 public:
     virtual void draw();
@@ -58,6 +74,7 @@ class TPushButton : public PushButton {
 public:
     TPushButton();
     virtual void draw(GFX* gfx);
+    TColor* fill;
 };
 
 class TBounds : public Bounds {

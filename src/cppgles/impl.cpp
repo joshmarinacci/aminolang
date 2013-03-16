@@ -56,6 +56,7 @@ void TRect::draw(GFX* gfx) {
 
 TPushButton::TPushButton() {
     setVisible(true);
+    this->fill = new TColor(0.5,0.5,0.5);
 }
 
 void TPushButton::draw(GFX* gfx) {
@@ -65,8 +66,9 @@ void TPushButton::draw(GFX* gfx) {
     b->setY(this->getY());
     b->setW(this->getW());
     b->setH(this->getH());
-    g->fillQuadColor(new TColor(0.5,0.5,0.5), b);
-    g->fillQuadText("Greetings Earthling!", b->getX()+10,b->getY()+10);
+    g->fillQuadColor(this->fill, b);
+    char* cstr = (char*)this->getText().c_str();
+    g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
 }
 
 

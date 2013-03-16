@@ -13,30 +13,32 @@
 using android::sp;
 
 
-class Event : public XEvent {
-public:
-    float x;
-    float y;
-    float deltaX;
-    float deltaY;
-    int keycode;
-    int keychar;
-};
-
 
 
 class TEventManager : public EventManager {
 public:
-    Callback* cb;
+    vector<Callback*> callbacks;
+    vector<void*> targets;
     virtual void on(void* type, void* target, Callback* fn) {
-        cb = fn;
+        targets.push_back(target);
+        callbacks.push_back(fn);
     }
     virtual XEvent* createEvent() {
         return new Event();
     }
 
     virtual void fireEvent(XEvent* event) {
-        cb->call(event);
+        Event* e = (Event*)event;
+        //printf("firing event at %d %f %f\n",event->target, e->x, e->y); 
+        for(int i=0; i<callbacks.size(); i++) {
+            Callback* cb = callbacks.at(i);
+            void* target = targets.at(i);
+            if(event->target == target) {
+                if(cb != NULL) {
+                    cb->call(e);
+                }
+            }
+        }
     }
 };
 
@@ -62,13 +64,9 @@ public:
         r2->setTy(r2->getTy()+evt->deltaY);
     }
 };
-
+/*
 int main(int argc, char** argv) {
     printf("i'm the C++ program here.\n");
-    
-    
-    
-    
     TCore* core = new TCore();   
     Stage* stage = core->createStage();    
     TGroup* g = new TGroup();
@@ -101,31 +99,11 @@ int main(int argc, char** argv) {
     
     
     
-    /*
-    TRect* r3 = new TRect();
-    r3->setTx(720/2);
-    r3->setTy(1280/2);
-    r3->setW(100);
-    r3->setH(100);
-    r3->setFill(new TColor(0,1,0));
-    
-    TRect* r4 = new TRect();
-    r4->setTx(0);
-    r4->setTy(500);
-    r4->setW(100);
-    r4->setH(100);
-    r4->setFill(new TColor(0,1,0));
-    */
-    
-    /*
-    g->add(r3);
-    g->add(r4);
-    */
-    
     stage->setRoot(g);
     
     core->start();
 }
+*/
 
 #define ASSERT_EQ(A, B) {if ((A) != (B)) {printf ("ERROR: %d\n", __LINE__); exit(9); }}
 #define ASSERT_NE(A, B) {if ((A) == (B)) {printf ("ERROR: %d\n", __LINE__); exit(9); }}
@@ -140,7 +118,7 @@ static sp<android::SurfaceControl>        mControl;
 static sp<android::Surface>               mAndroidSurface;
 
 //globals for geom
-static GLfloat view_rotx = 0.0, view_roty = 0.0;
+static GLfloat view_rotx = 90, view_roty = 0.0;
 
 
 
@@ -269,6 +247,7 @@ mul_matrix(GLfloat *prod, const GLfloat *a, const GLfloat *b)
 
 Stage* TCore::createStage(){
     _stage = new TStage();
+    _stage->setEventManager(em);
     return _stage;
   }
   
@@ -278,17 +257,49 @@ TextureShader* textureShader;
 FontShader* fontShader;
 EventSingleton* eventSingleton;
 
+Node* findNode(Node* root, Point* pt) {
+    //printf("  looking at ty %f pt = %f , %f\n",root->getTy(),pt->getX(),pt->getY());
+    if(root == NULL) return NULL;
+    if(!root->getVisible()) {return NULL;}
+    
+    Point* inner = new Point();
+    inner->setX(pt->getX() - root->getTx());
+    inner->setY(pt->getY() - root->getTy());
+    
+    
+    if(root->isParent()) {
+        Group* group = (Group*)root;
+        for(int i=group->nodes.size()-1; i>=0; i--) {
+            Node* child = (Node*)group->nodes.at(i);
+            Node* ret = findNode(child, inner);
+            if(ret != NULL) return ret;
+        }
+    }
+    
+    if(root->contains(inner)) {
+        //printf("  contains! %f %f\n", root->getTy(), ((TRect*)root)->getW());
+        return root;
+    }
+    return NULL;
+}
+
 class EVDispatcher : public EventSingleton {
 public:
     bool down;
-    EVDispatcher() {
+    TCore* core;
+    EVDispatcher(TCore* inCore) {
         down = false;
+        core = inCore;
     }
     float startX;
     float startY;
     float prevX;
     float prevY;
-    virtual void touchStart(float x, float y, unsigned int tap_count=0) { 
+    virtual void touchStart(float rx, float ry, unsigned int tap_count=0) { 
+        
+        float x = ry/2;
+        float y = 360-rx/2;
+        
         Event* evt = (Event*)em->createEvent();
         evt->x = x;
         evt->y = y;
@@ -297,23 +308,30 @@ public:
         pt->setY(y);
         evt->setPoint(pt);
         if(down) {
-            //printf("touch moving\n");
+            printf("touch moving\n");
             evt->deltaX = x-prevX;
             evt->deltaY = y-prevY;
+            evt->type = MOVE;
         } else {
-            //printf("touch starting\n");
+            printf("touch starting\n");
             startX = x;
             startY = y;
             evt->deltaX = 0;
             evt->deltaY = 0;
             down = true;
+            evt->type = PRESS;
         }
+        
+        //printf("looking\n");
+        evt->target = findNode(core->_stage->getRoot(),pt);
         prevX = x;
         prevY = y;
         em->fireEvent(evt);
     }
     
-    virtual void touchMove(float x, float y, unsigned int tap_count=0) { 
+    virtual void touchMove(float rx, float ry, unsigned int tap_count=0) { 
+        float x = ry/2;
+        float y = 360-rx/2;
         //printf("touch moving\n");
         Event* evt = (Event*)em->createEvent();
         evt->x = x;
@@ -324,9 +342,12 @@ public:
         pt->setX(x);
         pt->setY(y);
         evt->setPoint(pt);
+        evt->target = findNode(core->_stage->getRoot(),pt);
         em->fireEvent(evt);
     }
-    virtual void touchEnd(float x, float y, unsigned int tap_count=0) { 
+    virtual void touchEnd(float rx, float ry, unsigned int tap_count=0) { 
+        float x = ry/2;
+        float y = 360-rx/2;
         //printf("touch ending\n");
         Event* evt = (Event*)em->createEvent();
         evt->x = x;
@@ -337,6 +358,8 @@ public:
         pt->setX(x);
         pt->setY(y);
         evt->setPoint(pt);
+        evt->target = findNode(core->_stage->getRoot(),pt);
+        evt->type = RELEASE;
         em->fireEvent(evt);
         down = false;
     }
@@ -375,7 +398,7 @@ void TCore::start() {
     printf("window size = %d %d\n",winWidth,winHeight);
     
     
-    eventSingleton = new EVDispatcher();
+    eventSingleton = new EVDispatcher(this);
     enable_touch(winWidth,winHeight);
 
 
@@ -416,13 +439,15 @@ void TStage::draw() {
     modelView = new GLfloat[16];
     
     // Set the modelview/projection matrix
-    make_trans_matrix(-720/2,-1280/2,trans);
-    //make_z_rot_matrix(view_rotx, rot);
-    //float sc = 0.00162;
-    float sc = 0.0015;
+    //float sc = 0.0015;
+    float sc = 0.0030;
     make_scale_matrix(sc*1.73,sc*-1,sc, scale);
-    mul_matrix(modelView, scale, trans);
-    //glUniformMatrix4fv(u_matrix, 1, GL_FALSE, mat);
+    make_trans_matrix(-1280/4,-720/4,trans);
+    make_z_rot_matrix(90, rot);
+    
+    GLfloat mat2[16];
+    mul_matrix(mat2, scale, rot);
+    mul_matrix(modelView, mat2, trans);
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    

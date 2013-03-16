@@ -8,6 +8,7 @@
 #include "src/cppgles/impl.h"
 #include "src/cppgles/events.h"
 
+#include <math.h>
 #include <time.h>
 
 
@@ -370,6 +371,12 @@ public:
     }
 };
 
+float easeInCubic(float t) {
+    return pow(t,3);
+}
+float easeOutCubic(float t) {
+    return 1-easeInCubic(1-t);
+}
 void processAnims(TStage* stage) {
     for(int i=0; i<stage->anims.size(); i++) {
         TPropAnim* anim = (TPropAnim*)stage->anims.at(i);
@@ -390,6 +397,9 @@ void processAnims(TStage* stage) {
             anim->alive = false;
             t = 1;
         }
+        
+        t = easeOutCubic(t);
+        
         float sv = anim->getStartvalue();
         float ev = anim->getEndvalue();
         float v = t*(ev-sv)+sv;

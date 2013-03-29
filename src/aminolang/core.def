@@ -11,13 +11,16 @@ value Point {
     prop double y;
     func Point minus(Point p) {
         var pt:Point;
-        pt = new Point();
-        pt.setX(this.x-p.x);
-        pt.setY(this.y-p.y);
+        var x:double;
+        x = this.x-p.x;
+        var y:double;
+        y = this.y-p.y;
+        pt = new Point(x,y);
         return pt;
     }
 }
 class Color {
+    const RED;
 }
 
 value Bounds {

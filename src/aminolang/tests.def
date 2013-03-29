@@ -1,0 +1,11 @@
+class SimpleTest {
+    func void run(Core core) {
+        var stage:Stage;
+        stage = core.createStage();
+        var rect:Rect;
+        rect = new Rect();
+        rect.setW(100);
+        rect.setH(100);
+        stage.setRoot(rect);
+    }
+}

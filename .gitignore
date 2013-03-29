@@ -5,6 +5,7 @@ build
 *.jar
 *.war
 *.ear
+.DS_Store
 
 tests/toddler.cpp
 node_modules

@@ -110,25 +110,56 @@ function doExec(cmd, cb) {
 
 var outdir = "build";
 
+function translateCode(s) {
+  var translationError = function(m, i) { 
+    console.log("Translation error - please tell Alex about this!"); throw fail 
+  };
+  
+  var tree = BSOMetaJSParser.matchAll(s, "topLevel", undefined, 
+      function(m, i) {
+          console.log("in failure: " + m + " " + i);
+          throw objectThatDelegatesTo(fail, {errorPos: i}) 
+      });
+  return BSOMetaJSTranslator.match(tree, "trans", undefined, translationError);
+}
+
+function parseit(str) {
+    eval(translateCode(str));
+}
+
+
+//generate java2d code from the def files
+//can probably share this with JOGL too
+function java2dgen(cb) {
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
+    var tree = JoshParser.matchAll(stdDefs,'top');
+    console.log("parsed defs");
+    console.log(u.inspect(tree,false,20));
+    
+    {
+        //java code
+        var java2dcode = Josh2Java.matchAll([tree], 'blocks');
+        console.log("generated java code");
+        var java2doutdir = outdir+"/"+"java2d";
+        jb.mkdir(java2doutdir);
+        var java2dout = java2doutdir+"/out.java";
+        
+        var javatemplate = fs.readFileSync('src/java2d/template_java','utf8');
+        javatemplate = javatemplate.replace("${test}",java2dcode);
+        
+        fs.writeFileSync(java2dout, javatemplate);
+        console.log("wrote out " + java2dout);
+    }
+    
+    if(cb) cb();
+}
 
 function core(cb) {
     //    doExec("node generate.js",cb);
-    function translateCode(s) {
-      var translationError = function(m, i) { 
-        console.log("Translation error - please tell Alex about this!"); throw fail 
-      };
-      
-      var tree = BSOMetaJSParser.matchAll(s, "topLevel", undefined, 
-          function(m, i) {
-              console.log("in failure: " + m + " " + i);
-              throw objectThatDelegatesTo(fail, {errorPos: i}) 
-          });
-      return BSOMetaJSTranslator.match(tree, "trans", undefined, translationError);
-    }
-    
-    function parseit(str) {
-        eval(translateCode(str));
-    }
 
     //parse parsers.js
     var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
@@ -170,6 +201,7 @@ function core(cb) {
     }
     */
     
+    /*
     {
         //C++ code
         var code = Amino2CPP.matchAll([tree], 'blocks');
@@ -186,16 +218,18 @@ function core(cb) {
             '#include "out.h"\n'+
             Amino2CPP.getCPPFile());
     }
-
+    */
+    
     if(cb) cb();
 }
 
-function java2dcore(cb) {
+function java2dcompile(cb) {
     console.log("doing the java2d core now");
     var files = [
         "build/java2d/out.java",
         "src/java2d/com/joshondesign/aminogen/generated/CommonObject.java",
         "src/java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
+        "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java",
         "tests/General.java"
     ];
     var outdir = "build/java2d/classes";
@@ -203,6 +237,7 @@ function java2dcore(cb) {
     jb.javac(files, outdir, { classpath: null},cb);
 }
 
+/*
 function compiletest(cb) {
     jb.javac(
         //src files
@@ -219,6 +254,7 @@ function compiletest(cb) {
         //callback
         cb);
 }
+*/
 
 function joglcore(cb) {
     var files = [
@@ -264,8 +300,8 @@ function joglcore(cb) {
     
 }
 
-function javatest(cb) {
-    jb.exec("java -cp build/java2d/classes General", cb);
+function java2dtest(cb) {
+    jb.exec("java -cp build/java2d/classes com.joshondesign.aminogen.custom.TestRunner com.joshondesign.aminogen.generated.out.SimpleTest", cb);
 }
 
 function runjogl(cb) {
@@ -318,10 +354,13 @@ function help(cb) {
 
 tasks = {
     help:        new Task(help,       [],            "Help Info"),
-    core:        new Task(core,       [],            "Core AminoLang classes"),
-    java2dcore:  new Task(java2dcore, [],      "Java2D Core"),
-    javatest:    new Task(javatest,    ["java2dcore"],  "running java"),
-    joglcore:    new Task(joglcore,  [],      "JOGL Java Core"),
+  //  core:        new Task(core,       [],            "Core AminoLang classes"),
+  
+    java2dgen:      new Task(java2dgen,      [],                      "Compile Java2D Core"),
+    java2dcompile:  new Task(java2dcompile,  ["java2dgen"],           "Compile Java2D Core"),
+    java2dtest:     new Task(java2dtest,     ["java2dcompile"],       "Compile and Run Java2D tests"),
+    
+//    joglcore:    new Task(joglcore,   [],            "Compile JOGL Java Core"),
     /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),
     runjogl:    new Task(runjogl   ,["joglcore"], "running Java AminoLang Tests"),

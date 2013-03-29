@@ -40,6 +40,7 @@ public class CoreImpl extends Core {
     }
     
     public Stage createStage() {
+        p("creating a stage");
         return new Stage();
     }
     
@@ -121,6 +122,7 @@ public static class Stage extends
     public void setRoot(Node node) {
         super.setRoot(node);
         node.setParent(_nodeparent);
+        p("set the root to " + node);
     }
     
     @Override
@@ -486,6 +488,7 @@ public static class Rect extends
         setFill(CoreImpl.BLUE);
     }
     public void draw(GFX gfx) {
+        p("drawing rect ");
         Graphics2D g = ((Graphics2DGFX)gfx).g;
         java.awt.Color col = java.awt.Color.BLACK;
         if(getFill() == CoreImpl.RED) {

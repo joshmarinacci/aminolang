@@ -67,6 +67,10 @@ public class CoreImpl extends Core {
         return new JoglGroup();
     }
     
+    @Override
+    public PushButton createPushButton() {
+        return new JoglPushButton();
+    }
 
     public static interface ICallback extends 
         com.joshondesign.aminogen.generated.out.Callback {
@@ -704,9 +708,9 @@ public static class Textbox extends
 
 
 
-public static class PushButton extends
+public static class JoglPushButton extends
         com.joshondesign.aminogen.generated.out.PushButton {
-    public PushButton() {
+    public JoglPushButton() {
         on(Events.Press,new ICallback() {
             public void call(Object o) {
                 setPressed(true);

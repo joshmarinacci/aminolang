@@ -53,7 +53,9 @@ class TextureShader extends Shader {
         u_trans = gl.glGetUniformLocation(program,"trans");
 
         try {
-            mainTexture = TextureIO.newTexture(new File("tests/skin.png"), true);
+            File tfile = new File("tests/skin.png");
+            System.out.println("loading texture " + tfile.getAbsolutePath());
+            mainTexture = TextureIO.newTexture(tfile, true);
         } catch (IOException e) {
             e.printStackTrace();
         }

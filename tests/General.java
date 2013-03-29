@@ -74,7 +74,7 @@ public class General extends Core {
         
         
         PushButton button = core.createPushButton();
-        button.setText("button").setTx(300).setTy(60);
+        button.setText("button").setTx(0).setTy(60);
         g.add(button);
         stage.on(Events.Action.toString(), button, new ICallback() {
             public void call(Object o) {

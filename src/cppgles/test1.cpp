@@ -268,9 +268,10 @@ Node* findNode(Node* root, Point* pt) {
     if(root == NULL) return NULL;
     if(!root->getVisible()) {return NULL;}
     
-    Point* inner = new Point();
-    inner->setX(pt->getX() - root->getTx());
-    inner->setY(pt->getY() - root->getTy());
+    Point* inner = new Point(
+        pt->getX() - root->getTx(),
+        pt->getY() - root->getTy()
+        );
     
     
     if(root->isParent()) {
@@ -309,9 +310,7 @@ public:
         Event* evt = (Event*)em->createEvent();
         evt->x = x;
         evt->y = y;
-        Point* pt = new Point();
-        pt->setX(x);
-        pt->setY(y);
+        Point* pt = new Point(x,y);
         evt->setPoint(pt);
         if(down) {
             //printf("touch moving\n");
@@ -344,9 +343,7 @@ public:
         evt->y = y;
         evt->deltaX = x;
         evt->deltaY = y;
-        Point* pt = new Point();
-        pt->setX(x);
-        pt->setY(y);
+        Point* pt = new Point(x,y);
         evt->setPoint(pt);
         evt->target = findNode(core->_stage->getRoot(),pt);
         em->fireEvent(evt);
@@ -360,9 +357,7 @@ public:
         evt->y = y;
         evt->deltaX = 0;
         evt->deltaY = 0;
-        Point* pt = new Point();
-        pt->setX(x);
-        pt->setY(y);
+        Point* pt = new Point(x,y);
         evt->setPoint(pt);
         evt->target = findNode(core->_stage->getRoot(),pt);
         evt->type = RELEASE;

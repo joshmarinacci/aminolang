@@ -102,6 +102,7 @@ public:
 
 class TBounds : public Bounds {
 public:
+    TBounds(float x, float y, float w, float h);
     virtual float getX2();
     virtual float getY2();
     virtual TBounds* add(float x, float y);

@@ -135,6 +135,7 @@ function java2dgen(cb) {
     parseit(parsersjs);
     var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
     stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
     stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
     var tree = JoshParser.matchAll(stdDefs,'top');
     console.log("parsed defs");
@@ -163,6 +164,7 @@ function joglgen(cb) {
     parseit(parsersjs);
     var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
     stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
     stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
     var tree = JoshParser.matchAll(stdDefs,'top');
     console.log("parsed defs");
@@ -191,6 +193,7 @@ function jscanvasgen(cb) {
     parseit(parsersjs);
     var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
     stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
     stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
     var tree = JoshParser.matchAll(stdDefs,'top');
     console.log("parsed defs");
@@ -209,6 +212,36 @@ function jscanvasgen(cb) {
 }
 
 
+
+function cppgen(cb) {
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
+    var tree = JoshParser.matchAll(stdDefs,'top');
+    console.log("parsed defs");
+    
+    {
+        //C++ code
+        var code = Amino2CPP.matchAll([tree], 'blocks');
+        //console.log(code);
+        
+        var cppoutdir = outdir+"/cpp/";
+        jb.mkdir(cppoutdir);
+        fs.writeFileSync(cppoutdir+"out.h",
+            '#include <string>\n'+
+            '#include <vector>\n'+
+            'using namespace std;'+
+            Amino2CPP.getHFile());
+        fs.writeFileSync(cppoutdir+"out.cpp",
+            '#include "out.h"\n'+
+            Amino2CPP.getCPPFile());
+    }
+    
+    if(cb) cb();
+}
 
 
 function core(cb) {
@@ -390,21 +423,22 @@ function help(cb) {
 
 tasks = {
     help:        new Task(help,       [],            "Help Info"),
-  //  core:        new Task(core,       [],            "Core AminoLang classes"),
   
     java2dgen:      new Task(java2dgen,      [],                      "Generate Java2D Core"),
     java2dcompile:  new Task(java2dcompile,  ["java2dgen"],           "Compile Java2D Core"),
     java2dtest:     new Task(java2dtest,     ["java2dcompile"],       "Compile and Run Java2D tests"),
     java2dtest2:    new Task(java2dtest2,    ["java2dcompile"],       "Compile and Run Java2D tests, 2"),
     
-    joglgen:      new Task(joglgen,        [],                      "Generate JOGL Core"),
-    joglcompile:  new Task(joglcompile,  ["joglgen"],           "Compile JOGL Core"),
-    jogltest:     new Task(jogltest,     ["joglcompile"],       "Test JOGL"),
-//    jogltest2:    new Task(java2dtest2,    ["java2dcompile"],       "Compile and Run Java2D tests, 2"),
+    joglgen:        new Task(joglgen,        [],                      "Generate JOGL Core"),
+    joglcompile:    new Task(joglcompile,    ["joglgen"],             "Compile JOGL Core"),
+    jogltest:       new Task(jogltest,       ["joglcompile"],         "Test JOGL"),
     
     jscanvasgen:    new Task(jscanvasgen,    [],                      "Generate JavaScript Canvas Core"),
     jscanvastest:   new Task(jscanvastest,   ["jscanvasgen"],         "Test JS Canvas"),
-//    joglcore:    new Task(joglcore,   [],            "Compile JOGL Java Core"),
+
+    cppgen:         new Task(cppgen,         [],                      "Generate C++ Core"),
+
+
     /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),
     runjogl:    new Task(runjogl   ,["joglcore"], "running Java AminoLang Tests"),

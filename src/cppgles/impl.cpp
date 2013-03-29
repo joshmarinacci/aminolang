@@ -42,22 +42,14 @@ TRect::TRect() {
     setFill(new TColor(0,0,0));
 }
 Bounds* TRect::getBounds() {
-    Bounds* b = new TBounds();
-    b->setX(this->getX());
-    b->setY(this->getY());
-    b->setW(this->getW());
-    b->setH(this->getH());
+    Bounds* b = new TBounds(
+            this->getX(),
+            this->getY(),
+            this->getW(),
+            this->getH()
+        );
     return b;
 }
-TBounds* TBounds::add(float x, float y) {
-    TBounds* b2 = new TBounds();
-    b2->setX(getX()+x);
-    b2->setY(getY()+y);
-    b2->setW(getW());
-    b2->setH(getH());
-    return b2;
-}
-    
 
 void TRect::draw(GFX* gfx) {
     Bounds* bounds = getBounds();
@@ -75,11 +67,9 @@ TPushButton::TPushButton() {
 
 void TPushButton::draw(GFX* gfx) {
     GLGFX* g = (GLGFX*)gfx;
-    Bounds* b = new TBounds();
-    b->setX(this->getX());
-    b->setY(this->getY());
-    b->setW(this->getW());
-    b->setH(this->getH());
+    Bounds* b = new TBounds(
+        this->getX(),this->getY(),
+        this->getW(),this->getH());
     g->fillQuadColor(this->fill, b);
     char* cstr = (char*)this->getText().c_str();
     g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
@@ -91,11 +81,9 @@ TLabel::TLabel() {
 }
 void TLabel::draw(GFX* gfx) {
     GLGFX* g = (GLGFX*)gfx;
-    Bounds* b = new TBounds();
-    b->setX(this->getX());
-    b->setY(this->getY());
-    b->setW(this->getW());
-    b->setH(this->getH());
+    Bounds* b = new TBounds(
+        this->getX(),this->getY(),
+        this->getW(),this->getH());
     char* cstr = (char*)this->getText().c_str();
     g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
 }
@@ -106,11 +94,9 @@ TImageView::TImageView() {
 }
 void TImageView::draw(GFX* gfx) {
     GLGFX* g = (GLGFX*)gfx;
-    Bounds* b = new TBounds();
-    b->setX(this->getX());
-    b->setY(this->getY());
-    b->setW(this->getW());
-    b->setH(this->getH());
+    Bounds* b = new TBounds(
+        this->getX(),this->getY(),
+        this->getW(),this->getH());
     g->fillQuadTexture(b, NULL);
 }
 
@@ -122,6 +108,20 @@ float TBounds::getX2() {
 float TBounds::getY2() {
     return this->getY() + this->getH();
 }
+TBounds::TBounds(float x, float y, float w, float h)
+    :Bounds(x,y,w,h) 
+    {
+    }
+TBounds* TBounds::add(float x, float y) {
+    TBounds* b2 = new TBounds(
+        getX()+x,
+        getY()+y,
+        getW(),
+        getH()
+        );
+    return b2;
+}
+    
 
 
 /* === Shader impl ==== */
@@ -307,11 +307,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         glEnableVertexAttribArray(attr_texcoords);
 
 
-        TBounds* bounds = new TBounds();
-        bounds->setX(charX);
-        bounds->setY(0);
-        bounds->setW(chw);
-        bounds->setH(35-8);
+        TBounds* bounds = new TBounds(charX, 0, chw, 35-8);
         float x = (float)bounds->getX()+offX;
         float y = (float)bounds->getY()+offY;
         float x2 = (float)bounds->getX2()+offX;

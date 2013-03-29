@@ -402,39 +402,70 @@ function genCppFunc(klass,fname,fargs,rettype,block) {
 
 var hfile = "";
 var cppfile = "";
-function genCppProp(klass, pname, type, value) {
-//    console.log("=== making a C++ prop for class " + klass + " :: " + pname);
+function genCppProp(klass, pname, type, value, ctype) {
+    //console.log("=== making a C++ prop for class " + klass + " :: " + ctype);
+    if(ctype == "value") {
+        propcache.push({
+                name:pname,
+                type:type
+        });
+    }
     var name = camelize(pname);
     var storagedec = type+" "+pname+";";
     var initter = "private "+type+" "+pname+" = " + value +";"+nl;
     var getter = type + " " + klass + "::get"+name +"(){ return "+pname+";}"+nl;
-    var setter = "void "+klass+"::set"+name+"("+type+" in"+name+"){"
+    var setter = klass+"* "+klass+"::set"+name+"("+type+" in"+name+"){"
         +" "+pname+"=in"+name+";"
+        +" "+"return this;"
         +"}"+nl;
     cppfile += [getter+setter].join("");
     return ""+
         storagedec+nl+
         "virtual "+type+" get"+name+"();"+nl+
-        "virtual void set"+name+"("+type+" in"+name+");"+nl
+        "virtual "+klass+"* set"+name+"("+type+" in"+name+");"+nl
         
     ;
 }
 
-function genCppClass(klass, members, ex) {
+function genCppClass(klass, members, ex, type) {
     var ext = " ";
     if(ex != "[]") {
         ext = " : public " + ex[1][1] + " ";
     }
     var tab = "    ";
-//    console.log("=== making a C++ class " + klass);
+    var hcstr = tab + klass + "();"+nl;
+    var cppcstr = klass+"::"+klass+"(){}"+nl;
+    if(type == "value") {
+        console.log("doing a CPP constructor for a value class");
+        hcstr = tab + klass + "(";
+        cppcstr = klass+"::"+klass+"(";
+        var args = [];
+        propcache.forEach(function(prop) {
+                args.push(prop.type + " " + prop.name);
+        });
+        hcstr += args.join(", ");
+        cppcstr += args.join(", ");
+        hcstr += (");"+nl);
+        cppcstr += ("){"+nl);
+        propcache.forEach(function(prop) {
+                cppcstr += " this->"+prop.name +" = " +prop.name+";"+nl;
+        });
+        cppcstr += "}"+nl;
+        //clear the property cache
+        propcache = [];
+    }
+    
+    console.log("=== making a C++ class " + klass);
     hfile += "class " + klass + ext + " {"+nl
     +"public:"+nl
-    +tab+klass+"() {}"+nl
+    +hcstr
     +tab+"virtual ~"+klass+"() {}"+nl
     +nl
     +members.join(tab)
     +"};"+nl
     ;
+    
+    cppfile += cppcstr;
         
     return "classdef";
 }
@@ -443,14 +474,14 @@ function genCppClass(klass, members, ex) {
 ometa Amino2CPP {
     blocks   = [#blocks [#classes [classdef*:x]]]         -> x.join(""),
     classdef = [#classdef :type [#name :name] :ex [member(type,name)*:members]] 
-        -> genCppClass(name, members, ex),
-    member :t :n = (propdef(n) | funcdef(n) | constdef | anything):m -> m,
-    propdef  :kl 
-    = [#propdef :name [#type type:type] [#value value:value]? anything*] 
-        -> genCppProp(kl,name,type,value),
+        -> genCppClass(name, members, ex, type),
+    member :t :n = (propdef(t,n) | funcdef(n) | constdef | anything):m -> m,
+    propdef  :kt :kl 
+        = [#propdef :name [#type type:type] [#value value:value]? anything*] 
+        -> genCppProp(kl,name,type,value,kt),
     constdef     = [#constdef anything*] -> "", 
     funcdef  :kl  
-    = [#func [#name :name] [#args [(funcarg*):fargs]] [#rettype type:ret] block:block] 
+        = [#func [#name :name] [#args [(funcarg*):fargs]] [#rettype type:ret] block:block] 
         -> genCppFunc(kl,name,fargs,ret,block),
     funcarg  = [ #Object :name ] -> ("void* "+name)
              | [ #boolean :name] -> ("bool "+name)

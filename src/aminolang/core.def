@@ -244,42 +244,4 @@ class SerialAnim {
 }
 
 
-class Core {
-    func Stage createStage() { 
-        return null;
-    }
-    func Group createGroup() {
-        return null;
-    }
-    func Transform createTransform() {
-        return null;
-    }
-    func Rect createRect() {
-        return null;
-    }
-    func Circle createCircle() {
-        return null;
-    }
-    
-    
-    func PushButton createPushButton() {
-        return null;
-    }
-    func ToggleButton createToggleButton() {
-        return null;
-    }
-    func Textbox createTextbox() {
-        return null;
-    }
-    func Label createLabel() {
-        return null;
-    }
-    func Slider createSlider() {
-        return null;
-    }
-    
-    
-    func void start(Callback fn) {
-    }
-}
 

@@ -16,7 +16,8 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/zlib \
 	frameworks/base/include/surfaceflinger
 LOCAL_STATIC_LIBRARIES := libcutils libc libpng libz
-LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput
+LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput \
+libmedia libcutils libbinder
 
 include $(BUILD_EXECUTABLE)
 

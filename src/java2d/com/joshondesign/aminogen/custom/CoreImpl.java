@@ -46,6 +46,12 @@ public class CoreImpl extends Core {
     public Rect createRect() {
         return new J2DRect();
     }
+    public Circle createCircle() {
+        return new J2DCircle();
+    }
+    public Group createGroup() {
+        return new J2DGroup();
+    }
     
     
     
@@ -258,10 +264,11 @@ public static class EventManager extends
             }
         }
         
+        /*
         if(root instanceof AnchorPanel) {
             AnchorPanel group = (AnchorPanel)root;
-            for(int i=0; i<group.children.size(); i++) {
-                Node child = (Node)group.children.get(i);
+            for(int i=0; i<group.getChildCount(); i++) {
+                Node child = (Node)group.getChild(i);
                 Node ret = findNode(child,
                     x-group.getTx(),
                     y-group.getTy()
@@ -269,6 +276,7 @@ public static class EventManager extends
                 if(ret != null) return ret;
             }
         }
+        */
         
         if(root instanceof Transform) {
             Transform trans = (Transform)root;
@@ -392,11 +400,11 @@ public static class Java2DRootPanel extends JComponent {
         gfx.translate(root.getTx(),root.getTy());
         root.draw(gfx);
         gfx.translate(-root.getTx(),-root.getTy());
-        if(root instanceof Group) {
-            Group group = (Group)root;
+        if(root instanceof Parent) {
+            Parent group = (Parent)root;
             gfx.translate( group.getTx(), group.getTy());
-            for(int i=0; i<group.children.size(); i++) {
-                Node child = (Node)group.children.get(i);
+            for(int i=0; i<group.getChildCount(); i++) {
+                Node child = (Node)group.getChild(i);
                 draw(gfx,child);
             }
             gfx.translate(-group.getTx(),-group.getTy());
@@ -411,15 +419,17 @@ public static class Java2DRootPanel extends JComponent {
             gfx.scale( 1.0/trans.getScalex(), 1.0/trans.getScaley());
             gfx.translate( -trans.getTx(), -trans.getTy());
         }
+        /*
         if(root instanceof AnchorPanel) {
             AnchorPanel group = (AnchorPanel)root;
             gfx.translate( group.getTx(), group.getTy());
-            for(int i=0; i<group.children.size(); i++) {
-                Node child = (Node)group.children.get(i);
+            for(int i=0; i<group.getChildCount(); i++) {
+                Node child = (Node)group.getChild(i);
                 draw(gfx,child);
             }
             gfx.translate(-group.getTx(),-group.getTy());
         }
+        */
     }
 
     
@@ -452,15 +462,15 @@ public static class Graphics2DGFX extends GFX {
 }
 
 
-public static class Transform extends
+public static class J2DTransform extends
         com.joshondesign.aminogen.generated.out.Transform {
-    public Transform(Node node) {
+    public J2DTransform(Node node) {
         this.child = node;
         this.child.setParent(this);
     }
 }
 
-public static class Group extends
+public static class J2DGroup extends
         com.joshondesign.aminogen.generated.out.Group {
     public List<Node> children = new ArrayList<Node>();
     @Override
@@ -491,7 +501,6 @@ public static class J2DRect extends
         setFill(CoreImpl.BLUE);
     }
     public void draw(GFX gfx) {
-        p("drawing rect ");
         Graphics2D g = ((Graphics2DGFX)gfx).g;
         java.awt.Color col = java.awt.Color.BLACK;
         if(getFill() == CoreImpl.RED) {
@@ -512,48 +521,8 @@ public static class J2DRect extends
     }
 }
 
-public static class Slider extends
-        com.joshondesign.aminogen.generated.out.Slider {
-            
-    public Slider() {        
-        EventManager.get().on(Events.Drag,this,new Callback() {
-            public void call(Object o) {
-                Event e = (Event)o;
-                Slider r = (Slider)e.getTarget();
-                r.setValue(r.pointToValue(e.getPoint().getX()-r.getX()));
-                markDirty();
-            }
-        });
-    }
-            
-    public void draw(GFX gfx) {
-        Graphics2D g = ((Graphics2DGFX)gfx).g;
-        g.setPaint(java.awt.Color.LIGHT_GRAY);
-        g.fillRect((int)getX(),(int)getY(),(int)getW(),(int)getH());
-        
-        double v = this.valueToPoint(this.getValue());
-        g.setPaint(java.awt.Color.BLACK);
-        g.fillRect((int)getX(),(int)getY(),(int)v,(int)getH());
-    }
-    @Override
-    public void setValue(double v) {
-        if(v > this.getMaxvalue()) v = this.getMaxvalue();
-        if(v < this.getMinvalue()) v = this.getMinvalue();
-        super.setValue(v);
-        this.markDirty();
-    }
-    
-    public double valueToPoint(double v) {
-        return (this.getValue()-this.getMinvalue()) * (this.getW() / (this.getMaxvalue()-this.getMinvalue()));
-    }
-    public double pointToValue(double p) {
-        return p * (this.getMaxvalue()-this.getMinvalue())/this.getW() + this.getMinvalue();
-    }
-    
-}
 
-
-public static class ImageView extends 
+public static class J2DImageView extends 
         com.joshondesign.aminogen.generated.out.ImageView {
     private boolean loaded = false;
     protected BufferedImage img;
@@ -599,10 +568,10 @@ public static class ImageView extends
 }
 
 
-public static class IBuffer extends Buffer {
+public static class J2DBuffer extends Buffer {
     public BufferedImage buffer;
     
-    public IBuffer(int w, int h) {
+    public J2DBuffer(int w, int h) {
         this.w = w;
         this.h = h;
         this.buffer = new BufferedImage(w,h,BufferedImage.TYPE_INT_ARGB);
@@ -630,127 +599,9 @@ public static class IBuffer extends Buffer {
 }
 
 
-public static class Label extends
-        com.joshondesign.aminogen.generated.out.Label {
-    @Override
-    public void draw(GFX gfx) {
-        Graphics2D g = ((Graphics2DGFX)gfx).g;
-        g.setPaint(java.awt.Color.BLACK);
-        g.drawString(getText(),(int)getX()+5,(int)getY()+15);
-    }
-}
-
-
-
-public static class Textbox extends
-        com.joshondesign.aminogen.generated.out.Textbox {
-    public Textbox() {
-        /*
-        EventManager.get().on(EventsI.KeyPressI, this, new ICallback() {
-            public void call(Object o) {
-                Event e = (Event)o;
-                p("got a keypress " + e.keychar + " " + e.keycode);
-                String t = gettext();
-                if(e.keycode == 8) {
-                    if(t.length() > 0) {
-                        t = t.substring(0,t.length()-1);
-                        settext(t);
-                        return;
-                    }
-                }
-                if(t==null) {
-                    t = "";
-                }
-                String ch = ""+((char)e.keychar);
-                settext(t+ch);
-            }
-        });
-        */
-    }
-    @Override
-    public void draw(GFX gfx) {
-        Graphics2D g = ((Graphics2DGFX)gfx).g;
-        g.setPaint(java.awt.Color.GRAY);
-        g.fillRect((int)getX(),(int)getY(),(int)getW(),(int)getH());
-        
-        //text
-        g.setPaint(java.awt.Color.BLACK);
-        g.drawString(getText(),(int)getX()+5,(int)getY()+15);
-        
-        //cursor
-        
-        
-        //border
-        g.drawRect((int)getX(),(int)getY(),(int)getW(),(int)getH());
-    }
-}
-
-
-
-public static class PushButton extends
-        com.joshondesign.aminogen.generated.out.PushButton {
-    public PushButton() {
-        on(Events.Press,new ICallback() {
-            public void call(Object o) {
-                setPressed(true);
-                markDirty();
-            }
-        });
-        on(Events.Release,new ICallback() {
-            public void call(Object o) {
-                setPressed(false);
-                tfire(Events.Action);
-                markDirty();
-            }
-        });
-    }
-    private void tfire(Object type) { fire(type);  }
-    @Override
-    public void draw(GFX gfx) {
-        Graphics2D g = ((Graphics2DGFX)gfx).g;
-        g.setPaint(java.awt.Color.LIGHT_GRAY);
-        if(getPressed()) {
-            g.setPaint(java.awt.Color.BLUE);
-        }
-        g.fillRect((int)getX(),(int)getY(),(int)getW(),(int)getH());
-        g.setPaint(java.awt.Color.BLACK);
-        g.drawString(getText(),(int)getX()+5,(int)getY()+15);
-    }
-}
-
-public static class ToggleButton extends
-    com.joshondesign.aminogen.generated.out.ToggleButton {
-    public ToggleButton() {
-        on(Events.Press,new ICallback() {
-            public void call(Object o) {
-                setSelected(!getSelected());
-                markDirty();
-            }
-        });
-        on(Events.Release,new ICallback() {
-            public void call(Object o) {
-                tfire(Events.Action);
-                markDirty();
-            }
-        });
-    }
-    private void tfire(Object type) { fire(type);  }
-    @Override
-    public void draw(GFX gfx) {
-        Graphics2D g = ((Graphics2DGFX)gfx).g;
-        g.setPaint(java.awt.Color.LIGHT_GRAY);
-        if(getSelected()) {
-            g.setPaint(java.awt.Color.BLUE);
-        }
-        g.fillRect((int)getX(),(int)getY(),(int)getW(),(int)getH());
-        g.setPaint(java.awt.Color.BLACK);
-        g.drawString(getText(),(int)getX()+5,(int)getY()+15);
-    }
-}
-
-public static class Circle extends
+public static class J2DCircle extends
     com.joshondesign.aminogen.generated.out.Circle {
-    public Circle() {
+    public J2DCircle() {
         setFill(CoreImpl.GREEN);
     }
     @Override
@@ -763,104 +614,6 @@ public static class Circle extends
 
 
 
-public static class AnchorPanel extends
-    com.joshondesign.aminogen.generated.out.AnchorPanel {
-        
-    public List<Control> children = new ArrayList<Control>();
-    private Map<Control,Bounds> confbounds = new HashMap<Control,Bounds>();
-    
-    @Override
-    public void add(Control child) {
-        this.children.add(child);
-        child.setParent(this);
-        markDirty();
-    }
-    
-    @Override
-    public void setW(double w) {
-        super.setW(w);
-        markLayoutDirty();
-    }
-    @Override
-    public void setH(double h) {
-        super.setH(h);
-        markLayoutDirty();
-    }
-    
-    private boolean layoutDirty = false;
-    private void markLayoutDirty() {
-        this.layoutDirty = true;
-    }
-    
-    private double startw;
-    private double starth;
-    public void start() {
-        for(Control child : children) {
-            Bounds b = new Bounds(
-            child.getTx(),
-            child.getTy(),
-            child.getW(),
-            child.getH()
-                );
-            confbounds.put(child, b);
-        }
-        startw = this.getW();
-        starth = this.getH();
-    }
-    
-    private void doLayout() {
-        for(Node n : children) {
-            if(n instanceof Control) {
-                Control c = (Control)n;
-                if(confbounds.get(c) == null) return;
-                if(!c.getLeftanchored() && c.getRightanchored()) {
-                    Bounds b = confbounds.get(c);
-                    double x = getW()-(startw-b.getX());
-                    c.setTx(x);
-                }
-                if(c.getLeftanchored() && c.getRightanchored()) {
-                    Bounds b = confbounds.get(c);
-                    double x = b.getX();
-                    double ox2 = b.getX()+b.getW();
-                    double gap = startw - ox2;
-                    double nx2 = getW()-gap;
-                    double w = nx2-x;
-                    c.setTx(x);
-                    c.setW(w);
-                }
-                
-                if(!c.getTopanchored() && c.getBottomanchored()) {
-                    Bounds b = confbounds.get(c);
-                    double y = getH()-(starth - b.getY());
-                    c.setTy(y);
-                }
-                
-                if(c.getTopanchored() && c.getBottomanchored()) {
-                    Bounds b = confbounds.get(c);
-                    double y = b.getY();
-                    double oy2 = b.getY()+b.getH();
-                    double gap = starth - oy2;
-                    double ny2 = getH()-gap;
-                    double h = ny2-y;
-                    c.setTy(y);
-                    c.setH(h);
-                }
-            }
-        }
-        this.layoutDirty = false;
-    }
-    
-    @Override
-    public void draw(GFX gfx) {
-        if(this.layoutDirty) {
-            doLayout();
-        }
-        
-        Graphics2D g = ((Graphics2DGFX)gfx).g;
-        g.setPaint(java.awt.Color.GRAY);
-        g.fillRect((int)getX(),(int)getY(),(int)getW(),(int)getH());
-    }
-}
 
 
 public static class PropAnim extends

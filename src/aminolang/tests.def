@@ -6,6 +6,18 @@ class SimpleTest {
         rect = core.createRect();
         rect.setW(100);
         rect.setH(100);
-        stage.setRoot(rect);
+        
+        var circle:Circle;
+        circle = core.createCircle();
+        circle.setCx(200);
+        circle.setCy(200);
+        circle.setRadius(40);
+        
+        var g:Group;
+        g = core.createGroup();
+        g.add(rect);
+        g.add(circle);
+        
+        stage.setRoot(g);
     }
 }

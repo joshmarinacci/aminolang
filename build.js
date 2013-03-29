@@ -229,6 +229,7 @@ function java2dcompile(cb) {
         "build/java2d/out.java",
         "src/java2d/com/joshondesign/aminogen/generated/CommonObject.java",
         "src/java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
+        "src/java2d/com/joshondesign/aminogen/custom/Controls.java",
         "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java"
     ];
     var outdir = "build/java2d/classes";
@@ -271,11 +272,6 @@ function jscanvastest(cb) {
     copyFileTo('src/jscanvas/init.js','build/jscanvas');
     copyFileTo('src/jscanvas/handcoded7.js','build/jscanvas');
     copyFileTo('src/jscanvas/monkeypatch.js','build/jscanvas');
-    /*
-    var template = fs.readFileSync('src/jscanvas/TestRunner.html');
-    fs.writeFileSync('build/jscanvas/TestRunner.html',template);
-    doExec("open build/jscanvas/TestRunner.html",cb);
-    */
 }
 
 function joglcore(cb) {

@@ -230,7 +230,8 @@ function java2dcompile(cb) {
         "src/java2d/com/joshondesign/aminogen/generated/CommonObject.java",
         "src/java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
         "src/java2d/com/joshondesign/aminogen/custom/Controls.java",
-        "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java"
+        "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java",
+        "tests/General.java",
     ];
     var outdir = "build/java2d/classes";
     //the javac task can't handle *.java paths yet
@@ -321,6 +322,9 @@ function joglcore(cb) {
 function java2dtest(cb) {
     jb.exec("java -cp build/java2d/classes com.joshondesign.aminogen.custom.TestRunner com.joshondesign.aminogen.generated.out.SimpleTest", cb);
 }
+function java2dtest2(cb) {
+    jb.exec("java -cp build/java2d/classes General", cb);
+}
 
 function runjogl(cb) {
     var classpath = [
@@ -377,6 +381,7 @@ tasks = {
     java2dgen:      new Task(java2dgen,      [],                      "Generate Java2D Core"),
     java2dcompile:  new Task(java2dcompile,  ["java2dgen"],           "Compile Java2D Core"),
     java2dtest:     new Task(java2dtest,     ["java2dcompile"],       "Compile and Run Java2D tests"),
+    java2dtest2:    new Task(java2dtest2,    ["java2dcompile"],       "Compile and Run Java2D tests, 2"),
     
     jscanvasgen:    new Task(jscanvasgen,    [],                      "Generate JavaScript Canvas Core"),
     jscanvastest:   new Task(jscanvastest,   ["jscanvasgen"],         "Test JS Canvas"),

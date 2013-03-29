@@ -1,8 +1,9 @@
 import com.joshondesign.aminogen.generated.out.Core;
 import com.joshondesign.aminogen.generated.out.Node;
 import com.joshondesign.aminogen.generated.out.Events;
+import com.joshondesign.aminogen.generated.out.*;
 import com.joshondesign.aminogen.custom.CoreImpl;
-import com.joshondesign.aminogen.custom.CoreImpl.*;
+import com.joshondesign.aminogen.custom.CoreImpl.ICallback;
 
 import java.awt.Graphics2D;
 
@@ -21,27 +22,27 @@ public class General extends Core {
     
     private static void start(Core core) {
         
-        Stage stage = (Stage)core.createStage();
+        Stage stage = core.createStage();
         
-        Group root = new Group();
-        stage.setRoot(root);
+        Group g = core.createGroup();
+        stage.setRoot(g);
         
         
         
-        final Rect rec1 = new Rect();
+        final Rect rec1 = core.createRect();
         rec1.setTx(0);
         rec1.setW(10);
         rec1.setH(10);
-        root.add(rec1);
+        g.add(rec1);
         
-        final Rect rec2 = new Rect();
+        final Rect rec2 = core.createRect();
         rec2.setTx(20);
         rec2.setTy(20);
         rec2.setX(0);
         rec2.setY(0);
         rec2.setW(10);
         rec2.setH(10);
-        root.add(rec2);
+        g.add(rec2);
         
         /*
         stage.on(Events.Press, rect, new ICallback() {
@@ -54,11 +55,11 @@ public class General extends Core {
         
         
        
-        Circle circle = new Circle();
+        Circle circle = core.createCircle();
         circle.setCx(40);
         circle.setCy(20);
         circle.setRadius(20);
-        root.add(circle);
+        g.add(circle);
         /*
         stage.on(Events.Drag, circle, new ICallback() {
             public void call(Object o) {
@@ -72,11 +73,9 @@ public class General extends Core {
         
         
         
-        PushButton button = new PushButton();
-        button.setText("button");
-        button.setX(0);
-        button.setY(0);
-        root.add(button);
+        PushButton button = core.createPushButton();
+        button.setText("button").setTx(300).setTy(60);
+        g.add(button);
         stage.on(Events.Action.toString(), button, new ICallback() {
             public void call(Object o) {
                 p("the button happened");

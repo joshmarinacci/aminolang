@@ -38,11 +38,12 @@ public static class J2DSlider extends
         g.fillRect((int)getX(),(int)getY(),(int)v,(int)getH());
     }
     @Override
-    public void setValue(double v) {
+    public Slider setValue(double v) {
         if(v > this.getMaxvalue()) v = this.getMaxvalue();
         if(v < this.getMinvalue()) v = this.getMinvalue();
         super.setValue(v);
         this.markDirty();
+        return this;
     }
     
     public double valueToPoint(double v) {
@@ -187,14 +188,16 @@ public static class AnchorPanel extends
     }
     
     @Override
-    public void setW(double w) {
+    public AnchorPanel setW(double w) {
         super.setW(w);
         markLayoutDirty();
+        return this;
     }
     @Override
-    public void setH(double h) {
+    public AnchorPanel setH(double h) {
         super.setH(h);
         markLayoutDirty();
+        return this;
     }
     
     private boolean layoutDirty = false;

@@ -241,7 +241,7 @@ function genJavaClass(name, type, ex, body, d) {
     
     var cstr = "";
     if(type == "value") {
-        cstr = "public " + name + " (";
+        cstr = "public /*value*/" + name + " (";
         var args = [];
         propcache.forEach(function(prop) {
                 args.push(prop.type + " " + prop.name);
@@ -282,8 +282,7 @@ function genJavaMethod(name,args,type,block) {
 function camelize(s) {
     return s.substring(0,1).toUpperCase() + s.substring(1);
 }
-function genJavaProp(pname,type,value,ctype) {
-    //console.log("type = " + type + " value = " + value);
+function genJavaProp(pname,type,value,ctype,cname) {
     if(ctype == "value") {
         propcache.push({
                 name:pname,
@@ -301,9 +300,10 @@ function genJavaProp(pname,type,value,ctype) {
          +tab+"  return this."+pname+";"+nl
          +tab+"}"+nl;
     var setter = 
-         tab+"public void set"+name+"("+type+" "+name+"){"+nl
+         tab+"public "+cname+" set"+name+"("+type+" "+name+"){"+nl
          +tab+"  this."+pname+"="+name+";"+nl
          +tab+"  markDirty();"+nl
+         +tab+"  return this;"+nl
          +tab+"}"+nl;
     
     if(ctype =="value") {
@@ -328,12 +328,12 @@ var propcache = [];
 
 ometa Josh2Java {
     blocks   = [#blocks [#classes [classdef*:x]]]         -> x.join(""),
-    classdef = [#classdef classtype:t c:n c:ex [member(t)*:b]:d] -> genJavaClass(n,t,ex,b.join(""),d),
+    classdef = [#classdef classtype:t c:n c:ex [member(t,n)*:b]:d] -> genJavaClass(n,t,ex,b.join(""),d),
     classtype = #class     -> setClass(true, "class")
               | #interface -> setClass(false,"interface")
               | #value     -> setClass(true, "value"),
-    member  :t = (propdef(t)|funcdef|constdef):m          -> m,
-    propdef :t = [#propdef :n type:type value:value]      -> genJavaProp(n,type,value,t),
+    member  :ct :cn = (propdef(ct,cn)|funcdef|constdef):m          -> m,
+    propdef :ct :cn = [#propdef :n type:type value:value]      -> genJavaProp(n,type,value,ct,cn),
     funcdef  = [#func c:n c:args c:type block:block]      -> genJavaMethod(n,args,type,block),
     constdef = [#constdef :n []]                          -> genJavaConst(n),
     

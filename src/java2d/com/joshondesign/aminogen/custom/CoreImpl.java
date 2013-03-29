@@ -2,6 +2,8 @@ package com.joshondesign.aminogen.custom;
 
 import com.joshondesign.aminogen.generated.out.*;
 
+import com.joshondesign.aminogen.custom.Controls.J2DPushButton;
+
 import java.util.*;
 
 import java.lang.reflect.Method;
@@ -39,18 +41,29 @@ public class CoreImpl extends Core {
         });
     }
     
+    @Override
     public Stage createStage() {
         return new Stage();
     }
     
+    @Override
     public Rect createRect() {
         return new J2DRect();
     }
+    
+    @Override
     public Circle createCircle() {
         return new J2DCircle();
     }
+    
+    @Override
     public Group createGroup() {
         return new J2DGroup();
+    }
+    
+    @Override
+    public PushButton createPushButton() {
+        return new Controls.J2DPushButton();
     }
     
     
@@ -128,10 +141,11 @@ public static class Stage extends
     }
     
     @Override
-    public void setRoot(Node node) {
+    public Stage setRoot(Node node) {
         super.setRoot(node);
         node.setParent(_nodeparent);
         p("set the root to " + node);
+        return this;
     }
     
     @Override
@@ -528,7 +542,7 @@ public static class J2DImageView extends
     protected BufferedImage img;
     
     @Override
-    public void setUrl(String url) {
+    public ImageView setUrl(String url) {
         this.url = url;
         
         this.loaded = false;
@@ -539,6 +553,7 @@ public static class J2DImageView extends
             ex.printStackTrace();
         }
         this.markDirty();
+        return this;
     }
     
     @Override

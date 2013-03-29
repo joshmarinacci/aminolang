@@ -13,6 +13,9 @@ class SimpleTest {
         circle.setCy(200);
         circle.setRadius(40);
         
+        var c2:Circle;
+        c2 = circle.setCx(300);
+        
         var g:Group;
         g = core.createGroup();
         g.add(rect);

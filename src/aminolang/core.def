@@ -163,13 +163,6 @@ class Stage {
     func void addAnim(PropAnim anim) { }
 }
 
-class Core {
-    func Stage createStage() { 
-        return null;
-    }
-    func void start(Callback fn) {
-    }
-}
 
 
 class Accelerometer {
@@ -250,4 +243,15 @@ class SerialAnim {
     func void add() { }
 }
 
+
+class Core {
+    func Stage createStage() { 
+        return null;
+    }
+    func Rect createRect() {
+        return null;
+    }
+    func void start(Callback fn) {
+    }
+}
 

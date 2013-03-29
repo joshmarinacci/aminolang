@@ -229,8 +229,7 @@ function java2dcompile(cb) {
         "build/java2d/out.java",
         "src/java2d/com/joshondesign/aminogen/generated/CommonObject.java",
         "src/java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
-        "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java",
-        "tests/General.java"
+        "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java"
     ];
     var outdir = "build/java2d/classes";
     //the javac task can't handle *.java paths yet

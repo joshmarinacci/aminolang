@@ -40,8 +40,11 @@ public class CoreImpl extends Core {
     }
     
     public Stage createStage() {
-        p("creating a stage");
         return new Stage();
+    }
+    
+    public Rect createRect() {
+        return new J2DRect();
     }
     
     
@@ -482,9 +485,9 @@ public static class Group extends
         
 }
 
-public static class Rect extends
+public static class J2DRect extends
         com.joshondesign.aminogen.generated.out.Rect {
-    public Rect() {
+    public J2DRect() {
         setFill(CoreImpl.BLUE);
     }
     public void draw(GFX gfx) {

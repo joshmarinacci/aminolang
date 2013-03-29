@@ -3,7 +3,7 @@ class SimpleTest {
         var stage:Stage;
         stage = core.createStage();
         var rect:Rect;
-        rect = new Rect();
+        rect = core.createRect();
         rect.setW(100);
         rect.setH(100);
         stage.setRoot(rect);

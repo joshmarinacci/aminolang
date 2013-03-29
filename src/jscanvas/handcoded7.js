@@ -101,6 +101,11 @@ function CanvasStage(can)  {
         n.parent = this;
         return this;
     }
+    this.setRoot = function(n) {
+        this.nodes.push(n);
+        n.parent = this;
+        return this;
+    }
     this.on = function(name, target, fn) {
         EventManager.get().on(name,target,fn);
     }
@@ -267,6 +272,10 @@ function Engine() {
         return cs;
     }
     
+    this.createRect = function() {
+        console.log("creating a rect");
+        return new Rect();
+    }
 }
 
 
@@ -277,8 +286,10 @@ var Corex = {
         core.start = new Engine().start;
         core.createStage = new Engine().createStage;
         core.cans = new Engine().cans;
+        core.createRect = new Engine().createRect;
         f(core);
         core.start();
-    }
+    },
+    
 }
 

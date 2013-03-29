@@ -236,24 +236,47 @@ function java2dcompile(cb) {
     jb.javac(files, outdir, { classpath: null},cb);
 }
 
-/*
-function compiletest(cb) {
-    jb.javac(
-        //src files
-        [
-            "build/out.java",
-            "java2d/com/joshondesign/aminogen/generated/CommonObject.java",
-            "java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
-            "tests/ComponentsTest.java"
-        ], 
-        //output dir
-        "build/java2d/classes",
-        //options
-        {classpath:null}, 
-        //callback
-        cb);
+function jscanvasgen(cb) {
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
+    var tree = JoshParser.matchAll(stdDefs,'top');
+    console.log("parsed defs");
+    console.log(u.inspect(tree,false,20));
+    {
+        //js code    
+        var jscode = Josh2JS.matchAll([tree], 'blocks');
+        console.log("generated js code");
+        var jsoutdir = outdir+"/"+"jscanvas";
+        jb.mkdir(jsoutdir);
+        var jsout = jsoutdir+"/out.js";
+        fs.writeFileSync(jsout,jscode);
+        console.log("wrote out " + jsout);
+    }
+    if(cb) cb();
 }
-*/
+
+function copyFileTo(file, dir) {
+    var filename = file.substring(file.lastIndexOf('/'));
+    var temp = fs.readFileSync(file);
+    var outpath = dir+filename;
+    console.log("copying to " + outpath);
+    fs.writeFileSync(outpath,temp);
+    
+}
+function jscanvastest(cb) {
+    copyFileTo('src/jscanvas/TestRunner.html','build/jscanvas');
+    copyFileTo('src/jscanvas/init.js','build/jscanvas');
+    copyFileTo('src/jscanvas/handcoded7.js','build/jscanvas');
+    copyFileTo('src/jscanvas/monkeypatch.js','build/jscanvas');
+    /*
+    var template = fs.readFileSync('src/jscanvas/TestRunner.html');
+    fs.writeFileSync('build/jscanvas/TestRunner.html',template);
+    doExec("open build/jscanvas/TestRunner.html",cb);
+    */
+}
 
 function joglcore(cb) {
     var files = [
@@ -355,10 +378,12 @@ tasks = {
     help:        new Task(help,       [],            "Help Info"),
   //  core:        new Task(core,       [],            "Core AminoLang classes"),
   
-    java2dgen:      new Task(java2dgen,      [],                      "Compile Java2D Core"),
+    java2dgen:      new Task(java2dgen,      [],                      "Generate Java2D Core"),
     java2dcompile:  new Task(java2dcompile,  ["java2dgen"],           "Compile Java2D Core"),
     java2dtest:     new Task(java2dtest,     ["java2dcompile"],       "Compile and Run Java2D tests"),
     
+    jscanvasgen:    new Task(jscanvasgen,    [],                      "Generate JavaScript Canvas Core"),
+    jscanvastest:   new Task(jscanvastest,   ["jscanvasgen"],         "Test JS Canvas"),
 //    joglcore:    new Task(joglcore,   [],            "Compile JOGL Java Core"),
     /*
     coretests:  new Task(coretests, ["core"],      "AminoLang tests"),

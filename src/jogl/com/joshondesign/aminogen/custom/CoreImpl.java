@@ -52,6 +52,21 @@ public class CoreImpl extends Core {
         return new Stage();
     }
 
+    @Override
+    public Rect createRect() {
+        return new JoglRect();
+    }
+    
+    @Override
+    public Circle createCircle() {
+        return new JoglCircle();
+    }
+    
+    @Override
+    public Group createGroup() {
+        return new JoglGroup();
+    }
+    
 
     public static interface ICallback extends 
         com.joshondesign.aminogen.generated.out.Callback {
@@ -172,8 +187,8 @@ public static class Stage extends
         root.draw(gfx);
         if(root instanceof Group) {
             Group group = (Group)root;
-            for(int i=0; i<group.children.size(); i++) {
-                Node child = (Node)group.children.get(i);
+            for(int i=0; i<group.getChildCount(); i++) {
+                Node child = (Node)group.getChild(i);
                 draw(gfx,child);
             }
         }
@@ -185,9 +200,10 @@ public static class Stage extends
     }
     
     @Override
-    public void setRoot(Node node) {
+    public Stage setRoot(Node node) {
         super.setRoot(node);
         node.setParent(_nodeparent);
+        return this;
     }
     
     @Override
@@ -319,6 +335,7 @@ public static class EventManager extends
             }
         }
         
+        /*
         if(root instanceof AnchorPanel) {
             AnchorPanel group = (AnchorPanel)root;
             for(int i=0; i<group.children.size(); i++) {
@@ -330,6 +347,7 @@ public static class EventManager extends
                 if(ret != null) return ret;
             }
         }
+        */
         
         if(root instanceof Transform) {
             Transform trans = (Transform)root;
@@ -529,7 +547,7 @@ public static class Transform extends
     }
 }
 
-public static class Group extends
+public static class JoglGroup extends
         com.joshondesign.aminogen.generated.out.Group {
     public List<Node> children = new ArrayList<Node>();
     @Override
@@ -556,9 +574,9 @@ public static class Group extends
 
 
 
-public static class Rect extends
+public static class JoglRect extends
         com.joshondesign.aminogen.generated.out.Rect {
-    public Rect() {
+    public JoglRect() {
         setFill(CoreImpl.BLUE);
     }
     public void draw(GFX g) {
@@ -589,11 +607,12 @@ public static class Slider extends
     public void draw(GFX gfx) {
     }
     @Override
-    public void setValue(double v) {
+    public Slider setValue(double v) {
         if(v > this.getMaxvalue()) v = this.getMaxvalue();
         if(v < this.getMinvalue()) v = this.getMinvalue();
         super.setValue(v);
         this.markDirty();
+        return this;
     }
     
     public double valueToPoint(double v) {
@@ -606,13 +625,13 @@ public static class Slider extends
 }
 
 
-public static class ImageView extends 
+public static class JoglImageView extends 
         com.joshondesign.aminogen.generated.out.ImageView {
     private boolean loaded = false;
     protected BufferedImage img;
     
     @Override
-    public void setUrl(String url) {
+    public ImageView setUrl(String url) {
         this.url = url;
         
         this.loaded = false;
@@ -623,6 +642,7 @@ public static class ImageView extends
             ex.printStackTrace();
         }
         this.markDirty();
+        return this;
     }
     
     @Override
@@ -740,9 +760,9 @@ public static class ToggleButton extends
     }
 }
 
-public static class Circle extends
+public static class JoglCircle extends
     com.joshondesign.aminogen.generated.out.Circle {
-    public Circle() {
+    public JoglCircle() {
         setFill(CoreImpl.GREEN);
     }
     @Override
@@ -754,7 +774,7 @@ public static class Circle extends
 
 
 
-public static class AnchorPanel extends
+public static class JoglAnchorPanel extends
     com.joshondesign.aminogen.generated.out.AnchorPanel {
         
     public List<Control> children = new ArrayList<Control>();
@@ -768,14 +788,16 @@ public static class AnchorPanel extends
     }
     
     @Override
-    public void setW(double w) {
+    public AnchorPanel setW(double w) {
         super.setW(w);
         markLayoutDirty();
+        return this;
     }
     @Override
-    public void setH(double h) {
+    public AnchorPanel setH(double h) {
         super.setH(h);
         markLayoutDirty();
+        return this;
     }
     
     private boolean layoutDirty = false;

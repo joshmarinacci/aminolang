@@ -158,6 +158,59 @@ function java2dgen(cb) {
     if(cb) cb();
 }
 
+function joglgen(cb) {
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
+    var tree = JoshParser.matchAll(stdDefs,'top');
+    console.log("parsed defs");
+    //console.log(u.inspect(tree,false,20));
+    
+    {
+        //java code
+        var joglcode = Josh2Java.matchAll([tree], 'blocks');
+        console.log("generated java jogl code");
+        var joutdir = outdir+"/"+"jogl";
+        jb.mkdir(outdir);
+        var outfile = joutdir+"/out.java";
+        
+        var javatemplate = fs.readFileSync('src/java2d/template_java','utf8');
+        javatemplate = javatemplate.replace("${test}",joglcode);
+        
+        fs.writeFileSync(outfile, javatemplate);
+        console.log("wrote out " + outfile);
+    }
+    
+    if(cb) cb();
+}
+
+function jscanvasgen(cb) {
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
+    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
+    var tree = JoshParser.matchAll(stdDefs,'top');
+    console.log("parsed defs");
+    console.log(u.inspect(tree,false,20));
+    {
+        //js code    
+        var jscode = Josh2JS.matchAll([tree], 'blocks');
+        console.log("generated js code");
+        var jsoutdir = outdir+"/"+"jscanvas";
+        jb.mkdir(jsoutdir);
+        var jsout = jsoutdir+"/out.js";
+        fs.writeFileSync(jsout,jscode);
+        console.log("wrote out " + jsout);
+    }
+    if(cb) cb();
+}
+
+
+
+
 function core(cb) {
     //    doExec("node generate.js",cb);
 
@@ -223,6 +276,8 @@ function core(cb) {
     if(cb) cb();
 }
 
+
+
 function java2dcompile(cb) {
     console.log("doing the java2d core now");
     var files = [
@@ -238,27 +293,27 @@ function java2dcompile(cb) {
     jb.javac(files, outdir, { classpath: null},cb);
 }
 
-function jscanvasgen(cb) {
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
-    var tree = JoshParser.matchAll(stdDefs,'top');
-    console.log("parsed defs");
-    console.log(u.inspect(tree,false,20));
-    {
-        //js code    
-        var jscode = Josh2JS.matchAll([tree], 'blocks');
-        console.log("generated js code");
-        var jsoutdir = outdir+"/"+"jscanvas";
-        jb.mkdir(jsoutdir);
-        var jsout = jsoutdir+"/out.js";
-        fs.writeFileSync(jsout,jscode);
-        console.log("wrote out " + jsout);
-    }
-    if(cb) cb();
+function joglcompile(cb) {
+    var files = [
+        "build/jogl/out.java",
+        "src/jogl/com/joshondesign/aminogen/generated/CommonObject.java",
+        "src/jogl/com/joshondesign/aminogen/custom/CoreImpl.java",
+        "src/jogl/com/joshondesign/aminogen/custom/Shader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/ColorShader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/TextureShader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/FontShader.java",
+        "src/jogl/com/joshondesign/aminogen/custom/Insets.java",
+        "src/jogl/com/joshondesign/aminogen/custom/VUtils.java",
+        "tests/General.java",
+    ];
+    var outdir = "build/jogl/classes";
+    var classpath = [
+        "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
+        "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
+    ];
+    jb.javac(files,outdir,{classpath:classpath.join(":")},cb);
 }
+
 
 function copyFileTo(file, dir) {
     var filename = file.substring(file.lastIndexOf('/'));
@@ -268,6 +323,7 @@ function copyFileTo(file, dir) {
     fs.writeFileSync(outpath,temp);
     
 }
+
 function jscanvastest(cb) {
     copyFileTo('src/jscanvas/TestRunner.html','build/jscanvas');
     copyFileTo('src/jscanvas/init.js','build/jscanvas');
@@ -275,49 +331,7 @@ function jscanvastest(cb) {
     copyFileTo('src/jscanvas/monkeypatch.js','build/jscanvas');
 }
 
-function joglcore(cb) {
-    var files = [
-        "build/java2d/out.java",
-        "src/jogl/com/joshondesign/aminogen/generated/CommonObject.java",
-        "src/jogl/com/joshondesign/aminogen/custom/CoreImpl.java",
-        "src/jogl/com/joshondesign/aminogen/custom/Shader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/ColorShader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/TextureShader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/FontShader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/Insets.java",
-        "src/jogl/com/joshondesign/aminogen/custom/VUtils.java",
-        //"tests/ComponentsTest.java"
-    ];
-    var outdir = "build/jogl/classes";
-    var classpath = [
-        "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
-        "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
-    ]
 
-    jb.javac(files,outdir,{classpath:classpath.join(":")},cb);
-    /*
-    exec("node generatejogl.js",function(er,out,err) {
-        p("exec completed");
-        p(out);
-        p(err);
-        
-        if(!fs.existsSync("joglbuild/compiled")) {
-            fs.mkdirSync("joglbuild/compiled");
-        }
-        var classpath = [
-            "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
-            "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
-        ]
-        exec("javac " +files.join(" ") + " -cp " + classpath.join(":")+ " -d joglbuild/compiled", function(er, out,err) {
-            p("javac finished");
-            p(out);
-            p(err);
-            if(cb) cb();
-        });
-    });
-    */
-    
-}
 
 function java2dtest(cb) {
     jb.exec("java -cp build/java2d/classes com.joshondesign.aminogen.custom.TestRunner com.joshondesign.aminogen.generated.out.SimpleTest", cb);
@@ -326,13 +340,13 @@ function java2dtest2(cb) {
     jb.exec("java -cp build/java2d/classes General", cb);
 }
 
-function runjogl(cb) {
+function jogltest(cb) {
     var classpath = [
-        "joglbuild/compiled/",
+        "build/jogl/classes",
         "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
         "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
     ];
-    doExec("java -cp " + classpath.join(":") + " ComponentsTest", cb);
+    doExec("java -cp " + classpath.join(":") + " General", cb);
 }
 
 function runjavacore(cb) {
@@ -382,6 +396,11 @@ tasks = {
     java2dcompile:  new Task(java2dcompile,  ["java2dgen"],           "Compile Java2D Core"),
     java2dtest:     new Task(java2dtest,     ["java2dcompile"],       "Compile and Run Java2D tests"),
     java2dtest2:    new Task(java2dtest2,    ["java2dcompile"],       "Compile and Run Java2D tests, 2"),
+    
+    joglgen:      new Task(joglgen,        [],                      "Generate JOGL Core"),
+    joglcompile:  new Task(joglcompile,  ["joglgen"],           "Compile JOGL Core"),
+    jogltest:     new Task(jogltest,     ["joglcompile"],       "Test JOGL"),
+//    jogltest2:    new Task(java2dtest2,    ["java2dcompile"],       "Compile and Run Java2D tests, 2"),
     
     jscanvasgen:    new Task(jscanvasgen,    [],                      "Generate JavaScript Canvas Core"),
     jscanvastest:   new Task(jscanvastest,   ["jscanvasgen"],         "Test JS Canvas"),

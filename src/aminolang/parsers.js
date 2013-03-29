@@ -9,6 +9,9 @@ function _isKeyword(n) {
     return false;
 }
 
+function camelize(s) {
+    return s.substring(0,1).toUpperCase() + s.substring(1);
+}
 
 ometa JoshParser {
     //standard stuff        
@@ -102,7 +105,7 @@ function genProp(pname, type, value, ctype) {
                 type:type
         });
     } 
-    var name = pname;
+    var name = camelize(pname);
     var decl = tab+"   this."+pname+ ((value!=null) ? " = "+value:"") + ";"+nl;
     var getter = 
          tab+"this.get"+name+" = function(){"+nl
@@ -279,9 +282,6 @@ function genJavaMethod(name,args,type,block) {
     ;
 }
 
-function camelize(s) {
-    return s.substring(0,1).toUpperCase() + s.substring(1);
-}
 function genJavaProp(pname,type,value,ctype,cname) {
     if(ctype == "value") {
         propcache.push({

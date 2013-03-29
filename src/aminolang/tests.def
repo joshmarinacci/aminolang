@@ -1,7 +1,5 @@
 class SimpleTest {
-    func void run(Core core) {
-        var stage:Stage;
-        stage = core.createStage();
+    func void run(Core core, Stage stage) {
         var rect:Rect;
         rect = core.createRect();
         rect.setW(100);

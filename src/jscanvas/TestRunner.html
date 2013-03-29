@@ -9,16 +9,11 @@ canvas { border: 1px solid black; }
 </style>
 </head>
 <body>
-<canvas id='mycanvas' width='300' height='300'></canvas>
+<canvas id='mycanvas' width='600' height='300'></canvas>
 <script language="JavaScript">
 Corex.start(function(core) {
     var stage = core.createStage('mycanvas');
-    var rect = core.createRect();
-    console.log("rect = ",rect);
-    rect.setfill("blue");
-    rect.setw(100);
-    rect.seth(100);
-    stage.setRoot(rect);
+    new SimpleTest().run(core,stage);
 });
 </script>
 </body>

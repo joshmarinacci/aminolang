@@ -67,7 +67,7 @@ EventManager = function() {
     
     this.real_findNode = function(node, point) {
         if(!node) return null;
-        if(!node.getvisible()) return null;
+        if(!node.getVisible()) return null;
         var pt2 = new Point(
             point.x-node.gettx(),
             point.y-node.getty()
@@ -215,12 +215,12 @@ function CanvasStage(can)  {
     }
     
     this.draw = function(ctx, root) {
-        if(!root.getvisible()) return;
+        if(!root.getVisible()) return;
         ctx.save();
-        ctx.translate(root.gettx(),root.getty());
+        ctx.translate(root.getTx(),root.getTy());
         root.draw(ctx);
         if(root instanceof Transform) {
-            ctx.scale(root.getscalex(),root.getscaley())
+            ctx.scale(root.getScalex(),root.getScaley())
         }
         if(root.isparent && root.isparent()) {
             for(var i=0; i<root.getChildCount(); i++) {
@@ -273,20 +273,22 @@ function Engine() {
     }
     
     this.createRect = function() {
-        console.log("creating a rect");
         return new Rect();
     }
+    this.createCircle = function() {
+        return new Circle();
+    }
+    this.createGroup = function() {
+        return new Group();
+    }
 }
+Engine.extend(Core);
 
 
 
 var Corex = {
     start: function(f) {
-        var core = new Core();
-        core.start = new Engine().start;
-        core.createStage = new Engine().createStage;
-        core.cans = new Engine().cans;
-        core.createRect = new Engine().createRect;
+        var core = new Engine();
         f(core);
         core.start();
     },

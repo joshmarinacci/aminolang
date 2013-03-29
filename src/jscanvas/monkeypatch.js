@@ -3,8 +3,8 @@ Group = function() {
     this.nodes = [];
     this.isparent = function() { return true; }
     this.add = function(child) {
-        this.getnodes().push(child);
-        child.setparent(this);
+        this.getNodes().push(child);
+        child.setParent(this);
         this.markDirty();
     }
     this.draw = function(ctx) {

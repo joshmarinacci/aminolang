@@ -68,10 +68,32 @@ EventManager = function() {
     this.real_findNode = function(node, point) {
         if(!node) return null;
         if(!node.getVisible()) return null;
-        var pt2 = new Point(
-            point.x-node.getTx(),
-            point.y-node.getTy()
-            );
+        var pt2 = new Point(point.x,point.y);
+        if(node instanceof Transform) {
+            //console.log("turning ", pt2);
+            pt2 = new Point(
+                pt2.x-node.getTx(),
+                pt2.y-node.getTy()
+                );
+            //console.log("to ",pt2);
+            pt2 = new Point( pt2.x/node.getScalex(), pt2.y/node.getScaley());
+            //console.log("to ", pt2);
+            var theta = node.getRotate()/180*Math.PI;
+            //console.log("cos of theta = " + node.getRotate() + " " + theta + " " + Math.cos(theta));
+            pt2 = new Point(
+                (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y),
+                (-Math.sin(theta)*pt2.x + Math.cos(theta)*pt2.y)
+                );
+            //console.log("to ", pt2);
+//            console.log("theta = " + (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y));
+//            console.log("theta = " + (Math.sin(theta)*pt2.x - Math.cos(theta)*pt2.y));
+        } else {
+            pt2 = new Point(
+                pt2.x-node.getTx(),
+                pt2.y-node.getTy()
+                );
+        }
+        
         
         if(node.isparent && node.isparent()) {
             //go in reverse, front to back
@@ -220,7 +242,9 @@ function CanvasStage(can)  {
         ctx.translate(root.getTx(),root.getTy());
         root.draw(ctx);
         if(root instanceof Transform) {
-            ctx.scale(root.getScalex(),root.getScaley())
+            ctx.scale(root.getScalex(),root.getScaley());
+            var theta = root.getRotate()/180*Math.PI;
+            ctx.rotate(theta);
         }
         if(root.isparent && root.isparent()) {
             for(var i=0; i<root.getChildCount(); i++) {

@@ -9,7 +9,7 @@ canvas { border: 1px solid black; }
 </style>
 </head>
 <body>
-<canvas id='mycanvas' width='300' height='300'></canvas>
+<canvas id='mycanvas' width='600' height='300'></canvas>
 <script language="JavaScript">
 Corex.start(function(core) {
     var root = core.createStage('mycanvas');
@@ -227,35 +227,27 @@ function camelize(s) {
     
     function events(c) {
         
-        var b1 = new PushButton().setText("no transform, xy")
-            .setX(5).setY(100);
+        var b1 = new PushButton().setText("no trans").setX(10).setY(100);
         c.add(b1);
         
-        var b2 = new PushButton().setText("trans xy")
-            .setTx(120).setTy(100);
+        var b2 = new PushButton().setText("trans xy").setTx(120).setTy(100);
         c.add(b2);
         
-        
-        var b3 = new PushButton().setText("group trans")
-            .setTx(0).setTy(0);
-        var g3 = new Group().setTx(10).setTy(150);
+        var b3 = new PushButton().setText("group trans").setTx(0).setTy(0);
+        var g3 = new Group().setTx(230).setTy(100);
         g3.add(b3);
         c.add(g3);
         
-        
-        var b4 = new PushButton().setText("trans rot")
-            .setTx(0).setTy(0);
-        var g4 = new Transform().setTx(100).setTy(150)
-            .setRotate(0);
+        var b4 = new PushButton().setText("rotate").setTx(0).setTy(0);
+        var g4 = new Transform().setTx(10).setTy(150).setRotate(45);
         g4.setChild(b4);
         c.add(g4);
         
-        var b5 = new PushButton().setText("group trans")
-            .setTx(0).setTy(0);
-        var g5 = new Transform().setTx(100).setTy(150)
-            .setScalex(1).setScaley(1);
+        var b5 = new PushButton().setText("scale").setTx(0).setTy(0);
+        var g5 = new Transform().setTx(120).setTy(150).setScalex(2).setScaley(2);
         g5.setChild(b5);
         c.add(g5);
+        
     }
     
     function anims(c) {
@@ -266,16 +258,6 @@ function camelize(s) {
         rect.setH(20);
         rect.setFill("red");
         c.add(rect);
-        /*
-        function a(node, prop, start, finish, dur) {
-            return new PropAnim()
-                .setTarget(node)
-                .setName(prop)
-                .setStartvalue(start)
-                .setEndvalue(finish)
-                .setDuration(dur);
-        }
-        */
         var anim = chain(
             together(
                 a(rect,"x",0,100,1000),
@@ -306,7 +288,6 @@ function camelize(s) {
     prevButton.setText("prev").setX(10).setY(10).setW(80).setH(20);
     root.add(prevButton);
     root.on(Events.Press,prevButton,function(e){
-        console.log("pressed");
         testgroup.clear();
         current = current - 1;
         if(current < 0) {

@@ -143,9 +143,18 @@ function langtest(cb) {
     eq(tree[1][1][1][0],'literal');
     eq(tree[1][1][1][1],4);
     
-    var ex1 = "rect = core.createRect();";
+    var ex1 = "var rect:Rect = core.createRect();";
     tree = JoshParser.matchAll(ex1,'stmt');
     console.log(u.inspect(tree,false,20));
+    
+    /*
+        var rect = null;
+        var rect = core.createRect();
+        var rect = 4+5;
+        var rect = z;
+        var rect = 4+z;
+        rect = z;
+    */
     
     } catch(e) {
         console.log("ERROR: " + e);

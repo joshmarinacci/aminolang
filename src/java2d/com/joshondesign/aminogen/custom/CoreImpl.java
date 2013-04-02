@@ -43,7 +43,7 @@ public class CoreImpl extends Core {
     
     @Override
     public Stage createStage() {
-        return new Stage();
+        return new J2DStage();
     }
     
     @Override
@@ -79,12 +79,6 @@ public class CoreImpl extends Core {
     public static interface ICallback extends 
         com.joshondesign.aminogen.generated.out.Callback {
     }
-    public static class Bounds extends 
-        com.joshondesign.aminogen.generated.out.Bounds {
-        public Bounds(double x, double y, double w, double h) {
-            super(x,y,w,h);
-        }
-    }
     public static class Color extends 
         com.joshondesign.aminogen.generated.out.Color {
     }
@@ -93,31 +87,35 @@ public class CoreImpl extends Core {
     public static final Color BLUE = new Color();
     
 
-static class Pair<A,B> {
-    A a;
-    B b;
-    public Pair(A a, B b) {
-        this.a = a;
-        this.b = b;
+    static class Pair<A,B> {
+        A a;
+        B b;
+        public Pair(A a, B b) {
+            this.a = a;
+            this.b = b;
+        }
     }
-}
-public static class Event extends XEvent {
-//    Node target;
-public    int x;
-public    int y;
-public    int deltaX;
-public    int deltaY;
-public    int keycode;
-public    int keychar;
-}
-public static class Stage extends 
+
+
+    public static class Event extends XEvent {
+        //    Node target;
+        public    int x;
+        public    int y;
+        public    int deltaX;
+        public    int deltaY;
+        public    int keycode;
+        public    int keychar;
+    }
+
+
+public static class J2DStage extends 
         com.joshondesign.aminogen.generated.out.Stage {
 
     JFrame _frame;
     public Java2DRootPanel _rootpanel;
     public EventManager _em;
     Node _nodeparent;
-    public Stage() {
+    public J2DStage() {
         _rootpanel = new Java2DRootPanel(this);
         _em = new EventManager(this,_rootpanel);
         _em.em = _em;
@@ -320,10 +318,9 @@ public static class EventManager extends
     
 }
 
-
 public static class Java2DRootPanel extends JComponent {
-    private Stage stage;
-    public Java2DRootPanel(Stage stage) {
+    private J2DStage stage;
+    public Java2DRootPanel(J2DStage stage) {
         this.stage = stage;
         
         
@@ -476,6 +473,8 @@ public static class Graphics2DGFX extends GFX {
 }
 
 
+
+
 public static class J2DTransform extends
         com.joshondesign.aminogen.generated.out.Transform {
     public J2DTransform(Node node) {
@@ -535,7 +534,6 @@ public static class J2DRect extends
     }
 }
 
-
 public static class J2DImageView extends 
         com.joshondesign.aminogen.generated.out.ImageView {
     private boolean loaded = false;
@@ -582,7 +580,6 @@ public static class J2DImageView extends
 
 }
 
-
 public static class J2DBuffer extends Buffer {
     public BufferedImage buffer;
     
@@ -612,7 +609,6 @@ public static class J2DBuffer extends Buffer {
         this.buffer.setRGB(x,y,argb);
     }
 }
-
 
 public static class J2DCircle extends
     com.joshondesign.aminogen.generated.out.Circle {

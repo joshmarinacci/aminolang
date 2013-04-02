@@ -3,6 +3,10 @@ Group = function() {
     this.nodes = [];
     this.isparent = function() { return true; }
     this.add = function(child) {
+        if(child == null) {
+            console.log("ERROR. tried to add a null child to a group");
+            return;
+        }
         this.getNodes().push(child);
         child.setParent(this);
         this.markDirty();
@@ -127,20 +131,21 @@ ImageView.extend(old_image);
 var old_pushbutton = PushButton;
 PushButton = function() {
     this.draw = function(g) {
-        g.fillStyle = this.getbaseColor();
-        g.fillRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.fillStyle = this.getBaseColor();
+        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
         g.fillStyle = "black";
-        g.fillText(this.gettext(),this.getx()+5,this.gety()+15);
+        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
     };
     var self = this;
     EventManager.get().on(Events.Press, this, function(e) {
-        self.setbaseColor("lightBlue");
+        console.log("press event");
+        self.setBaseColor("lightBlue");
     });
     
     EventManager.get().on(Events.Release, this, function(e) {
-        self.setbaseColor("gray");
+        self.setBaseColor("gray");
     });
-    this.setbaseColor("gray");
+    this.setBaseColor("gray");
 }
 PushButton.extend(old_pushbutton);
 
@@ -407,5 +412,45 @@ FlickrQuery.extend(old_FlickrQuery);
 // AnchorPanel must be a parent
 
 
+var SceneParser = function() {
+    this.parseChildren = function(val, obj) {
+        for(var i=0; i<obj.children.length; i++) {
+            var ch = obj.children[i];
+            var chv = this.parse(ch);
+            val.add(chv);
+        }
+    }
+    
+    this.fillProps = function(out, obj) {
+        for(var prop in obj) {
+            if(prop == "type") continue;
+            if(prop == "children") continue;
+            out[prop] = obj[prop];
+        }
+    }
+
+    this.typeMap = {
+        "Group":Group,
+        "Rect":Rect,
+        "PushButton":PushButton
+    };
+    this.parentTypeMap = {
+        "Group":Group,
+    };
+    
+    this.parse = function(obj) {
+        if(this.typeMap[obj.type]) {
+            var out = new this.typeMap[obj.type]();
+            if(this.parentTypeMap[obj.type]) {
+                this.parseChildren(out,obj);
+            } else {
+                this.fillProps(out,obj);
+            }
+            return out;
+        }
+        console.log("warning. no object parsed here!");
+    }
+}
+    
 
 

@@ -1,6 +1,7 @@
 package com.joshondesign.aminogen.custom;
 import com.joshondesign.aminogen.generated.out.Callback;
 import com.joshondesign.aminogen.generated.out.Core;
+import com.joshondesign.aminogen.generated.out.Stage;
 
 import java.lang.reflect.Method;
 
@@ -14,8 +15,9 @@ public class TestRunner {
                     //Class clss = getClass().forName(args[0]);
                     //Class clss = Class.forName(args[0]);
                     //Object inst = clss.newInstance();
-                    Method meth = inst.getClass().getMethod("run",Core.class);
-                    meth.invoke(inst,core);
+                    Method meth = inst.getClass().getMethod("run",Core.class,Stage.class);
+                    Stage stage = ((Core)core).createStage();
+                    meth.invoke(inst,core,stage);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

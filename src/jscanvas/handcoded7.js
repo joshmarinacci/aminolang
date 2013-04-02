@@ -70,28 +70,9 @@ EventManager = function() {
         if(!node.getVisible()) return null;
         var pt2 = new Point(point.x,point.y);
         if(node instanceof Transform) {
-            //console.log("turning ", pt2);
-            pt2 = new Point(
-                pt2.x-node.getTx(),
-                pt2.y-node.getTy()
-                );
-            //console.log("to ",pt2);
-            pt2 = new Point( pt2.x/node.getScalex(), pt2.y/node.getScaley());
-            //console.log("to ", pt2);
-            var theta = node.getRotate()/180*Math.PI;
-            //console.log("cos of theta = " + node.getRotate() + " " + theta + " " + Math.cos(theta));
-            pt2 = new Point(
-                (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y),
-                (-Math.sin(theta)*pt2.x + Math.cos(theta)*pt2.y)
-                );
-            //console.log("to ", pt2);
-//            console.log("theta = " + (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y));
-//            console.log("theta = " + (Math.sin(theta)*pt2.x - Math.cos(theta)*pt2.y));
+            pt2 = node.toInnerCoords(pt2);
         } else {
-            pt2 = new Point(
-                pt2.x-node.getTx(),
-                pt2.y-node.getTy()
-                );
+            pt2 = new Point(pt2.x-node.getTx(),pt2.y-node.getTy());
         }
         
         

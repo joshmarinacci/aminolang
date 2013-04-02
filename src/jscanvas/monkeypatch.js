@@ -29,6 +29,7 @@ Group = function() {
     this.getChild = function(i) {
         return this.nodes[i];
     }
+    
 }
 Group.extend(old_group);
 
@@ -40,6 +41,26 @@ Transform = function() {
     }
     this.getChild = function(i) {
         return this.child;
+    }
+    this.toInnerCoords = function(pt) {
+        //console.log("turning ", pt2);
+        var pt2 = new Point(
+            pt.x-this.getTx(),
+            pt.y-this.getTy()
+            );
+        //console.log("to ",pt2);
+        pt2 = new Point( pt2.x/this.getScalex(), pt2.y/this.getScaley());
+        //console.log("to ", pt2);
+        var theta = this.getRotate()/180*Math.PI;
+        //console.log("cos of theta = " + node.getRotate() + " " + theta + " " + Math.cos(theta));
+        pt2 = new Point(
+            (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y),
+            (-Math.sin(theta)*pt2.x + Math.cos(theta)*pt2.y)
+            );
+        return pt2;
+        //console.log("to ", pt2);
+//            console.log("theta = " + (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y));
+//            console.log("theta = " + (Math.sin(theta)*pt2.x - Math.cos(theta)*pt2.y));
     }
 }
 Transform.extend(old_transform);

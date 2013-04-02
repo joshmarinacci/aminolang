@@ -55,15 +55,34 @@ public class CoreImpl extends Core {
     public Circle createCircle() {
         return new J2DCircle();
     }
-    
     @Override
     public Group createGroup() {
         return new J2DGroup();
+    }
+    @Override
+    public Transform createTransform() {
+        return new J2DTransform();
     }
     
     @Override
     public PushButton createPushButton() {
         return new Controls.J2DPushButton();
+    }
+    @Override
+    public ToggleButton createToggleButton() {
+        return new Controls.J2DToggleButton();
+    }
+    @Override
+    public Slider createSlider() {
+        return new Controls.J2DSlider();
+    }
+    @Override
+    public Label createLabel() {
+        return new Controls.J2DLabel();
+    }
+    @Override
+    public Textbox createTextbox() {
+        return new Controls.J2DTextbox();
     }
     
     
@@ -477,9 +496,12 @@ public static class Graphics2DGFX extends GFX {
 
 public static class J2DTransform extends
         com.joshondesign.aminogen.generated.out.Transform {
-    public J2DTransform(Node node) {
+    public J2DTransform() {
+    }
+    public Transform setChild(Node node) {
         this.child = node;
         this.child.setParent(this);
+        return this;
     }
 }
 

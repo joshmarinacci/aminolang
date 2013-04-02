@@ -127,6 +127,30 @@ function parseit(str) {
     eval(translateCode(str));
 }
 
+function eq(a,b) {
+    if(a != b) throw (a + " != " + b);
+}
+function langtest(cb) {
+    try {
+    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
+    parseit(parsersjs);
+    
+    var tree = "";
+    
+    
+    tree = JoshParser.matchAll("4+5",'exp');    
+    eq(tree[1][0],'add');
+    eq(tree[1][1][1][0],'literal');
+    eq(tree[1][1][1][1],4);
+    
+    var ex1 = "rect = core.createRect();";
+    tree = JoshParser.matchAll(ex1,'stmt');
+    console.log(u.inspect(tree,false,20));
+    
+    } catch(e) {
+        console.log("ERROR: " + e);
+    }
+}
 
 //generate java2d code from the def files
 //can probably share this with JOGL too
@@ -382,37 +406,6 @@ function jogltest(cb) {
     doExec("java -cp " + classpath.join(":") + " General", cb);
 }
 
-function runjavacore(cb) {
-    var files = [
-        "build/JavaTester.java"
-    ];
-    
-    exec("javac -cp build " +files.join(" ") + " -d build", function(er, out,err) {
-        p("javac finished");
-        p(out);
-        p(err);
-        runit();
-    });
-    
-    
-    function runit() {
-    exec("java -cp build com.joshondesign.aminogen.custom.JavaTester", function(er, out, err) {
-        p("java finished");
-        p(out);
-        p(err);
-        if(cb) cb();
-    });
-    }
-}
-
-function coretests(cb) {
-    doExec("node gen_tests.js",cb);
-}
-
-function runjscore(cb) {
-    doExec("open build/Simple.html",cb);
-}
-
 function help(cb) {
     p("Available commands");
     var keys = Object.keys(tasks);
@@ -437,15 +430,8 @@ tasks = {
     jscanvastest:   new Task(jscanvastest,   ["jscanvasgen"],         "Test JS Canvas"),
 
     cppgen:         new Task(cppgen,         [],                      "Generate C++ Core"),
-
-
-    /*
-    coretests:  new Task(coretests, ["core"],      "AminoLang tests"),
-    runjogl:    new Task(runjogl   ,["joglcore"], "running Java AminoLang Tests"),
-    runjscore:  new Task(runjscore, [], "running JS AminoLang Tests"),
-    runjavacore:new Task(runjavacore,["coretests"], "running Java AminoLang Tests"),
-    testcompile:    new Task(compiletest,[],"compile test"),
-    */
+    
+    langtest:       new Task(langtest,       [],                      "Test AminoLang itself"),
 }
 
 if(!command) {

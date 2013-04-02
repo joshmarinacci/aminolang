@@ -69,8 +69,8 @@ EventManager = function() {
         if(!node) return null;
         if(!node.getVisible()) return null;
         var pt2 = new Point(
-            point.x-node.gettx(),
-            point.y-node.getty()
+            point.x-node.getTx(),
+            point.y-node.getTy()
             );
         
         if(node.isparent && node.isparent()) {
@@ -280,6 +280,9 @@ function Engine() {
     }
     this.createGroup = function() {
         return new Group();
+    }
+    this.createPushButton = function() {
+        return new PushButton();
     }
 }
 Engine.extend(Core);

@@ -1,3 +1,10 @@
+var old_propAnim = PropAnim;
+PropAnim = function() {
+    this.markDirty = function() {
+    }
+}
+PropAnim.extend(old_propAnim);
+
 var old_group = Group;
 Group = function() {
     this.nodes = [];
@@ -138,7 +145,6 @@ PushButton = function() {
     };
     var self = this;
     EventManager.get().on(Events.Press, this, function(e) {
-        console.log("press event");
         self.setBaseColor("lightBlue");
     });
     
@@ -153,23 +159,23 @@ PushButton.extend(old_pushbutton);
 var old_togglebutton = ToggleButton;
 ToggleButton = function() {
     this.draw = function(g) {
-        g.fillStyle = this.getbaseColor();
-        if(this.getselected()) {
+        g.fillStyle = this.getBaseColor();
+        if(this.getSelected()) {
             g.fillStyle = "green";
         }
-        g.fillRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
         g.fillStyle = "black";
-        g.fillText(this.gettext(),this.getx()+5,this.gety()+15);
+        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
     };
     var self = this;
     EventManager.get().on(Events.Press, this, function(e) {
-        self.setbaseColor("lightBlue");
+        self.setBaseColor("lightBlue");
     });
     EventManager.get().on(Events.Release, this, function(e) {
-        self.setbaseColor("gray");
-        self.setselected(!self.getselected());
+        self.setBaseColor("gray");
+        self.setSelected(!self.getselected());
     });
-    this.setbaseColor("gray");
+    this.setBaseColor("gray");
 }
 ToggleButton.extend(old_togglebutton);
 
@@ -185,10 +191,10 @@ Slider = function() {
     }
     this.draw = function(g) {
         g.fillStyle = "gray";
-        g.fillRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
         g.fillStyle = "black";
         var v = this.valueToPoint(this.value);
-        g.fillRect(this.getx(),this.gety(),v,this.geth());
+        g.fillRect(this.getX(),this.getY(),v,this.getH());
     }
 }
 Slider.extend(old_slider);
@@ -241,7 +247,7 @@ var old_label = Label;
 Label = function() {
     this.draw = function(g) {
         g.fillStyle = "black";
-        g.fillText(this.gettext(),this.getx()+5,this.gety()+15);
+        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
     };
     return this;
 }
@@ -252,15 +258,15 @@ var old_textbox = Textbox;
 Textbox = function() {
     this.draw = function(g) {
         g.fillStyle = "gray";
-        g.fillRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
         
         
         g.fillStyle = "black";
-        g.fillText(this.gettext(),this.getx()+5,this.gety()+15);
+        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
         
         g.lineWidth = 2;
         g.strokeStyle = "black";
-        g.strokeRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.strokeRect(this.getX(),this.getY(),this.getW(),this.getH());
     };
     return this;
 }

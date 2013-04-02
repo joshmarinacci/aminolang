@@ -59,7 +59,7 @@ ometa JoshParser {
     stmt  = (stmtRet|stmtAss|stmtFcall|stmtDec):s ";" sp* -> s,
     stmt  = cond:c -> c,
     stmtAss = ref:a sp* "=" sp* exp:b        -> [#assign, a, b],
-    stmtDec = "var" sp* ref:a ":" name:t             -> [#dec, a, t],
+    stmtDec = "var" sp* ref:a ":" name:t (sp* "=" sp* exp:b)?             -> [#dec, a, t],
     
     stmtRet = "return" sp+ ref:v          -> [#return, v],    
     stmtFcall = fcall,

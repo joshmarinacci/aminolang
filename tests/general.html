@@ -14,21 +14,141 @@ canvas { border: 1px solid black; }
 Corex.start(function(core) {
     var root = core.createStage('mycanvas');
     
+        function elasticIn(t) {
+            var p = 0.3;
+            return -(Math.pow(2,10*(t-1)) * Math.sin(((t-1)-p/4)*(2*Math.PI)/p));
+        }
+        function elasticOut(t) {
+            var p = 0.3;
+            return Math.pow(2,-10*t) * Math.sin((t-p/4)*(2*Math.PI)/p) + 1;
+        }
+        function cubicIn(t) {
+            return Math.pow(t,3);
+        }
+        function cubicOut(t) {
+            return 1-cubicIn(1-t);
+        }
+        function smoothstepIn(t) {
+            return t*t*(3-2*t);
+        }
+        
+        function cubicInOut(t) {
+            if(t < 0.5) return cubicIn(t*2.0)/2.0;
+            return 1-cubicIn((1-t)*2)/2;                
+        }
+function camelize(s) {
+    return s.substring(0,1).toUpperCase() + s.substring(1);
+}
+    
+    function a(node, prop, start, finish, dur) {
+        return {
+            node:node,
+            prop:prop,
+            sval:start,
+            fval:finish,
+            dur:dur,
+            running:false,
+            finished:false,
+            easefn:null,
+            update:function() {
+                if(this.finished) return;
+                if(!this.running) {
+                    this.startTime = new Date().getTime();
+                    this.running = true;
+                    return;
+                }
+                var time = new Date().getTime();
+                var dt = time-this.startTime;
+                var t = dt/this.dur;
+                if(t > 1) {
+                    this.finished = true;
+                    return;
+                }
+                if(this.easefn != null) {
+                    t = this.easefn(t);
+                }
+                var v = (this.fval-this.sval)*t + this.sval;
+                //console.log("t = " + t + " " + v);
+                node["set"+camelize(this.prop)](v);
+            },
+            setEase:function(easefn) {
+                this.easefn = easefn;
+                return this;
+            }
+        };
+    }
+    
+    function chain() {
+        var args = Array.prototype.slice.call(arguments);
+        return {
+            anims:args,
+            curr:null,
+            finished:false,
+            afterf:null,
+            update:function() {
+                if(this.finished) return;
+                if(!this.curr) {
+                    this.curr = this.anims.shift();
+                }
+                this.curr.update();
+                if(this.curr.finished) {
+                    if(this.anims.length == 0) {
+                        this.finished = true;
+                        if(this.afterf) this.afterf();
+                    } else {
+                        this.curr = this.anims.shift();
+                    }
+                }
+                
+            },
+            after:function(f) {
+                this.afterf = f;
+                return this;
+            }
+        }
+    }
+    
+    function together() {
+        var args = Array.prototype.slice.call(arguments);
+        return {
+            anims:args,
+            finished:false,
+            update:function() {
+                if(this.finished) return;
+                var anyLeft = false;
+                for(var i in this.anims) {
+                    if(!this.anims[i].finished) {
+                        this.anims[i].update();
+                        anyLeft = true;
+                    }
+                }
+                if(!anyLeft) {
+                    this.finished = true;
+                    if(this.afterf) this.afterf();
+                }
+            },
+            after:function(f) {
+                this.afterf = f;
+                return this;
+            }
+        }
+    }
+    
     function shapes(c) {
         var rect = new Rect();
-        rect.setx(100).sety(100).setw(50).seth(25).setfill("green");
+        rect.setX(100).setY(100).setW(50).setH(25).setFill("green");
         c.add(rect);
         
         root.on(Events.Press, rect, function() { 
-            if(rect.getfill() == 'blue') {
-                rect.setfill("red");
+            if(rect.getFill() == 'blue') {
+                rect.setFill("red");
             } else {
-                rect.setfill('blue'); 
+                rect.setFill('blue'); 
             }
         }); 
         
         var circle = new Circle();
-        circle.setcx(50).setcy(100).setradius(30).setfill('green');
+        circle.setCx(50).setCy(100).setRadius(30).setFill('green');
         c.add(circle);
     
         
@@ -38,8 +158,8 @@ Corex.start(function(core) {
         //drag works even if you drag quickly and go outside the target, thus it
         //preserves the drag target through the entire gesture
         root.on(Events.Drag, circle, function(e) {
-            e.target.setcx(e.target.getcx() + e.delta.getx());
-            e.target.setcy(e.target.getcy() + e.delta.gety());
+            e.target.setCx(e.target.getCx() + e.delta.getX());
+            e.target.setCy(e.target.getCy() + e.delta.getX());
         });
     }
 
@@ -50,30 +170,30 @@ Corex.start(function(core) {
     function comps(c) {
         
         var button = new PushButton();
-        button.settext("button");
-        button.setx(200);
-        button.sety(50);
+        button.setText("button");
+        button.setX(200);
+        button.setY(50);
         c.add(button);
         
     
         var tbutton = new ToggleButton();
-        tbutton.settext("toggle");
-        tbutton.setx(200);
-        tbutton.sety(100);
+        tbutton.setText("toggle");
+        tbutton.setX(200);
+        tbutton.setY(100);
         c.add(tbutton);
         
         var label = new Label();
-        label.settext("label");
-        label.setx(200);
-        label.sety(130);
+        label.setText("label");
+        label.setX(200);
+        label.setY(130);
         c.add(label);
         
         var slider = new Slider();
-        slider.setx(200);
+        slider.setX(200);
         
-        slider.sety(160);
-        slider.setw(100);
-        slider.seth(20);
+        slider.setY(160);
+        slider.setW(100);
+        slider.setH(20);
         root.on(Events.Drag, slider, function(e) {
             var r = e.target;
             r.setvalue(r.pointToValue(e.point.x-r.getx()));
@@ -82,19 +202,19 @@ Corex.start(function(core) {
         
         
         var textbox = new Textbox();
-        textbox.setx(200);
-        textbox.sety(190);
-        textbox.setw(100);
-        textbox.seth(20);
-        textbox.settext("foo");
+        textbox.setX(200);
+        textbox.setY(190);
+        textbox.setW(100);
+        textbox.setH(20);
+        textbox.setText("foo");
         root.on(Events.KeyPress, textbox, function(e) {
-            var t = textbox.gettext();
+            var t = textbox.getText();
             if(!t) t = "";
             
             if(e.e.keyCode == 45 || e.e.keyCode == 8) {
                 if(t.length > 0) {
                     t = t.substring(0,t.length-1);
-                    textbox.settext(t);
+                    textbox.setText(t);
                     return;
                 }
             }
@@ -112,53 +232,55 @@ Corex.start(function(core) {
     
     function events(c) {
         
-        var b1 = new PushButton().settext("no transform, xy")
-            .setx(5).sety(100);
+        var b1 = new PushButton().setText("no transform, xy")
+            .setX(5).setY(100);
         c.add(b1);
         
-        var b2 = new PushButton().settext("trans xy")
-            .settx(120).setty(100);
+        var b2 = new PushButton().setText("trans xy")
+            .setTx(120).setTy(100);
         c.add(b2);
         
         
-        var b3 = new PushButton().settext("group trans")
-            .settx(0).setty(0);
-        var g3 = new Group().settx(10).setty(150);
+        var b3 = new PushButton().setText("group trans")
+            .setTx(0).setTy(0);
+        var g3 = new Group().setTx(10).setTy(150);
         g3.add(b3);
         c.add(g3);
         
         
-        var b4 = new PushButton().settext("trans rot")
-            .settx(0).setty(0);
-        var g4 = new Transform().settx(100).setty(150)
-            .setrotate(0);
-        g4.setchild(b4);
+        var b4 = new PushButton().setText("trans rot")
+            .setTx(0).setTy(0);
+        var g4 = new Transform().setTx(100).setTy(150)
+            .setRotate(0);
+        g4.setChild(b4);
         c.add(g4);
         
-        var b5 = new PushButton().settext("group trans")
-            .settx(0).setty(0);
-        var g5 = new Transform().settx(100).setty(150)
-            .setscalex(1).setscaley(1);
-        g5.setchild(b5);
+        var b5 = new PushButton().setText("group trans")
+            .setTx(0).setTy(0);
+        var g5 = new Transform().setTx(100).setTy(150)
+            .setScalex(1).setScaley(1);
+        g5.setChild(b5);
         c.add(g5);
     }
     
     function anims(c) {
         var rect = new Rect();    
-        rect.setx(0);
-        rect.sety(0);
-        rect.setw(20);
-        rect.seth(20);
-        rect.setfill("red");
+        rect.setX(0);
+        rect.setY(0);
+        rect.setW(20);
+        rect.setH(20);
+        rect.setFill("red");
         c.add(rect);
+        /*
         function a(node, prop, start, finish, dur) {
             return new PropAnim()
-                .settarget(node)
-                .setname(prop)
-                .setstartvalue(start)
-                .setendvalue(finish)
-                .setduration(dur);
+                .setTarget(node)
+                .setName(prop)
+                .setStartvalue(start)
+                .setEndvalue(finish)
+                .setDuration(dur);
         }
+        */
         var anim = chain(
             together(
                 a(rect,"x",0,100,1000),
@@ -185,10 +307,11 @@ Corex.start(function(core) {
     root.add(testgroup);
     
     
-    var prevButton = new PushButton();
-    prevButton.settext("prev").setx(10).sety(10).setw(80).seth(20);
+    var prevButton = core.createPushButton();
+    prevButton.setText("prev").setX(10).setY(10).setW(80).setH(20);
     root.add(prevButton);
     root.on(Events.Press,prevButton,function(e){
+        console.log("pressed");
         testgroup.clear();
         current = current - 1;
         if(current < 0) {
@@ -197,8 +320,8 @@ Corex.start(function(core) {
         tests[current](testgroup);
     });
     
-    var nextButton = new PushButton();
-    nextButton.settext("next").setx(100).sety(10).setw(80).seth(20);
+    var nextButton = core.createPushButton();
+    nextButton.setText("next").setX(100).setY(10).setW(80).setH(20);
     root.add(nextButton);
     root.on(Events.Press,nextButton,function(e) {
         testgroup.clear();

@@ -135,7 +135,7 @@ function camelize(s) {
     }
     
     function shapes(c) {
-        var rect = new Rect();
+        var rect = core.createRect();
         rect.setX(100).setY(100).setW(50).setH(25).setFill("green");
         c.add(rect);
         
@@ -147,7 +147,7 @@ function camelize(s) {
             }
         }); 
         
-        var circle = new Circle();
+        var circle = core.createCircle();
         circle.setCx(50).setCy(100).setRadius(30).setFill('green');
         c.add(circle);
     
@@ -159,7 +159,7 @@ function camelize(s) {
         //preserves the drag target through the entire gesture
         root.on(Events.Drag, circle, function(e) {
             e.target.setCx(e.target.getCx() + e.delta.getX());
-            e.target.setCy(e.target.getCy() + e.delta.getX());
+            e.target.setCy(e.target.getCy() + e.delta.getY());
         });
     }
 
@@ -188,16 +188,11 @@ function camelize(s) {
         label.setY(130);
         c.add(label);
         
-        var slider = new Slider();
+        var slider = core.createSlider();
         slider.setX(200);
-        
         slider.setY(160);
         slider.setW(100);
         slider.setH(20);
-        root.on(Events.Drag, slider, function(e) {
-            var r = e.target;
-            r.setvalue(r.pointToValue(e.point.x-r.getx()));
-        });
         c.add(slider);
         
         

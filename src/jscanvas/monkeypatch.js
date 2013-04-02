@@ -173,7 +173,7 @@ ToggleButton = function() {
     });
     EventManager.get().on(Events.Release, this, function(e) {
         self.setBaseColor("gray");
-        self.setSelected(!self.getselected());
+        self.setSelected(!self.getSelected());
     });
     this.setBaseColor("gray");
 }
@@ -196,6 +196,10 @@ Slider = function() {
         var v = this.valueToPoint(this.value);
         g.fillRect(this.getX(),this.getY(),v,this.getH());
     }
+    EventManager.get().on(Events.Drag, this, function(e) {
+        var r = e.target;
+        r.setValue(r.pointToValue(e.point.x-r.getX()));
+    });
 }
 Slider.extend(old_slider);
 

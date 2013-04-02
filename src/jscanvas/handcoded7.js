@@ -284,6 +284,12 @@ function Engine() {
     this.createPushButton = function() {
         return new PushButton();
     }
+    this.createToggleButton = function() {
+        return new ToggleButton();
+    }
+    this.createSlider = function() {
+        return new Slider();
+    }
 }
 Engine.extend(Core);
 

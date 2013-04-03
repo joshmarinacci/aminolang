@@ -171,7 +171,7 @@ public class General extends Core {
         final Group testgroup = core.createGroup();
         root.add(testgroup);
         PushButton prevButton = core.createPushButton();
-        prevButton.setText("prev").setX(10).setY(10).setW(80).setH(20);
+        prevButton.setText("prev").setX(0).setY(0).setW(80).setH(20);
         root.add(prevButton);
         stage.on(Events.Press, prevButton, new ICallback() {
             public void call(Object obj) {
@@ -185,7 +185,7 @@ public class General extends Core {
         });
         
         PushButton nextButton = core.createPushButton();
-        nextButton.setText("next").setX(100).setY(10).setW(80).setH(20);
+        nextButton.setText("next").setX(100).setY(0).setW(80).setH(20);
         root.add(nextButton);
         stage.on(Events.Press,nextButton,new ICallback() {
             public void call(Object o) {
@@ -198,114 +198,6 @@ public class General extends Core {
             }
         });
         
-        
-        /*
-        final Rect rec1 = core.createRect();
-        rec1.setTx(0);
-        rec1.setW(10);
-        rec1.setH(10);
-        g.add(rec1);
-        
-        final Rect rec2 = core.createRect();
-        rec2.setTx(20);
-        rec2.setTy(20);
-        rec2.setX(0);
-        rec2.setY(0);
-        rec2.setW(10);
-        rec2.setH(10);
-        g.add(rec2);
-        */
-        /*
-        stage.on(Events.Press, rect, new ICallback() {
-            public void call(Object o) {
-                p("pressed");
-                rect.setFill(CoreImpl.GREEN);
-            }
-        });
-        */
-        
-        
-       /*
-        Circle circle = core.createCircle();
-        circle.setCx(40);
-        circle.setCy(20);
-        circle.setRadius(20);
-        g.add(circle);
-        */
-        /*
-        stage.on(Events.Drag, circle, new ICallback() {
-            public void call(Object o) {
-                Event e = (Event)o;
-                Node t = (Node)e.getTarget();
-                t.setTx(t.getTx()+e.getDelta().getX());
-                t.setTy(t.getTy()+e.getDelta().getY());
-            }
-        });
-        */
-        
-        
-        /*
-        PushButton button = core.createPushButton();
-        button.setText("button").setTx(0).setTy(60);
-        g.add(button);
-        stage.on(Events.Action.toString(), button, new ICallback() {
-            public void call(Object o) {
-                p("the button happened");
-            }
-        });
-        */
-        
-        /*
-        ToggleButton tbutton = new ToggleButton();
-        tbutton.setText("toggle");
-        tbutton.setX(200);
-        tbutton.setY(100);
-        root.add(tbutton);
-        
-        
-        Label label = new Label();
-        label.setText("label");
-        label.setX(200);
-        label.setY(130);
-        root.add(label);
-        
-        Slider slider = new Slider();
-        slider.setX(200);
-        slider.setY(160);
-        slider.setW(100);
-        slider.setH(20);        
-        root.add(slider);
-        
-        final Textbox textbox = new Textbox();
-        
-        textbox.setX(200);
-        textbox.setY(190);
-        textbox.setW(100);
-        textbox.setH(20);
-        textbox.setText("foo");
-        
-        root.add(textbox);
-        */
-        
-        /*
-        {
-            
-            AnchorPanel ap = new AnchorPanel();
-            ap.setTx(0);
-            ap.setTy(200);
-            ap.setW(200);
-            ap.setH(150);
-            
-            ToggleButton btn = new ToggleButton();
-            btn.setText("toggle");
-            btn.setX(0);
-            btn.setY(0);
-            btn.setRightanchored(true);
-            ap.add(btn);
-            
-            root.add(ap);
-        }
-        */
     }
 }
 

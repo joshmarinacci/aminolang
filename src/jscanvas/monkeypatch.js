@@ -473,6 +473,7 @@ var SceneParser = function() {
         if(this.typeMap[obj.type]) {
             var out = new this.typeMap[obj.type]();
             if(this.parentTypeMap[obj.type]) {
+                this.fillProps(out,obj);
                 this.parseChildren(out,obj);
             } else {
                 this.fillProps(out,obj);

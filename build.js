@@ -277,73 +277,6 @@ function cppgen(cb) {
 }
 
 
-function core(cb) {
-    //    doExec("node generate.js",cb);
-
-    //parse parsers.js
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    
-    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
-    var tree = JoshParser.matchAll(stdDefs,'top');
-    console.log("parsed defs");
-    console.log(u.inspect(tree,false,20));
-
-    /*
-    {
-        //js code    
-        var jscode = Josh2JS.matchAll([tree], 'blocks');
-        console.log("generated js code");
-        var jsoutdir = outdir+"/"+"jscanvas";
-        jb.mkdir(jsoutdir);
-        var jsout = jsoutdir+"/out.js";
-        fs.writeFileSync(jsout,jscode);
-        console.log("wrote out " + jsout);
-    }
-    
-
-
-    {
-        //java code
-        var java2dcode = Josh2Java.matchAll([tree], 'blocks');
-        console.log("generated java code");
-        var java2doutdir = outdir+"/"+"java2d";
-        jb.mkdir(java2doutdir);
-        var java2dout = java2doutdir+"/out.java";
-        
-        var javatemplate = fs.readFileSync('src/java2d/template_java','utf8');
-        javatemplate = javatemplate.replace("${test}",java2dcode);
-        
-        fs.writeFileSync(java2dout, javatemplate);
-        console.log("wrote out " + java2dout);
-    }
-    */
-    
-    /*
-    {
-        //C++ code
-        var code = Amino2CPP.matchAll([tree], 'blocks');
-        //console.log(code);
-        
-        var cppoutdir = outdir+"/cpp/";
-        jb.mkdir(cppoutdir);
-        fs.writeFileSync(cppoutdir+"out.h",
-            '#include <string>\n'+
-            '#include <vector>\n'+
-            'using namespace std;'+
-            Amino2CPP.getHFile());
-        fs.writeFileSync(cppoutdir+"out.cpp",
-            '#include "out.h"\n'+
-            Amino2CPP.getCPPFile());
-    }
-    */
-    
-    if(cb) cb();
-}
-
-
-
 function java2dcompile(cb) {
     console.log("doing the java2d core now");
     var files = [
@@ -374,8 +307,8 @@ function joglcompile(cb) {
     ];
     var outdir = "build/jogl/classes";
     var classpath = [
-        "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
-        "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
+        "/Users/josh/projects/lib/jogamp-all-platforms/jar/gluegen-rt.jar",
+        "/Users/josh/projects/lib/jogamp-all-platforms/jar/jogl-all.jar",
     ];
     jb.javac(files,outdir,{classpath:classpath.join(":")},cb);
 }
@@ -409,8 +342,8 @@ function java2dtest2(cb) {
 function jogltest(cb) {
     var classpath = [
         "build/jogl/classes",
-        "/Users/josh/projects/jogamp-all-platforms/jar/gluegen-rt.jar",
-        "/Users/josh/projects/jogamp-all-platforms/jar/jogl-all.jar",
+        "/Users/josh/projects/lib/jogamp-all-platforms/jar/gluegen-rt.jar",
+        "/Users/josh/projects/lib/jogamp-all-platforms/jar/jogl-all.jar",
     ];
     doExec("java -cp " + classpath.join(":") + " General", cb);
 }

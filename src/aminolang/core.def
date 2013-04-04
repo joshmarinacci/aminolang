@@ -88,6 +88,9 @@ class EventManager {
     func Node  findNode(Point point) {
         return null;
     }
+    func Point toLocalCoords(Point point, Node node) {
+        return point;
+    }
     
     func XEvent createEvent() {
         return null;
@@ -123,6 +126,9 @@ class EventManager {
         var node:Node;
         node = this.findNode(point);
         
+        var point2:Point;
+        point2 = this.toLocalCoords(point,node);
+        event.point = point2;
         
         if(type == Events.Press) {
             this.dragFocus = node;

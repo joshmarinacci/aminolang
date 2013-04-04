@@ -225,6 +225,7 @@ Slider = function() {
         g.fillRect(this.getX(),this.getY(),v,this.getH());
     }
     EventManager.get().on(Events.Drag, this, function(e) {
+            console.log(e.point);
         var r = e.target;
         r.setValue(r.pointToValue(e.point.x-r.getX()));
     });
@@ -470,7 +471,10 @@ var SceneParser = function() {
     this.typeMap = {
         "Group":Group,
         "Rect":Rect,
-        "PushButton":PushButton
+        "PushButton":PushButton,
+        "ToggleButton":ToggleButton,
+        "Label":Label,
+        "Slider":Slider,
     };
     this.parentTypeMap = {
         "Group":Group,

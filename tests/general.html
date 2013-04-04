@@ -174,39 +174,41 @@ function camelize(s) {
     
     function comps(c) {
         
-        var button = new PushButton();
+        var button = core.createPushButton();
         button.setText("button");
         button.setX(200);
         button.setY(50);
         c.add(button);
         
     
-        var tbutton = new ToggleButton();
+        var tbutton = core.createToggleButton();
         tbutton.setText("toggle");
         tbutton.setX(200);
         tbutton.setY(100);
         c.add(tbutton);
         
-        var label = new Label();
+        var label = core.createLabel();
         label.setText("label");
         label.setX(200);
         label.setY(130);
         c.add(label);
         
         var slider = core.createSlider();
-        slider.setX(200);
+        slider.setTx(200);
         slider.setY(160);
         slider.setW(100);
         slider.setH(20);
         c.add(slider);
         
         
-        var textbox = new Textbox();
+        
+        var textbox = core.createTextbox();
         textbox.setX(200);
         textbox.setY(190);
         textbox.setW(100);
         textbox.setH(20);
         textbox.setText("foo");
+        /*
         root.on(Events.KeyPress, textbox, function(e) {
             var t = textbox.getText();
             if(!t) t = "";
@@ -226,6 +228,7 @@ function camelize(s) {
             }
             textbox.settext(t+ch);
         });
+        */
         c.add(textbox);
     }
     
@@ -252,6 +255,12 @@ function camelize(s) {
         var g5 = new Transform().setTx(120).setTy(150).setScalex(2).setScaley(2);
         g5.setChild(b5);
         c.add(g5);
+        
+        
+        var slider = core.createSlider();
+        slider.setTx(100);
+        slider.setTy(50);
+        c.add(slider);
         
     }
     

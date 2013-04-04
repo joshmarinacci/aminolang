@@ -55,6 +55,19 @@ EventManager = function() {
         }
     }
     
+    
+    this.toLocalCoords = function(point, node) {
+        if(!node) return point;
+        while(true) {
+            point = new Point(point.x-node.getTx(),point.y-node.getTy());
+            if(node.getParent && node.getParent() && node.getParent().getParent) {
+                node = node.getParent();
+            } else {
+                break;
+            }
+        }
+        return point;
+    }
     this.findNode = function(point) {
         //go in reverse, ie: front to back
         for(var i=this.stage.nodes.length-1; i>=0; i--) {
@@ -297,6 +310,12 @@ function Engine() {
     }
     this.createSlider = function() {
         return new Slider();
+    }
+    this.createLabel = function() {
+        return new Label();
+    }
+    this.createTextbox = function() {
+        return new Textbox();
     }
 }
 Engine.extend(Core);

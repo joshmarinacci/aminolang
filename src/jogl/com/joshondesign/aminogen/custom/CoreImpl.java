@@ -729,12 +729,14 @@ public static class JoglPushButton extends
     @Override
     public void draw(GFX g) {
         JOGLGFX gfx = (JOGLGFX)g;
-//        gfx.fillQuadColor(RED, new Bounds(this.x, this.y, this.w, this.h));
+        gfx.fillQuadColor(RED, new Bounds(this.x, this.y, this.w, this.h));
+        /*
             gfx.fillQuadTexture(SkinTexture,
                     new Bounds(0, 0, 40, 20),
                     new Bounds(4, 7, 71 - 6, 74 - 9),
                     new Insets(3, 3, 3, 3));
             gfx.fillQuadText(RED, getText(), 0,0);
+            */
     }
     public Bounds getBounds() {
         Bounds b = new Bounds(this.getX(),this.getY(),this.getW(),this.getH());

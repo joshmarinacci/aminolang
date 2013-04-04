@@ -13,7 +13,7 @@ import static javax.media.opengl.GL2ES2.GL_VERTEX_SHADER;
 * To change this template use File | Settings | File Templates.
 */
 class Shader {
-    public static float SCALE = 0.005f;
+    public static float SCALE = 0.002f;
     protected int compileShader(GL2ES2 gl, String fragShaderText) {
         int fragShader = gl.glCreateShader(GL_FRAGMENT_SHADER);
         gl.glShaderSource(fragShader, 1, new String[]{fragShaderText}, null, 0);

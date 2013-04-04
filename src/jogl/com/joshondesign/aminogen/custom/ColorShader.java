@@ -55,6 +55,8 @@ class ColorShader extends Shader {
         //System.out.println("transform = " + trans[12]);
         gl.glUniformMatrix4fv(u_trans, 1, false, trans, 0);
 
+        //maybe need to include the transform in here too. 
+        //check the CPP code as well
         //the modelview matrix
         float[] rot = VUtils.identityMatrix();
         float sc = Shader.SCALE;

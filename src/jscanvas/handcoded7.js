@@ -286,6 +286,9 @@ function Engine() {
     this.createGroup = function() {
         return new Group();
     }
+    this.createTransform = function() {
+        return new Transform();
+    }
     this.createPushButton = function() {
         return new PushButton();
     }

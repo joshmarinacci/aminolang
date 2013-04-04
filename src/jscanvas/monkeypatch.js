@@ -69,10 +69,17 @@ var old_rect = Rect;
 Rect = function() {
     this.fill = "blue";
     this.draw = function(ctx) {
+        if(this.getOpacity() < 1) {
+            ctx.save();
+            ctx.globalAlpha = this.getOpacity();
+        }        
         ctx.fillStyle = this.fill;
         ctx.fillRect(this.x,this.y,this.w,this.h);
         ctx.fillStyle = "black";
         ctx.strokeRect(this.x,this.y,this.w,this.h);
+        if(this.getOpacity() < 1) {
+            ctx.restore();
+        }
     }
     this.getBounds = function() {
         var b = new Bounds(

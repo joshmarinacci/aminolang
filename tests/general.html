@@ -161,6 +161,11 @@ function camelize(s) {
             e.target.setCx(e.target.getCx() + e.delta.getX());
             e.target.setCy(e.target.getCy() + e.delta.getY());
         });
+        
+        
+        var r2 = core.createRect();
+        r2.setX(60).setY(100).setW(50).setH(50).setFill("yellow").setOpacity(0.5);
+        c.add(r2);
     }
 
     

@@ -68,6 +68,7 @@ class Node {
     prop boolean visible = true;
     prop double tx = 0;
     prop double ty = 0;
+    prop double opacity = 1.0;
     func Bounds getBounds() { return null; }
     func void draw(GFX ctx) { }
     func boolean contains(Point pt) {

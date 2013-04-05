@@ -470,9 +470,11 @@ var SceneParser = function() {
         "Label":Label,
         "Slider":Slider,
         "ListView":ListView,
+        "Document":Group,
     };
     this.parentTypeMap = {
         "Group":Group,
+        "Document":Group,
     };
     
     this.parse = function(obj) {

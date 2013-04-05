@@ -339,12 +339,10 @@ ListView = function() {
     this.setselectedIndex = function(index) {
         var i = index;
         if(this.listModel.items) {
-            //console.log("len = " + this.listModel.items.length);
             if(i > this.listModel.items.length-1) {
                 i = this.listModel.items.length-1;
             }
         }
-        //console.log("setting index to : " + i);
         this.index = i;
         this.fireChange();
         return this;
@@ -369,6 +367,7 @@ ListView = function() {
         return this;
     }
 
+    this.scroll = 0;
     this.draw = function(ctx) {
         ctx.font = "15px sans-serif";
         //background
@@ -381,13 +380,18 @@ ListView = function() {
         
         ctx.fillStyle = "black";
         for(var i=0; i<this.listModel.length; i++) {
+            var y = i*this.rh;
+            if(y < this.scroll) continue;
+            if(y > this.getH()+this.scroll) break;
             ctx.fillText(this.listModel[i],
-                this.x+5,this.y+i*this.rh+15);
+                this.x+5,this.y+y+15-this.scroll);
         }
         if(this.listModel.items) {
             for(var i=0; i<this.listModel.items.length; i++) {
+                var y = i*this.rh;
+                if(y > this.getH()) break;
                 ctx.fillText(this.listModel.items[i],
-                    this.x+5,this.y+i*this.rh+15);
+                    this.x+5,this.y+y+15);
             }
         }
         
@@ -397,28 +401,19 @@ ListView = function() {
     }
 	var self = this;
 	EventManager.get().on(Events.Press, this, function(e) {
-            console.log("clicked on listview at : ");
-            console.log(e);
             var y = e.point.y - self.y - self.ty;
-            console.log("y = " + y + " row height = " + self.rh);
             var n = parseInt(y / self.rh,10);
-            console.log("row = " + n);
             self.setselectedIndex(n);
 	});
-	
-	/*
-    this.setup = function(root) {
-        root.onPress(this,function(e) {
-            console.log("clicked on listview at : ");
-            console.log(e);
-            var y = e.point.y - self.y;
-            console.log("y = " + y + " row height = " + self.rh);
-            var n = parseInt(y / self.rh,10);
-            console.log("row = " + n);
-            self.setSelectedIndex(n);
-        });
-        return this;
-    }*/
+	EventManager.get().on(Events.Drag, this, function(e) {
+//            console.log("drag on listview at : ",e.delta);
+            self.scroll -= e.delta.y;
+            if(self.scroll < 0) self.scroll = 0;
+            var maxH = self.rh * self.listModel.length;
+            if(self.scroll + self.getH() > maxH) {
+                self.scroll = maxH-self.getH();
+            }
+	});
     return this;
 }
 ListView.extend(old_ListView);
@@ -474,6 +469,7 @@ var SceneParser = function() {
         "ToggleButton":ToggleButton,
         "Label":Label,
         "Slider":Slider,
+        "ListView":ListView,
     };
     this.parentTypeMap = {
         "Group":Group,

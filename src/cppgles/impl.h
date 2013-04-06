@@ -1,12 +1,14 @@
-#include <ui/DisplayInfo.h>
+/*#include <ui/DisplayInfo.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
+*/
+#include <GL/glfw.h>
 #include <string>
 #include <stack>
 
 using std::stack;
 
-class Event : public XEvent {
+class BEvent : public XEvent {
 public:
     float x;
     float y;
@@ -21,30 +23,15 @@ static int MOVE = 0;
 static int PRESS = 1;
 static int RELEASE = 2;
 
-
-class TStage : public Stage {
+class BPropAnim : public PropAnim {
 public:
-    virtual void draw();
-    virtual void addAnim(PropAnim* anim);
-    vector<PropAnim*> anims;
-};
-
-class TPropAnim : public PropAnim {
-public:
-    TPropAnim();
+    BPropAnim();
     clock_t currTime;
     clock_t startTime;
     bool alive;
 };
 
-class TCore : public Core {
-public:
-    virtual void start();
-    virtual Stage* createStage();
-    TStage* _stage;
-};
-
-
+/*
 class GLGFX: public GFX {
 public:
     GLGFX();
@@ -57,55 +44,20 @@ public:
     virtual void fillQuadText(char* text, double x, double y);
     stack<void*> matrixStack;
 };
+*/
 
-
-class TColor : public Color {
+class BColor : public Color {
 public:
-    TColor(GLfloat r, GLfloat g, GLfloat b);
+    BColor(GLfloat r, GLfloat g, GLfloat b);
     GLfloat* comps;
 };
 
-class TGroup : public Group {
+class BBounds : public Bounds {
 public:
-    TGroup();
-    virtual void add(Node* child);
-    virtual void markDirty();
-    virtual bool isParent();
-};
-
-class TRect : public Rect {
-public:
-    TRect();
-    virtual void draw(GFX* gfx);
-    virtual Bounds* getBounds();
-};
-
-class TPushButton : public PushButton {
-public:
-    TPushButton();
-    virtual void draw(GFX* gfx);
-    TColor* fill;
-};
-
-class TLabel : public Label {
-public:
-    TLabel();
-    virtual void draw(GFX* gfx);
-};
-
-class TImageView : public ImageView {
-public:
-    TImageView();
-    GLint texture;
-    virtual void draw(GFX* gfx);
-};
-
-class TBounds : public Bounds {
-public:
-    TBounds(float x, float y, float w, float h);
+    BBounds(float x, float y, float w, float h);
     virtual float getX2();
     virtual float getY2();
-    virtual TBounds* add(float x, float y);
+    virtual BBounds* add(float x, float y);
 };
 
 
@@ -127,7 +79,7 @@ public:
     GLint attr_pos;
     GLint attr_color;
 };
-
+/*
 class FontShader: public Shader {
 public:
     FontShader();
@@ -147,4 +99,4 @@ public:
     GLint attr_pos;
     GLint attr_texcoords, attr_tex, texID;
 };
-
+*/

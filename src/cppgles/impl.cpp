@@ -1,19 +1,40 @@
-#include "build/cpp/out.h"
-#include "src/cppgles/impl.h"
+#include "out.h"
+#include "impl.h"
 
 #include <png.h>
 
 GLuint png_texture_load(const char * file_name, int * width, int * height);
 
-TColor::TColor(GLfloat r, GLfloat g, GLfloat b) {
+BColor::BColor(GLfloat r, GLfloat g, GLfloat b) {
     comps = new GLfloat[3];
     comps[0] = r;
     comps[1] = g;
     comps[2] = b;
 }
 
+/* ==== Bounds Impl ========== */
 
+float BBounds::getX2() {
+    return this->getX() + this->getW();
+}
+float BBounds::getY2() {
+    return this->getY() + this->getH();
+}
+BBounds::BBounds(float x, float y, float w, float h)
+    :Bounds(x,y,w,h) 
+    {
+    }
+BBounds* BBounds::add(float x, float y) {
+    BBounds* b2 = new BBounds(
+        getX()+x,
+        getY()+y,
+        getW(),
+        getH()
+        );
+    return b2;
+}
 
+/*
 TGroup::TGroup() {
     setVisible(true);
 }
@@ -35,31 +56,10 @@ TPropAnim::TPropAnim() {
     startTime = -1;
 }
 
-
-/* ========== rect impl ============ */
 TRect::TRect() {
     setVisible(true);
     setFill(new TColor(0,0,0));
 }
-Bounds* TRect::getBounds() {
-    Bounds* b = new TBounds(
-            this->getX(),
-            this->getY(),
-            this->getW(),
-            this->getH()
-        );
-    return b;
-}
-
-void TRect::draw(GFX* gfx) {
-    Bounds* bounds = getBounds();
-    GLGFX* g = (GLGFX*)gfx;
-    g->fillQuadColor(getFill(), bounds);
-//    g->fillQuadTexture(bounds, NULL);
-//    char* text = "ABCDEF";
-//    g->fillQuadText(text,bounds->getX(),bounds->getY());
-}
-
 TPushButton::TPushButton() {
     setVisible(true);
     this->fill = new TColor(0.5,0.5,0.5);
@@ -74,8 +74,6 @@ void TPushButton::draw(GFX* gfx) {
     char* cstr = (char*)this->getText().c_str();
     g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
 }
-
-
 TLabel::TLabel() {
     setVisible(true);
 }
@@ -87,8 +85,6 @@ void TLabel::draw(GFX* gfx) {
     char* cstr = (char*)this->getText().c_str();
     g->fillQuadText(cstr, b->getX()+10,b->getY()+10);
 }
-
-
 TImageView::TImageView() {
     setVisible(true);
 }
@@ -99,32 +95,13 @@ void TImageView::draw(GFX* gfx) {
         this->getW(),this->getH());
     g->fillQuadTexture(b, NULL);
 }
+*/
 
-
-/* ==== Bounds Impl ========== */
-float TBounds::getX2() {
-    return this->getX() + this->getW();
-}
-float TBounds::getY2() {
-    return this->getY() + this->getH();
-}
-TBounds::TBounds(float x, float y, float w, float h)
-    :Bounds(x,y,w,h) 
-    {
-    }
-TBounds* TBounds::add(float x, float y) {
-    TBounds* b2 = new TBounds(
-        getX()+x,
-        getY()+y,
-        getW(),
-        getH()
-        );
-    return b2;
-}
     
 
 
 /* === Shader impl ==== */
+
 
 Shader::Shader() {
     printf("creating a shader\n");
@@ -179,7 +156,8 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 
 ColorShader::ColorShader() {
    static const char *fragShaderText =
-      "precision mediump float;\n"
+   //the precision only seems to work on mobile, not desktop
+   // "precision mediump float;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_FragColor = v_color;\n"
@@ -228,6 +206,7 @@ void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[
 
 
 /* ======== Font Shader impl ====== */
+/*
 static int keys[] =  {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,63,72,-1,74,75,76,78,68,80,81,79,83,64,84,65,66,53,54,55,56,57,58,59,60,61,62,-1,67,-1,85,-1,-1,73,0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,69,71,70,77,82,-1,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 static double offsets[] = {0.0,15.0,17.0,16.0,35.0,15.0,52.0,17.0,71.0,13.0,86.0,12.0,100.0,17.0,119.0,18.0,139.0,18.0,159.0,7.0,168.0,6.0,176.0,15.0,193.0,12.0,207.0,22.0,231.0,18.0,251.0,19.0,272.0,14.0,288.0,19.0,309.0,15.0,326.0,13.0,341.0,13.0,356.0,17.0,375.0,14.0,391.0,22.0,415.0,14.0,431.0,13.0,446.0,14.0,462.0,13.0,477.0,15.0,494.0,11.0,507.0,15.0,524.0,13.0,539.0,8.0,549.0,13.0,564.0,15.0,581.0,6.0,589.0,6.0,597.0,13.0,612.0,6.0,620.0,22.0,644.0,15.0,661.0,14.0,677.0,15.0,694.0,15.0,711.0,10.0,723.0,11.0,736.0,8.0,746.0,15.0,763.0,12.0,777.0,19.0,798.0,13.0,813.0,12.0,827.0,11.0,840.0,14.0,856.0,14.0,872.0,14.0,888.0,14.0,904.0,14.0,920.0,14.0,936.0,14.0,952.0,14.0,968.0,14.0,984.0,14.0,1000.0,6.0,1008.0,6.0,1016.0,6.0,1024.0,9.0,1035.0,6.0,1043.0,5.0,1050.0,8.0,1060.0,8.0,1070.0,9.0,1081.0,6.0,1089.0,22.0,1113.0,16.0,1131.0,14.0,1147.0,20.0,1169.0,13.0,1184.0,18.0,1204.0,13.0,1219.0,7.0,1228.0,7.0,1237.0,11.0,1250.0,14.0,1266.0,8.0,1276.0,14.0,};
 
@@ -393,11 +372,12 @@ void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat vert
     glDisableVertexAttribArray(attr_texcoords);
 }    
 
-
+*/
 
 
 /* =========== PNG to Texture ========= */
 
+/*
 GLuint png_texture_load(const char * file_name, int * width, int * height)
 {
     png_byte header[8];
@@ -534,3 +514,4 @@ GLuint png_texture_load(const char * file_name, int * width, int * height)
     fclose(fp);
     return texture;
 }
+*/

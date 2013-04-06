@@ -10,6 +10,7 @@ value Point {
     prop double x;
     prop double y;
     func Point minus(Point p) {
+    /*
         var pt:Point;
         var x:double;
         x = this.x-p.x;
@@ -17,6 +18,8 @@ value Point {
         y = this.y-p.y;
         pt = new Point(x,y);
         return pt;
+        */
+        return NULL;
     }
 }
 class Color {
@@ -104,7 +107,7 @@ class EventManager {
     func void repeat(int interval, Callback fn) { }
     
     func void processPointerEvent(Object type, Point point) {
-    
+        /*
         var event:XEvent;
         event = this.createEvent();
         event.type = type;
@@ -147,7 +150,7 @@ class EventManager {
             event.target = node;
             this.fireEvent(event);
         }
-    
+        */
     }
 }
 

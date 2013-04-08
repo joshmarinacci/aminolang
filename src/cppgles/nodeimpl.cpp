@@ -262,6 +262,7 @@ public:
     }
     
     void draw() {
+        printf("NodeStage.draw()\n");
         GLfloat /*mat[16], */rot[16], scale[16], trans[16];
         modelView = new GLfloat[16];
         
@@ -277,14 +278,19 @@ public:
         mul_matrix(mat2, scale, rot);
         mul_matrix(modelView, mat2, trans);
         
+        printf("clearing\n");
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+        printf("checking root\n");
+        if(getRoot() == NULL) {
+            printf("root is null!!\n");
+        }
         GLGFX* gfx = new GLGFX();
         drawIt(gfx,root);
         delete gfx;
     }
     
     void drawIt(GLGFX* gfx, Node* root) {
+        printf("checking for visible %d\n",root->getVisible());
         if(!root->getVisible()) return;
     //    gfx->save();
     //    printf("tx = %f ty = %f\n",root->getTx(),root->getTy());
@@ -292,6 +298,14 @@ public:
         root->draw(gfx);
     //    gfx->restore();
     }
+    NodeStage() {
+        printf("in the NodeStage constructor\n");
+        setRoot(NULL);
+        if(root == NULL) {
+            printf("really null\n");
+        }
+    }
+    ~NodeStage() { }
 private:
     static v8::Persistent<v8::Function> constructor;    
     //invoke the real SetH
@@ -299,6 +313,7 @@ private:
         HandleScope scope;
         NodeStage* self = ObjectWrap::Unwrap<NodeStage>(args.This());
         NodeRect* root = ObjectWrap::Unwrap<NodeRect>(args[0]->ToObject());
+        printf("static NodeStage::SetRoot()\n");
         self->root = root;
         return scope.Close(Undefined());
     }
@@ -313,6 +328,7 @@ public:
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
+        printf("inited the GLFW\n");
         
         // Prepare constructor template
         Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
@@ -355,9 +371,9 @@ public:
             glfwTerminate();
             exit(EXIT_FAILURE);
         }
-        //_stage = new NodeStage();
-        //return _stage;
-        return NULL;
+        _stage = new NodeStage();
+        return _stage;
+        //return NULL;
     }
     
     static v8::Handle<v8::Value> CreateStage(const v8::Arguments& args) {
@@ -383,10 +399,10 @@ public:
     }
     
     
-    void realstart(Callback* fn) {
+    void _start() {
         printf("starting\n");
         colorShader = new ColorShader();
-        
+        printf("calling GLFW\n");
         while (glfwGetWindowParam(GLFW_OPENED))
         {
             printf("drawing\n");
@@ -401,10 +417,9 @@ public:
     
     static v8::Handle<v8::Value> Start(const v8::Arguments& args) {
         HandleScope scope;
-        Core* self = Unwrap<NodeCore>(args.This());
+        NodeCore* self = Unwrap<NodeCore>(args.This());
         printf("starting\n");
-        Callback* cb = new Callback();
-        self->start(cb);
+        self->_start();
         printf("starting\n");
         return scope.Close(Undefined());
     }
@@ -432,7 +447,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
   module->Set(String::NewSymbol("exports"),
       FunctionTemplate::New(CreateObject)->GetFunction());
   
-  /*
+  
   NodeCore* core = new NodeCore();
   Stage* stage = core->createStage();
   Rect* rect   = core->createRect();
@@ -440,7 +455,8 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
   rect->setH(100);
   rect->setVisible(true);
   stage->setRoot(rect);
-  core->start(NULL);*/
+  core->_start();
+  
 }
 
 NODE_MODULE(aminonode, InitAll)

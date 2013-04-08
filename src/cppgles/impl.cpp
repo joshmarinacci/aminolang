@@ -1,5 +1,6 @@
 #include "out.h"
 #include "impl.h"
+#include <GL/glfw.h>
 
 #include <png.h>
 
@@ -109,9 +110,12 @@ Shader::Shader() {
 
 int Shader::compileVertShader(const char* text) {
     GLint stat;
+    printf("inside compile vert shader\n");
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+    printf("created a shader\n");
     glShaderSource(vertShader, 1, (const char **) &text, NULL);
     glCompileShader(vertShader);
+    printf("compiled\n");
     glGetShaderiv(vertShader, GL_COMPILE_STATUS, &stat);
     if (!stat) {
         printf("Error: vertex shader did not compile!\n");
@@ -174,10 +178,13 @@ ColorShader::ColorShader() {
       "   v_color = color;\n"
       "}\n";
 
+      printf("about to compile shaders\n");
    GLuint vert = compileVertShader(vertShaderText);
+   printf("did a compile\n");
    GLuint frag = compileFragShader(fragShaderText);
    prog = compileProgram(vert,frag);
    
+      printf("about to use shaders\n");
    glUseProgram(prog);
    attr_pos   = glGetAttribLocation(prog, "pos");
    attr_color = glGetAttribLocation(prog, "color");

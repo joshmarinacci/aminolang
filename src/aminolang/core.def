@@ -19,7 +19,7 @@ value Point {
         pt = new Point(x,y);
         return pt;
         */
-        return NULL;
+        return null;
     }
 }
 class Color {

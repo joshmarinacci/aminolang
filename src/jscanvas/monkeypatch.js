@@ -444,6 +444,36 @@ FlickrQuery.extend(old_FlickrQuery);
 // Label.fontsize
 // AnchorPanel must be a parent
 
+function Transition() {
+    var self = this;
+    this.pushTarget = null;
+    this.pushTrigger = null;
+    this.stage = null;
+    this.push = function() {
+        self.stage.addAnim(a(self.pushTarget,"tx",150,0,300));
+    }
+    this.pop = function() {
+        self.stage.addAnim(a(this.pushTarget,"tx",0,150,300));
+    }
+    this.install = function(stage) {
+        self.stage = stage;
+        this.pushTarget.setTx(150);
+        stage.on(Events.Press, this.pushTrigger, function(e) {
+            self.push();
+        });
+    }
+}
+
+function findNode(id, node) {
+    if(node.id && node.id == id) return node;
+    if(node.isparent && node.isparent()) {
+        for(var i=0; i<node.getChildCount(); i++) {
+            var ret = findNode(id,node.getChild(i));
+            if(ret != null) return ret;
+        }
+    }
+    return null;
+}
 
 var SceneParser = function() {
     this.parseChildren = function(val, obj) {
@@ -461,6 +491,21 @@ var SceneParser = function() {
             out[prop] = obj[prop];
         }
     }
+    
+    this.parseBindings = function(val, obj) {
+        console.log("parsing bindings " + obj.bindings.length);
+        val.bindings = [];
+        for(var i=0; i<obj.bindings.length; i++) {
+            var bin = obj.bindings[i];
+            var trans = new Transition();
+            console.log("doing " + bin.pushTarget);
+            console.log("doing " + bin.pushTrigger);
+            
+            trans.pushTrigger = findNode(bin.pushTrigger,val);
+            trans.pushTarget = findNode(bin.pushTarget,val);
+            val.bindings.push(trans);
+        }
+    }
 
     this.typeMap = {
         "Group":Group,
@@ -471,10 +516,12 @@ var SceneParser = function() {
         "Slider":Slider,
         "ListView":ListView,
         "Document":Group,
+        "DynamicGroup":Group,
     };
     this.parentTypeMap = {
         "Group":Group,
         "Document":Group,
+        "DynamicGroup":Group,
     };
     
     this.parse = function(obj) {
@@ -486,6 +533,11 @@ var SceneParser = function() {
             } else {
                 this.fillProps(out,obj);
             }
+            
+            if(obj.type == "Document" && obj.bindings) {
+                this.parseBindings(out,obj);
+            }
+            
             return out;
         }
         console.log("warning. no object parsed here!");

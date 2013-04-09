@@ -310,11 +310,11 @@ AnchorPanel = function() {
     this.isparent = function() { return true; }
     this.draw = function(g) {
         g.fillStyle = "lightGray";
-        g.fillRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
 //        console.log("is parent = " + this.isparent);
         g.lineWidth = 2;
         g.strokeStyle = "black";
-        g.strokeRect(this.getx(),this.gety(),this.getw(),this.geth());
+        g.strokeRect(this.getX(),this.getY(),this.getW(),this.getH());
     };
     this.add = function(a) {
         this.nodes.push(a);
@@ -517,11 +517,13 @@ var SceneParser = function() {
         "ListView":ListView,
         "Document":Group,
         "DynamicGroup":Group,
+        "AnchorPanel":AnchorPanel,
     };
     this.parentTypeMap = {
         "Group":Group,
         "Document":Group,
         "DynamicGroup":Group,
+        "AnchorPanel":AnchorPanel,
     };
     
     this.parse = function(obj) {

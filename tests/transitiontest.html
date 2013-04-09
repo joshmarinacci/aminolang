@@ -1,0 +1,72 @@
+<html>
+<head>
+<script src='jquery.js'></script>
+<script src='../src/jscanvas/init.js'></script>
+<script src='../build/jscanvas/out.js'></script>
+<script src='../src/jscanvas/handcoded7.js'></script>
+<script src='../src/jscanvas/monkeypatch.js'></script>
+<style type='text/css'>
+</style>
+</head>
+<body>
+<canvas id='mycanvas' width='200' height='300'></canvas>
+<script language="JavaScript">
+    function camelize(s) {
+        return s.substring(0,1).toUpperCase() + s.substring(1);
+    }
+    function a(node, prop, start, finish, dur) {
+        return {
+            node:node,
+            prop:prop,
+            sval:start,
+            fval:finish,
+            dur:dur,
+            running:false,
+            finished:false,
+            easefn:null,
+            setVal:function(t) {
+                if(this.easefn != null) {
+                    t = this.easefn(t);
+                }
+                var v = (this.fval-this.sval)*t + this.sval;
+                //console.log("t = " + t + " " + v);
+                node["set"+camelize(this.prop)](v);
+            },
+            update:function() {
+                if(this.finished) return;
+                if(!this.running) {
+                    this.startTime = new Date().getTime();
+                    this.running = true;
+                    return;
+                }
+                var time = new Date().getTime();
+                var dt = time-this.startTime;
+                var t = dt/this.dur;
+                if(t > 1) {
+                    this.finished = true;
+                    this.setVal(1);
+                    return;
+                }
+                this.setVal(t);
+            },
+            setEase:function(easefn) {
+                this.easefn = easefn;
+                return this;
+            }
+        };
+    }
+
+Corex.start(function(core) {
+    var stage = core.createStage('mycanvas');
+    $.getJSON("../../temp/scene.json",undefined, function(sceneRaw) { 
+        console.log(sceneRaw);
+        var root = new SceneParser().parse(sceneRaw);
+        console.log(root);
+        root.bindings[0].install(stage);
+        stage.on(Events.Press, findNode("sendButton",root), function(e) { root.bindings[0].pop(); });
+        stage.setRoot(root);
+    });
+});
+</script>
+</body>
+</html>

@@ -308,10 +308,17 @@ var old_anchorpanel = AnchorPanel;
 AnchorPanel = function() {
     this.nodes = [];
     this.isparent = function() { return true; }
+    this.fill = "lightGray";
+    this.setFill = function(fill) {
+        this.fill = fill;
+        return this;
+    };
+    this.getFill = function() {
+        return this.fill;
+    };
     this.draw = function(g) {
-        g.fillStyle = "lightGray";
+        g.fillStyle = this.fill;
         g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
-//        console.log("is parent = " + this.isparent);
         g.lineWidth = 2;
         g.strokeStyle = "black";
         g.strokeRect(this.getX(),this.getY(),this.getW(),this.getH());

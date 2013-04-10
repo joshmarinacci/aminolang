@@ -166,6 +166,7 @@ class Stage {
     func void markDirty() {    }
     func void on(Object type, Object target, Callback fn) { }
     func void addAnim(PropAnim anim) { }
+    func Node findNode(String id) { }
 }
 
 

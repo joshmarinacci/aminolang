@@ -122,6 +122,10 @@ function CanvasStage(can)  {
         n.parent = this;
         return this;
     }
+    this.getRoot = function() {
+        return this.nodes[0];
+    }
+    
     this.on = function(name, target, fn) {
         EventManager.get().on(name,target,fn);
     }
@@ -248,6 +252,19 @@ function CanvasStage(can)  {
         ctx.restore();
     }
 	
+    this.findNode = function(id) {
+        return this.findNode_helper(id,this.getRoot());
+    }
+    this.findNode_helper = function(id, node) {
+        if(node.id && node.id == id) return node;
+        if(node.isparent && node.isparent()) {
+            for(var i=0; i<node.getChildCount(); i++) {
+                var ret = this.findNode_helper(id,node.getChild(i));
+                if(ret != null) return ret;
+            }
+        }
+        return null;
+    }
 }
 
 

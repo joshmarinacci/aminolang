@@ -516,16 +516,6 @@ function Transition() {
     }
 }
 
-function findNode(id, node) {
-    if(node.id && node.id == id) return node;
-    if(node.isparent && node.isparent()) {
-        for(var i=0; i<node.getChildCount(); i++) {
-            var ret = findNode(id,node.getChild(i));
-            if(ret != null) return ret;
-        }
-    }
-    return null;
-}
 
 var SceneParser = function() {
     this.parseChildren = function(val, obj) {
@@ -544,6 +534,17 @@ var SceneParser = function() {
         }
     }
     
+    this.findNode = function(id, node) {
+        if(node.id && node.id == id) return node;
+        if(node.isparent && node.isparent()) {
+            for(var i=0; i<node.getChildCount(); i++) {
+                var ret = this.findNode(id,node.getChild(i));
+                if(ret != null) return ret;
+            }
+        }
+        return null;
+    }
+    
     this.parseBindings = function(val, obj) {
         console.log("parsing bindings " + obj.bindings.length);
         val.bindings = [];
@@ -551,8 +552,8 @@ var SceneParser = function() {
             var bin = obj.bindings[i];
             var trans = new Transition();
             trans.id = bin.id;
-            trans.pushTrigger = findNode(bin.pushTrigger,val);
-            trans.pushTarget = findNode(bin.pushTarget,val);
+            trans.pushTrigger = this.findNode(bin.pushTrigger,val);
+            trans.pushTarget = this.findNode(bin.pushTarget,val);
             val.bindings.push(trans);
         }
     }

@@ -450,6 +450,50 @@ FlickrQuery.extend(old_FlickrQuery);
 // ListView
 // Label.fontsize
 // AnchorPanel must be a parent
+function camelize(s) {
+    return s.substring(0,1).toUpperCase() + s.substring(1);
+}
+function a(node, prop, start, finish, dur) {
+    return {
+        node:node,
+        prop:prop,
+        sval:start,
+        fval:finish,
+        dur:dur,
+        running:false,
+        finished:false,
+        easefn:null,
+        setVal:function(t) {
+            if(this.easefn != null) {
+                t = this.easefn(t);
+            }
+            var v = (this.fval-this.sval)*t + this.sval;
+            //console.log("t = " + t + " " + v);
+            node["set"+camelize(this.prop)](v);
+        },
+        update:function() {
+            if(this.finished) return;
+            if(!this.running) {
+                this.startTime = new Date().getTime();
+                this.running = true;
+                return;
+            }
+            var time = new Date().getTime();
+            var dt = time-this.startTime;
+            var t = dt/this.dur;
+            if(t > 1) {
+                this.finished = true;
+                this.setVal(1);
+                return;
+            }
+            this.setVal(t);
+        },
+        setEase:function(easefn) {
+            this.easefn = easefn;
+            return this;
+        }
+    };
+}
 
 function Transition() {
     var self = this;
@@ -457,14 +501,15 @@ function Transition() {
     this.pushTrigger = null;
     this.stage = null;
     this.push = function() {
-        self.stage.addAnim(a(self.pushTarget,"tx",150,0,300));
+        self.stage.addAnim(a(self.pushTarget,"tx",320,0,300));
     }
     this.pop = function() {
-        self.stage.addAnim(a(this.pushTarget,"tx",0,150,300));
+        self.stage.addAnim(a(this.pushTarget,"tx",0,320,300));
     }
     this.install = function(stage) {
+        console.log("installing transition");
         self.stage = stage;
-        this.pushTarget.setTx(150);
+        this.pushTarget.setTx(320);
         stage.on(Events.Press, this.pushTrigger, function(e) {
             self.push();
         });
@@ -505,9 +550,7 @@ var SceneParser = function() {
         for(var i=0; i<obj.bindings.length; i++) {
             var bin = obj.bindings[i];
             var trans = new Transition();
-            console.log("doing " + bin.pushTarget);
-            console.log("doing " + bin.pushTrigger);
-            
+            trans.id = bin.id;
             trans.pushTrigger = findNode(bin.pushTrigger,val);
             trans.pushTarget = findNode(bin.pushTarget,val);
             val.bindings.push(trans);

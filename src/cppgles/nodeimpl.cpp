@@ -175,13 +175,36 @@ public:
         return scope.Close(Undefined());
     }
     
-    
     static v8::Handle<v8::Value> real_Start(const v8::Arguments& args) {
         HandleScope scope;
         colorShader = new ColorShader();
-        Local<Function> rootCB = Local<Function>::Cast(args[0]);        
+        Local<Function> drawCB = Local<Function>::Cast(args[0]);        
+        Local<Function> eventCB = Local<Function>::Cast(args[1]);
         while (glfwGetWindowParam(GLFW_OPENED))
         {
+            
+            //check for events
+            int mx;
+            int my;
+            glfwGetMousePos(&mx,&my);
+            int mbut = glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+            //printf("mouse = %d,%d  %d\n",mx,my,mbut);
+            
+            //create a small JS object for the event info
+            Local<Object> event_obj = Object::New();
+            event_obj->Set(String::NewSymbol("msg"), String::New("hello_world"));
+            event_obj->Set(String::NewSymbol("x"), Number::New(mx));
+            event_obj->Set(String::NewSymbol("y"), Number::New(my));
+            event_obj->Set(String::NewSymbol("button"), Number::New(mbut));
+            
+            //call the event callback
+            Handle<Value> event_argv[] = {event_obj};
+            eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
+            
+
+            
+            
+            //do the drawing
             glClear( GL_COLOR_BUFFER_BIT );
             
             GLfloat rot[16], scale[16], trans[16];
@@ -208,7 +231,7 @@ public:
             Local<Object> obj = point_templ->NewInstance();
             obj->SetInternalField(0, External::New(gfx));
             Handle<Value> argv[] = { obj };
-            rootCB->Call(Context::GetCurrent()->Global(), 1, argv);
+            drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
             
             glfwSwapBuffers();
         }

@@ -36,9 +36,9 @@ Corex.start(function(core) {
             if(t < 0.5) return cubicIn(t*2.0)/2.0;
             return 1-cubicIn((1-t)*2)/2;                
         }
-function camelize(s) {
-    return s.substring(0,1).toUpperCase() + s.substring(1);
-}
+    function camelize(s) {
+        return s.substring(0,1).toUpperCase() + s.substring(1);
+    }
     
     function a(node, prop, start, finish, dur) {
         return {

@@ -34,7 +34,9 @@ stage.on("PRESS", r1, function() {
 });
 
 stage.on("DRAG",r2, function(e) {
-        console.log("drag event",e);
+    console.log("drag event",e.delta);
+    e.target.setTx(e.target.getTx()+e.delta.getX());
+    e.target.setTy(e.target.getTy()+e.delta.getY());
 });
 
 

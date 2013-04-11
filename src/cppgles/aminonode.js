@@ -151,18 +151,26 @@ function JSStage() {
         if(e.button == 0 && self.prevButton == 1) {
             self.processPointerEvent("RELEASE", new Point(e.x,e.y));
         }
+        if(e.button == 1 && self.prevButton == 1) {
+            self.processPointerEvent("DRAG",new Point(e.x,e.y));
+        }
         self.prevButton = e.button;
     }
+    this.mouselast = new Point(0,0);
     this.processPointerEvent= function(type, point) {
-        //console.log("processing a pointer event " + type + " ", point);
+        // console.log("processing a pointer event " + type + " ", point);
         
         var event = this.createEvent();
         event.type = type;
         if(type == "PRESS") {
             event.point = point;
         }
+        if(type == "DRAG") {
+            event.delta = point.minus(this.mouselast);
+            event.point = point;
+        }
         var node = this.findNode(point);
-        console.log("clicked on node: " + node);
+        // console.log("clicked on node: " + node);
         event.point = point;
         if(type=="PRESS"){
             this.dragFocus = node;
@@ -175,10 +183,10 @@ function JSStage() {
             event.target = node;
             this.fireEvent(event)
         }
-        
+        this.mouselast = point;        
     }
     this.findNode = function(point) {
-        console.log("about to find a node for point ", point);
+        // console.log("about to find a node for point ", point);
         //go in reverse, ie: front to back
         return this.real_findNode(this.root,point);
     }
@@ -186,6 +194,7 @@ function JSStage() {
         if(!node) return null;
         if(node.getVisible && !node.getVisible()) return null;
         var pt2 = new Point(point.x,point.y);
+        
         /*
         if(node instanceof Transform) {
             pt2 = node.toInnerCoords(pt2);
@@ -193,6 +202,8 @@ function JSStage() {
             pt2 = new Point(pt2.x-node.getTx(),pt2.y-node.getTy());
         }
         */
+        pt2 = new Point(pt2.getX()-node.getTx(),pt2.getY()-node.getTy());
+        
         
         if(node.isParent && node.isParent()) {
             //go in reverse, front to back
@@ -265,7 +276,7 @@ function JSRect() {
         return "red";
     };
     this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
+        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
     };
     this.contains = function(pt){
         if(pt.x<this.x){

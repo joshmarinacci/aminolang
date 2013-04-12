@@ -1,3 +1,10 @@
+/*
+add this to the out.js file
+exports.GFX = GFX;
+exports.Node = Node;
+exports.Point = Point;
+*/
+
 // 'extend' is From Jo lib, by Dave Balmer
 // syntactic sugar to make it easier to extend a class
 Function.prototype.extend = function(superclass, proto) {
@@ -13,78 +20,11 @@ Function.prototype.extend = function(superclass, proto) {
 	*/
 };
 
-
-
+var generated = require('../../build/cpp/out.js');
+var Point = generated.Point;
 var amino = require('../../build/Release/aminonode');
 var core = amino();//.getCore(); //cpp
 
-
-function Point ( x,  y) {
-    this.x = x;
-    this.y = y;
-    this.x;
-    this.getX = function(){
-        return this.x;
-    }
-    this.y;
-    this.getY = function(){
-        return this.y;
-    }
-    this.minus = function(p){
-        var pt;
-        var x;
-        x = this.x-p.x;
-        var y;
-        y = this.y-p.y;
-        pt = new Point(x,y);
-        return pt;
-    }
-}
-
-function Node() {
-    this.contains = function(pt){
-        return false;
-    }
-    this.visible = true;
-    this.getVisible = function(){
-        return this.visible;
-    }
-    this.setVisible = function(visible){
-        this.visible=visible;
-        this.markDirty();
-        return this;
-    }
-    this.markDirty = function(){
-        if(this.parent!=null){
-            this.parent.markDirty();
-        }
-    }
-    this.tx = 0;
-    this.getTx = function(){
-        return this.tx;
-    }
-    this.setTx = function(Tx){
-        this.tx=Tx;
-        this.markDirty();
-        return this;
-    }
-    this.ty = 0;
-    this.getTy = function(){
-        return this.ty;
-    }
-    this.setTy = function(Ty){
-        this.ty=Ty;
-        this.markDirty();
-        return this;
-    }
-    this.markDirty = function(){
-        if(this.parent!=null){
-            this.parent.markDirty();
-        }
-    }
-}
-
-    
 function JSStage() {
     this.listeners = {};
     this.on = function(name, target, fn) {
@@ -294,7 +234,7 @@ function JSRect() {
         return true;
     }
 }
-JSRect.extend(Node);
+JSRect.extend(generated.Node);
 
 core.createStage = function() {
     this.stage = new JSStage();
@@ -342,7 +282,7 @@ function JSGroup() {
         this.nodes = [];
     }
 }
-JSGroup.extend(Node);
+JSGroup.extend(generated.Node);
 
 core.createGroup = function() {
     return new JSGroup();

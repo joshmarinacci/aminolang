@@ -165,7 +165,7 @@ public:
     
     static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
         HandleScope scope;
-        int ret = glfwOpenWindow(640, 480, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
+        int ret = glfwOpenWindow(800, 800, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
         if(!ret) {
             printf("error. quitting\n");
             glfwTerminate();
@@ -173,6 +173,35 @@ public:
         }
         
         return scope.Close(Undefined());
+    }
+    
+    static void loadOrthoMatrix (GLfloat *matrix,  GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat near, GLfloat far) {
+            GLfloat r_l = right - left;
+            GLfloat t_b = top - bottom;
+            GLfloat f_n = far - near;
+            GLfloat tx = - (right + left) / (right - left);
+            GLfloat ty = - (top + bottom) / (top - bottom);
+            GLfloat tz = - (far + near) / (far - near);
+            
+            modelView[0] = 2.0f / r_l;
+            modelView[1] = 0.0f;
+            modelView[2] = 0.0f;
+            modelView[3] = tx;
+        
+            modelView[4] = 0.0f;
+            modelView[5] = 2.0f / t_b;
+            modelView[6] = 0.0f;
+            modelView[7] = ty;
+        
+            modelView[8] = 0.0f;
+            modelView[9] = 0.0f;
+            modelView[10] = 2.0f / f_n;
+            modelView[11] = tz;
+        
+            modelView[12] = 0.0f;
+            modelView[13] = 0.0f;
+            modelView[14] = 0.0f;
+            modelView[15] = 1.0f;
     }
     
     static v8::Handle<v8::Value> real_Start(const v8::Arguments& args) {
@@ -211,15 +240,16 @@ public:
             modelView = new GLfloat[16];
             
             // Set the modelview/projection matrix
-            float sc = 0.0017;
+            //float sc = 0.0017;
             //float sc = 0.0031;
-            make_scale_matrix(sc*1.73,sc*-1,sc, scale);
-            make_trans_matrix(-640/2,-480/2,trans);
-            make_z_rot_matrix(0, rot);
+            //make_scale_matrix(sc*1.73,sc*-1,sc, scale);
+            //make_trans_matrix(-640/2,-480/2,trans);
+            //make_z_rot_matrix(0, rot);
             
-            GLfloat mat2[16];
-            mul_matrix(mat2, scale, rot);
-            mul_matrix(modelView, mat2, trans);
+            //GLfloat mat2[16];
+            //mul_matrix(mat2, scale, rot);
+            //mul_matrix(modelView, mat2, trans);
+            loadOrthoMatrix(modelView, 0, 800, 800, 0, 0, 100);
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             

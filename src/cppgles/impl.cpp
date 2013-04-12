@@ -174,7 +174,7 @@ ColorShader::ColorShader() {
       "attribute vec4 color;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
-      "   gl_Position = modelviewProjection * trans * pos;\n"
+      "   gl_Position = pos * modelviewProjection;\n"
       "   v_color = color;\n"
       "}\n";
 

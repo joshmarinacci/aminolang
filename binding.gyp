@@ -1,11 +1,11 @@
 {
     "targets": [
         {
-            "target_name":"aminonode",
-            "sources":["build/cpp/out.cpp","src/cppgles/impl.cpp","src/cppgles/nodeimpl.cpp"],
+            "target_name":"amino",
+            "sources":["src/node/mac.cpp","src/node/shaders.cpp"],
             "include_dirs": [
                     "/Users/josh/projects/lib/glfw/include",
-                    "build/cpp/",
+                    "src/node/",
             ],
             "library_dirs": [
                     "/Users/josh/projects/lib/glfw/lib/cocoa",

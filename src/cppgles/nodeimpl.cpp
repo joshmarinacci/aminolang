@@ -1,7 +1,6 @@
 //#define BUILDING_NODE_EXTENSION
 #include <math.h>
 #include <node.h>
-#include "out.h"
 #include "impl.h"
 #include "mathutils.h"
 #include <GL/glfw.h>

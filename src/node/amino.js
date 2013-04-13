@@ -20,10 +20,11 @@ Function.prototype.extend = function(superclass, proto) {
 	*/
 };
 
-var generated = require('../../src/node/out.js');
+var generated = require('/data/node/out.js');
 var Point = generated.Point;
-var amino = require('../../build/Release/amino');
+var amino = require('/data/node/aminonative');
 console.log("generated = ", generated);
+console.log("amino = ",amino);
 //amino.testNative();
 var core = amino.createCore();
 core.testNative = amino.testNative;

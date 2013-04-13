@@ -10,11 +10,10 @@
 
 using namespace v8;
 
-//static GLfloat view_rotx = 90, view_roty = 0.0;
 static GLfloat* modelView;
 static ColorShader* colorShader;
 
-class GLGFX /*: public node::ObjectWrap*/ {
+class GLGFX : public node::ObjectWrap {
 public:
     static void dumpValue(Local<Value> val) {
         if(val.IsEmpty()) { printf("is empty\n"); }
@@ -35,7 +34,7 @@ public:
         if(val->IsRegExp()) {  printf("it is a Reg Exp\n");  }
     }
     
-    /*
+    
     static Handle<v8::Value> node_fillQuadColor(const v8::Arguments& args) {
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
@@ -58,7 +57,7 @@ public:
 
         return scope.Close(Undefined());
     }
-    */
+    
     
     GLfloat* transform;
     std::stack<void*> matrixStack;

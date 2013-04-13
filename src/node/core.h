@@ -4,6 +4,7 @@
 #include <math.h>
 #include <node.h>
 #include <stack>
+#include <string>
 #include "common.h"
 #include "shaders.h"
 
@@ -12,6 +13,7 @@ using namespace v8;
 
 static GLfloat* modelView;
 static ColorShader* colorShader;
+static FontShader* fontShader;
 
 class GLGFX : public node::ObjectWrap {
 public:
@@ -71,6 +73,21 @@ public:
         return scope.Close(Undefined());
     }
     
+    static Handle<v8::Value> node_fillQuadText(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        Local<Value> arg(args[0]);
+        
+        v8::String::Utf8Value param1(args[0]->ToString());
+        std::string text = std::string(*param1);    
+        char * cstr = new char [text.length()+1];
+        std::strcpy (cstr, text.c_str());
+        printf("str %s\n",cstr);
+        double x = args[1]->ToNumber()->NumberValue();
+        double y = args[2]->ToNumber()->NumberValue();
+        self->fillQuadText(cstr, x, y);
+        return scope.Close(Undefined());
+    }
     
     GLfloat* transform;
     std::stack<void*> matrixStack;
@@ -109,13 +126,7 @@ public:
         float x2 = bounds->getX()+bounds->getW();
         float y2 = bounds->getY()+bounds->getH();
         
-        /*
-    float x = 0;
-    float y = 0;
-    float x2 = 50;
-    float y2 = 50;
-    */
-//        printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
+        //        printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
     
         
         GLfloat verts[6][2];
@@ -146,6 +157,10 @@ public:
         
         //printf("view = %f, trans = %f\n", modelView[0], transform[0]);
         colorShader->apply(modelView, transform, verts, colors);
+    }
+    
+    void fillQuadText(char* text, double x, double y) {
+        fontShader->apply(modelView, transform, text, x, y);
     }
     void scale(double x, double y){
     }

@@ -1,9 +1,10 @@
 #include <node.h>
+#include <math.h>
+#include <time.h>
 
 #include "core.h"
 
-#include <math.h>
-#include <time.h>
+
 #include "klaatu_events.h"
 
 using android::sp;
@@ -63,7 +64,7 @@ void klaatu_init_graphics(int *width, int *height)
   EXPECT_TRUE(eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext));
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
   
-
+  
 }
 
 EventSingleton* eventSingleton;
@@ -154,6 +155,7 @@ public:
         glClearColor(1.0, 1.0, 1.0, 1.0);
     
         colorShader = new ColorShader();
+        fontShader  = new FontShader();
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
         

@@ -21,7 +21,7 @@ public:
     GLint attr_pos;
     GLint attr_color;
     
-    
+/*    
 void draw() {
         GLfloat mat[16];
         loadOrthoMatrix(mat, 0, 720, 1280, 0, 0, 100);
@@ -58,17 +58,6 @@ void draw() {
         verts[5][0] = x;
         verts[5][1] = y;
 
-        /*
-    static const GLfloat colors[6][3] = {
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 1, 0, 0 },
-      { 0, 1, 0 },
-      { 0, 1, 0 },
-      { 0, 0, 1 }
-    };
-    */
-    
         GLfloat colors[6][3];
         for(int i=0; i<6; i++) {
             for(int j=0; j<3; j++) {
@@ -88,6 +77,19 @@ void draw() {
     glDisableVertexAttribArray(this->attr_color);
     
 }
+*/
     
 };
+
+class FontShader: public Shader {
+public:
+    FontShader();
+    virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text, float x, float y);
+    int prog;
+    GLint u_matrix, u_trans;
+    GLint attr_pos;
+    GLint attr_texcoords, attr_tex, texID;
+};
+
+
 

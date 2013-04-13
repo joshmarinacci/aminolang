@@ -312,6 +312,7 @@ function JSPushButton() {
     this.h = 100;
     this.draw = function(gfx) {
         gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
+        //gfx.fillText(new Color(0,0,0), "some text", 50,50);
         /*
         g.fillStyle = "black";
         g.fillText(this.getText(),this.getX()+5,this.getY()+15);
@@ -360,15 +361,10 @@ function JSSlider() {
         return p * (this.maxvalue-this.minvalue)/this.w + this.minvalue;
     }
     this.draw = function(gfx) {
-        
-//        g.fillStyle = "gray";
         var color = new Color(0.5,0.5,0.5);
-//        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
         gfx.fillQuadColor(color,self.getBounds());
-//        g.fillStyle = "black";
         color = new Color(0,0,0);
         var v = this.valueToPoint(this.value);
-        //g.fillRect(this.getX(),this.getY(),v,this.getH());
         var bds = { 
             x: self.x + self.getTx(), 
             y: self.y + self.getTy(),

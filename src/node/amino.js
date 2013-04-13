@@ -246,6 +246,8 @@ core.createRect = function() {
     return new JSRect();
 }
 
+
+
 function Color(r,g,b) {
     this.r = r;
     this.g = g;
@@ -302,6 +304,97 @@ JSGroup.extend(generated.Node);
 core.createGroup = function() {
     return new JSGroup();
 }
+
+
+function JSPushButton() {
+    var self = this;
+    this.w = 200;
+    this.h = 100;
+    this.draw = function(gfx) {
+        gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
+        /*
+        g.fillStyle = "black";
+        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
+        */
+    };
+    this.setBaseColor(new Color(0.5,0.5,0.5));
+    this.getBounds = function() {
+        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+    };
+}
+JSPushButton.extend(generated.PushButton);
+core.createPushButton = function() {
+    return new JSPushButton();
+}
+
+
+
+function JSToggleButton() {
+    var self = this;
+    this.w = 200;
+    this.h = 100;
+    this.draw = function(gfx) {
+        gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
+    };
+    this.setBaseColor(new Color(0.5,0.5,0.5));
+    this.getBounds = function() {
+        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+    };
+}
+JSToggleButton.extend(generated.ToggleButton);
+core.createToggleButton = function() {
+    return new JSToggleButton();
+}
+
+
+
+function JSSlider() {
+    var self = this;
+    this.w = 200;
+    this.h = 100;
+    this.valueToPoint = function(v) {
+        return (this.value-this.minvalue) *
+            (this.w / (this.maxvalue-this.minvalue));
+    }
+    this.pointToValue = function(p) {
+        return p * (this.maxvalue-this.minvalue)/this.w + this.minvalue;
+    }
+    this.draw = function(gfx) {
+        
+//        g.fillStyle = "gray";
+        var color = new Color(0.5,0.5,0.5);
+//        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
+        gfx.fillQuadColor(color,self.getBounds());
+//        g.fillStyle = "black";
+        color = new Color(0,0,0);
+        var v = this.valueToPoint(this.value);
+        //g.fillRect(this.getX(),this.getY(),v,this.getH());
+        var bds = { 
+            x: self.x + self.getTx(), 
+            y: self.y + self.getTy(),
+            w: v,
+            h: self.getH()
+        };
+        gfx.fillQuadColor(color, bds);
+        
+    }
+    /*
+    EventManager.get().on(Events.Drag, this, function(e) {
+        var r = e.target;
+        r.setValue(r.pointToValue(e.point.x-r.getX()));
+    });
+    */
+    this.setBaseColor(new Color(0.5,0.5,0.5));
+    this.getBounds = function() {
+        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+    };
+}
+JSSlider.extend(generated.Slider);
+core.createSlider = function() {
+    return new JSSlider();
+}
+
+
 core.windowCreated = false;
 core.start = function() {
     if(!this.windowCreated) {

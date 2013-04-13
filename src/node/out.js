@@ -1082,3 +1082,6 @@ stage.setRoot(g)
     
 exports.Point = Point;
 exports.Node = Node;
+exports.PushButton = PushButton;
+exports.ToggleButton = ToggleButton;
+exports.Slider = Slider;

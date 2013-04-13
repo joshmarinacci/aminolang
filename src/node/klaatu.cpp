@@ -206,7 +206,7 @@ Handle<Value> TestNative(const Arguments& args) {
         loadOrthoMatrix(modelView, 0, 720, 1280, 0, 0, 100);
         
         GLGFX* glgfx = new GLGFX();
-        glgfx->fillQuadColor(NULL, new Bounds(0,0,50,50));
+        glgfx->fillQuadColor(1,1,1, new Bounds(0,0,50,50));
         delete glgfx;
         
         eglSwapBuffers(mEglDisplay, mEglSurface);

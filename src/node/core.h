@@ -40,6 +40,19 @@ public:
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
         Local<Value> arg(args[0]);
         
+//        printf("filling a quad\n");
+        double r = 1;
+        double g = 1;
+        double b = 1;
+        if(args[0]->IsObject()) {
+//            printf("opening the color object\n");
+            Local<Object> fill = args[0]->ToObject();
+            r = fill->Get(String::New("r"))->NumberValue();
+            g = fill->Get(String::New("g"))->NumberValue();
+            b = fill->Get(String::New("b"))->NumberValue();
+//            printf("color = %f %f %f\n",r,g,b);
+        }
+        
         //v8::String::Utf8Value param1(args[0]->ToString());
         //std::string foo = std::string(*param1);    
         //printf("str %s\n",foo.c_str());
@@ -52,7 +65,7 @@ public:
             double dy = bnds->Get(String::New("y"))->NumberValue();
             double dw = bnds->Get(String::New("w"))->NumberValue();
             double dh = bnds->Get(String::New("h"))->NumberValue();
-            self->fillQuadColor(NULL,new Bounds(dx,dy,dw,dh));
+            self->fillQuadColor(r,g,b,new Bounds(dx,dy,dw,dh));
         }
 
         return scope.Close(Undefined());
@@ -89,7 +102,7 @@ public:
         for (int i = 0; i < 16; i++) transform[i] = trans2[i];
     }
     
-    void fillQuadColor(Color* color, Bounds* bounds) {
+    void fillQuadColor(float r, float g, float b, Bounds* bounds) {
         
         float x =  bounds->getX();
         float y =  bounds->getY();
@@ -102,7 +115,7 @@ public:
     float x2 = 50;
     float y2 = 50;
     */
-        printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
+//        printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
     
         
         GLfloat verts[6][2];
@@ -125,6 +138,9 @@ public:
         for(int i=0; i<6; i++) {
             for(int j=0; j<3; j++) {
                 colors[i][j] = 0.5;
+                if(j==0) colors[i][j] = r;
+                if(j==1) colors[i][j] = g;
+                if(j==2) colors[i][j] = b;
             }
         }
         

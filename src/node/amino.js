@@ -23,9 +23,6 @@ Function.prototype.extend = function(superclass, proto) {
 var generated = require('/data/node/out.js');
 var Point = generated.Point;
 var amino = require('/data/node/aminonative');
-console.log("generated = ", generated);
-console.log("amino = ",amino);
-//amino.testNative();
 var core = amino.createCore();
 core.testNative = amino.testNative;
 
@@ -202,7 +199,7 @@ function JSRect() {
         this.h = h;
         return this;
     };
-    this.fill;
+    this.fill = new Color(0.5,0.5,0.5);
     this.getFill = function(){
         return this.fill;
     }
@@ -215,9 +212,6 @@ function JSRect() {
     var self = this;
     this.draw = function(gfx) {
         gfx.fillQuadColor(self.getFill(),self.getBounds());
-    };
-    this.getFill = function() {
-        return "red";
     };
     this.getBounds = function() {
         return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
@@ -249,6 +243,20 @@ core.createRect = function() {
     return new JSRect();
 }
 
+function Color(r,g,b) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.getRFloat = function() {
+        return this.r;
+    }
+    this.getGFloat = function() {
+        return this.g;
+    }
+    this.getBFloat = function() {
+        return this.b;
+    }
+}
 
 function JSGroup() {
     this.nodes = [];
@@ -301,4 +309,5 @@ core.start = function() {
 
 
 exports.getCore =function() { return core; }
+exports.Color = Color;
 

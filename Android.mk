@@ -16,6 +16,7 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= \
     src/node/shaders.cpp \
     src/node/klaatu.cpp \
+    src/node/klaatu_events.cpp \
     
 LOCAL_MODULE:= aminolang
 LOCAL_MODULE_TAGS := optional

@@ -84,25 +84,27 @@ function JSStage() {
         //ctx.restore();
     }
     
-    self.prevButton = 0;
+    //self.prevButton = 0;
     this.processEvents = function(e) {
-        if(e.button == 1 && self.prevButton == 0) {
+        //console.log("raw event: ",e);
+        if(e.type == "press") {
             self.processPointerEvent("PRESS", new Point(e.x,e.y));
         }
-        if(e.button == 0 && self.prevButton == 1) {
+        if(e.type == "release") {
             self.processPointerEvent("RELEASE", new Point(e.x,e.y));
         }
-        if(e.button == 1 && self.prevButton == 1) {
+        if(e.type == "drag") {
             self.processPointerEvent("DRAG",new Point(e.x,e.y));
         }
-        self.prevButton = e.button;
+        //self.prevButton = e.button;
     }
     this.mouselast = new Point(0,0);
     this.processPointerEvent= function(type, point) {
-        // console.log("processing a pointer event " + type + " ", point);
+        //console.log("processing a pointer event " + type + " ", point);
         
         var event = this.createEvent();
         event.type = type;
+        //console.log("type = " + event.type + " " + this.mouselast.x + " " + this.mouselast.y);
         if(type == "PRESS") {
             event.point = point;
         }
@@ -110,8 +112,9 @@ function JSStage() {
             event.delta = point.minus(this.mouselast);
             event.point = point;
         }
+        
         var node = this.findNode(point);
-        // console.log("clicked on node: " + node);
+        //console.log("clicked on node: " + node);
         event.point = point;
         if(type=="PRESS"){
             this.dragFocus = node;

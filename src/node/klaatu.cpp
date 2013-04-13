@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <time.h>
+#include "klaatu_events.h"
 
 using android::sp;
 
@@ -65,6 +66,52 @@ void klaatu_init_graphics(int *width, int *height)
 
 }
 
+EventSingleton* eventSingleton;
+class EVDispatcher : public EventSingleton {
+public:
+    bool down;
+    Local<Function> cb;
+    EVDispatcher(Local<Function> CB) {
+        down = false;
+        cb = CB;
+    }
+    virtual void touchStart(float rx, float ry, unsigned int tap_count=0) { 
+        if(down) {
+            //printf("touch moving\n");
+            Local<Object> event = Object::New();
+            event->Set(String::NewSymbol("x"), Number::New(rx));
+            event->Set(String::NewSymbol("y"), Number::New(ry));
+            event->Set(String::NewSymbol("type"), String::New("drag"));
+            Handle<Value> argv[] = {event};
+            cb->Call(Context::GetCurrent()->Global(), 1, argv);
+            
+        } else {
+            down = true;
+            //printf("touch starting\n");
+            Local<Object> event = Object::New();
+            event->Set(String::NewSymbol("x"), Number::New(rx));
+            event->Set(String::NewSymbol("y"), Number::New(ry));
+            event->Set(String::NewSymbol("type"), String::New("press"));
+            Handle<Value> argv[] = {event};
+            cb->Call(Context::GetCurrent()->Global(), 1, argv);
+        }
+    }
+    virtual void touchMove(float rx, float ry, unsigned int tap_count=0) { 
+        //printf("touch moving\n");
+    }
+    virtual void touchEnd(float rx, float ry, unsigned int tap_count=0) { 
+        //printf("touch ending\n");
+        Local<Object> event = Object::New();
+        event->Set(String::NewSymbol("x"), Number::New(rx));
+        event->Set(String::NewSymbol("y"), Number::New(ry));
+        event->Set(String::NewSymbol("type"), String::New("release"));
+        Handle<Value> argv[] = {event};
+        cb->Call(Context::GetCurrent()->Global(), 1, argv);
+        down = false;
+    }
+};
+
+
 class KlaatuCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
@@ -76,7 +123,10 @@ public:
         return scope.Close(Undefined());
     }
     
+
     static v8::Handle<v8::Value> real_Start(const v8::Arguments& args) {
+        HandleScope scope;
+
         printf("the core is starting\n");
         int winWidth = 300, winHeight = 300;
         EGLint egl_major, egl_minor;
@@ -98,25 +148,29 @@ public:
         printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
         printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
         printf(" window size = %d %d\n",winWidth,winHeight);
+        
+        
+        
         glClearColor(1.0, 1.0, 1.0, 1.0);
     
-        HandleScope scope;
         colorShader = new ColorShader();
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
         
+        eventSingleton = new EVDispatcher(eventCB);
+        enable_touch(winWidth,winHeight);
+
+
         modelView = new GLfloat[16];
         printf("starting\n");
         for (;;) {
+            if(event_indication) {
+                event_process();
+            }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             GLfloat mat[16];
             loadOrthoMatrix(modelView, 0, 720, 1280, 0, 0, 100);
             
-            /*
-            GLGFX* glgfx = new GLGFX();
-            glgfx->fillQuadColor(NULL, new Bounds(0,0,50,50));
-            delete glgfx;
-            */
             
             //create a wrapper template for gfx
             Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
@@ -163,6 +217,12 @@ public:
     
     
 };
+
+
+
+
+
+
 
 
 Handle<Value> CreateObject(const Arguments& args) {

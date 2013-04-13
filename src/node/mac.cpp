@@ -137,6 +137,7 @@ Handle<Value> TestNative(const Arguments& args) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GLGFX* gfx = new GLGFX();
         gfx->fillQuadColor(NULL, new Bounds(0,0,50,50));
+        delete gfx;
         glfwSwapBuffers();
     }
     

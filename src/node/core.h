@@ -97,8 +97,6 @@ public:
         GLfloat verts[6][2];
         GLfloat colors[6][3];
         
-        //BColor* tcol = (BColor*)color;
-        
         for(int i=0; i<6; i++) {
             for(int j=0; j<3; j++) {
                 //                colors[i][j] = tcol->comps[j];

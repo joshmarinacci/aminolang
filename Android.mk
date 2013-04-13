@@ -1,11 +1,23 @@
 LOCAL_PATH:= $(call my-dir)
 
-
+#define a static lib for v8
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES:= build/cpp/out.cpp src/cppgles/test1.cpp \
-    src/cppgles/impl.cpp \
-    src/cppgles/events.cpp \
-    tests/toddler.cpp 
+SHOW_COMMANDS         := show
+LOCAL_MODULE_TAGS     := optional
+LOCAL_MODULE          := libv8
+LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
+#LOCAL_MODULE_SUFFIX   := .so
+LOCAL_SRC_FILES       := libv8.so
+include $(BUILD_PREBUILT)
+
+
+
+#reset to do the real build of our module
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES:= \
+    src/node/shaders.cpp \
+    src/node/klaatu.cpp \
+    
 LOCAL_MODULE:= aminolang
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES := frameworks/base/services \
@@ -14,12 +26,17 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/stlport/stlport \
 	external/libpng \
 	external/zlib \
+	external/myapps/node/src \
+	external/myapps/node/deps/uv/include \
+	external/myapps/node/deps/v8/include \
 	frameworks/base/include/surfaceflinger
 LOCAL_STATIC_LIBRARIES := libcutils libc libpng libz
-LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput \
-libmedia libcutils libbinder
+LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput libv8
+#libmedia libcutils libbinder
 
-include $(BUILD_EXECUTABLE)
+#include $(BUILD_EXECUTABLE)
+#building a shared lib because this is for a NodeJS addon
+include $(BUILD_SHARED_LIBRARY)
 
 
 

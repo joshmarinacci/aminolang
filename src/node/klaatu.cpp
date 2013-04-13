@@ -2,6 +2,19 @@
 
 #include "core.h"
 
+#include <math.h>
+#include <time.h>
+
+using android::sp;
+
+static EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
+static EGLSurface mEglSurface = EGL_NO_SURFACE;
+static EGLContext mEglContext = EGL_NO_CONTEXT;
+static sp<android::SurfaceComposerClient> mSession;
+static sp<android::SurfaceControl>        mControl;
+static sp<android::Surface>               mAndroidSurface;
+
+
 void klaatu_init_graphics(int *width, int *height)
 {
   
@@ -52,12 +65,12 @@ void klaatu_init_graphics(int *width, int *height)
 
 }
 
-class MacCore : public NodeCore , public node::ObjectWrap{
+class KlaatuCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
     }
     
-    
+    /*
     static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
         HandleScope scope;
         return scope.Close(Undefined());
@@ -92,21 +105,21 @@ public:
     //wrap the real constructor
     static Handle<Value> New(const Arguments& args) {
       HandleScope scope;
-      MacCore* obj = new MacCore();
+      KlaatuCore* obj = new KlaatuCore();
       obj->start();
       //obj->real_OpenWindow(args);
       obj->Wrap(args.This());
       return args.This();
     }
+    */
     
 };
 
-
+/*
 Handle<Value> CreateObject(const Arguments& args) {
     HandleScope scope;
     return scope.Close(KlaatuCore::NewInstance(args));
-}
-
+}*/
 
 //a simple test that opens a 400x400 window
 //and draws a grey rect on a black background
@@ -134,40 +147,31 @@ Handle<Value> TestNative(const Arguments& args) {
     printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
     printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
     printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-    printf("window size = %d %d\n",winWidth,winHeight);
+    printf(" window size = %d %d\n",winWidth,winHeight);
     glClearColor(1.0, 1.0, 1.0, 1.0);
     colorShader = new ColorShader();
+    modelView = new GLfloat[16];
     for (;;) {
-        GLfloat /*mat[16], */rot[16], scale[16], trans[16];
-        modelView = new GLfloat[16];
-        // Set the modelview/projection matrix
-        //float sc = 0.0015;
-        float sc = 0.0031;
-        make_scale_matrix(sc*1.73,sc*-1,sc, scale);
-        make_trans_matrix(-1280/4,-720/4,trans);
-        make_z_rot_matrix(90, rot);
-        
-        GLfloat mat2[16];
-        mul_matrix(mat2, scale, rot);
-        mul_matrix(modelView, mat2, trans);
-        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       
-       
-        GLGFX* gfx = new GLGFX();
-        gfx->fillQuadColor(NULL, new Bounds(0,0,50,50);
-        delete gfx;
+        GLfloat mat[16];
+        loadOrthoMatrix(modelView, 0, 720, 1280, 0, 0, 100);
+        
+        GLGFX* glgfx = new GLGFX();
+        glgfx->fillQuadColor(NULL, new Bounds(0,0,50,50));
+        delete glgfx;
+        
         eglSwapBuffers(mEglDisplay, mEglSurface);
     } 
     return scope.Close(Undefined());
 }
-    
 
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
-  KlaatuCore::Init();
-  exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
-  exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
+    exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
+  //KlaatuCore::Init();
+  
+  //exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
+  //exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
 }
 
 NODE_MODULE(amino, InitAll)

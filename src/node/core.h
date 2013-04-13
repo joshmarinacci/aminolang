@@ -1,19 +1,20 @@
+#include <ui/DisplayInfo.h>
+#include <ui/FramebufferNativeWindow.h>
+#include <gui/SurfaceComposerClient.h>
 #include <math.h>
 #include <node.h>
-#include <GL/glfw.h>
 #include <stack>
 #include "common.h"
-#include "mathutils.h"
 #include "shaders.h"
 
 
 using namespace v8;
 
-static GLfloat view_rotx = 90, view_roty = 0.0;
+//static GLfloat view_rotx = 90, view_roty = 0.0;
 static GLfloat* modelView;
 static ColorShader* colorShader;
 
-class GLGFX: public node::ObjectWrap {
+class GLGFX /*: public node::ObjectWrap*/ {
 public:
     static void dumpValue(Local<Value> val) {
         if(val.IsEmpty()) { printf("is empty\n"); }
@@ -33,6 +34,8 @@ public:
         if(val->IsNativeError()) {  printf("it is a Native Error\n");  }
         if(val->IsRegExp()) {  printf("it is a Reg Exp\n");  }
     }
+    
+    /*
     static Handle<v8::Value> node_fillQuadColor(const v8::Arguments& args) {
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
@@ -55,6 +58,7 @@ public:
 
         return scope.Close(Undefined());
     }
+    */
     
     GLfloat* transform;
     std::stack<void*> matrixStack;
@@ -87,23 +91,22 @@ public:
     }
     
     void fillQuadColor(Color* color, Bounds* bounds) {
+        
         float x =  bounds->getX();
         float y =  bounds->getY();
         float x2 = bounds->getX()+bounds->getW();
         float y2 = bounds->getY()+bounds->getH();
-        //printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
+        
+        /*
+    float x = 0;
+    float y = 0;
+    float x2 = 50;
+    float y2 = 50;
+    */
+        printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
     
         
         GLfloat verts[6][2];
-        GLfloat colors[6][3];
-        
-        for(int i=0; i<6; i++) {
-            for(int j=0; j<3; j++) {
-                //                colors[i][j] = tcol->comps[j];
-                colors[i][j] = 0.8;
-            }
-        }
-        
         verts[0][0] = x;
         verts[0][1] = y;
         verts[1][0] = x2;
@@ -118,8 +121,16 @@ public:
         verts[5][0] = x;
         verts[5][1] = y;
         
+        GLfloat colors[6][3];
+        
+        for(int i=0; i<6; i++) {
+            for(int j=0; j<3; j++) {
+                colors[i][j] = 0.5;
+            }
+        }
+        
         //printf("view = %f, trans = %f\n", modelView[0], transform[0]);
-        colorShader->apply(modelView, transform,verts,colors);
+        colorShader->apply(modelView, transform, verts, colors);
     }
     void scale(double x, double y){
     }

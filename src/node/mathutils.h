@@ -1,3 +1,4 @@
+#include <math.h>
 
 
 //these should probably move into the NodeStage class or a GraphicsUtils class

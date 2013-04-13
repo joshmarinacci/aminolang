@@ -1,4 +1,7 @@
-#include <GL/glfw.h>
+#include <ui/DisplayInfo.h>
+#include <ui/FramebufferNativeWindow.h>
+#include <gui/SurfaceComposerClient.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -63,7 +66,7 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 ColorShader::ColorShader() {
    static const char *fragShaderText =
    //the precision only seems to work on mobile, not desktop
-   // "precision mediump float;\n"
+      "precision mediump float;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_FragColor = v_color;\n"
@@ -71,7 +74,7 @@ ColorShader::ColorShader() {
       
    static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
-      "uniform mat4 trans;\n"
+//      "uniform mat4 trans;\n"
       "attribute vec4 pos;\n"
       "attribute vec4 color;\n"
       "varying vec4 v_color;\n"
@@ -91,13 +94,16 @@ ColorShader::ColorShader() {
    attr_pos   = glGetAttribLocation(prog, "pos");
    attr_color = glGetAttribLocation(prog, "color");
    u_matrix   = glGetUniformLocation(prog, "modelviewProjection");
-   u_trans    = glGetUniformLocation(prog, "trans");
+//   u_trans    = glGetUniformLocation(prog, "trans");
+   printf("Uniform modelviewProjection at %d\n", u_matrix);
+   printf("Attrib pos at %d\n", attr_pos);
+   printf("Attrib color at %d\n", attr_color);
 }   
 
 void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
-    glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
+//    glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
     
 
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <time.h>
 
+
 #include "core.h"
 
 
@@ -63,7 +64,6 @@ void klaatu_init_graphics(int *width, int *height)
   ASSERT_NE(EGL_NO_CONTEXT, mEglContext);
   EXPECT_TRUE(eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext));
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
-  
   
 }
 
@@ -132,6 +132,22 @@ public:
         int winWidth = 300, winHeight = 300;
         EGLint egl_major, egl_minor;
         const char *s;
+        
+        /*
+    char* file_name = "/data/klaatu/snacktime.png";
+    FILE *fp = fopen(file_name, "rb");
+    if (fp == 0)
+    {
+        perror(file_name);
+        //return 0;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    int lSize = (int) ftell(fp);
+    printf("size = %d\n",lSize);
+    fclose(fp);
+    */
+        
         klaatu_init_graphics( &winWidth, &winHeight);
         if (!mEglDisplay) {
             printf("Error: eglGetDisplay() failed\n");
@@ -283,6 +299,8 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
   //exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
 }
+
+
 
 NODE_MODULE(aminonative, InitAll)
 

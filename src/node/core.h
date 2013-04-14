@@ -1,12 +1,12 @@
 #include <ui/DisplayInfo.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
-#include <math.h>
 #include <node.h>
 #include <stack>
 #include <string>
 #include "common.h"
 #include "shaders.h"
+#include "mathutils.h"
 
 
 using namespace v8;

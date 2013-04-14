@@ -24,13 +24,13 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/skia/include/core \
 	bionic \
 	external/stlport/stlport \
-	external/libpng \
-	external/zlib \
 	external/myapps/node/src \
 	external/myapps/node/deps/uv/include \
 	external/myapps/node/deps/v8/include \
 	frameworks/base/include/surfaceflinger
-LOCAL_STATIC_LIBRARIES := libcutils libc libpng libz
+LOCAL_STATIC_LIBRARIES := libcutils libc
+# libpng libz
+
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput libv8
 #libmedia libcutils libbinder

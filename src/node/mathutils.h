@@ -1,4 +1,6 @@
 #include <math.h>
+#include <time.h>
+#include <stdio.h>
 
 
 //these should probably move into the NodeStage class or a GraphicsUtils class
@@ -104,4 +106,8 @@ loadOrthoMatrix(GLfloat *modelView,  GLfloat left, GLfloat right, GLfloat bottom
             modelView[14] = 0.0f;
             modelView[15] = 1.0f;
     }
+    
+   
+
+
 

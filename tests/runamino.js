@@ -1,7 +1,4 @@
 var fs = require('fs');
-var foo = fs.readFileSync('runamino.js');
-console.log("file = " + foo);
-
 //var amino = require('/data/node/amino');
 var amino = require('/data/node/amino.js');
 console.log("Greetings Earthling!");
@@ -11,6 +8,7 @@ var stage = core.createStage();
 //console.log("stage = ", stage);
 
 var group = core.createGroup();
+
 
 var rect = core.createRect();
 rect.setTx(100).setTy(100).setW(100).setH(100);
@@ -40,8 +38,9 @@ function comps(c) {
     
     var button = core.createPushButton();
     button.setText("button");
+    button.setW(200);
     button.setTx(0);
-    button.setTy(300);
+    button.setTy(0);
     c.add(button);
     
 
@@ -50,7 +49,7 @@ function comps(c) {
     tbutton.setTx(250);
     tbutton.setTy(300);
     c.add(tbutton);
-    
+  
     /*
     var label = core.createLabel();
     label.setText("label");
@@ -79,7 +78,11 @@ function comps(c) {
 }
 
 var g2 = core.createGroup();    
-//comps(g2);
+comps(g2);
 group.add(g2);
 stage.setRoot(group);
-core.start();
+
+setTimeout(function() {
+    console.log("starting later\n");
+    core.start();
+},3000);

@@ -17,7 +17,6 @@ Shader::Shader() {
 
 int Shader::compileVertShader(const char* text) {
     GLint stat;
-    printf("about to invoke the next gl command\n");
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertShader, 1, (const char **) &text, NULL);
     glCompileShader(vertShader);
@@ -83,7 +82,6 @@ ColorShader::ColorShader() {
       "   v_color = color;\n"
       "}\n";
 
-      printf("doing a compile\n");
    GLuint vert = compileVertShader(vertShaderText);
    printf("did a compile\n");
    GLuint frag = compileFragShader(fragShaderText);
@@ -122,7 +120,7 @@ static double offsets[] = {0.0,15.0,17.0,16.0,35.0,15.0,52.0,17.0,71.0,13.0,86.0
 FontShader::FontShader() {
     static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
-      "uniform mat4 trans;\n"
+      //"uniform mat4 trans;\n"
       "attribute vec4 pos;\n"
       "attribute vec2 texcoords;\n"
       "varying vec2 uv;\n"
@@ -137,6 +135,7 @@ FontShader::FontShader() {
       "uniform sampler2D tex;\n"
       "void main() {\n"
         "   gl_FragColor = texture2D(tex,uv);\n"
+//        "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
       "}\n";
       
     GLuint vert = compileVertShader(vertShaderText);
@@ -148,175 +147,45 @@ FontShader::FontShader() {
     attr_texcoords = glGetAttribLocation(prog, "texcoords");
     attr_tex = glGetAttribLocation(prog, "tex");
     u_matrix = glGetUniformLocation(prog, "modelviewProjection");
-    u_trans  = glGetUniformLocation(prog, "trans");
+//    u_trans  = glGetUniformLocation(prog, "trans");
     
-    printf("about to load a texture\n");
-//    texID = png_texture_load("/data/node/blue.png",&w,&h);
-    int w;
-    int h;
-    
-    
-    
-    int * width = &w;
-    int * height = &h;
-    char* file_name = "/data/klaatu/snacktime.png";
-    
-    //png_byte header[8];
-    printf("loading file %s\n",file_name);
-/*
-    FILE *fp = fopen(file_name, "rb");
-    if (fp == 0)
-    {
-        perror(file_name);
-        //return 0;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    int lSize = (int) ftell(fp);
-    printf("size = %d\n",lSize);
-    */
-    //   char blah[8];
-    //fread(blah, 1, 5, fp);
-    /*
-    // read the header
-    fread(header, 1, 8, fp);
-
-    if (png_sig_cmp(header, 0, 8))
-    {
-        fprintf(stderr, "error: %s is not a PNG.\n", file_name);
-        fclose(fp);
-//        return 0;
-    }
-    
-
-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr)
-    {
-        fprintf(stderr, "error: png_create_read_struct returned 0.\n");
-        fclose(fp);
-//        return 0;
-    }
-
-    // create png info struct
-    png_infop info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr)
-    {
-        fprintf(stderr, "error: png_create_info_struct returned 0.\n");
-        png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-        fclose(fp);
-//        return 0;
-    }
-
-    // create png info struct
-    png_infop end_info = png_create_info_struct(png_ptr);
-    if (!end_info)
-    {
-        fprintf(stderr, "error: png_create_info_struct returned 0.\n");
-        png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp) NULL);
-        fclose(fp);
-//        return 0;
-    }
-
-    // the code in this if statement gets called if libpng encounters an error
-    if (setjmp(png_jmpbuf(png_ptr))) {
-        fprintf(stderr, "error from libpng\n");
-        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        fclose(fp);
-//        return 0;
-    }
-
-    // init png reading
-    png_init_io(png_ptr, fp);
-
-    // let libpng know you already read the first 8 bytes
-    //png_set_sig_bytes(png_ptr, 8);
-
-    // read all the info up to the image data
-    png_read_info(png_ptr, info_ptr);
-
-    // variables to pass to get info
-    int bit_depth, color_type;
-    png_uint_32 temp_width, temp_height;
-
-    // get info about png
-    png_get_IHDR(png_ptr, info_ptr, &temp_width, &temp_height, &bit_depth, &color_type,
-        NULL, NULL, NULL);
-
-    if (width){ *width = temp_width; }
-    if (height){ *height = temp_height; }
-
-    printf("image size = %d %d\n",temp_width,temp_height);
-    // Update the png info struct.
-    png_read_update_info(png_ptr, info_ptr);
-
-    // Row size in bytes.
-    int rowbytes = png_get_rowbytes(png_ptr, info_ptr);
-
-    // glTexImage2d requires rows to be 4-byte aligned
-    rowbytes += 3 - ((rowbytes-1) % 4);
-
-    // Allocate the image_data as a big block, to be given to opengl
-    png_byte * image_data;
-    image_data = (png_byte*) malloc(rowbytes * temp_height * sizeof(png_byte)+15);
-    if (image_data == NULL)
-    {
-        fprintf(stderr, "error: could not allocate memory for PNG image data\n");
-        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        fclose(fp);
-  //      return 0;
-    }
-
-    // row_pointers is for pointing to image_data for reading the png with libpng
-    png_bytep * row_pointers = (png_bytep*) malloc(temp_height * sizeof(png_bytep));
-    if (row_pointers == NULL)
-    {
-        fprintf(stderr, "error: could not allocate memory for PNG row pointers\n");
-        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-        free(image_data);
-        fclose(fp);
-//        return 0;
-    }
-
-    // set the individual row_pointers to point at the correct offsets of image_data
-    int i;
-    for (i = 0; i < temp_height; i++)
-    {
-        row_pointers[temp_height - 1 - i] = image_data + i * rowbytes;
-    }
-
-    // read the png into image_data through row_pointers
-    png_read_image(png_ptr, row_pointers);
-    */
-    
+    GLubyte image_data[12] = {
+        255,0  ,255,
+        255,255,255,
+        0  ,255,255,
+        0  ,0  ,255
+    };
     // Generate the OpenGL texture object
-//    fclose(fp);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    /*
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, temp_width, temp_height, 0, 
-            GL_RGB, GL_UNSIGNED_BYTE, image_data);
-    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
-    // clean up
-    png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
-    free(image_data);
-    free(row_pointers);
-    */
-    //return texture;
     texID = texture;
-    printf("font texture = %d %d x %d\n",texID,w,h);
 }
+
+void FontShader::setFontData(uint8_t* data, int w, int h) {
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    texID = texture;
+}
+
 void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
-    glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
+    //    glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
     glUniform1i(attr_tex, 0);
-    
+
+    //printf("FontShader::apply( %s %f %f )\n",text,offX,offY);
     float charX = 0;
     int len = strlen(text);
 
@@ -327,11 +196,18 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         float chw = (float) offsets[n*2+1];
         float iw = 1121;
         float ih = 34;
+        
 
         float tx  = cho/iw;
         float ty2  = 1.0-(35/ih);
         float tx2 = (cho+chw)/iw;
         float ty = 1.0-(7/ih);
+        /*
+        tx= 0;
+        ty = 1;
+        tx2 = 1;
+        ty2 = 0;
+        */
 
         GLfloat texcoords[6][2];
         texcoords[0][0] = tx;    texcoords[0][1] = ty;
@@ -347,7 +223,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         glEnableVertexAttribArray(attr_texcoords);
 
 
-        Bounds* bounds = new Bounds(charX, 0, chw, 35-8);
+        Bounds* bounds = new Bounds(charX, 0, chw, ih-8);
         float x = (float)bounds->getX()+offX;
         float y = (float)bounds->getY()+offY;
         float x2 = (float)bounds->getX()+bounds->getW()+offX;
@@ -366,10 +242,10 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         glVertexAttribPointer(attr_pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
         glEnableVertexAttribArray(attr_pos);
         //set the active texture
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D,texID);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,texID);
         //draw it
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         charX += chw;
         glDisableVertexAttribArray(attr_pos);
         glDisableVertexAttribArray(attr_texcoords);
@@ -378,4 +254,78 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
 
 
 
+TextureShader::TextureShader() {
+    static const char *vertShaderText =
+      "uniform mat4 modelviewProjection;\n"
+      //      "uniform mat4 trans;\n"
+      "attribute vec4 pos;\n"
+      "attribute vec2 texcoords;\n"
+      "varying vec2 uv;\n"
+      "void main() {\n"
+      "   gl_Position = pos * modelviewProjection;\n"
+      "   uv = texcoords;\n"
+      "}\n";
+      
+    static const char *fragShaderText =
+      "precision mediump float;\n"
+      "varying vec2 uv;\n"
+      "uniform sampler2D tex;\n"
+      "void main() {\n"
+        "   gl_FragColor = texture2D(tex,uv);\n"
+        //"   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
+      "}\n";
+      
+    GLuint vert = compileVertShader(vertShaderText);
+    GLuint frag = compileFragShader(fragShaderText);
+    prog = compileProgram(vert,frag);
+    
+    glUseProgram(prog);
+    attr_pos   = glGetAttribLocation(prog, "pos");
+    attr_texcoords = glGetAttribLocation(prog, "texcoords");
+    attr_tex = glGetAttribLocation(prog, "tex");
+    u_matrix   = glGetUniformLocation(prog, "modelviewProjection");
+//    u_trans    = glGetUniformLocation(prog, "trans");
+    
+    int w;
+    int h;
+    printf("about to load a texture\n");
+    
+    GLubyte image_data[12] = {
+        255,0  ,255,
+        255,255,255,
+        0  ,255,255,
+        0  ,0  ,255
+    };
+    // Generate the OpenGL texture object
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    texID = texture;
+}
+
+void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2]) {
+//    printf("doing texture shader apply\n");
+    glUseProgram(prog);
+    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
+    //glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
+    glUniform1i(attr_tex, 0);
+    
+
+    glVertexAttribPointer(attr_texcoords, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
+    glEnableVertexAttribArray(attr_texcoords);
+
+    glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(attr_pos);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray(attr_pos);
+    glDisableVertexAttribArray(attr_texcoords);
+}    
 

@@ -26,6 +26,15 @@ var amino = require('/data/node/aminonative');
 var core = amino.createCore();
 core.testNative = amino.testNative;
 
+
+var PNG = require('/data/node/png-node.js');
+var pixel_data = null;
+PNG.decode('/data/node/font2.png', function(pixels) {
+    pixel_data = pixels;
+});
+
+
+
 function JSStage() {
     this.listeners = {};
     this.on = function(name, target, fn) {
@@ -306,17 +315,18 @@ core.createGroup = function() {
 }
 
 
+var imageLoaded = false;
 function JSPushButton() {
     var self = this;
     this.w = 200;
     this.h = 100;
     this.draw = function(gfx) {
+        if(!imageLoaded && pixel_data != null) {
+            gfx.setFontData(pixel_data,1121,34);
+            imageLoaded = true;
+        }
         gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
-        //gfx.fillText(new Color(0,0,0), "some text", 50,50);
-        /*
-        g.fillStyle = "black";
-        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
-        */
+        gfx.fillQuadText(new Color(0,0,0), "ABC", 50,50);
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {

@@ -128,25 +128,9 @@ public:
     static v8::Handle<v8::Value> real_Start(const v8::Arguments& args) {
         HandleScope scope;
 
-        printf("the core is starting\n");
         int winWidth = 300, winHeight = 300;
         EGLint egl_major, egl_minor;
         const char *s;
-        
-        /*
-    char* file_name = "/data/klaatu/snacktime.png";
-    FILE *fp = fopen(file_name, "rb");
-    if (fp == 0)
-    {
-        perror(file_name);
-        //return 0;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    int lSize = (int) ftell(fp);
-    printf("size = %d\n",lSize);
-    fclose(fp);
-    */
         
         klaatu_init_graphics( &winWidth, &winHeight);
         if (!mEglDisplay) {
@@ -172,6 +156,8 @@ public:
     
         colorShader = new ColorShader();
         fontShader  = new FontShader();
+        textureShader = new TextureShader();
+        
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
         
@@ -180,7 +166,6 @@ public:
 
 
         modelView = new GLfloat[16];
-        printf("starting\n");
         for (;;) {
             if(event_indication) {
                 event_process();
@@ -194,6 +179,9 @@ public:
             Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
             point_templ->SetInternalFieldCount(1);
             point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
+            point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
+            point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
+            point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
             
             GLGFX* gfx = new GLGFX();
             Local<Object> obj = point_templ->NewInstance();

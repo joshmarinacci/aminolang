@@ -2,6 +2,7 @@
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
 #include <node.h>
+#include <node_buffer.h>
 #include <stack>
 #include <string>
 #include "common.h"
@@ -10,10 +11,12 @@
 
 
 using namespace v8;
+using namespace node;
 
 static GLfloat* modelView;
 static ColorShader* colorShader;
 static FontShader* fontShader;
+static TextureShader* textureShader;
 
 class GLGFX : public node::ObjectWrap {
 public:
@@ -36,13 +39,11 @@ public:
         if(val->IsRegExp()) {  printf("it is a Reg Exp\n");  }
     }
     
-    
     static Handle<v8::Value> node_fillQuadColor(const v8::Arguments& args) {
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
         Local<Value> arg(args[0]);
         
-//        printf("filling a quad\n");
         double r = 1;
         double g = 1;
         double b = 1;
@@ -78,14 +79,20 @@ public:
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
         Local<Value> arg(args[0]);
         
-        v8::String::Utf8Value param1(args[0]->ToString());
+        v8::String::Utf8Value param1(args[1]->ToString());
         std::string text = std::string(*param1);    
         char * cstr = new char [text.length()+1];
         std::strcpy (cstr, text.c_str());
-        printf("str %s\n",cstr);
-        double x = args[1]->ToNumber()->NumberValue();
-        double y = args[2]->ToNumber()->NumberValue();
+        double x = args[2]->ToNumber()->NumberValue();
+        double y = args[3]->ToNumber()->NumberValue();
         self->fillQuadText(cstr, x, y);
+        return scope.Close(Undefined());
+    }
+    
+    static Handle<v8::Value> node_fillQuadTexture(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        self->fillQuadTexture();
         return scope.Close(Undefined());
     }
     
@@ -117,6 +124,28 @@ public:
         make_trans_matrix((float)x,(float)y,tr);
         mul_matrix(trans2, transform, tr);
         for (int i = 0; i < 16; i++) transform[i] = trans2[i];
+    }
+    
+    static Handle<v8::Value> node_setFontData(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        Local<Value> arg(args[0]);
+        dumpValue(arg);
+        if(Buffer::HasInstance(args[0])) {
+			Handle<Object> other = args[0]->ToObject();
+            size_t length = Buffer::Length(other);
+            uint8_t* data = (uint8_t*) Buffer::Data(other);
+            int x = (int)(args[1]->ToNumber()->NumberValue());
+            int y = (int)(args[2]->ToNumber()->NumberValue());
+            self->setFontData(data,x,y);
+        }
+        return scope.Close(Undefined());        
+    }
+    
+    
+
+    void setFontData(uint8_t* data, int x, int y) {
+        fontShader->setFontData(data, x, y);
     }
     
     void fillQuadColor(float r, float g, float b, Bounds* bounds) {
@@ -162,6 +191,37 @@ public:
     void fillQuadText(char* text, double x, double y) {
         fontShader->apply(modelView, transform, text, x, y);
     }
+    void fillQuadTexture() {
+        float x = 0;
+        float y = 0;
+        float x2 = 100;
+        float y2 = 100;
+    
+        GLfloat verts[6][2];
+        verts[0][0] = x;    verts[0][1] = y;
+        verts[1][0] = x2;   verts[1][1] = y;
+        verts[2][0] = x2;   verts[2][1] = y2;
+        
+        verts[3][0] = x2;   verts[3][1] = y2;
+        verts[4][0] = x;    verts[4][1] = y2;
+        verts[5][0] = x;    verts[5][1] = y;
+        
+        GLfloat texcoords[6][2];
+        float tx = 0;
+        float ty = 1;
+        float tx2 = 1;
+        float ty2 = 0;
+        texcoords[0][0] = tx;    texcoords[0][1] = ty;
+        texcoords[1][0] = tx2;   texcoords[1][1] = ty;
+        texcoords[2][0] = tx2;   texcoords[2][1] = ty2;
+        
+        texcoords[3][0] = tx2;   texcoords[3][1] = ty2;
+        texcoords[4][0] = tx;    texcoords[4][1] = ty2;
+        texcoords[5][0] = tx;    texcoords[5][1] = ty;
+        
+        textureShader->apply(modelView,transform,verts,texcoords);
+    }
+    
     void scale(double x, double y){
     }
     void rotate(double theta){

@@ -228,7 +228,7 @@ function CanvasStage(can)  {
         var ctx = this.domCanvas.getContext('2d');
         ctx.fillStyle = 'white';
         ctx.font = "15px sans-serif";
-        ctx.fillRect(0,0,this.domCanvas.width,500);
+        ctx.fillRect(0,0,this.domCanvas.width,this.domCanvas.height);
         for(var n in this.nodes) {
             this.draw(ctx,this.nodes[n]);
         }

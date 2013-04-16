@@ -25,6 +25,15 @@ make_z_rot_matrix(GLfloat angle, GLfloat *m)
 }
 
 static void
+print_matrix(GLfloat *m) {
+    printf("matrix ");
+    for(int i=0; i<16; i++) {
+        printf("%.2f ",m[i]);
+    }
+    printf("\n");
+}
+
+static void
 make_scale_matrix(GLfloat xs, GLfloat ys, GLfloat zs, GLfloat *m)
 {
    int i;

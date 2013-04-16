@@ -66,6 +66,10 @@ function JSStage() {
     this.setRoot = function(root) {
         this.root = root;
     }
+    this.getRoot = function() {
+        return this.root;
+    };
+    
     var self = this;
     this.draw = function(gfx)  {
         self.draw_helper(gfx,self.root);
@@ -170,6 +174,20 @@ function JSStage() {
         }
         return null;
     }    
+    
+    this.findNodeById = function(id) {
+        return this.findNodeById_helper(id,this.getRoot());
+    }
+    this.findNodeById_helper = function(id, node) {
+        if(node.id && node.id == id) return node;
+        if(node.isParent && node.isParent()) {
+            for(var i=0; i<node.getChildCount(); i++) {
+                var ret = this.findNodeById_helper(id,node.getChild(i));
+                if(ret != null) return ret;
+            }
+        }
+        return null;
+    }
 }
 
 function JSRect() {
@@ -223,7 +241,16 @@ function JSRect() {
     
     var self = this;
     this.draw = function(gfx) {
-        gfx.fillQuadColor(self.getFill(),self.getBounds());
+        
+        var fill = self.getFill();
+        if(typeof fill == "string") {
+            var r = parseInt(fill.substring(1,3),16);
+            var g = parseInt(fill.substring(3,5),16);
+            var b = parseInt(fill.substring(5,7),16);
+            gfx.fillQuadColor(new Color(r/255,g/255,b/255), self.getBounds());
+        } else {
+            gfx.fillQuadColor(self.getFill(),self.getBounds());
+        }
     };
     this.getBounds = function() {
         return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
@@ -325,8 +352,19 @@ function JSPushButton() {
             gfx.setFontData(pixel_data,1121,34);
             imageLoaded = true;
         }
-        gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
-        gfx.fillQuadText(new Color(0,0,0), "ABC", 50,50);
+        
+        var fill = self.getBaseColor();
+        if(typeof fill == "string") {
+            var r = parseInt(fill.substring(1,3),16);
+            var g = parseInt(fill.substring(3,5),16);
+            var b = parseInt(fill.substring(5,7),16);
+            gfx.fillQuadColor(new Color(r/255,g/255,b/255), self.getBounds());
+        } else {
+            gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
+        }
+
+        var bnds = self.getBounds();
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+10);
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
@@ -401,6 +439,91 @@ core.createSlider = function() {
 }
 
 
+
+var SceneParser = function() {
+    this.parseChildren = function(val, obj) {
+        for(var i=0; i<obj.children.length; i++) {
+            var ch = obj.children[i];
+            var chv = this.parse(ch);
+            val.add(chv);
+        }
+    }
+    
+    this.fillProps = function(out, obj) {
+        for(var prop in obj) {
+            if(prop == "type") continue;
+            if(prop == "children") continue;
+            out[prop] = obj[prop];
+        }
+    }
+    
+    this.findNode = function(id, node) {
+        if(node.id && node.id == id) return node;
+        if(node.isparent && node.isparent()) {
+            for(var i=0; i<node.getChildCount(); i++) {
+                var ret = this.findNode(id,node.getChild(i));
+                if(ret != null) return ret;
+            }
+        }
+        return null;
+    }
+    
+    this.parseBindings = function(val, obj) {
+        console.log("parsing bindings " + obj.bindings.length);
+        val.bindings = [];
+        for(var i=0; i<obj.bindings.length; i++) {
+            var bin = obj.bindings[i];
+            var trans = new Transition();
+            trans.id = bin.id;
+            trans.pushTrigger = this.findNode(bin.pushTrigger,val);
+            trans.pushTarget = this.findNode(bin.pushTarget,val);
+            val.bindings.push(trans);
+        }
+    }
+
+    this.typeMap = {
+        "Group":JSGroup,
+        "Rect":JSRect,
+        "PushButton":JSPushButton,
+        "ToggleButton":JSToggleButton,
+//        "Label":Label,
+//        "Slider":Slider,
+//        "ListView":ListView,
+        "Document":JSGroup,
+        "DynamicGroup":JSGroup,
+//        "AnchorPanel":AnchorPanel,
+    };
+    this.parentTypeMap = {
+        "Group":JSGroup,
+        "Document":JSGroup,
+        "DynamicGroup":JSGroup,
+//        "AnchorPanel":AnchorPanel,
+    };
+    
+    this.parse = function(obj) {
+        if(this.typeMap[obj.type]) {
+            var out = new this.typeMap[obj.type]();
+            out.type = obj.type;
+            if(this.parentTypeMap[obj.type]) {
+                this.fillProps(out,obj);
+                this.parseChildren(out,obj);
+            } else {
+                this.fillProps(out,obj);
+            }
+            
+            if(obj.type == "Document" && obj.bindings) {
+                this.parseBindings(out,obj);
+            }
+            
+            return out;
+        }
+        console.log("warning. no object parsed here!");
+    }
+}
+
+
+
+
 core.windowCreated = false;
 core.start = function() {
     if(!this.windowCreated) {
@@ -412,4 +535,5 @@ core.start = function() {
 
 exports.getCore =function() { return core; }
 exports.Color = Color;
+exports.SceneParser = SceneParser;
 

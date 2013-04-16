@@ -171,8 +171,16 @@ public:
                 event_process();
             }
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            GLfloat mat[16];
-            loadOrthoMatrix(modelView, 0, 720, 1280, 0, 0, 100);
+            GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16];
+            make_identity_matrix(idmat);
+            make_trans_matrix(1,1,trans);
+            make_z_rot_matrix(30,  rot);
+            mul_matrix(temp1, rot, trans);
+            loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
+            //printf("idmat = %f\n",idmat[12]);
+            //idmat[12]= 0.5;
+            mul_matrix(modelView, idmat, ortho);
+            
             
             
             //create a wrapper template for gfx
@@ -184,6 +192,8 @@ public:
             point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
             
             GLGFX* gfx = new GLGFX();
+            gfx->translate(800,0);
+            gfx->rotate(90);
             Local<Object> obj = point_templ->NewInstance();
             obj->SetInternalField(0, External::New(gfx));
             Handle<Value> argv[] = { obj };

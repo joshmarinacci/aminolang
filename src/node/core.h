@@ -14,6 +14,7 @@ using namespace v8;
 using namespace node;
 
 static GLfloat* modelView;
+static GLfloat* transform;
 static ColorShader* colorShader;
 static FontShader* fontShader;
 static TextureShader* textureShader;
@@ -45,20 +46,15 @@ public:
         Local<Value> arg(args[0]);
         
         double r = 1;
-        double g = 1;
+        double g = 0;
         double b = 1;
         if(args[0]->IsObject()) {
-//            printf("opening the color object\n");
             Local<Object> fill = args[0]->ToObject();
             r = fill->Get(String::New("r"))->NumberValue();
             g = fill->Get(String::New("g"))->NumberValue();
             b = fill->Get(String::New("b"))->NumberValue();
-//            printf("color = %f %f %f\n",r,g,b);
         }
         
-        //v8::String::Utf8Value param1(args[0]->ToString());
-        //std::string foo = std::string(*param1);    
-        //printf("str %s\n",foo.c_str());
         
         if(args[1]->IsObject()) {
             Local<Object> bnds = args[1]->ToObject();
@@ -96,7 +92,7 @@ public:
         return scope.Close(Undefined());
     }
     
-    GLfloat* transform;
+    //GLfloat* transform;
     std::stack<void*> matrixStack;
     GLGFX() {
         transform = new GLfloat[16];
@@ -105,17 +101,21 @@ public:
     ~GLGFX() {
     }
     void save() {
+        /*
         GLfloat* t2 = new GLfloat[16];
         for(int i=0; i<16; i++) {
             t2[i] = transform[i];
         }
         matrixStack.push(transform);
         transform = t2;
+        */
     }
     
     void restore() {
+        /*
         transform = (GLfloat*)matrixStack.top();
         matrixStack.pop();
+        */
     }
 
     void translate(double x, double y) {
@@ -123,6 +123,14 @@ public:
         GLfloat trans2[16];
         make_trans_matrix((float)x,(float)y,tr);
         mul_matrix(trans2, transform, tr);
+        for (int i = 0; i < 16; i++) transform[i] = trans2[i];
+    }
+    
+    void rotate(double a) {
+        GLfloat rot[16];
+        GLfloat trans2[16];
+        make_z_rot_matrix(a, rot);
+        mul_matrix(trans2, transform, rot);
         for (int i = 0; i < 16; i++) transform[i] = trans2[i];
     }
     
@@ -155,8 +163,6 @@ public:
         float x2 = bounds->getX()+bounds->getW();
         float y2 = bounds->getY()+bounds->getH();
         
-        //        printf("filling quad color with %f,%f -> %f,%f\n",x,y,x2,y2);
-    
         
         GLfloat verts[6][2];
         verts[0][0] = x;
@@ -184,7 +190,6 @@ public:
             }
         }
         
-        //printf("view = %f, trans = %f\n", modelView[0], transform[0]);
         colorShader->apply(modelView, transform, verts, colors);
     }
     
@@ -223,8 +228,6 @@ public:
     }
     
     void scale(double x, double y){
-    }
-    void rotate(double theta){
     }
 private:
 };

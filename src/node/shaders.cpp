@@ -73,12 +73,12 @@ ColorShader::ColorShader() {
       
    static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
-//      "uniform mat4 trans;\n"
+      "uniform mat4 trans;\n"
       "attribute vec4 pos;\n"
       "attribute vec4 color;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
-      "   gl_Position = pos * modelviewProjection;\n"
+      "   gl_Position = trans * pos * modelviewProjection;\n"
       "   v_color = color;\n"
       "}\n";
 
@@ -91,11 +91,13 @@ ColorShader::ColorShader() {
    attr_pos   = glGetAttribLocation(prog, "pos");
    attr_color = glGetAttribLocation(prog, "color");
    u_matrix   = glGetUniformLocation(prog, "modelviewProjection");
+   u_trans    = glGetUniformLocation(prog, "trans");
 }   
 
 void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
+    glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
     
 
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
@@ -120,12 +122,12 @@ static double offsets[] = {0.0,15.0,17.0,16.0,35.0,15.0,52.0,17.0,71.0,13.0,86.0
 FontShader::FontShader() {
     static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
-      //"uniform mat4 trans;\n"
+      "uniform mat4 trans;\n"
       "attribute vec4 pos;\n"
       "attribute vec2 texcoords;\n"
       "varying vec2 uv;\n"
       "void main() {\n"
-      "   gl_Position = pos * modelviewProjection;\n"
+      "   gl_Position = trans * pos * modelviewProjection;\n"
       "   uv = texcoords;\n"
       "}\n";
       
@@ -147,7 +149,7 @@ FontShader::FontShader() {
     attr_texcoords = glGetAttribLocation(prog, "texcoords");
     attr_tex = glGetAttribLocation(prog, "tex");
     u_matrix = glGetUniformLocation(prog, "modelviewProjection");
-//    u_trans  = glGetUniformLocation(prog, "trans");
+    u_trans  = glGetUniformLocation(prog, "trans");
     
     GLubyte image_data[12] = {
         255,0  ,255,
@@ -182,7 +184,7 @@ void FontShader::setFontData(uint8_t* data, int w, int h) {
 void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
-    //    glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
+    glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
     glUniform1i(attr_tex, 0);
 
     //printf("FontShader::apply( %s %f %f )\n",text,offX,offY);
@@ -199,9 +201,9 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         
 
         float tx  = cho/iw;
-        float ty2  = 1.0-(35/ih);
+        float ty  = 1.0-(35/ih);
         float tx2 = (cho+chw)/iw;
-        float ty = 1.0-(7/ih);
+        float ty2 = 1.0-(7/ih);
         /*
         tx= 0;
         ty = 1;
@@ -257,12 +259,12 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
 TextureShader::TextureShader() {
     static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
-      //      "uniform mat4 trans;\n"
+      "uniform mat4 trans;\n"
       "attribute vec4 pos;\n"
       "attribute vec2 texcoords;\n"
       "varying vec2 uv;\n"
       "void main() {\n"
-      "   gl_Position = pos * modelviewProjection;\n"
+      "   gl_Position = trans * pos * modelviewProjection;\n"
       "   uv = texcoords;\n"
       "}\n";
       
@@ -284,7 +286,7 @@ TextureShader::TextureShader() {
     attr_texcoords = glGetAttribLocation(prog, "texcoords");
     attr_tex = glGetAttribLocation(prog, "tex");
     u_matrix   = glGetUniformLocation(prog, "modelviewProjection");
-//    u_trans    = glGetUniformLocation(prog, "trans");
+    u_trans    = glGetUniformLocation(prog, "trans");
     
     int w;
     int h;
@@ -312,7 +314,7 @@ void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat vert
 //    printf("doing texture shader apply\n");
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
-    //glUniformMatrix4fv(u_trans, 1, GL_FALSE, trans);
+    glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
     glUniform1i(attr_tex, 0);
     
 

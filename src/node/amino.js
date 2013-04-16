@@ -77,8 +77,8 @@ function JSStage() {
     
     this.draw_helper = function(ctx, root) {
         if(!root.getVisible()) return;
-        //ctx.save();
-        //ctx.translate(root.getTx(),root.getTy());
+        ctx.save();
+        ctx.translate(root.getTx(),root.getTy());
         root.draw(ctx);
         /*
         if(root instanceof Transform) {
@@ -94,7 +94,7 @@ function JSStage() {
                 this.draw_helper(ctx,root.getChild(i));
             }
         }
-        //ctx.restore();
+        ctx.restore();
     }
     
     //self.prevButton = 0;
@@ -153,8 +153,8 @@ function JSStage() {
     }
     this.findNode = function(point) {
         var pt2 = fromScreenCoords(point);
-        console.log("about to find a node for point "
-            + point.x + ","+ point.y + " -> " + pt2.x + ","+pt2.y);
+        //console.log("about to find a node for point "
+        //    + point.x + ","+ point.y + " -> " + pt2.x + ","+pt2.y);
         return this.real_findNode(this.root,pt2);
     }
     this.real_findNode = function(node, point) {
@@ -263,7 +263,7 @@ function JSRect() {
         }
     };
     this.getBounds = function() {
-        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
     this.contains = function(pt){
         if(pt.x<this.x){
@@ -387,7 +387,7 @@ function JSPushButton() {
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
-        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
 }
 JSPushButton.extend(generated.PushButton);
@@ -408,7 +408,7 @@ function JSToggleButton() {
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
-        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
 }
 JSToggleButton.extend(generated.ToggleButton);
@@ -451,7 +451,7 @@ function JSSlider() {
     */
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
-        return {x:self.x+self.getTx(), y:self.y+self.getTy(), w:self.w, h:self.h };
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
 }
 JSSlider.extend(generated.Slider);

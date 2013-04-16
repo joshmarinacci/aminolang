@@ -190,6 +190,9 @@ public:
             point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
             point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
             point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
+            point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
+            point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
+            point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
             
             GLGFX* gfx = new GLGFX();
             gfx->translate(800,0);

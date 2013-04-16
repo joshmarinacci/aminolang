@@ -14,10 +14,11 @@ using namespace v8;
 using namespace node;
 
 static GLfloat* modelView;
-static GLfloat* transform;
+static GLfloat* globaltx;
 static ColorShader* colorShader;
 static FontShader* fontShader;
 static TextureShader* textureShader;
+static std::stack<void*> matrixStack;
 
 class GLGFX : public node::ObjectWrap {
 public:
@@ -93,45 +94,61 @@ public:
     }
     
     //GLfloat* transform;
-    std::stack<void*> matrixStack;
     GLGFX() {
-        transform = new GLfloat[16];
-        make_identity_matrix(transform);
+        globaltx = new GLfloat[16];
+        make_identity_matrix(globaltx);
     }
     ~GLGFX() {
     }
+    
+    static Handle<v8::Value> node_save(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        self->save();
+        return scope.Close(Undefined());
+    }
     void save() {
-        /*
         GLfloat* t2 = new GLfloat[16];
         for(int i=0; i<16; i++) {
-            t2[i] = transform[i];
+            t2[i] = globaltx[i];
         }
-        matrixStack.push(transform);
-        transform = t2;
-        */
+        matrixStack.push(globaltx);
+        globaltx = t2;
     }
     
+    static Handle<v8::Value> node_restore(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        self->restore();
+        return scope.Close(Undefined());
+    }
     void restore() {
-        /*
-        transform = (GLfloat*)matrixStack.top();
+        globaltx = (GLfloat*)matrixStack.top();
         matrixStack.pop();
-        */
     }
 
+    static Handle<v8::Value> node_translate(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        double x = args[0]->ToNumber()->NumberValue();
+        double y = args[1]->ToNumber()->NumberValue();
+        self->translate(x,y);
+        return scope.Close(Undefined());
+    }
     void translate(double x, double y) {
         GLfloat tr[16];
         GLfloat trans2[16];
         make_trans_matrix((float)x,(float)y,tr);
-        mul_matrix(trans2, transform, tr);
-        for (int i = 0; i < 16; i++) transform[i] = trans2[i];
+        mul_matrix(trans2, globaltx, tr);
+        for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
     }
     
     void rotate(double a) {
         GLfloat rot[16];
         GLfloat trans2[16];
         make_z_rot_matrix(a, rot);
-        mul_matrix(trans2, transform, rot);
-        for (int i = 0; i < 16; i++) transform[i] = trans2[i];
+        mul_matrix(trans2, globaltx, rot);
+        for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
     }
     
     static Handle<v8::Value> node_setFontData(const v8::Arguments& args) {
@@ -190,11 +207,11 @@ public:
             }
         }
         
-        colorShader->apply(modelView, transform, verts, colors);
+        colorShader->apply(modelView, globaltx, verts, colors);
     }
     
     void fillQuadText(char* text, double x, double y) {
-        fontShader->apply(modelView, transform, text, x, y);
+        fontShader->apply(modelView, globaltx, text, x, y);
     }
     void fillQuadTexture() {
         float x = 0;
@@ -224,7 +241,7 @@ public:
         texcoords[4][0] = tx;    texcoords[4][1] = ty2;
         texcoords[5][0] = tx;    texcoords[5][1] = ty;
         
-        textureShader->apply(modelView,transform,verts,texcoords);
+        textureShader->apply(modelView, globaltx,verts,texcoords);
     }
     
     void scale(double x, double y){
@@ -236,7 +253,6 @@ private:
 class NodeCore {
 public:
     NodeCore() {
-        printf("in the NodeCore constructor\n");
     }
     ~NodeCore() { }
         

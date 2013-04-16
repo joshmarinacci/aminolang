@@ -142,10 +142,20 @@ function JSStage() {
         }
         this.mouselast = point;        
     }
+    function fromScreenCoords(point) {
+        var x = point.x;
+        var y = point.y;
+        
+        var th = 90/180*Math.PI;
+        var x2 =  x*Math.cos(th) + y*Math.sin(th);
+        var y2 = -x*Math.sin(th) + y*Math.cos(th);
+        return new Point(x2,800+y2);
+    }
     this.findNode = function(point) {
-        // console.log("about to find a node for point ", point);
-        //go in reverse, ie: front to back
-        return this.real_findNode(this.root,point);
+        var pt2 = fromScreenCoords(point);
+        console.log("about to find a node for point "
+            + point.x + ","+ point.y + " -> " + pt2.x + ","+pt2.y);
+        return this.real_findNode(this.root,pt2);
     }
     this.real_findNode = function(node, point) {
         if(!node) return null;
@@ -347,6 +357,15 @@ function JSPushButton() {
     var self = this;
     this.w = 200;
     this.h = 100;
+    this.install = function(stage) {
+        stage.on("PRESS", this, function(e) {
+            self.setBaseColor("#aaaaff");
+        });
+        stage.on("RELEASE", this, function(e) {
+            self.setBaseColor("#aaaaaa");
+        });
+    };
+    
     this.draw = function(gfx) {
         if(!imageLoaded && pixel_data != null) {
             gfx.setFontData(pixel_data,1121,34);
@@ -373,7 +392,9 @@ function JSPushButton() {
 }
 JSPushButton.extend(generated.PushButton);
 core.createPushButton = function() {
-    return new JSPushButton();
+    var comp = new JSPushButton();
+    comp.install(this.stage);
+    return comp;
 }
 
 
@@ -441,10 +462,10 @@ core.createSlider = function() {
 
 
 var SceneParser = function() {
-    this.parseChildren = function(val, obj) {
+    this.parseChildren = function(core, val, obj) {
         for(var i=0; i<obj.children.length; i++) {
             var ch = obj.children[i];
-            var chv = this.parse(ch);
+            var chv = this.parse(core, ch);
             val.add(chv);
         }
     }
@@ -482,15 +503,15 @@ var SceneParser = function() {
     }
 
     this.typeMap = {
-        "Group":JSGroup,
-        "Rect":JSRect,
-        "PushButton":JSPushButton,
-        "ToggleButton":JSToggleButton,
+        "Group":"createGroup",
+        "Rect": "createRect",
+        "PushButton": "createPushButton",
+        "ToggleButton":"createToggleButton",
 //        "Label":Label,
 //        "Slider":Slider,
 //        "ListView":ListView,
-        "Document":JSGroup,
-        "DynamicGroup":JSGroup,
+        "Document":"createGroup",
+        "DynamicGroup":"createGroup",
 //        "AnchorPanel":AnchorPanel,
     };
     this.parentTypeMap = {
@@ -500,13 +521,14 @@ var SceneParser = function() {
 //        "AnchorPanel":AnchorPanel,
     };
     
-    this.parse = function(obj) {
+    this.parse = function(core, obj) {
         if(this.typeMap[obj.type]) {
-            var out = new this.typeMap[obj.type]();
+            var out = core[this.typeMap[obj.type]]();
+            //var out = new this.typeMap[obj.type]();
             out.type = obj.type;
             if(this.parentTypeMap[obj.type]) {
                 this.fillProps(out,obj);
-                this.parseChildren(out,obj);
+                this.parseChildren(core, out,obj);
             } else {
                 this.fillProps(out,obj);
             }

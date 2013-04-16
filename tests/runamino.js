@@ -11,9 +11,9 @@ var stage = core.createStage();
 var filedata = fs.readFileSync('scene.json');
 var jsonfile = JSON.parse(filedata);
 console.log(jsonfile);
-var root = new amino.SceneParser().parse(jsonfile);
+var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
-console.log(root);
+//console.log(root);
 
 
 var apps = [
@@ -28,7 +28,15 @@ for(var i in apps) {
     apps[i].setVisible(false);
 }
 
-apps[0].setVisible(true);
+
+stage.on("PRESS",stage.findNodeById("prevButton"), function() {
+    console.log("clicked on the prev button");
+});
+stage.on("PRESS",stage.findNodeById("nextButton"), function() {
+    console.log("clicked on the next button");
+});
+
+//apps[0].setVisible(true);
 
 
 //console.log("app1 = ", apps[0]);

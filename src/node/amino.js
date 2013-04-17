@@ -44,6 +44,18 @@ function JSStage() {
         var list = this.listeners[name];
         list.push({target:target, fn:fn});
     }
+    
+    this.anims = [];
+    this.addAnim = function(anim) {
+        this.anims.push(anim);
+    }
+    this.processAnims = function() {
+        for(var i in this.anims) {
+            this.anims[i].update();
+        }
+    }
+    
+    
     this.fireEvent = function(e) {
         // console.log("firing",e);
         // console.log(this.listeners);
@@ -72,6 +84,7 @@ function JSStage() {
     
     var self = this;
     this.draw = function(gfx)  {
+        self.processAnims();
         self.draw_helper(gfx,self.root);
     }
     
@@ -235,9 +248,16 @@ function JSRect() {
         this.w = w;
         return this;
     };
+    this.getW = function() {
+        return this.w;
+    };
+    
     this.setH = function(h) {
         this.h = h;
         return this;
+    };
+    this.getH = function() {
+        return this.h;
     };
     this.fill = new Color(0.5,0.5,0.5);
     this.getFill = function(){

@@ -24,7 +24,7 @@ var apps = [
 
 for(var i in apps) {
     apps[i].setTx(0);
-    apps[i].setTy(50);
+    apps[i].setTy(71);
     apps[i].setVisible(false);
 }
 apps[0].setVisible(true);
@@ -137,10 +137,22 @@ function nextColor() {
     currentColor++;
     if(currentColor > colors.length-1) {
         console.log("you've won!");
+        stage.findNodeById("winGroup").setVisible(true);
     } else {
         centerTarget.setFill(colors[currentColor]);
     }
 }
+stage.on("PRESS",stage.findNodeById("winBG"), function() {
+    for(var i in rects) {
+        rects[i].setTx(rects[i].start_tx);
+        rects[i].setTy(rects[i].start_ty);
+        rects[i].setVisible(true);
+    }
+    currentColor = 0;
+    centerTarget.setFill(colors[currentColor]);
+    stage.findNodeById("winGroup").setVisible(false);
+});
+
 function movePieceBack(r) {
     stage.addAnim(a(r,"tx",r.getTx(),r.start_tx,250));
     stage.addAnim(a(r,"ty",r.getTy(),r.start_ty,250));

@@ -271,7 +271,15 @@ function JSRect() {
     
     var self = this;
     this.draw = function(gfx) {
-        
+        if(self.strokeWidth) {
+            var border = self.getBounds();
+            border.x--;
+            border.y--;
+            border.w+=2;
+            border.h+=2;
+            
+            gfx.fillQuadColor(new Color(0,0,0), border); 
+        }
         var fill = self.getFill();
         if(typeof fill == "string") {
             var r = parseInt(fill.substring(1,3),16);
@@ -392,6 +400,14 @@ function JSPushButton() {
             imageLoaded = true;
         }
         
+        var border = self.getBounds();
+        border.x--;
+        border.y--;
+        border.w+=2;
+        border.h+=2;
+        
+        gfx.fillQuadColor(new Color(0,0,0), border); 
+        
         var fill = self.getBaseColor();
         if(typeof fill == "string") {
             var r = parseInt(fill.substring(1,3),16);
@@ -434,6 +450,27 @@ function JSToggleButton() {
 JSToggleButton.extend(generated.ToggleButton);
 core.createToggleButton = function() {
     return new JSToggleButton();
+}
+
+
+function JSLabel() {
+    var self = this;
+    this.w = 200;
+    this.h = 100;
+    
+    this.draw = function(gfx) {
+        var bnds = self.getBounds();
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+10);
+    };
+    this.getBounds = function() {
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
+    };
+}
+JSLabel.extend(generated.Label);
+core.createLabel = function() {
+    console.log("inside create label");
+    var comp = new JSLabel();
+    return comp;
 }
 
 
@@ -527,7 +564,7 @@ var SceneParser = function() {
         "Rect": "createRect",
         "PushButton": "createPushButton",
         "ToggleButton":"createToggleButton",
-//        "Label":Label,
+        "Label":"createLabel",
 //        "Slider":Slider,
 //        "ListView":ListView,
         "Document":"createGroup",

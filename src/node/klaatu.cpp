@@ -2,10 +2,9 @@
 #include <math.h>
 #include <time.h>
 
+#include <media/mediaplayer.h>
 
 #include "core.h"
-
-
 #include "klaatu_events.h"
 
 using android::sp;
@@ -17,6 +16,70 @@ static sp<android::SurfaceComposerClient> mSession;
 static sp<android::SurfaceControl>        mControl;
 static sp<android::Surface>               mAndroidSurface;
 
+static int audioCount = 0;
+class MyListener : public android::MediaPlayerListener {
+public:
+    android::sp<android::MediaPlayer> mp;
+    MyListener(android::sp<android::MediaPlayer> arg_mp) {
+        mp = arg_mp;
+    }
+    // Notify messages defined in include/media/mediaplayer.h
+    virtual void notify(int msg, int ext1, int ext2, const android::Parcel *obj) {
+        printf("audio count = %d\n",audioCount);
+	switch (msg) {
+	case android::MEDIA_PLAYBACK_COMPLETE:
+	    printf("Playback complete\n");
+	    mp->disconnect();
+	    //audioCount--;
+	    //exit(0);
+	    break;
+
+	case android::MEDIA_ERROR:
+	    printf("Received Media Error %d %d\n", ext1, ext2);
+	    exit(0);
+
+	case android::MEDIA_INFO:
+	    printf("Received media info %d %d\n", ext1, ext2);
+	    break;
+
+	default:
+	    printf("Not handling MediaPlayerListener message %d %d %d\n", msg, ext1, ext2);
+	    break;
+	}
+    }
+};
+
+
+static android::sp<android::MediaPlayer> mp;
+void test_audio() {
+    printf("testing the audio subsystem\n");
+    char* file = "/data/node/01_789.mp3";
+    int fd = ::open(file, O_RDONLY);
+    if (fd < 0) {
+        perror("Unable to open file!");
+        exit(1);
+        
+    }
+    struct stat stat_buf;
+    int ret = ::fstat(fd, &stat_buf);
+    if (ret < 0) {
+        perror("Unable to stat file");
+        exit(1);
+    }
+    printf("Setting up file %s, size %lld bytes\n", file, stat_buf.st_size);
+    printf("preparing a media player\n");
+    mp = new android::MediaPlayer();
+    mp->reset();
+    mp->setListener(new MyListener(mp));
+    mp->setAudioStreamType(AUDIO_STREAM_MUSIC);
+    mp->setDataSource(fd,   0, stat_buf.st_size);
+    printf("closing the FD\n");
+    close(fd);
+    printf("preparing the FD\n");
+    mp->prepare();
+    printf("starting the FD\n");
+    mp->start();    
+}
 
 void klaatu_init_graphics(int *width, int *height)
 {
@@ -164,6 +227,8 @@ public:
         eventSingleton = new EVDispatcher(eventCB);
         enable_touch(winWidth,winHeight);
 
+        
+        test_audio();
 
         modelView = new GLfloat[16];
         for (;;) {

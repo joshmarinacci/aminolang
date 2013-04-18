@@ -193,6 +193,8 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
     //printf("FontShader::apply( %s %f %f )\n",text,offX,offY);
     float charX = 0;
     int len = strlen(text);
+    
+    float charScale = 1.5;
 
     for(int i=0; i<len; i++) {
         int ch = text[i];
@@ -228,7 +230,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         glEnableVertexAttribArray(attr_texcoords);
 
 
-        Bounds* bounds = new Bounds(charX, 0, chw, ih-8);
+        Bounds* bounds = new Bounds(charX, 0, chw*charScale, (ih-8)*charScale);
         float x = (float)bounds->getX()+offX;
         float y = (float)bounds->getY()+offY;
         float x2 = (float)bounds->getX()+bounds->getW()+offX;
@@ -251,7 +253,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         glBindTexture(GL_TEXTURE_2D,texID);
         //draw it
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        charX += chw;
+        charX += chw*charScale;
         glDisableVertexAttribArray(attr_pos);
         glDisableVertexAttribArray(attr_texcoords);
     }

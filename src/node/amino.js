@@ -428,7 +428,7 @@ function JSPushButton() {
         }
 
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+10);
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3);
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {

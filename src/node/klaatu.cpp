@@ -135,9 +135,8 @@ class EVDispatcher : public EventSingleton {
 public:
     bool down;
     Local<Function> cb;
-    EVDispatcher(Local<Function> CB) {
+    EVDispatcher() {
         down = false;
-        cb = CB;
     }
     virtual void touchStart(float rx, float ry, unsigned int tap_count=0) { 
         if(down) {
@@ -176,6 +175,8 @@ public:
 };
 
 
+static int winWidth;
+static int winHeight;
 class KlaatuCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
@@ -188,10 +189,9 @@ public:
     }
     
 
-    static v8::Handle<v8::Value> real_Start(const v8::Arguments& args) {
+    static v8::Handle<v8::Value> real_Init(const v8::Arguments& args) {
         HandleScope scope;
 
-        int winWidth = 300, winHeight = 300;
         EGLint egl_major, egl_minor;
         const char *s;
         
@@ -221,55 +221,61 @@ public:
         fontShader  = new FontShader();
         textureShader = new TextureShader();
         
-        Local<Function> drawCB = Local<Function>::Cast(args[0]);        
-        Local<Function> eventCB = Local<Function>::Cast(args[1]);
         
-        eventSingleton = new EVDispatcher(eventCB);
+        eventSingleton = new EVDispatcher();
         enable_touch(winWidth,winHeight);
 
         
-        test_audio();
+        //test_audio();
+        //Handle<Value> start_argv[] = {};
+        //startCB->Call(Context::GetCurrent()->Global(), 0, start_argv);
 
         modelView = new GLfloat[16];
-        for (;;) {
-            if(event_indication) {
-                event_process();
-            }
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16];
-            make_identity_matrix(idmat);
-            make_trans_matrix(1,1,trans);
-            make_z_rot_matrix(30,  rot);
-            mul_matrix(temp1, rot, trans);
-            loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
-            //printf("idmat = %f\n",idmat[12]);
-            //idmat[12]= 0.5;
-            mul_matrix(modelView, idmat, ortho);
-            
-            
-            
-            //create a wrapper template for gfx
-            Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
-            point_templ->SetInternalFieldCount(1);
-            point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
-            point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
-            point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
-            point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
-            point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
-            point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
-            point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
-            
-            GLGFX* gfx = new GLGFX();
-            gfx->translate(800,0);
-            gfx->rotate(90);
-            Local<Object> obj = point_templ->NewInstance();
-            obj->SetInternalField(0, External::New(gfx));
-            Handle<Value> argv[] = { obj };
-            drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
-            delete gfx;
+        return scope.Close(Undefined());
+    }
+    
+    static v8::Handle<v8::Value> real_Repaint(const v8::Arguments& args) {
+        HandleScope scope;
+        Local<Function> drawCB = Local<Function>::Cast(args[0]);        
+        Local<Function> eventCB = Local<Function>::Cast(args[1]);
+        if(event_indication) {
+            ((EVDispatcher*)eventSingleton)->cb = eventCB;
+            event_process();
+        }
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16];
+        make_identity_matrix(idmat);
+        make_trans_matrix(1,1,trans);
+        make_z_rot_matrix(30,  rot);
+        mul_matrix(temp1, rot, trans);
+        loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
+        //printf("idmat = %f\n",idmat[12]);
+        //idmat[12]= 0.5;
+        mul_matrix(modelView, idmat, ortho);
+        
+        
+        
+        //create a wrapper template for gfx
+        Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
+        point_templ->SetInternalFieldCount(1);
+        point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
+        point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
+        point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
+        point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
+        point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
+        point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
+        point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
+        
+        GLGFX* gfx = new GLGFX();
+        gfx->translate(800,0);
+        gfx->rotate(90);
+        Local<Object> obj = point_templ->NewInstance();
+        obj->SetInternalField(0, External::New(gfx));
+        Handle<Value> argv[] = { obj };
+        drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
+        delete gfx;
 
-            eglSwapBuffers(mEglDisplay, mEglSurface);
-        } 
+        eglSwapBuffers(mEglDisplay, mEglSurface);
         return scope.Close(Undefined());
     }
     
@@ -278,7 +284,8 @@ public:
         tpl->SetClassName(String::NewSymbol("Core"));
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
         tpl->PrototypeTemplate()->Set(String::NewSymbol("real_OpenWindow"),FunctionTemplate::New(real_OpenWindow)->GetFunction());
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Start"),FunctionTemplate::New(real_Start)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Init"),FunctionTemplate::New(real_Init)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Repaint"),FunctionTemplate::New(real_Repaint)->GetFunction());
         constructor = Persistent<Function>::New(tpl->GetFunction());
     }
     static Handle<Value> NewInstance(const Arguments& args) {
@@ -358,11 +365,38 @@ Handle<Value> TestNative(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+Handle<Value> LoadTexture(const Arguments& args) {
+    printf("LoadTexture\n");
+    HandleScope scope;
+    Local<Value> arg(args[0]);
+    if(Buffer::HasInstance(args[0])) {
+        Handle<Object> other = args[0]->ToObject();
+        size_t length = Buffer::Length(other);
+        uint8_t* data = (uint8_t*) Buffer::Data(other);
+        int w = (int)(args[1]->ToNumber()->NumberValue());
+        int h = (int)(args[2]->ToNumber()->NumberValue());
+        printf("image size = %d x %d\n",w,h);
+        GLuint texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        printf("fully loaded a texture with id: %d\n",texture);
+        Local<Number> num = Number::New(texture);
+        return scope.Close(num);
+    }
+    return scope.Close(Undefined());
+}
+
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     KlaatuCore::Init();
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
+    exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
   //exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
 }
 

@@ -1,6 +1,6 @@
 #include <semaphore.h>
 #include <input/EventHub.h>
-#include "src/cppgles/events.h"
+#include "klaatu_events.h"
 
 using android::EventHub;
 using android::EventHubInterface;

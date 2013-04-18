@@ -133,6 +133,7 @@ var rects = [
 
 centerTarget.setFill(colors[0]);
 var currentColor = 0;
+stage.findNodeById("winGroup").setVisible(false);
 function nextColor() {
     currentColor++;
     if(currentColor > colors.length-1) {
@@ -181,9 +182,23 @@ for(var i in rects) {
 }
 
 
+var testTexture = function() {
+    console.log("in the start callback");
+    stage.loadTexture("/data/node/blue.png",1121, 34, function (id) {
+        console.log("texture loaded: " + id);
+        var rect = core.createRect();
+        rect.setW(300).setH(300).setTx(100).setTy(100);
+        root.add(rect);
+        rect.draw = function(gfx) {
+            gfx.fillQuadTexture(id,0,0,300,300);
+        }
+    });
+}
+
 
 //delay 1 sec to ensure the png image is loaded first
 setTimeout(function() {
     console.log("starting later\n");
     core.start();
-},1000);
+    testTexture();
+},2000);

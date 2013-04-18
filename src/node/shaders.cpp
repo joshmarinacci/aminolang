@@ -310,7 +310,7 @@ TextureShader::TextureShader() {
     texID = texture;
 }
 
-void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2]) {
+void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
 //    printf("doing texture shader apply\n");
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
@@ -324,7 +324,7 @@ void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat vert
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
     glEnableVertexAttribArray(attr_pos);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texID);
+    glBindTexture(GL_TEXTURE_2D, texid);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     
     glDisableVertexAttribArray(attr_pos);

@@ -89,7 +89,12 @@ public:
     static Handle<v8::Value> node_fillQuadTexture(const v8::Arguments& args) {
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
-        self->fillQuadTexture();
+        int texid = args[0]->ToNumber()->NumberValue();
+        double x  = args[1]->ToNumber()->NumberValue();
+        double y  = args[2]->ToNumber()->NumberValue();
+        double w  = args[3]->ToNumber()->NumberValue();
+        double h  = args[4]->ToNumber()->NumberValue();
+        self->fillQuadTexture(texid,x,y,w,h);
         return scope.Close(Undefined());
     }
     
@@ -160,17 +165,17 @@ public:
 			Handle<Object> other = args[0]->ToObject();
             size_t length = Buffer::Length(other);
             uint8_t* data = (uint8_t*) Buffer::Data(other);
-            int x = (int)(args[1]->ToNumber()->NumberValue());
-            int y = (int)(args[2]->ToNumber()->NumberValue());
-            self->setFontData(data,x,y);
+            int w = (int)(args[1]->ToNumber()->NumberValue());
+            int h = (int)(args[2]->ToNumber()->NumberValue());
+            self->setFontData(data,w,h);
         }
         return scope.Close(Undefined());        
     }
     
     
 
-    void setFontData(uint8_t* data, int x, int y) {
-        fontShader->setFontData(data, x, y);
+    void setFontData(uint8_t* data, int w, int h) {
+        fontShader->setFontData(data, w, h);
     }
     
     void fillQuadColor(float r, float g, float b, Bounds* bounds) {
@@ -213,11 +218,11 @@ public:
     void fillQuadText(char* text, double x, double y) {
         fontShader->apply(modelView, globaltx, text, x, y);
     }
-    void fillQuadTexture() {
-        float x = 0;
-        float y = 0;
-        float x2 = 100;
-        float y2 = 100;
+    void fillQuadTexture(int texid, double x, double y, double w, double h) {
+//        float x = 0;
+//        float y = 0;
+        float x2 = x+w;
+        float y2 = y+h;
     
         GLfloat verts[6][2];
         verts[0][0] = x;    verts[0][1] = y;
@@ -241,7 +246,7 @@ public:
         texcoords[4][0] = tx;    texcoords[4][1] = ty2;
         texcoords[5][0] = tx;    texcoords[5][1] = ty;
         
-        textureShader->apply(modelView, globaltx,verts,texcoords);
+        textureShader->apply(modelView, globaltx, verts, texcoords, texid);
     }
     
     void scale(double x, double y){

@@ -26,7 +26,6 @@ var amino = require('/data/node/aminonative');
 var core = amino.createCore();
 core.testNative = amino.testNative;
 
-
 var PNG = require('/data/node/png-node.js');
 var pixel_data = null;
 PNG.decode('/data/node/font2.png', function(pixels) {
@@ -210,6 +209,16 @@ function JSStage() {
             }
         }
         return null;
+    }
+    
+    this.loadTexture = function(path, w, h, cb) {
+        console.log("loading a PNG: " + path);
+        PNG.decode(path, function(pixels) {
+            console.log("got the pixels");
+            var texid = amino.loadTexture(pixels,w, h);
+            console.log("the texture id = " + texid);
+            cb(texid);
+        });
     }
 }
 
@@ -604,11 +613,18 @@ var SceneParser = function() {
 
 
 core.windowCreated = false;
+
 core.start = function() {
     if(!this.windowCreated) {
         core.real_OpenWindow();
     }
-    this.real_Start(this.stage.draw, this.stage.processEvents);
+    var drawcb = this.stage.draw;
+    var eventcb = this.stage.processEvents;
+    
+    core.real_Init();
+    setInterval(function() {
+        core.real_Repaint(drawcb,eventcb);
+    },5)
 }
 
 

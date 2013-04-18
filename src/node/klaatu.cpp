@@ -3,11 +3,13 @@
 #include <time.h>
 
 #include <media/mediaplayer.h>
+#include <binder/ProcessState.h>
 
 #include "core.h"
 #include "klaatu_events.h"
 
 using android::sp;
+using android::ProcessState;
 
 static EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
 static EGLSurface mEglSurface = EGL_NO_SURFACE;
@@ -226,7 +228,12 @@ public:
         enable_touch(winWidth,winHeight);
 
         
-        //test_audio();
+        
+        //have to start the threadpool first or we will get no sound
+        ProcessState::self()->startThreadPool();
+
+        
+        test_audio();
         //Handle<Value> start_argv[] = {};
         //startCB->Call(Context::GetCurrent()->Global(), 0, start_argv);
 

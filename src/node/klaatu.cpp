@@ -366,7 +366,6 @@ Handle<Value> TestNative(const Arguments& args) {
 }
 
 Handle<Value> LoadTexture(const Arguments& args) {
-    printf("LoadTexture\n");
     HandleScope scope;
     Local<Value> arg(args[0]);
     if(Buffer::HasInstance(args[0])) {
@@ -375,7 +374,7 @@ Handle<Value> LoadTexture(const Arguments& args) {
         uint8_t* data = (uint8_t*) Buffer::Data(other);
         int w = (int)(args[1]->ToNumber()->NumberValue());
         int h = (int)(args[2]->ToNumber()->NumberValue());
-        printf("image size = %d x %d\n",w,h);
+        printf("LoadTexture with image size %d x %d\n",w,h);
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -384,7 +383,6 @@ Handle<Value> LoadTexture(const Arguments& args) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        printf("fully loaded a texture with id: %d\n",texture);
         Local<Number> num = Number::New(texture);
         return scope.Close(num);
     }
@@ -397,7 +395,6 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
-  //exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
 }
 
 

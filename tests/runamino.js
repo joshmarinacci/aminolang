@@ -182,15 +182,15 @@ for(var i in rects) {
 }
 
 
-var testTexture = function() {
-    console.log("in the start callback");
-    stage.loadTexture("/data/node/blue.png",1121, 34, function (id) {
-        console.log("texture loaded: " + id);
-        var rect = core.createRect();
-        rect.setW(300).setH(300).setTx(100).setTy(100);
-        root.add(rect);
+var snacktimeImage;
+
+var setupTextures = function() {
+    stage.loadTexture("/data/node/snacktime.png",240,240, function (id) {
+        console.log("texture loaded " + id);
+        var rect = stage.findNodeById("albumArt");
+        snacktimeImage = id;
         rect.draw = function(gfx) {
-            gfx.fillQuadTexture(id,0,0,300,300);
+            gfx.fillQuadTexture(id,0,0,500,500);
         }
     });
 }
@@ -200,5 +200,5 @@ var testTexture = function() {
 setTimeout(function() {
     console.log("starting later\n");
     core.start();
-    testTexture();
+    setupTextures();
 },2000);

@@ -136,7 +136,10 @@ FontShader::FontShader() {
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "void main() {\n"
-        "   gl_FragColor = texture2D(tex,uv);\n"
+      //"   gl_FragColor = texture2D(tex,uv);\n"
+      "   vec4 texel = texture2D(tex, uv);\n"
+      "   if(texel.r > 0.5) { discard; }\n"
+      "   gl_FragColor = vec4(texel.r,texel.g,texel.b,texel.a);\n"
 //        "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
       "}\n";
       
@@ -290,8 +293,6 @@ TextureShader::TextureShader() {
     
     int w;
     int h;
-    printf("about to load a texture\n");
-    
     GLubyte image_data[12] = {
         255,0  ,255,
         255,255,255,

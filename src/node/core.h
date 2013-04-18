@@ -234,10 +234,10 @@ public:
         verts[5][0] = x;    verts[5][1] = y;
         
         GLfloat texcoords[6][2];
-        float tx = 0;
-        float ty = 1;
+        float tx  = 0;
+        float ty2 = 1;
         float tx2 = 1;
-        float ty2 = 0;
+        float ty  = 0;
         texcoords[0][0] = tx;    texcoords[0][1] = ty;
         texcoords[1][0] = tx2;   texcoords[1][1] = ty;
         texcoords[2][0] = tx2;   texcoords[2][1] = ty2;

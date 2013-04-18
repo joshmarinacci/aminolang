@@ -176,6 +176,14 @@ public:
         mul_matrix(trans2, globaltx, rot);
         for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
     }
+    static Handle<v8::Value> node_scale(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        double sx = args[0]->ToNumber()->NumberValue();
+        double sy = args[1]->ToNumber()->NumberValue();
+        self->scale(sx,sy);
+        return scope.Close(Undefined());
+    }
     void scale(double x, double y){
         GLfloat scale[16];
         GLfloat temp[16];

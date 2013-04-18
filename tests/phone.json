@@ -1,4 +1,4 @@
-{
+   {
    "type":"Document"
     ,"children":[
        {
@@ -52,7 +52,7 @@
           ,"id":"leftButton"
           ,"enabled":true
           ,"text":"left"
-          ,"h":30.0
+          ,"h":40.0
           ,"w":70.0
           ,"ty":0.0
           ,"tx":0.0
@@ -62,17 +62,17 @@
           ,"id":"rightButton"
           ,"enabled":true
           ,"text":"right"
-          ,"h":30.0
+          ,"h":40.0
           ,"w":70.0
           ,"ty":0.0
-          ,"tx":250.0
+          ,"tx":251.0
           }
           ,{
            "type":"PushButton"
           ,"id":"upButton"
           ,"enabled":true
           ,"text":"up"
-          ,"h":30.0
+          ,"h":40.0
           ,"w":70.0
           ,"ty":0.0
           ,"tx":78.0
@@ -82,7 +82,7 @@
           ,"id":"downButton"
           ,"enabled":true
           ,"text":"down"
-          ,"h":30.0
+          ,"h":40.0
           ,"w":70.0
           ,"ty":0.0
           ,"tx":162.0

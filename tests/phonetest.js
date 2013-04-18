@@ -1,6 +1,10 @@
 var fs = require('fs');
 var amino = require('/data/node/amino.js');
 var core = amino.getCore();
+//set up the screen properly
+core.setDevice("galaxynexus");
+
+
 var stage = core.createStage();
 
 //load up the scene file
@@ -74,6 +78,10 @@ stage.setRoot(root);
             }
         };
     }
+var screen = {
+    w:720/2,
+    h:1280/2
+}
 
 function toTop(id,root) {
     var node = stage.findNode(id,root);
@@ -124,18 +132,91 @@ apps.push(wrapTransform(stage.findNodeById("app5"),core.createTransform()));
 apps.push(wrapTransform(stage.findNodeById("app6"),core.createTransform()));
 
 for(var i=0; i<apps.length; i++) {
-    apps[i].setTx(i*320*2);
+    apps[i].setTx(i*screen.w);
     apps[i].setTy(50);
 }
+
+
+
+
+
+function animOut(trns, soff, eoff) {
+    stage.addAnim(a(trns,"scalex",1.0,0.5,200));
+    stage.addAnim(a(trns,"scaley",1.0,0.5,200));
+    stage.addAnim(a(trns,"tx",soff,320/4+eoff,200));
+    stage.addAnim(a(trns,"ty",0+50,480/4,200));
+}
+function animIn(trns, soff, eoff) {
+    stage.addAnim(a(trns,"scalex",0.5,1.0,200));
+    stage.addAnim(a(trns,"scaley",0.5,1.0,200));
+    stage.addAnim(a(trns,"tx",320/4+soff,0+eoff,200));
+    stage.addAnim(a(trns,"ty",480/4,50,200));
+}
+
+
+var dock = stage.findNodeById("dock");
+dock.setTx(screen.h);
+stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
+    for(var i=0; i<apps.length; i++) {
+        animOut(apps[i],(i-curr)*320,(i-curr)*200);
+    }
+    
+    dock.setTx(0);
+    stage.addAnim(a(dock,"ty",screen.h,screen.h-60,200));
+    console.log(dock.getTy());
+    
+    //insert a transparent shim
+    var shim = core.createRect();
+    shim.setTy(40).setW(screen.w).setH(screen.h).setFill("green").setOpacity(0.2);
+    //disable drawing
+    shim.draw = function(){}
+    root.add(shim);
+    //click on the shim to animate everything back
+    stage.on("PRESS", shim, function(e) {
+        removeFromParent(shim);
+        for(var i=0; i<apps.length; i++) {
+            animIn(apps[i],(i-curr)*200,(i-curr)*320);
+        }
+        stage.addAnim(a(dock,"ty",screen.h-60,screen.h,200));
+    });
+    
+});
+
+
+stage.findNodeById("composePanel").setVisible(false);
+stage.findNodeById("contactsPanel").setVisible(false);
+
+
+stage.on("PRESS",stage.findNodeById("rightButton"),function(e) {
+    if(curr == apps.length-1) return;
+    for(var i=0; i<apps.length; i++) {
+        stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr-1)*200+320/4, 300).setEase(cubicInOut));
+    }
+    curr++;
+    if(curr > apps.length-1) curr = apps.length-1;
+});
+stage.on("PRESS",stage.findNodeById("leftButton"),function(e) {
+    console.log("curr = " + curr);
+    if(curr == 0) return;
+    for(var i=0; i<apps.length; i++) {
+        stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr+1)*200+320/4, 300).setEase(cubicInOut));
+    }
+    curr--;
+    if(curr < 0) curr = 0;
+});
+
+
+
+
+
 
 //move the topslider to the top of it's siblings
 var topSlider = stage.findNodeById("quicksettings");
 var par = topSlider.getParent();
 removeFromParent(topSlider);
 par.add(topSlider);
-console.log("top slider = " + topSlider);
 topSlider.setTx(0);
-topSlider.setTy(-480);
+topSlider.setTy(0);
 
 stage.on("PRESS",stage.findNodeById("downButton"), function(e) {
     console.log("down button pressed");

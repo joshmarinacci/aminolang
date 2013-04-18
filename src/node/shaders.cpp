@@ -194,7 +194,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
     float charX = 0;
     int len = strlen(text);
     
-    float charScale = 1.5;
+    float charScale = 1;
 
     for(int i=0; i<len; i++) {
         int ch = text[i];

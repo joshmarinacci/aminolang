@@ -84,6 +84,7 @@ function JSStage() {
     var self = this;
     this.draw = function(gfx)  {
         self.processAnims();
+        gfx.scale(2,2);
         self.draw_helper(gfx,self.root);
     }
     
@@ -98,6 +99,7 @@ function JSStage() {
             //var theta = root.getRotate()/180*Math.PI;
 //            console.log("rotating by: " + root.getRotate());
             //ctx.rotate(theta);
+            ctx.scale(root.getScalex(),root.getScaley());
             ctx.rotate(root.getRotate());
         }
         
@@ -161,15 +163,25 @@ function JSStage() {
         var x = point.x;
         var y = point.y;
         
-        var th = 90/180*Math.PI;
-        var x2 =  x*Math.cos(th) + y*Math.sin(th);
-        var y2 = -x*Math.sin(th) + y*Math.cos(th);
-        return new Point(x2,800+y2);
+        if(core.SCREEN_ROTATE) {
+            var th = 90/180*Math.PI;
+            var x2 =  x*Math.cos(th) + y*Math.sin(th);
+            var y2 = -x*Math.sin(th) + y*Math.cos(th);
+            return new Point(x2,800+y2);
+        }
+        
+        if(core.SCALE2X) {
+            var x2 = x/2;
+            var y2 = y/2;
+            return new Point(x2,y2);
+        }
+        
+        return new Point(x,y);
     }
     this.findNode = function(point) {
         var pt2 = fromScreenCoords(point);
-        //console.log("about to find a node for point "
-        //    + point.x + ","+ point.y + " -> " + pt2.x + ","+pt2.y);
+//        console.log("about to find a node for point "
+//            + point.x + ","+ point.y + " -> " + pt2.x + ","+pt2.y);
         return this.real_findNode(this.root,pt2);
     }
     this.real_findNode = function(node, point) {
@@ -442,7 +454,15 @@ core.createTransform = function() {
 }
 
 JSAnchorPanel = function() {
+    this.nodes = [];
     this.fill = "#cccccc";
+    this.isParent = function() { return true; }
+    this.getChildCount = function() {
+        return this.nodes.length;
+    }
+    this.getChild = function(i) {
+        return this.nodes[i];
+    }
     this.setFill = function(fill) {
         this.fill = fill;
         return this;
@@ -450,7 +470,23 @@ JSAnchorPanel = function() {
     this.getFill = function() {
         return this.fill;
     };
+    this.add = function(child) {
+        if(child == null) {
+            console.log("ERROR. tried to add a null child to a group");
+            return;
+        }
+        this.nodes.push(child);
+        child.setParent(this);
+        this.markDirty();
+    };
     this.draw = function(gfx) {
+        var border = self.getBounds();
+        border.x--;
+        border.y--;
+        border.w+=2;
+        border.h+=2;
+        gfx.fillQuadColor(new Color(0,0,0), border);
+        
         var fill = this.getFill();
         if(typeof fill == "string") {
             var r = parseInt(fill.substring(1,3),16);
@@ -539,8 +575,33 @@ function JSToggleButton() {
     var self = this;
     this.w = 200;
     this.h = 100;
+    this.install = function(stage) {
+        stage.on("PRESS", this, function(e) {
+            self.setBaseColor("#aaaaff");
+        });
+        stage.on("RELEASE", this, function(e) {
+            self.setBaseColor("#aaaaaa");
+        });
+    };
     this.draw = function(gfx) {
-        gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
+        var border = self.getBounds();
+        border.x--;
+        border.y--;
+        border.w+=2;
+        border.h+=2;
+        gfx.fillQuadColor(new Color(0,0,0), border);
+        
+        var fill = self.getBaseColor();
+        if(typeof fill == "string") {
+            var r = parseInt(fill.substring(1,3),16);
+            var g = parseInt(fill.substring(3,5),16);
+            var b = parseInt(fill.substring(5,7),16);
+            gfx.fillQuadColor(new Color(r/255,g/255,b/255), self.getBounds());
+        } else {
+            gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
+        }
+        var bnds = self.getBounds();
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3);
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
@@ -718,6 +779,13 @@ core.start = function() {
     },5)
 }
 
+core.setDevice = function(device) {
+    if(device == "galaxynexus") {
+        console.log("setting to be a galaxy nexus");
+        core.SCREEN_ROTATE = false;
+        core.SCALE2X = true;
+    }
+}
 
 exports.getCore =function() { return core; }
 exports.Color = Color;

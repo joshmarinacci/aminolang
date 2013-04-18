@@ -147,6 +147,13 @@ public:
         mul_matrix(trans2, globaltx, tr);
         for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
     }
+    void translateZ(double z) {
+        GLfloat tr[16];
+        GLfloat trans2[16];
+        make_trans_z_matrix((float)z,tr);
+        mul_matrix(trans2, globaltx, tr);
+        for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
+    }
     
     void rotate(double a) {
         GLfloat rot[16];
@@ -154,6 +161,20 @@ public:
         make_z_rot_matrix(a, rot);
         mul_matrix(trans2, globaltx, rot);
         for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
+    }
+    void rotateY(double a) {
+        GLfloat rot[16];
+        GLfloat trans2[16];
+        make_y_rot_matrix(a, rot);
+        mul_matrix(trans2, globaltx, rot);
+        for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
+    }
+    void scale(double x, double y){
+        GLfloat scale[16];
+        GLfloat temp[16];
+        make_scale_matrix((float)x,(float)y, 1.0, scale);
+        mul_matrix(temp, globaltx, scale);
+        for (int i = 0; i < 16; i++) globaltx[i] = temp[i];
     }
     
     static Handle<v8::Value> node_setFontData(const v8::Arguments& args) {
@@ -249,8 +270,6 @@ public:
         textureShader->apply(modelView, globaltx, verts, texcoords, texid);
     }
     
-    void scale(double x, double y){
-    }
 private:
 };
 

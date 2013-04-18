@@ -177,6 +177,7 @@ public:
     }
 };
 
+static float yrot = 0;
 
 static int winWidth;
 static int winHeight;
@@ -251,16 +252,21 @@ public:
             event_process();
         }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16];
+        GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16], proj[16];
         make_identity_matrix(idmat);
-        make_trans_matrix(1,1,trans);
-        make_z_rot_matrix(30,  rot);
-        mul_matrix(temp1, rot, trans);
-        loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
+//        make_trans_matrix(1,1,trans);
+//        make_z_rot_matrix(30,  rot);
+//        mul_matrix(temp1, rot, trans);
+//        loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
         //printf("idmat = %f\n",idmat[12]);
         //idmat[12]= 0.5;
-        mul_matrix(modelView, idmat, ortho);
+//        mul_matrix(modelView, idmat, ortho);
         
+        //loadPerspectiveMatrix(modelView, 2 * atan(winHeight/2.0), winWidth/winHeight, 1, 3);
+        //loadPerspectiveMatrix(modelView, 60.0f, 1.33f, -100.0f, 1000.0f);
+        loadPixelPerfect(proj, winWidth, winHeight, 500, 100, -1000);
+        make_trans_matrix(1,0,trans);
+        mul_matrix(modelView, proj, idmat);
         
         
         //create a wrapper template for gfx
@@ -275,8 +281,14 @@ public:
         point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
         
         GLGFX* gfx = new GLGFX();
-        gfx->translate(800,0);
+        gfx->translate(400,640);
+        gfx->scale(1,-1);
+        //gfx->rotateY(-1);
         gfx->rotate(90);
+        //gfx->translateZ(-1);
+        //gfx->rotateY(yrot);
+        //gfx->translate(-100,-100);
+        //yrot+= 2;
         Local<Object> obj = point_templ->NewInstance();
         obj->SetInternalField(0, External::New(gfx));
         Handle<Value> argv[] = { obj };

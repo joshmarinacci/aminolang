@@ -8,6 +8,28 @@
 #define ASSERT_NE(A, B) {if ((A) == (B)) {printf ("ERROR: %d\n", __LINE__); exit(9); }}
 #define EXPECT_TRUE(A) {if ((A) == 0) {printf ("ERROR: %d\n", __LINE__); exit(9); }}
 
+static void clear(GLfloat *m) {
+    int i;
+    for (i = 0; i < 16; i++)
+        m[i] = 0.0;
+}
+
+static void
+make_y_rot_matrix(GLfloat angle, GLfloat *m) {
+    float c = cos(angle * M_PI / 180.0);
+    float s = sin(angle * M_PI / 180.0);
+    int i;
+    for (i = 0; i < 16; i++)
+        m[i] = 0.0;
+    //identity values
+    m[0] = m[5] = m[10] = m[15] = 1.0;
+    
+    m[0]=c;
+    m[2]=-s;
+    m[8]=s;
+    m[10]=c;
+}
+
 static void
 make_z_rot_matrix(GLfloat angle, GLfloat *m)
 {
@@ -65,6 +87,13 @@ make_trans_matrix(GLfloat x, GLfloat y, GLfloat *m)
     m[13] = y;
 }
 
+static void 
+make_trans_z_matrix(GLfloat z, GLfloat *m)
+{
+    make_identity_matrix(m);
+    m[14] = z;
+}
+
 static void
 mul_matrix(GLfloat *prod, const GLfloat *a, const GLfloat *b)
 {
@@ -116,7 +145,59 @@ loadOrthoMatrix(GLfloat *modelView,  GLfloat left, GLfloat right, GLfloat bottom
             modelView[15] = 1.0f;
     }
     
-   
+static void
+loadPerspectiveMatrix(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear, GLfloat zfar) {
+    printf("fov  = %f\n",fov);
+    float PI_OVER_360 = M_PI/180.0;
+    float ymax = znear*tan(fov*PI_OVER_360);
+    float ymin = -ymax;
+    float xmax = ymax*aspect;
+    float xmin = ymin*aspect;
+    
+    float width = xmax-xmin;
+    float height = ymax - ymin;
+    
+    float depth = zfar-znear;
+    float q = -(zfar+znear)/depth;
+    float qn = -2*(zfar*znear)/depth;
+    
+    float w = 2*znear/width;
+    //w = w/aspect;
+    float h = 2*znear/height;
+    
+    m[0] = w;
+    m[1] = 0;
+    m[2] = 0;
+    m[3] = 0;
+    
+    m[4] = 0;
+    m[5] = h;
+    m[6] = 0;
+    m[7] = 0;
+    
+    m[8] = 0;
+    m[9] = 0;
+    m[10]= q;
+    m[11]= -1;
+
+    m[12]= 0;
+    m[13]= 0;
+    m[14]= qn;
+    m[15]= 0;
+}
 
 
 
+static void
+loadPixelPerfect(GLfloat *m, float width, float height, float z_eye, float z_near, float z_far) {
+//    printf("pixel perfect: %f %f %f %f %f\n",width,height,z_eye,z_near,z_far);
+    float kdn = z_eye - z_near;
+    float kdf = z_eye - z_far;
+    float ksz = - (kdf+kdn)/(kdf-kdn);
+    float ktz = - (2.0f*kdn*kdf)/(kdf-kdn);
+    
+    m[0]=(2.0f*z_eye)/width; m[1]=0;                    m[2]=0; m[3]=0;
+    m[4]=0;                  m[5]=(2.0f*z_eye)/height;  m[6]=0; m[7]=0;
+    m[8]=0; m[9]=0; m[10]=ktz-ksz*z_eye; m[11]=-1.0f;
+    m[12]=0; m[13]=0; m[14]=ktz; m[15]=z_eye;
+}

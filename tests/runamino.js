@@ -27,7 +27,7 @@ for(var i in apps) {
     apps[i].setTy(71);
     apps[i].setVisible(false);
 }
-var currentApp = 2;
+var currentApp = 0;
 apps[currentApp].setVisible(true);
 
 

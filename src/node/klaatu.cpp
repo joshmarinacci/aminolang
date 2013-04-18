@@ -10,6 +10,7 @@
 
 using android::sp;
 using android::ProcessState;
+using android::MediaPlayer;
 
 static EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
 static EGLSurface mEglSurface = EGL_NO_SURFACE;
@@ -396,12 +397,98 @@ Handle<Value> LoadTexture(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+class AminoMediaPlayer : public node::ObjectWrap {
+public:
+    static v8::Persistent<v8::Function> constructor;
+    static void Init() {
+        // Prepare constructor template
+        Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+        tpl->SetClassName(String::NewSymbol("MediaPlayer"));
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
+        // Prototype
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_start"), FunctionTemplate::New(node_start)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_stop"), FunctionTemplate::New(node_stop)->GetFunction());
+        constructor = Persistent<Function>::New(tpl->GetFunction());
+    }
+    //call the real constructor
+    static Handle<Value> New(const Arguments& args) {
+        HandleScope scope;
+        v8::String::Utf8Value param1(args[0]->ToString());
+        std::string text = std::string(*param1);    
+        char * file = new char [text.length()+1];
+        std::strcpy (file, text.c_str());
+        
+    
+        printf("creating a  media player for %s\n",file);
+        int fd = ::open(file, O_RDONLY);
+        if (fd < 0) {
+            perror("Unable to open file!");
+            exit(1);
+        }
+        
+        struct stat stat_buf;
+        int ret = ::fstat(fd, &stat_buf);
+        if (ret < 0) {
+            perror("Unable to stat file");
+            exit(1);
+        }
+        
+        printf("Setting up file %s, size %lld bytes\n", file, stat_buf.st_size);
+        printf("preparing a media player\n");
+        MediaPlayer *mp = new MediaPlayer();
+        mp->reset();
+        mp->setListener(new MyListener(mp));
+        mp->setAudioStreamType(AUDIO_STREAM_MUSIC);
+        mp->setDataSource(fd,   0, stat_buf.st_size);
+        printf("closing the FD\n");
+        close(fd);
+        printf("preparing the FD\n");
+        mp->prepare();
+        printf("starting the FD\n");
+        AminoMediaPlayer* obj = new AminoMediaPlayer(mp);
+        obj->Wrap(args.This());
+        return args.This();
+    }
+    //util method to call the node constructor
+    static Handle<v8::Value> NewInstance(const v8::Arguments& args) {
+        HandleScope scope;
+        const unsigned argc = 1;
+        Handle<Value> argv[argc] = { args[0] };
+        Local<Object> instance = constructor->NewInstance(argc, argv);
+        return scope.Close(instance);
+    }
+    
+    MediaPlayer* mp;
+    AminoMediaPlayer(MediaPlayer* mp) {
+        this->mp = mp;
+    }
+    static Handle<v8::Value> node_start(const v8::Arguments& args) {
+        HandleScope scope;
+        AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
+        self->mp->start();
+        return scope.Close(Undefined());
+    };
+    static Handle<v8::Value> node_stop(const v8::Arguments& args) {
+        HandleScope scope;
+        AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
+        self->mp->pause();
+        return scope.Close(Undefined());
+    };
+};
+Persistent<Function> AminoMediaPlayer::constructor;
+
+Handle<Value> CreateMediaPlayer(const Arguments& args) {
+    HandleScope scope;
+    return scope.Close(AminoMediaPlayer::NewInstance(args));
+}
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     KlaatuCore::Init();
+    AminoMediaPlayer::Init();
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
+    exports->Set(String::NewSymbol("createMediaPlayer"),FunctionTemplate::New(CreateMediaPlayer)->GetFunction());
 }
 
 

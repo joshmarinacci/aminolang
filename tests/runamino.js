@@ -182,11 +182,31 @@ for(var i in rects) {
 }
 
 
+//music player
+
+var currentSong;
+stage.on("PRESS", stage.findNodeById("playSongButton"), function(e) {
+    console.log("playing a song: " + currentSong);
+    if(currentSong) {
+        console.log("already have a song");
+        if(currentSong.isPlaying()) {
+            console.log("doing pause");
+            currentSong.pause();
+        } else {
+            console.log("doing play");
+            currentSong.play();
+        }
+    } else {
+        currentSong = stage.loadSong("/data/node/01_789.mp3");
+        console.log("got a song object. about to play it\n");
+        currentSong.play();
+    }
+});
+
 var snacktimeImage;
 
 var setupTextures = function() {
     stage.loadTexture("/data/node/snacktime.png",240,240, function (id) {
-        console.log("texture loaded " + id);
         var rect = stage.findNodeById("albumArt");
         snacktimeImage = id;
         rect.draw = function(gfx) {

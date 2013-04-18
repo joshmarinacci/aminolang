@@ -212,13 +212,29 @@ function JSStage() {
     }
     
     this.loadTexture = function(path, w, h, cb) {
-        console.log("loading a PNG: " + path);
         PNG.decode(path, function(pixels) {
-            console.log("got the pixels");
             var texid = amino.loadTexture(pixels,w, h);
-            console.log("the texture id = " + texid);
             cb(texid);
         });
+    }
+    
+    this.loadSong = function(path) {
+        console.log("loading a SONG: " + path);
+        var song = amino.createMediaPlayer(path);
+        song.playing = false;
+        song.isPlaying = function() {
+            return song.playing;
+        }
+        song.play = function() {
+            console.log(song.start);
+            song.cpp_start();
+            song.playing = true;
+        }
+        song.pause = function() {
+            song.playing = false;
+            song.cpp_stop();
+        }
+        return song;
     }
 }
 

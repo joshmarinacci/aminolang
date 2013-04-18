@@ -408,6 +408,7 @@ public:
         // Prototype
         tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_start"), FunctionTemplate::New(node_start)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_stop"), FunctionTemplate::New(node_stop)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_pause"), FunctionTemplate::New(node_pause)->GetFunction());
         constructor = Persistent<Function>::New(tpl->GetFunction());
     }
     //call the real constructor
@@ -469,6 +470,13 @@ public:
         return scope.Close(Undefined());
     };
     static Handle<v8::Value> node_stop(const v8::Arguments& args) {
+        HandleScope scope;
+        AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
+        self->mp->pause();
+        self->mp->seekTo(0);
+        return scope.Close(Undefined());
+    };
+    static Handle<v8::Value> node_pause(const v8::Arguments& args) {
         HandleScope scope;
         AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
         self->mp->pause();

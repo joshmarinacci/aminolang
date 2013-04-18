@@ -27,13 +27,13 @@ for(var i in apps) {
     apps[i].setTy(71);
     apps[i].setVisible(false);
 }
-apps[0].setVisible(true);
+var currentApp = 2;
+apps[currentApp].setVisible(true);
 
 
 
 
 // navigation buttons
-var currentApp = 0;
 function navNextApp() {
     apps[currentApp].setVisible(false);
     currentApp++;
@@ -216,9 +216,61 @@ var setupTextures = function() {
 }
 
 
+//music keyboard
+
+function setupKeyboard() {
+//var singleSong = stage.loadSong("/data/node/loud-c3.mp3");
+    var songFiles = ["loud-c3.mp3","loud-d3.mp3","loud-e3.mp3","loud-f3.mp3", "loud-g3.mp3"];
+    var flatFiles = ["loud-db3.mp3","loud-eb3.mp3","loud-gb3.mp3"];
+
+    function attachMusic(key, file) {
+        var song = stage.loadSong("/data/node/"+file);
+        stage.on("PRESS", key, function(e) {
+            console.log("playing = " + song.isPlaying());
+            if(song.isPlaying()) {
+                song.stop();
+                song.play();
+            } else {
+                song.play();
+            }
+        });
+    }
+    
+    var keyboard = stage.findNodeById("app3");
+    for(var i=0; i<5; i++) {
+        var key = core.createRect();
+        key.setW(200).setH(400).setTx(40+i*250).setTy(280).setFill("#ffffff");
+        keyboard.add(key);
+        attachMusic(key,songFiles[i]);
+        stage.on("PRESS", key, function(e) {
+            e.target.setFill("#cccccc");
+        });
+        stage.on("RELEASE", key, function(e) {
+            e.target.setFill("#ffffff");
+        });
+    }
+    for(var i=0; i<3; i++) {
+        var key = core.createRect();
+        key.setW(200).setH(350).setTx(170+i*250).setTy(50).setFill("#000000");
+        if(i==2) {
+            key.setTx(key.getTx()+250);
+        }
+        keyboard.add(key);
+        attachMusic(key,flatFiles[i]);
+        stage.on("RELEASE", key, function(e) {
+            e.target.setFill("#000000");
+        });
+        stage.on("PRESS", key, function(e) {
+            e.target.setFill("#444444");
+        });
+    }    
+}
+
+
 //delay 1 sec to ensure the png image is loaded first
 setTimeout(function() {
     console.log("starting later\n");
     core.start();
     setupTextures();
+    setupKeyboard();
 },2000);

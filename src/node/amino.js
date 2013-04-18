@@ -225,14 +225,17 @@ function JSStage() {
         song.isPlaying = function() {
             return song.playing;
         }
+        song.stop = function() {
+            song.cpp_stop();
+            song.playing = false;
+        }
         song.play = function() {
-            console.log(song.start);
             song.cpp_start();
             song.playing = true;
         }
         song.pause = function() {
             song.playing = false;
-            song.cpp_stop();
+            song.cpp_pause();
         }
         return song;
     }

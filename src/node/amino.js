@@ -92,13 +92,16 @@ function JSStage() {
         ctx.save();
         ctx.translate(root.getTx(),root.getTy());
         root.draw(ctx);
-        /*
-        if(root instanceof Transform) {
-            ctx.scale(root.getScalex(),root.getScaley());
-            var theta = root.getRotate()/180*Math.PI;
-            ctx.rotate(theta);
+        
+        if(root instanceof generated.Transform) {
+            //ctx.scale(root.getScalex(),root.getScaley());
+            //var theta = root.getRotate()/180*Math.PI;
+//            console.log("rotating by: " + root.getRotate());
+            //ctx.rotate(theta);
+            ctx.rotate(root.getRotate());
         }
-        */
+        
+        
         
         
         if(root.isParent && root.isParent()) {
@@ -408,6 +411,75 @@ core.createGroup = function() {
 }
 
 
+function JSTransform() {
+    this.isParent = function() {        return true; }
+    this.getChildCount = function() {   return 1;  }
+    this.getChild = function(i) {       return this.child;   }
+    this.toInnerCoords = function(pt) {
+        //console.log("turning ", pt2);
+        var pt2 = new Point(
+            pt.x-this.getTx(),
+            pt.y-this.getTy()
+            );
+        //console.log("to ",pt2);
+        pt2 = new Point( pt2.x/this.getScalex(), pt2.y/this.getScaley());
+        //console.log("to ", pt2);
+        var theta = this.getRotate()/180*Math.PI;
+        //console.log("cos of theta = " + node.getRotate() + " " + theta + " " + Math.cos(theta));
+        pt2 = new Point(
+            (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y),
+            (-Math.sin(theta)*pt2.x + Math.cos(theta)*pt2.y)
+            );
+        return pt2;
+        //console.log("to ", pt2);
+//            console.log("theta = " + (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y));
+//            console.log("theta = " + (Math.sin(theta)*pt2.x - Math.cos(theta)*pt2.y));
+    }
+}
+JSTransform.extend(generated.Transform);
+core.createTransform = function() {
+    return new JSTransform();
+}
+
+JSAnchorPanel = function() {
+    this.fill = "#cccccc";
+    this.setFill = function(fill) {
+        this.fill = fill;
+        return this;
+    };
+    this.getFill = function() {
+        return this.fill;
+    };
+    this.draw = function(gfx) {
+        var fill = this.getFill();
+        if(typeof fill == "string") {
+            var r = parseInt(fill.substring(1,3),16);
+            var g = parseInt(fill.substring(3,5),16);
+            var b = parseInt(fill.substring(5,7),16);
+            gfx.fillQuadColor(new Color(r/255,g/255,b/255), this.getBounds());
+        } else {
+            gfx.fillQuadColor(this.getFill(),this.getBounds());
+        }
+        
+        /*
+        g.fillStyle = this.fill;
+        g.fillRect(0,0,this.getW(),this.getH());
+        g.lineWidth = 2;
+        g.strokeStyle = "black";
+        g.strokeRect(0,0,this.getW(),this.getH());
+        */
+    };    
+    var self = this;
+    this.getBounds = function() {
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
+    };
+}
+JSAnchorPanel.extend(generated.AnchorPanel);
+core.createAnchorPanel = function() {
+    return new JSAnchorPanel();
+}
+
+
 var imageLoaded = false;
 function JSPushButton() {
     var self = this;
@@ -594,16 +666,16 @@ var SceneParser = function() {
         "ToggleButton":"createToggleButton",
         "Label":"createLabel",
 //        "Slider":Slider,
-//        "ListView":ListView,
+        "ListView":"createRect",
         "Document":"createGroup",
         "DynamicGroup":"createGroup",
-//        "AnchorPanel":AnchorPanel,
+        "AnchorPanel":"createAnchorPanel",
     };
     this.parentTypeMap = {
         "Group":JSGroup,
         "Document":JSGroup,
         "DynamicGroup":JSGroup,
-//        "AnchorPanel":AnchorPanel,
+        "AnchorPanel":JSAnchorPanel,
     };
     
     this.parse = function(core, obj) {
@@ -624,7 +696,7 @@ var SceneParser = function() {
             
             return out;
         }
-        console.log("warning. no object parsed here!");
+        console.log("warning. no object for type " + obj.type);
     }
 }
 

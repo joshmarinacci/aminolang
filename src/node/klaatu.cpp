@@ -279,6 +279,7 @@ public:
         point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
         point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
         point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
+        point_templ->Set(String::NewSymbol("rotate"),FunctionTemplate::New(GLGFX::node_rotate)->GetFunction());
         
         GLGFX* gfx = new GLGFX();
         gfx->translate(400,640);

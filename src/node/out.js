@@ -1085,3 +1085,6 @@ exports.Node = Node;
 exports.PushButton = PushButton;
 exports.ToggleButton = ToggleButton;
 exports.Slider = Slider;
+exports.Label = Label;
+exports.AnchorPanel = AnchorPanel;
+exports.Transform = Transform;

@@ -155,12 +155,19 @@ public:
         for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
     }
     
+    static Handle<v8::Value> node_rotate(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        double a = args[0]->ToNumber()->NumberValue();
+        self->rotate(a);
+        return scope.Close(Undefined());
+    }
     void rotate(double a) {
         GLfloat rot[16];
-        GLfloat trans2[16];
+        GLfloat temp[16];
         make_z_rot_matrix(a, rot);
-        mul_matrix(trans2, globaltx, rot);
-        for (int i = 0; i < 16; i++) globaltx[i] = trans2[i];
+        mul_matrix(temp, globaltx, rot);
+        for (int i = 0; i < 16; i++) globaltx[i] = temp[i];
     }
     void rotateY(double a) {
         GLfloat rot[16];

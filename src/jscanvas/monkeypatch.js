@@ -386,13 +386,18 @@ ListView = function() {
         ctx.fillRect(this.x,this.y+this.index*this.rh, this.w, this.rh);
         
         ctx.fillStyle = "black";
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(this.x,this.y,this.w,this.h);
+        ctx.clip();
         for(var i=0; i<this.listModel.length; i++) {
             var y = i*this.rh;
-            if(y < this.scroll) continue;
+            if(y < this.scroll-this.rh) continue;
             if(y > this.getH()+this.scroll) break;
             ctx.fillText(this.listModel[i],
                 this.x+5,this.y+y+15-this.scroll);
         }
+        ctx.restore();
         if(this.listModel.items) {
             for(var i=0; i<this.listModel.items.length; i++) {
                 var y = i*this.rh;

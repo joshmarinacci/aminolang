@@ -334,6 +334,9 @@ function Engine() {
     this.createTextbox = function() {
         return new Textbox();
     }
+    this.createListView = function() {
+        return new ListView();
+    }
 }
 Engine.extend(Core);
 

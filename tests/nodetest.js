@@ -25,6 +25,10 @@ var gr = core.createGroup();
 gr.add(r1);
 gr.add(r2);
 stage.setRoot(gr);
+
+
+
+
 /*
 stage.on("PRESS", r1, function() {
     console.log("got a click on the rectangle");

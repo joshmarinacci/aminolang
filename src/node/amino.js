@@ -528,6 +528,29 @@ JSAnchorPanel = function() {
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
+    this.setW = function(w) {
+        this.w = w;
+        this.redoLayout();
+        this.markDirty();
+        return this;
+    }
+    this.setH = function(h) {
+        this.h = h;
+        this.redoLayout();
+        this.markDirty();
+        return this;
+    }
+    this.redoLayout = function() {
+        for(var i in this.nodes) {
+            var node = this.nodes[i];
+            if(node.anchorBottom) {
+                node.setTy(this.getH() - (this.orig_h - node.orig_ty));
+            }
+            if(node.anchorRight) {
+                node.setTx(this.getW() - (this.orig_w - node.orig_tx));
+            }
+        }
+    }
 }
 JSAnchorPanel.extend(generated.AnchorPanel);
 core.createAnchorPanel = function() {
@@ -770,6 +793,13 @@ var SceneParser = function() {
             if(prop == "type") continue;
             if(prop == "children") continue;
             out[prop] = obj[prop];
+        }
+        out.orig_tx = obj.tx;
+        out.orig_ty = obj.ty;
+        if(obj.type == "AnchorPanel") {
+            console.log("doing an anchor panel. orig w h = " + obj.w + " " + obj.h);
+            out.orig_w = obj.w;
+            out.orig_h = obj.h;
         }
     }
     

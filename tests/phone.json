@@ -26,7 +26,7 @@
               }
               ,{
                "type":"ListView"
-              ,"id":"id382672"
+              ,"id":"todoList"
               ,"selectedIndex":0.0
               ,"h":300.0
               ,"w":285.0
@@ -37,7 +37,7 @@
               }
               ,{
                "type":"PushButton"
-              ,"id":"id181142"
+              ,"id":"addItemButton"
               ,"enabled":true
               ,"text":"add item"
               ,"h":30.0

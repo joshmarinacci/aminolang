@@ -228,7 +228,7 @@ public:
         eventSingleton = new EVDispatcher();
         enable_touch(winWidth,winHeight);
 
-        
+        //
         
         //have to start the threadpool first or we will get no sound
         ProcessState::self()->startThreadPool();
@@ -490,7 +490,7 @@ public:
         return scope.Close(Undefined());
     };
 };
-Persistent<Function> AminoMediaPlayer::constructor;
+//Persistent<Function> AminoMediaPlayer::constructor;
 
 Handle<Value> CreateMediaPlayer(const Arguments& args) {
     HandleScope scope;

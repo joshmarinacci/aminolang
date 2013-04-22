@@ -230,6 +230,15 @@ Corex.start(function(core) {
         });
         */
         c.add(textbox);
+        
+        
+        var listview = core.createListView();
+        listview.listModel = [];
+        for(var i=0; i<20; i++) {
+            listview.listModel.push(i+" foo");
+        }
+        listview.setW(200).setH(200).setTx(350).setTy(30);
+        c.add(listview);
     }
     
     

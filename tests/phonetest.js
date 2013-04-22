@@ -12,6 +12,10 @@ var filedata = fs.readFileSync('phone.json');
 var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
+var screen = {
+    w:720/2,
+    h:1280/2
+}
 
     function elasticIn(t) {
         var p = 0.3;
@@ -78,10 +82,6 @@ stage.setRoot(root);
             }
         };
     }
-var screen = {
-    w:720/2,
-    h:1280/2
-}
 
 function toTop(id,root) {
     var node = stage.findNode(id,root);
@@ -102,15 +102,11 @@ function findTransition(id, root) {
 function wrapTransform(target, trans) {
     target.setTx(0);
     target.setTy(0);
-    //console.log(target);
     var parent = target.getParent();
     var n = parent.nodes.indexOf(target);
-    //console.log("index = " + n);
     parent.nodes.splice(n,1);
     trans.setChild(target);
-//        trans.setTy(40);
     parent.add(trans);
-    //console.log(parent.nodes);
     return trans;
 }
 function removeFromParent(target) {
@@ -134,31 +130,33 @@ apps.push(wrapTransform(stage.findNodeById("app6"),core.createTransform()));
 for(var i=0; i<apps.length; i++) {
     apps[i].setTx(i*screen.w);
     apps[i].setTy(50);
+    console.log(apps[i].getChild().type);
+    apps[i].getChild().setW(screen.w);
+    apps[i].getChild().setH(screen.h-50);
 }
-
-
-
 
 
 function animOut(trns, soff, eoff) {
     stage.addAnim(a(trns,"scalex",1.0,0.5,200));
     stage.addAnim(a(trns,"scaley",1.0,0.5,200));
-    stage.addAnim(a(trns,"tx",soff,320/4+eoff,200));
-    stage.addAnim(a(trns,"ty",0+50,480/4,200));
+    stage.addAnim(a(trns,"tx",soff,screen.w/4+eoff,200));
+    stage.addAnim(a(trns,"ty",0+50,screen.h/4,200));
 }
+
 function animIn(trns, soff, eoff) {
     stage.addAnim(a(trns,"scalex",0.5,1.0,200));
     stage.addAnim(a(trns,"scaley",0.5,1.0,200));
-    stage.addAnim(a(trns,"tx",320/4+soff,0+eoff,200));
-    stage.addAnim(a(trns,"ty",480/4,50,200));
+    stage.addAnim(a(trns,"tx",screen.w/4+soff,0+eoff,200));
+    stage.addAnim(a(trns,"ty",screen.h/4,50,200));
 }
 
 
 var dock = stage.findNodeById("dock");
 dock.setTx(screen.h);
+dock.setW(screen.w);
 stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
     for(var i=0; i<apps.length; i++) {
-        animOut(apps[i],(i-curr)*320,(i-curr)*200);
+        animOut(apps[i],(i-curr)*screen.w,(i-curr)*screen.w * 2/3);
     }
     
     dock.setTx(0);
@@ -175,7 +173,7 @@ stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
     stage.on("PRESS", shim, function(e) {
         removeFromParent(shim);
         for(var i=0; i<apps.length; i++) {
-            animIn(apps[i],(i-curr)*200,(i-curr)*320);
+            animIn(apps[i],(i-curr)*screen.w * 2/3,(i-curr)*screen.w);
         }
         stage.addAnim(a(dock,"ty",screen.h-60,screen.h,200));
     });
@@ -185,6 +183,20 @@ stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
 
 stage.findNodeById("composePanel").setVisible(false);
 stage.findNodeById("contactsPanel").setVisible(false);
+
+
+
+stage.on("PRESS",stage.findNodeById("addItemButton"),function(e) {
+    process.exit(0);
+});
+
+var todoList = stage.findNodeById("todoList");
+todoList.listModel = [];
+for(var i=0; i<40; i++) {
+    todoList.listModel.push(i+" foo");
+}
+todoList.setW(screen.w).setH(screen.h-200).setTx(0);
+stage.findNodeById("addItemButton").setTy(10).setY(0);
 
 
 stage.on("PRESS",stage.findNodeById("rightButton"),function(e) {
@@ -216,7 +228,7 @@ var par = topSlider.getParent();
 removeFromParent(topSlider);
 par.add(topSlider);
 topSlider.setTx(0);
-topSlider.setTy(0);
+topSlider.setTy(-300);
 
 stage.on("PRESS",stage.findNodeById("downButton"), function(e) {
     console.log("down button pressed");
@@ -235,9 +247,7 @@ stage.on("PRESS",stage.findNodeById("quicksettings"),function(e){
 setTimeout(function() {
     console.log("starting later\n");
     core.start();
-//    setupTextures();
-//    setupKeyboard();
-},2000);
+},1000);
 
 /*
 

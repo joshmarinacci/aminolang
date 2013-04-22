@@ -515,6 +515,64 @@ core.createAnchorPanel = function() {
     return new JSAnchorPanel();
 }
 
+JSListView = function() {
+    var self = this;
+    this.rh = 32;
+	this.listModel = ['a','b','c'];
+    this.getBounds = function() {
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
+    };
+    this.scroll = 0;
+    this.draw = function(gfx) {
+        //border
+        var border = self.getBounds();
+        border.x--;
+        border.y--;
+        border.w+=2;
+        border.h+=2;
+        gfx.fillQuadColor(new Color(0,0,0), border);
+        
+        //background
+        var fill = "#ccffff";
+        if(typeof fill == "string") {
+            var r = parseInt(fill.substring(1,3),16);
+            var g = parseInt(fill.substring(3,5),16);
+            var b = parseInt(fill.substring(5,7),16);
+            gfx.fillQuadColor(new Color(r/255,g/255,b/255), this.getBounds());
+        } else {
+            gfx.fillQuadColor(this.getFill(),this.getBounds());
+        }
+        
+        //text
+        var bnds = self.getBounds();
+        for(var i=0; i<this.listModel.length; i++) {
+            var y = i*this.rh;
+            if(y < this.scroll-this.rh) continue;
+            if(y > this.getH()+this.scroll) break;
+            gfx.fillQuadText(new Color(0,0,0), 
+                this.listModel[i],
+                bnds.x+10, bnds.y+3+y-this.scroll);
+        }
+    }
+    this.install = function(stage) {
+        stage.on("PRESS", this, function(e) {
+        });
+        stage.on("DRAG", this, function(e) {
+            self.scroll -= e.delta.y;
+            if(self.scroll < 0) self.scroll = 0;
+            var maxH = self.rh * self.listModel.length;
+            if(self.scroll + self.getH() > maxH) {
+                self.scroll = maxH-self.getH();
+            }
+        });
+    }
+}
+JSListView.extend(generated.ListView);
+core.createListView = function() {
+    var comp = new JSListView();
+    comp.install(this.stage);
+    return comp;
+}
 
 var imageLoaded = false;
 function JSPushButton() {
@@ -727,7 +785,7 @@ var SceneParser = function() {
         "ToggleButton":"createToggleButton",
         "Label":"createLabel",
 //        "Slider":Slider,
-        "ListView":"createRect",
+        "ListView":"createListView",
         "Document":"createGroup",
         "DynamicGroup":"createGroup",
         "AnchorPanel":"createAnchorPanel",
@@ -776,7 +834,7 @@ core.start = function() {
     core.real_Init();
     setInterval(function() {
         core.real_Repaint(drawcb,eventcb);
-    },5)
+    },0)
 }
 
 core.setDevice = function(device) {

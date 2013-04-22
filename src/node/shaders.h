@@ -1,7 +1,9 @@
-#include <ui/DisplayInfo.h>
+/*#include <ui/DisplayInfo.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
+*/
 
+#include "gfx.h"
 
 
 class Shader {
@@ -27,7 +29,7 @@ class FontShader: public Shader {
 public:
     FontShader();
     virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text, float x, float y);
-    virtual void setFontData(uint8_t* data, int x, int y);
+    virtual void setFontData(char* data, int x, int y);
     int prog;
     GLint u_matrix, u_trans;
     GLint attr_pos;

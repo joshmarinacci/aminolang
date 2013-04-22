@@ -17,7 +17,7 @@ public:
     
     static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
         HandleScope scope;
-        int ret = glfwOpenWindow(400, 400, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
+        int ret = glfwOpenWindow(360, 640, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
         if(!ret) {
             printf("error. quitting\n");
             glfwTerminate();
@@ -27,14 +27,25 @@ public:
         return scope.Close(Undefined());
     }
     
-    static v8::Handle<v8::Value> real_Start(const v8::Arguments& args) {
+    static v8::Handle<v8::Value> real_Init(const v8::Arguments& args) {
+        printf("real init called\n");
         HandleScope scope;
         colorShader = new ColorShader();
+        fontShader  = new FontShader();
+        textureShader = new TextureShader();
+        return scope.Close(Undefined());
+    }
+    static v8::Handle<v8::Value> real_Repaint(const v8::Arguments& args) {
+        HandleScope scope;
+        //printf("real repaint called\n");
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
-        while (glfwGetWindowParam(GLFW_OPENED))
-        {
+//        while (glfwGetWindowParam(GLFW_OPENED))
+//        {
             
+            //printf("starting the loop\n");
+
+            /*
             //check for events
             int mx;
             int my;
@@ -52,6 +63,7 @@ public:
             //call the event callback
             Handle<Value> event_argv[] = {event_obj};
             eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
+            */
             
             //do the drawing
             glClear( GL_COLOR_BUFFER_BIT );
@@ -59,13 +71,22 @@ public:
             GLfloat rot[16], scale[16], trans[16];
             modelView = new GLfloat[16];
             
-            loadOrthoMatrix(modelView, 0, 800, 800, 0, 0, 100);
+            loadOrthoMatrix(modelView, 0, 360, 640, 0, 0, 100);
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             
+            //printf("setting up gfx fill quad\n");
             Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
             point_templ->SetInternalFieldCount(1);
             point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
+            point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
+            point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
+            point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
+            point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
+            point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
+            point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
+            point_templ->Set(String::NewSymbol("rotate"),FunctionTemplate::New(GLGFX::node_rotate)->GetFunction());
+            point_templ->Set(String::NewSymbol("scale"),FunctionTemplate::New(GLGFX::node_scale)->GetFunction());
             
             GLGFX* gfx = new GLGFX();
             Local<Object> obj = point_templ->NewInstance();
@@ -74,13 +95,14 @@ public:
             drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
             
             glfwSwapBuffers();
-        }
-    
+  //      }
+    /*
         glfwTerminate();
         exit(EXIT_SUCCESS);
         
         
         printf("starting\n");
+        */
         return scope.Close(Undefined());
     }
     
@@ -89,7 +111,8 @@ public:
         tpl->SetClassName(String::NewSymbol("Core"));
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
         tpl->PrototypeTemplate()->Set(String::NewSymbol("real_OpenWindow"),FunctionTemplate::New(real_OpenWindow)->GetFunction());
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Start"),FunctionTemplate::New(real_Start)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Init"),FunctionTemplate::New(real_Init)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Repaint"),FunctionTemplate::New(real_Repaint)->GetFunction());
         constructor = Persistent<Function>::New(tpl->GetFunction());
     }
     static Handle<Value> NewInstance(const Arguments& args) {
@@ -136,7 +159,7 @@ Handle<Value> TestNative(const Arguments& args) {
         loadOrthoMatrix(modelView, 0, 400, 400, 0, 0, 100);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GLGFX* gfx = new GLGFX();
-        gfx->fillQuadColor(NULL, new Bounds(0,0,50,50));
+        gfx->fillQuadColor(1,1,0, new Bounds(0,0,50,50));
         delete gfx;
         glfwSwapBuffers();
     }

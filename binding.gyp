@@ -11,7 +11,18 @@
                     "/Users/josh/projects/lib/glfw/lib/cocoa",
             ],
             'conditions': [
-                ['OS=="mac"', {'libraries': ['-lglfw', '-framework OpenGL', '-framework OpenCL']}],
+                ['OS=="mac"', {
+                    "libraries": ['-lglfw', '-framework OpenGL', '-framework OpenCL'],
+                    "defines": [
+                        "MAC"
+                    ]
+                }],
+                
+                ['OS=="klaatu"', {
+                    "defines": [
+                        "KLAATU"
+                    ]
+                }]
             ]
 
         }

@@ -1,6 +1,3 @@
-#include <ui/DisplayInfo.h>
-#include <ui/FramebufferNativeWindow.h>
-#include <gui/SurfaceComposerClient.h>
 #include <node.h>
 #include <node_buffer.h>
 #include <stack>
@@ -200,7 +197,7 @@ public:
         if(Buffer::HasInstance(args[0])) {
 			Handle<Object> other = args[0]->ToObject();
             size_t length = Buffer::Length(other);
-            uint8_t* data = (uint8_t*) Buffer::Data(other);
+            char* data = (char*) Buffer::Data(other);
             int w = (int)(args[1]->ToNumber()->NumberValue());
             int h = (int)(args[2]->ToNumber()->NumberValue());
             self->setFontData(data,w,h);
@@ -210,7 +207,7 @@ public:
     
     
 
-    void setFontData(uint8_t* data, int w, int h) {
+    void setFontData(char* data, int w, int h) {
         fontShader->setFontData(data, w, h);
     }
     

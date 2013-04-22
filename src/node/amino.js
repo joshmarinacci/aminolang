@@ -20,15 +20,30 @@ Function.prototype.extend = function(superclass, proto) {
 	*/
 };
 
-var generated = require('/data/node/out.js');
+var generated;
+var amino;
+var PNG;
+var FONT_IMAGE_PATH;
+
+var OS = "MAC";
+if(OS == "MAC") {
+    generated = require('./out.js');
+    amino = require('../../build/Release/amino.node');
+    PNG = require('png-js');
+    FONT_IMAGE_PATH = "./tests/font2.png";
+} else {
+    generated = require('/data/node/out.js');
+    amino = require('/data/node/aminonative');
+    PNG = require('/data/node/png-node.js');
+    FONT_IMAGE_PATH = "/data/node/font2.png";
+}
+
 var Point = generated.Point;
-var amino = require('/data/node/aminonative');
 var core = amino.createCore();
 core.testNative = amino.testNative;
 
-var PNG = require('/data/node/png-node.js');
 var pixel_data = null;
-PNG.decode('/data/node/font2.png', function(pixels) {
+PNG.decode(FONT_IMAGE_PATH, function(pixels) {
     pixel_data = pixels;
 });
 
@@ -143,7 +158,7 @@ function JSStage() {
             event.point = point;
         }
         
-        var node = this.findNode(point);
+        var node = this.findNodeByXY(point);
         //console.log("clicked on node: " + node);
         event.point = point;
         if(type=="PRESS"){
@@ -178,13 +193,13 @@ function JSStage() {
         
         return new Point(x,y);
     }
-    this.findNode = function(point) {
+    this.findNodeByXY = function(point) {
         var pt2 = fromScreenCoords(point);
 //        console.log("about to find a node for point "
 //            + point.x + ","+ point.y + " -> " + pt2.x + ","+pt2.y);
-        return this.real_findNode(this.root,pt2);
+        return this.real_findNodeByXY(this.root,pt2);
     }
-    this.real_findNode = function(node, point) {
+    this.real_findNodeByXY = function(node, point) {
         if(!node) return null;
         if(node.getVisible && !node.getVisible()) return null;
         var pt2 = new Point(point.x,point.y);
@@ -202,7 +217,7 @@ function JSStage() {
         if(node.isParent && node.isParent()) {
             //go in reverse, front to back
             for(var i=node.getChildCount()-1; i>=0; i--) {
-                var ret = this.real_findNode(node.getChild(i),pt2);
+                var ret = this.real_findNodeByXY(node.getChild(i),pt2);
                 if(ret != null) return ret;
             }
         }
@@ -212,7 +227,7 @@ function JSStage() {
         return null;
     }    
     
-    this.findNodeById = function(id) {
+    this.find = function(id) {
         return this.findNodeById_helper(id,this.getRoot());
     }
     this.findNodeById_helper = function(id, node) {
@@ -411,6 +426,10 @@ function JSGroup() {
         return this;
     }
     this.draw = function(ctx) {
+    }
+    this.remove = function(target) {
+        var n = this.nodes.indexOf(target);
+        this.nodes.splice(n,1);
     }
     this.clear = function() {
         this.nodes = [];
@@ -843,9 +862,82 @@ core.setDevice = function(device) {
         core.SCREEN_ROTATE = false;
         core.SCALE2X = true;
     }
+    if(device == "mac") {
+        core.SCREEN_ROTATE = false;
+        core.SCALE2X = false;
+    }
 }
+
+
+function elasticIn(t) {
+    var p = 0.3;
+    return -(Math.pow(2,10*(t-1)) * Math.sin(((t-1)-p/4)*(2*Math.PI)/p));
+}
+function elasticOut(t) {
+    var p = 0.3;
+    return Math.pow(2,-10*t) * Math.sin((t-p/4)*(2*Math.PI)/p) + 1;
+}
+function cubicIn(t) {
+    return Math.pow(t,3);
+}
+function cubicOut(t) {
+    return 1-cubicIn(1-t);
+}
+function smoothstepIn(t) {
+    return t*t*(3-2*t);
+}
+function cubicInOut(t) {
+    if(t < 0.5) return cubicIn(t*2.0)/2.0;
+    return 1-cubicIn((1-t)*2)/2;                
+}
+function camelize(s) {
+    return s.substring(0,1).toUpperCase() + s.substring(1);
+}
+function anim(node, prop, start, finish, dur) {
+    return {
+        node:node,
+        prop:prop,
+        sval:start,
+        fval:finish,
+        dur:dur,
+        running:false,
+        finished:false,
+        easefn:null,
+        setVal:function(t) {
+            if(this.easefn != null) {
+                t = this.easefn(t);
+            }
+            var v = (this.fval-this.sval)*t + this.sval;
+            //console.log("t = " + t + " " + v);
+            node["set"+camelize(this.prop)](v);
+        },
+        update:function() {
+            if(this.finished) return;
+            if(!this.running) {
+                this.startTime = new Date().getTime();
+                this.running = true;
+                return;
+            }
+            var time = new Date().getTime();
+            var dt = time-this.startTime;
+            var t = dt/this.dur;
+            if(t > 1) {
+                this.finished = true;
+                this.setVal(1);
+                return;
+            }
+            this.setVal(t);
+        },
+        setEase:function(easefn) {
+            this.easefn = easefn;
+            return this;
+        }
+    };
+}
+
 
 exports.getCore =function() { return core; }
 exports.Color = Color;
 exports.SceneParser = SceneParser;
+exports.anim = anim;
 

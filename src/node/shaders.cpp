@@ -1,7 +1,4 @@
-#include <ui/DisplayInfo.h>
-#include <ui/FramebufferNativeWindow.h>
-#include <gui/SurfaceComposerClient.h>
-
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -65,7 +62,7 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 ColorShader::ColorShader() {
    static const char *fragShaderText =
    //the precision only seems to work on mobile, not desktop
-      "precision mediump float;\n"
+//      "precision mediump float;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_FragColor = v_color;\n"
@@ -132,7 +129,7 @@ FontShader::FontShader() {
       "}\n";
       
     static const char *fragShaderText =
-      "precision mediump float;\n"
+//      "precision mediump float;\n"
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "void main() {\n"
@@ -172,7 +169,7 @@ FontShader::FontShader() {
     texID = texture;
 }
 
-void FontShader::setFontData(uint8_t* data, int w, int h) {
+void FontShader::setFontData(char* data, int w, int h) {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -274,7 +271,7 @@ TextureShader::TextureShader() {
       "}\n";
       
     static const char *fragShaderText =
-      "precision mediump float;\n"
+//      "precision mediump float;\n"
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "void main() {\n"

@@ -1,87 +1,24 @@
 var fs = require('fs');
-var amino = require('/data/node/amino.js');
+//var amino = require('/data/node/amino.js');
+var amino = require('../src/node/amino.js');
 var core = amino.getCore();
 //set up the screen properly
-core.setDevice("galaxynexus");
+core.setDevice("mac");
 
 
 var stage = core.createStage();
 
 //load up the scene file
-var filedata = fs.readFileSync('phone.json');
+var filedata = fs.readFileSync('tests/phone.json');
 var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
+
 var screen = {
     w:720/2,
     h:1280/2
 }
 
-    function elasticIn(t) {
-        var p = 0.3;
-        return -(Math.pow(2,10*(t-1)) * Math.sin(((t-1)-p/4)*(2*Math.PI)/p));
-    }
-    function elasticOut(t) {
-        var p = 0.3;
-        return Math.pow(2,-10*t) * Math.sin((t-p/4)*(2*Math.PI)/p) + 1;
-    }
-    function cubicIn(t) {
-        return Math.pow(t,3);
-    }
-    function cubicOut(t) {
-        return 1-cubicIn(1-t);
-    }
-    function smoothstepIn(t) {
-        return t*t*(3-2*t);
-    }
-    function cubicInOut(t) {
-        if(t < 0.5) return cubicIn(t*2.0)/2.0;
-        return 1-cubicIn((1-t)*2)/2;                
-    }
-    function camelize(s) {
-        return s.substring(0,1).toUpperCase() + s.substring(1);
-    }
-    function a(node, prop, start, finish, dur) {
-        return {
-            node:node,
-            prop:prop,
-            sval:start,
-            fval:finish,
-            dur:dur,
-            running:false,
-            finished:false,
-            easefn:null,
-            setVal:function(t) {
-                if(this.easefn != null) {
-                    t = this.easefn(t);
-                }
-                var v = (this.fval-this.sval)*t + this.sval;
-                //console.log("t = " + t + " " + v);
-                node["set"+camelize(this.prop)](v);
-            },
-            update:function() {
-                if(this.finished) return;
-                if(!this.running) {
-                    this.startTime = new Date().getTime();
-                    this.running = true;
-                    return;
-                }
-                var time = new Date().getTime();
-                var dt = time-this.startTime;
-                var t = dt/this.dur;
-                if(t > 1) {
-                    this.finished = true;
-                    this.setVal(1);
-                    return;
-                }
-                this.setVal(t);
-            },
-            setEase:function(easefn) {
-                this.easefn = easefn;
-                return this;
-            }
-        };
-    }
 
 function toTop(id,root) {
     var node = stage.findNode(id,root);
@@ -98,21 +35,14 @@ function findTransition(id, root) {
     return null;
 }
 
-
-function wrapTransform(target, trans) {
-    target.setTx(0);
-    target.setTy(0);
-    var parent = target.getParent();
-    var n = parent.nodes.indexOf(target);
-    parent.nodes.splice(n,1);
+function wrapTransform(target) {
+    var trans = core.createTransform();
+    target.setTx(0).setTy(0);
+    var p = target.getParent();
+    p.remove(target);
     trans.setChild(target);
-    parent.add(trans);
+    p.add(trans);
     return trans;
-}
-function removeFromParent(target) {
-    var parent = target.getParent();
-    var n = parent.nodes.indexOf(target);
-    parent.nodes.splice(n,1);
 }
 
 
@@ -120,12 +50,12 @@ function removeFromParent(target) {
 var apps = [];
 var curr = 0;
 
-apps.push(wrapTransform(stage.findNodeById("app1"),core.createTransform()));
-apps.push(wrapTransform(stage.findNodeById("app2"),core.createTransform()));
-apps.push(wrapTransform(stage.findNodeById("app3"),core.createTransform()));
-apps.push(wrapTransform(stage.findNodeById("app4"),core.createTransform()));
-apps.push(wrapTransform(stage.findNodeById("app5"),core.createTransform()));
-apps.push(wrapTransform(stage.findNodeById("app6"),core.createTransform()));
+apps.push(wrapTransform(stage.find("app1")));
+apps.push(wrapTransform(stage.find("app2")));
+apps.push(wrapTransform(stage.find("app3")));
+apps.push(wrapTransform(stage.find("app4")));
+apps.push(wrapTransform(stage.find("app5")));
+apps.push(wrapTransform(stage.find("app6")));
 
 for(var i=0; i<apps.length; i++) {
     apps[i].setTx(i*screen.w);
@@ -151,10 +81,10 @@ function animIn(trns, soff, eoff) {
 }
 
 
-var dock = stage.findNodeById("dock");
+var dock = stage.find("dock");
 dock.setTx(screen.h);
 dock.setW(screen.w);
-stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
+stage.on("PRESS",stage.find("upButton"),function(e) {
     for(var i=0; i<apps.length; i++) {
         animOut(apps[i],(i-curr)*screen.w,(i-curr)*screen.w * 2/3);
     }
@@ -171,7 +101,7 @@ stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
     root.add(shim);
     //click on the shim to animate everything back
     stage.on("PRESS", shim, function(e) {
-        removeFromParent(shim);
+        shim.getParent().remove(shim);
         for(var i=0; i<apps.length; i++) {
             animIn(apps[i],(i-curr)*screen.w * 2/3,(i-curr)*screen.w);
         }
@@ -181,25 +111,25 @@ stage.on("PRESS",stage.findNodeById("upButton"),function(e) {
 });
 
 
-stage.findNodeById("composePanel").setVisible(false);
-stage.findNodeById("contactsPanel").setVisible(false);
+stage.find("composePanel").setVisible(false);
+stage.find("contactsPanel").setVisible(false);
 
 
 
-stage.on("PRESS",stage.findNodeById("addItemButton"),function(e) {
+stage.on("PRESS",stage.find("addItemButton"),function(e) {
     process.exit(0);
 });
 
-var todoList = stage.findNodeById("todoList");
+var todoList = stage.find("todoList");
 todoList.listModel = [];
 for(var i=0; i<40; i++) {
     todoList.listModel.push(i+" foo");
 }
 todoList.setW(screen.w).setH(screen.h-200).setTx(0);
-stage.findNodeById("addItemButton").setTy(10).setY(0);
+stage.find("addItemButton").setTy(10).setY(0);
 
 
-stage.on("PRESS",stage.findNodeById("rightButton"),function(e) {
+stage.on("PRESS",stage.find("rightButton"),function(e) {
     if(curr == apps.length-1) return;
     for(var i=0; i<apps.length; i++) {
         stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr-1)*200+320/4, 300).setEase(cubicInOut));
@@ -207,7 +137,7 @@ stage.on("PRESS",stage.findNodeById("rightButton"),function(e) {
     curr++;
     if(curr > apps.length-1) curr = apps.length-1;
 });
-stage.on("PRESS",stage.findNodeById("leftButton"),function(e) {
+stage.on("PRESS",stage.find("leftButton"),function(e) {
     console.log("curr = " + curr);
     if(curr == 0) return;
     for(var i=0; i<apps.length; i++) {
@@ -223,20 +153,20 @@ stage.on("PRESS",stage.findNodeById("leftButton"),function(e) {
 
 
 //move the topslider to the top of it's siblings
-var topSlider = stage.findNodeById("quicksettings");
+var topSlider = stage.find("quicksettings");
 var par = topSlider.getParent();
-removeFromParent(topSlider);
+topSlider.getParent().remove(topSlider);
 par.add(topSlider);
 topSlider.setTx(0);
 topSlider.setTy(-300);
 
-stage.on("PRESS",stage.findNodeById("downButton"), function(e) {
+stage.on("PRESS",stage.find("downButton"), function(e) {
     console.log("down button pressed");
     topSlider.setTx(0);
     topSlider.setTy(0);
     stage.addAnim(a(topSlider,"ty",-200,0,300).setEase(cubicInOut));
 });
-stage.on("PRESS",stage.findNodeById("quicksettings"),function(e){
+stage.on("PRESS",stage.find("quicksettings"),function(e){
     stage.addAnim(a(topSlider,"ty",0,-200,300));
 });
 

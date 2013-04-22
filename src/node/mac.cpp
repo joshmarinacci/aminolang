@@ -3,6 +3,9 @@
 #include "core.h"
 
 
+static int old_x;
+static int old_y;
+static int old_but;
 class MacCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
@@ -45,25 +48,41 @@ public:
             
             //printf("starting the loop\n");
 
-            /*
+            
             //check for events
             int mx;
             int my;
             glfwGetMousePos(&mx,&my);
             int mbut = glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
-            //printf("mouse = %d,%d  %d\n",mx,my,mbut);
+            if(old_x != mx || old_y != my || old_but != mbut) {
+                //printf("mouse = %d,%d  %d\n",mx,my,mbut);
+                //create a small JS object for the event info
+                Local<Object> event_obj = Object::New();
+                //event_obj->Set(String::NewSymbol("button"), Number::New(mbut));
+                if(old_but != mbut) {
+                    if(mbut == 1) {
+                        event_obj->Set(String::NewSymbol("type"), String::New("press"));
+                    } else {
+                        event_obj->Set(String::NewSymbol("type"), String::New("release"));
+                    }
+                } else {
+                    if(mbut == 1) {
+                        event_obj->Set(String::NewSymbol("type"), String::New("drag"));
+                    } else {
+                        event_obj->Set(String::NewSymbol("type"), String::New("move"));
+                    }
+                }
+                event_obj->Set(String::NewSymbol("x"), Number::New(mx));
+                event_obj->Set(String::NewSymbol("y"), Number::New(my));
+                //call the event callback
+                Handle<Value> event_argv[] = {event_obj};
+                eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
+            }
+            old_x = mx;
+            old_y = my;
+            old_but = mbut;
             
-            //create a small JS object for the event info
-            Local<Object> event_obj = Object::New();
-            event_obj->Set(String::NewSymbol("msg"), String::New("hello_world"));
-            event_obj->Set(String::NewSymbol("x"), Number::New(mx));
-            event_obj->Set(String::NewSymbol("y"), Number::New(my));
-            event_obj->Set(String::NewSymbol("button"), Number::New(mbut));
             
-            //call the event callback
-            Handle<Value> event_argv[] = {event_obj};
-            eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
-            */
             
             //do the drawing
             glClear( GL_COLOR_BUFFER_BIT );

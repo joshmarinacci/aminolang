@@ -99,7 +99,7 @@ function JSStage() {
     var self = this;
     this.draw = function(gfx)  {
         self.processAnims();
-        gfx.scale(2,2);
+        if(core.SCALE2X) gfx.scale(2,2);
         self.draw_helper(gfx,self.root);
     }
     
@@ -940,4 +940,4 @@ exports.getCore =function() { return core; }
 exports.Color = Color;
 exports.SceneParser = SceneParser;
 exports.anim = anim;
-
+exports.cubicInOut = cubicInOut;

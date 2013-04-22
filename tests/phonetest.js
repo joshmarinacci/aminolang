@@ -67,11 +67,13 @@ for(var i=0; i<apps.length; i++) {
 
 
 function animOut(trns, soff, eoff) {
-    stage.addAnim(a(trns,"scalex",1.0,0.5,200));
-    stage.addAnim(a(trns,"scaley",1.0,0.5,200));
-    stage.addAnim(a(trns,"tx",soff,screen.w/4+eoff,200));
-    stage.addAnim(a(trns,"ty",0+50,screen.h/4,200));
+    stage.addAnim(amino.anim(trns,"scalex",1.0,0.5,200));
+    stage.addAnim(amino.anim(trns,"scaley",1.0,0.5,200));
+    stage.addAnim(amino.anim(trns,"tx",soff,screen.w/4+eoff,200));
+    stage.addAnim(amino.anim(trns,"ty",0+50,screen.h/4,200));
 }
+
+var a = amino.anim;
 
 function animIn(trns, soff, eoff) {
     stage.addAnim(a(trns,"scalex",0.5,1.0,200));
@@ -132,16 +134,15 @@ stage.find("addItemButton").setTy(10).setY(0);
 stage.on("PRESS",stage.find("rightButton"),function(e) {
     if(curr == apps.length-1) return;
     for(var i=0; i<apps.length; i++) {
-        stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr-1)*200+320/4, 300).setEase(cubicInOut));
+        stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr-1)*200+320/4, 300).setEase(amino.cubicInOut));
     }
     curr++;
     if(curr > apps.length-1) curr = apps.length-1;
 });
 stage.on("PRESS",stage.find("leftButton"),function(e) {
-    console.log("curr = " + curr);
     if(curr == 0) return;
     for(var i=0; i<apps.length; i++) {
-        stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr+1)*200+320/4, 300).setEase(cubicInOut));
+        stage.addAnim(a(apps[i],"tx", (i-curr)*200+320/4, (i-curr+1)*200+320/4, 300).setEase(amino.cubicInOut));
     }
     curr--;
     if(curr < 0) curr = 0;
@@ -161,10 +162,9 @@ topSlider.setTx(0);
 topSlider.setTy(-300);
 
 stage.on("PRESS",stage.find("downButton"), function(e) {
-    console.log("down button pressed");
     topSlider.setTx(0);
     topSlider.setTy(0);
-    stage.addAnim(a(topSlider,"ty",-200,0,300).setEase(cubicInOut));
+    stage.addAnim(a(topSlider,"ty",-200,0,300).setEase(amino.cubicInOut));
 });
 stage.on("PRESS",stage.find("quicksettings"),function(e){
     stage.addAnim(a(topSlider,"ty",0,-200,300));

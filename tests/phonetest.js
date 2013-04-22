@@ -5,7 +5,6 @@ var core = amino.getCore();
 //set up the screen properly
 core.setDevice("mac");
 
-
 var stage = core.createStage();
 
 //load up the scene file
@@ -14,25 +13,11 @@ var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
 
+//set our util functions and data
+var a = amino.anim;
 var screen = {
     w:720/2,
     h:1280/2
-}
-
-
-function toTop(id,root) {
-    var node = stage.findNode(id,root);
-    var par = node.getParent();
-    var n = par.nodes.indexOf(node);
-    par.nodes.splice(n,1);
-    par.add(node);
-}
-function findTransition(id, root) {
-    for(var i=0; i<root.bindings.length; i++) {
-        var item = root.bindings[i];
-        if(item.id && item.id == id) return item;
-    }
-    return null;
 }
 
 function wrapTransform(target) {
@@ -44,36 +29,12 @@ function wrapTransform(target) {
     p.add(trans);
     return trans;
 }
-
-
-//set up the apps
-var apps = [];
-var curr = 0;
-
-apps.push(wrapTransform(stage.find("app1")));
-apps.push(wrapTransform(stage.find("app2")));
-apps.push(wrapTransform(stage.find("app3")));
-apps.push(wrapTransform(stage.find("app4")));
-apps.push(wrapTransform(stage.find("app5")));
-apps.push(wrapTransform(stage.find("app6")));
-
-for(var i=0; i<apps.length; i++) {
-    apps[i].setTx(i*screen.w);
-    apps[i].setTy(50);
-    console.log(apps[i].getChild().type);
-    apps[i].getChild().setW(screen.w);
-    apps[i].getChild().setH(screen.h-50);
-}
-
-
 function animOut(trns, soff, eoff) {
     stage.addAnim(amino.anim(trns,"scalex",1.0,0.5,200));
     stage.addAnim(amino.anim(trns,"scaley",1.0,0.5,200));
     stage.addAnim(amino.anim(trns,"tx",soff,screen.w/4+eoff,200));
     stage.addAnim(amino.anim(trns,"ty",0+50,screen.h/4,200));
 }
-
-var a = amino.anim;
 
 function animIn(trns, soff, eoff) {
     stage.addAnim(a(trns,"scalex",0.5,1.0,200));
@@ -83,9 +44,33 @@ function animIn(trns, soff, eoff) {
 }
 
 
+//set up the apps
+var apps = [];
+var curr = 0;
+
+//init the apps
+apps.push(wrapTransform(stage.find("app1")));
+apps.push(wrapTransform(stage.find("app2")));
+apps.push(wrapTransform(stage.find("app3")));
+apps.push(wrapTransform(stage.find("app4")));
+apps.push(wrapTransform(stage.find("app5")));
+apps.push(wrapTransform(stage.find("app6")));
+
+
+//init the apps
+for(var i=0; i<apps.length; i++) {
+    apps[i].setTx(i*screen.w);
+    apps[i].setTy(50);
+    console.log(apps[i].getChild().type);
+    apps[i].getChild().setW(screen.w);
+    apps[i].getChild().setH(screen.h-50);
+}
+
+
+
+//init the dock
 var dock = stage.find("dock");
-dock.setTx(screen.h);
-dock.setW(screen.w);
+dock.setTx(screen.h).setW(screen.w);
 stage.on("PRESS",stage.find("upButton"),function(e) {
     for(var i=0; i<apps.length; i++) {
         animOut(apps[i],(i-curr)*screen.w,(i-curr)*screen.w * 2/3);
@@ -151,48 +136,24 @@ stage.on("PRESS",stage.find("leftButton"),function(e) {
 
 
 
-
-
 //move the topslider to the top of it's siblings
-var topSlider = stage.find("quicksettings");
-var par = topSlider.getParent();
-topSlider.getParent().remove(topSlider);
-par.add(topSlider);
-topSlider.setTx(0);
-topSlider.setTy(-300);
+var settings = stage.find("quicksettings");
+var par = settings.getParent();
+settings.getParent().remove(settings);
+par.add(settings);
+settings.setW(screen.w).setTx(0).setTy(-300);
 
 stage.on("PRESS",stage.find("downButton"), function(e) {
-    topSlider.setTx(0);
-    topSlider.setTy(0);
-    stage.addAnim(a(topSlider,"ty",-200,0,300).setEase(amino.cubicInOut));
+    settings.setTx(0).setTy(0);
+    stage.addAnim(a(settings,"ty",-200,0,300).setEase(amino.cubicInOut));
 });
 stage.on("PRESS",stage.find("quicksettings"),function(e){
-    stage.addAnim(a(topSlider,"ty",0,-200,300));
+    stage.addAnim(a(settings,"ty",0,-200,300));
 });
-
-
 
 
 //delay 1 sec to ensure the png image is loaded first
 setTimeout(function() {
-    console.log("starting later\n");
     core.start();
 },1000);
 
-/*
-
-       {
-       "id":"composeTrans"
-      ,"type":"Transition"
-      ,"kind":"slideInRight"
-      ,"pushTrigger":"id456766"
-      ,"pushTarget":"composePanel"
-      }
-      ,{
-       "id":"contactsTrans"
-      ,"type":"Transition"
-      ,"kind":"slideInRight"
-      ,"pushTrigger":"id243901"
-      ,"pushTarget":"contactsPanel"
-      }
-*/

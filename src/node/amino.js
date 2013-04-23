@@ -566,12 +566,15 @@ JSListView = function() {
     var self = this;
     this.w = 100;
     this.h = 200;
-    this.rh = 32;
+    this.cellHeight = 32;
+    this.cellWidth = 32;
+    this.DEBUG = false;
 	this.listModel = ['a','b','c'];
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
     this.scroll = 0;
+    this.layout = "vert";
     this.draw = function(gfx) {
         //border
         var border = self.getBounds();
@@ -592,27 +595,79 @@ JSListView = function() {
             gfx.fillQuadColor(this.getFill(),this.getBounds());
         }
         
-        //text
-        var bnds = self.getBounds();
-        for(var i=0; i<this.listModel.length; i++) {
-            var y = i*this.rh;
-            if(y < this.scroll-this.rh) continue;
-            if(y > this.getH()+this.scroll) break;
-            gfx.fillQuadText(new Color(0,0,0), 
-                this.listModel[i],
-                bnds.x+10, bnds.y+3+y-this.scroll);
-        }
+        this.drawCells(gfx);
     }
+    this.drawCells = function(gfx) {
+        if(this.layout == "horizwrap") {
+            var lx = 0;
+            var ly = -this.scroll;
+            for(var i=0; i<this.listModel.length; i++) {
+                if(ly >= 0 - this.cellHeight && ly < this.getH()) {
+                    gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
+                    gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly);
+                }
+                lx += this.cellWidth;
+                if(lx + this.cellWidth > this.getW()) {
+                    lx = 0;
+                    ly += this.cellHeight;
+                }
+            }
+            return;
+        }
+        
+        if(this.layout == "horiz") {
+            for(var i=0; i<this.listModel.length; i++) {
+                var lx = -this.scroll;
+                var ly = 0;
+                for(var i=0; i<this.listModel.length; i++) {
+                    gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.getH()-2});
+                    lx += this.cellWidth;
+                }
+            }
+        }
+        
+        if(this.layout == "vert") {
+            var bnds = self.getBounds();
+            for(var i=0; i<this.listModel.length; i++) {
+                var y = i*this.cellHeight;
+                if(y < this.scroll-this.cellHeight) continue;
+                if(y > this.getH()+this.scroll) break;
+                gfx.fillQuadText(new Color(0,0,0), 
+                    this.listModel[i],
+                    bnds.x+10, bnds.y+3+y-this.scroll);
+            }
+            return;
+        }
+        
+        
+        
+    }
+    
     this.install = function(stage) {
         stage.on("PRESS", this, function(e) {
         });
         stage.on("DRAG", this, function(e) {
-            self.scroll -= e.delta.y;
-            if(self.scroll < 0) self.scroll = 0;
-            var maxH = self.rh * self.listModel.length;
-            if(self.scroll + self.getH() > maxH) {
-                self.scroll = maxH-self.getH();
+            var maxScroll = 100;
+            if(self.layout == "vert") {
+                self.scroll -= e.delta.y;
+                maxScroll = self.cellHeight * self.listModel.length - self.getH();
             }
+            if(self.layout == "horiz") {
+                self.scroll -= e.delta.x;
+                maxScroll = self.cellWidth * self.listModel.length - self.getW();
+            }
+            if(self.layout == "horizwrap") {
+                self.scroll -= e.delta.y;
+                var rowLen = Math.floor(self.getW() / self.cellWidth);
+                var rows = Math.ceil(self.listModel.length / rowLen);
+                maxScroll = self.cellHeight * rows - self.getH();
+            }
+            
+            if(self.scroll < 0) self.scroll = 0;
+            if(self.scroll > maxScroll) {
+                self.scroll = maxScroll;
+            }
+            
         });
     }
 }

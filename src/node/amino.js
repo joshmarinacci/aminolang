@@ -96,8 +96,13 @@ function JSStage() {
         return this.root;
     };
     
+    var imageLoaded = false;
     var self = this;
     this.draw = function(gfx)  {
+        if(!imageLoaded && pixel_data != null) {
+            gfx.setFontData(pixel_data,1121,34);
+            imageLoaded = true;
+        }
         self.processAnims();
         if(core.SCALE2X) gfx.scale(2,2);
         self.draw_helper(gfx,self.root);
@@ -559,6 +564,8 @@ core.createAnchorPanel = function() {
 
 JSListView = function() {
     var self = this;
+    this.w = 100;
+    this.h = 200;
     this.rh = 32;
 	this.listModel = ['a','b','c'];
     this.getBounds = function() {
@@ -615,8 +622,6 @@ core.createListView = function() {
     comp.install(this.stage);
     return comp;
 }
-
-var imageLoaded = false;
 function JSPushButton() {
     var self = this;
     this.w = 200;
@@ -631,11 +636,6 @@ function JSPushButton() {
     };
     
     this.draw = function(gfx) {
-        if(!imageLoaded && pixel_data != null) {
-            gfx.setFontData(pixel_data,1121,34);
-            imageLoaded = true;
-        }
-        
         var border = self.getBounds();
         border.x--;
         border.y--;

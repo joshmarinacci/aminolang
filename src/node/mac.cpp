@@ -189,12 +189,37 @@ Handle<Value> TestNative(const Arguments& args) {
     return scope.Close(Undefined());
 }
     
+Handle<Value> LoadTexture(const Arguments& args) {
+    HandleScope scope;
+    Local<Value> arg(args[0]);
+    if(Buffer::HasInstance(args[0])) {
+        Handle<Object> other = args[0]->ToObject();
+        size_t length = Buffer::Length(other);
+        uint8_t* data = (uint8_t*) Buffer::Data(other);
+        int w = (int)(args[1]->ToNumber()->NumberValue());
+        int h = (int)(args[2]->ToNumber()->NumberValue());
+        printf("LoadTexture with image size %d x %d\n",w,h);
+        GLuint texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        console.log("created the texture");
+        Local<Number> num = Number::New(texture);
+        return scope.Close(num);
+    }
+    return scope.Close(Undefined());
+}
 
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
-  MacCore::Init();
-  exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
-  exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
+    MacCore::Init();
+    exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
+    exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
+    exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
 }
 
 NODE_MODULE(amino, InitAll)

@@ -5,6 +5,9 @@ exports.Node = Node;
 exports.Point = Point;
 */
 
+var http = require('http');
+var url = require('url');
+var child_process = require('child_process');
 // 'extend' is From Jo lib, by Dave Balmer
 // syntactic sugar to make it easier to extend a class
 Function.prototype.extend = function(superclass, proto) {
@@ -48,6 +51,42 @@ PNG.decode(FONT_IMAGE_PATH, function(pixels) {
 });
 
 
+function decodeImage (width, height, buffer, done)
+{
+    var image =
+    {
+        width   : width,
+        height  : height,
+        buffer  : new Buffer(width * height * 4)
+    };
+
+    var cmd = "convert"
+    var args = [
+        "-format", "rgba",
+        "-depth", "8",
+        "-size", width + "x"  + height,
+        "-",
+        "rgba:-"
+    ];        
+    
+    var child = child_process.spawn(cmd, args);
+    
+    var received = 0;
+    child.stdout.on("data", function (data) {
+        data.copy(image.buffer, received);
+        received += data.length;
+    });
+    child.stderr.on("data", function (data) {
+        console.log(data.toString());
+    });
+    
+    child.on("exit", function (code) {
+        done(null, image);
+    });
+    
+    child.stdin.write(buffer);
+    child.stdin.end();
+}
 
 function JSStage() {
     this.listeners = {};
@@ -251,6 +290,23 @@ function JSStage() {
             var texid = amino.loadTexture(pixels,w, h);
             cb(texid);
         });
+    }
+    this.loadRemoteTexture = function(path, w, h, cb) {
+        var options = url.parse(path);
+        options.encoding = null;
+        http.request(options, function(res) {
+                var buffers = [];
+                res.on("data",function(d) {
+                    buffers.push(d);
+                });
+                res.on("end", function() {
+                    var buf = Buffer.concat(buffers);
+                    decodeImage(75,75,buf,function(err, img) {
+                            var texid = amino.loadTexture(img.buffer,75,75);
+                            cb(texid);
+                    });
+                });
+        }).end();
     }
     
     this.loadSong = function(path) {
@@ -603,8 +659,12 @@ JSListView = function() {
             var ly = -this.scroll;
             for(var i=0; i<this.listModel.length; i++) {
                 if(ly >= 0 - this.cellHeight && ly < this.getH()) {
-                    gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
-                    gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly);
+                    if(this.cellRenderer) {
+                        this.cellRenderer(gfx, this.listModel[i], {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
+                    } else {
+                        gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
+                        gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly);
+                    }
                 }
                 lx += this.cellWidth;
                 if(lx + this.cellWidth > this.getW()) {

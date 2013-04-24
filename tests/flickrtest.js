@@ -29,7 +29,7 @@ stage.setRoot(root);
 
 var grid = core.createListView();
 grid.listModel = [];
-grid.setW(75*3).setH(300);
+grid.setW(75*3).setH(300).setTy(100);
 grid.DEBUG = true;
 grid.cellHeight = 75;
 grid.cellWidth = 75;
@@ -56,6 +56,12 @@ var setupTextures = function() {
         createThumbTexture(th);
     }
 }
+
+
+var search = core.createTextbox();
+search.setW(300).setText("foo").setTx(2).setTy(2);
+root.add(search);
+
 
 
 setTimeout(function(){

@@ -88,6 +88,23 @@ function decodeImage (width, height, buffer, done)
     child.stdin.end();
 }
 
+
+
+// Keyboard setup
+
+var KEY_TO_CHAR_MAP = {};
+for(var i=32; i<=90; i++) {
+    KEY_TO_CHAR_MAP[i]= String.fromCharCode(i);
+}
+//console.log(KEY_TO_CHAR_MAP);
+var SHIFT_MAP = {};
+for(var i=65; i<=90; i++) {
+    SHIFT_MAP[KEY_TO_CHAR_MAP[i]] = String.fromCharCode(i+32);
+}
+//console.log(SHIFT_MAP);
+
+
+
 function JSStage() {
     this.listeners = {};
     this.on = function(name, target, fn) {
@@ -175,7 +192,9 @@ function JSStage() {
     
     //self.prevButton = 0;
     this.processEvents = function(e) {
-        //console.log("raw event: ",e);
+        if(e.type == "key") {
+            self.processRawKeyEvent(e);
+        }
         if(e.type == "press") {
             self.processPointerEvent("PRESS", new Point(e.x,e.y));
         }
@@ -187,6 +206,32 @@ function JSStage() {
         }
         //self.prevButton = e.button;
     }
+    
+    
+    
+    this.processRawKeyEvent = function(e) {
+        console.log("key event:",e);
+        var event = this.createEvent();
+        if(e.action == 0) {
+            event.type = "KEYPRESS";
+            event.keycode = e.keycode;
+            if(KEY_TO_CHAR_MAP[e.keycode]) {
+                var ch = KEY_TO_CHAR_MAP[e.keycode];
+                if(e.shift == 0) {
+                    if(SHIFT_MAP[ch]) {
+                        ch = SHIFT_MAP[ch];
+                    }
+                }
+                event.printableChar = ch;
+                event.printable = true;
+            }
+            if(this.keyboardFocus != null) {
+                event.target = this.keyboardFocus;
+                this.fireEvent(event);
+            }
+        }
+    }
+    
     this.mouselast = new Point(0,0);
     this.processPointerEvent= function(type, point) {
         //console.log("processing a pointer event " + type + " ", point);
@@ -825,7 +870,9 @@ function JSToggleButton() {
 }
 JSToggleButton.extend(generated.ToggleButton);
 core.createToggleButton = function() {
-    return new JSToggleButton();
+    var comp = new JSToggleButton();
+    comp.install(this.stage);
+    return comp;
 }
 
 
@@ -844,8 +891,65 @@ function JSLabel() {
 }
 JSLabel.extend(generated.Label);
 core.createLabel = function() {
-    console.log("inside create label");
     var comp = new JSLabel();
+    return comp;
+}
+
+function JSTextbox() {
+    var self = this;
+    this.w = 200;
+    this.h = 40;
+    this.focused = false;
+    this.setFocused = function(focused) {
+        this.focused = focused;
+    }
+    this.install = function(stage) {
+        stage.on("PRESS", this, function(e) {
+            self.setFocused(true);
+        });
+        stage.on("KEYPRESS",this,function(e) {
+            if(e.printable) {
+                self.setText(self.getText()+e.printableChar);
+            }
+            //enter key
+            if(e.keycode == 294) {
+                console.log("entered!");
+            }
+            //backspace
+            if(e.keycode == 295) {
+                console.log("backspace");
+                var txt = self.getText();
+                self.setText(txt.substring(0,txt.length-1));
+            }
+        });
+    };
+    this.draw = function(gfx) {
+        var border = self.getBounds();
+        border.x--;
+        border.y--;
+        border.w+=2;
+        border.h+=2;
+        
+        gfx.fillQuadColor(new Color(1.0,1.0,1.0), border);
+        
+        var bnds = self.getBounds();
+        if(this.focused) {
+            gfx.fillQuadColor(new Color(0.8,0.8,0.8), bnds);
+        } else {
+            gfx.fillQuadColor(new Color(0.5,0.5,0.5), bnds);
+        }
+        
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3);
+    };
+
+    this.getBounds = function() {
+        return {x:self.x, y:self.y, w:self.w, h:self.h };
+    };
+}
+JSTextbox.extend(generated.Textbox);
+core.createTextbox = function() {
+    var comp = new JSTextbox();
+    comp.install(this.stage);
     return comp;
 }
 

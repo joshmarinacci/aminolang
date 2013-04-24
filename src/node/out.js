@@ -1089,3 +1089,4 @@ exports.Label = Label;
 exports.AnchorPanel = AnchorPanel;
 exports.Transform = Transform;
 exports.ListView = ListView;
+exports.Textbox = Textbox;

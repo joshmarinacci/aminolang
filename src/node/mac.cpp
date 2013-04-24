@@ -29,99 +29,103 @@ public:
         
         return scope.Close(Undefined());
     }
+
+    static Local<Function> global_event_CB;
+    static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
+        //        printf("callback key = %d action = %d\n",key,action);
+        Local<Object> event_obj = Object::New();
+        event_obj->Set(String::NewSymbol("type"), String::New("key"));
+        event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
+        event_obj->Set(String::NewSymbol("action"), Number::New(action));
+        int shift = 0;
+        if(glfwGetKey(GLFW_KEY_LSHIFT) == 1) shift = 1;
+        if(glfwGetKey(GLFW_KEY_RSHIFT) == 1) shift = 1;
+        event_obj->Set(String::NewSymbol("shift"), Number::New(shift));
+        Handle<Value> event_argv[] = {event_obj};
+        global_event_CB->Call(Context::GetCurrent()->Global(), 1, event_argv);
+    }
     
     static v8::Handle<v8::Value> real_Init(const v8::Arguments& args) {
-        printf("real init called\n");
         HandleScope scope;
         colorShader = new ColorShader();
         fontShader  = new FontShader();
         textureShader = new TextureShader();
+        glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
         return scope.Close(Undefined());
+    }
+    
+    static void processMouseEvents(Local<Function> eventCB) {
+        //check for events
+        int mx;
+        int my;
+        glfwGetMousePos(&mx,&my);
+        int mbut = glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+        if(old_x != mx || old_y != my || old_but != mbut) {
+            //printf("mouse = %d,%d  %d\n",mx,my,mbut);
+            //create a small JS object for the event info
+            Local<Object> event_obj = Object::New();
+            //event_obj->Set(String::NewSymbol("button"), Number::New(mbut));
+            if(old_but != mbut) {
+                if(mbut == 1) {
+                    event_obj->Set(String::NewSymbol("type"), String::New("press"));
+                } else {
+                    event_obj->Set(String::NewSymbol("type"), String::New("release"));
+                }
+            } else {
+                if(mbut == 1) {
+                    event_obj->Set(String::NewSymbol("type"), String::New("drag"));
+                } else {
+                    event_obj->Set(String::NewSymbol("type"), String::New("move"));
+                }
+            }
+            event_obj->Set(String::NewSymbol("x"), Number::New(mx));
+            event_obj->Set(String::NewSymbol("y"), Number::New(my));
+            //call the event callback
+            Handle<Value> event_argv[] = {event_obj};
+            eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
+        }
+        old_x = mx;
+        old_y = my;
+        old_but = mbut;
     }
     static v8::Handle<v8::Value> real_Repaint(const v8::Arguments& args) {
         HandleScope scope;
-        //printf("real repaint called\n");
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
-//        while (glfwGetWindowParam(GLFW_OPENED))
-//        {
-            
-            //printf("starting the loop\n");
-
-            
-            //check for events
-            int mx;
-            int my;
-            glfwGetMousePos(&mx,&my);
-            int mbut = glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
-            if(old_x != mx || old_y != my || old_but != mbut) {
-                //printf("mouse = %d,%d  %d\n",mx,my,mbut);
-                //create a small JS object for the event info
-                Local<Object> event_obj = Object::New();
-                //event_obj->Set(String::NewSymbol("button"), Number::New(mbut));
-                if(old_but != mbut) {
-                    if(mbut == 1) {
-                        event_obj->Set(String::NewSymbol("type"), String::New("press"));
-                    } else {
-                        event_obj->Set(String::NewSymbol("type"), String::New("release"));
-                    }
-                } else {
-                    if(mbut == 1) {
-                        event_obj->Set(String::NewSymbol("type"), String::New("drag"));
-                    } else {
-                        event_obj->Set(String::NewSymbol("type"), String::New("move"));
-                    }
-                }
-                event_obj->Set(String::NewSymbol("x"), Number::New(mx));
-                event_obj->Set(String::NewSymbol("y"), Number::New(my));
-                //call the event callback
-                Handle<Value> event_argv[] = {event_obj};
-                eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
-            }
-            old_x = mx;
-            old_y = my;
-            old_but = mbut;
-            
-            
-            
-            //do the drawing
-            glClear( GL_COLOR_BUFFER_BIT );
-            
-            GLfloat rot[16], scale[16], trans[16];
-            modelView = new GLfloat[16];
-            
-            loadOrthoMatrix(modelView, 0, 360, 640, 0, 0, 100);
-            
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
-            //printf("setting up gfx fill quad\n");
-            Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
-            point_templ->SetInternalFieldCount(1);
-            point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
-            point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
-            point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
-            point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
-            point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
-            point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
-            point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
-            point_templ->Set(String::NewSymbol("rotate"),FunctionTemplate::New(GLGFX::node_rotate)->GetFunction());
-            point_templ->Set(String::NewSymbol("scale"),FunctionTemplate::New(GLGFX::node_scale)->GetFunction());
-            
-            GLGFX* gfx = new GLGFX();
-            Local<Object> obj = point_templ->NewInstance();
-            obj->SetInternalField(0, External::New(gfx));
-            Handle<Value> argv[] = { obj };
-            drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
-            
-            glfwSwapBuffers();
-  //      }
-    /*
-        glfwTerminate();
-        exit(EXIT_SUCCESS);
+        global_event_CB = eventCB;
+         
+        processMouseEvents(eventCB);
         
+        //do the drawing
+        glClear( GL_COLOR_BUFFER_BIT );
         
-        printf("starting\n");
-        */
+        GLfloat rot[16], scale[16], trans[16];
+        modelView = new GLfloat[16];
+        
+        loadOrthoMatrix(modelView, 0, 360, 640, 0, 0, 100);
+        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        //printf("setting up gfx fill quad\n");
+        Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
+        point_templ->SetInternalFieldCount(1);
+        point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
+        point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
+        point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
+        point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
+        point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
+        point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
+        point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
+        point_templ->Set(String::NewSymbol("rotate"),FunctionTemplate::New(GLGFX::node_rotate)->GetFunction());
+        point_templ->Set(String::NewSymbol("scale"),FunctionTemplate::New(GLGFX::node_scale)->GetFunction());
+        
+        GLGFX* gfx = new GLGFX();
+        Local<Object> obj = point_templ->NewInstance();
+        obj->SetInternalField(0, External::New(gfx));
+        Handle<Value> argv[] = { obj };
+        drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
+        
+        glfwSwapBuffers();
         return scope.Close(Undefined());
     }
     
@@ -154,6 +158,7 @@ public:
     
 };
 
+Local<Function> MacCore::global_event_CB;
 
 Handle<Value> CreateObject(const Arguments& args) {
     HandleScope scope;
@@ -207,7 +212,6 @@ Handle<Value> LoadTexture(const Arguments& args) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        console.log("created the texture");
         Local<Number> num = Number::New(texture);
         return scope.Close(num);
     }

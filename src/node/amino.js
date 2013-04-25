@@ -749,7 +749,10 @@ JSListView = function() {
     }
     
     this.install = function(stage) {
+        var pressPoint = null;
         stage.on("PRESS", this, function(e) {
+            console.log("pressed on list at: ",e.point);
+            pressPoint = e.point;
         });
         stage.on("DRAG", this, function(e) {
             var maxScroll = 100;
@@ -772,7 +775,19 @@ JSListView = function() {
             if(self.scroll > maxScroll) {
                 self.scroll = maxScroll;
             }
-            
+        });
+        stage.on("RELEASE", this, function(e) {
+            console.log("released at ", e.point);
+            var dx = e.point.x-pressPoint.x;
+            var dy = e.point.y-pressPoint.y;
+            console.log("delta = " + dx + " " + dy);
+            if(Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+                console.log("firing a selection");
+                stage.fireEvent({
+                    type:"SELECT",
+                    target:self
+                });
+            }
         });
     }
 }
@@ -914,7 +929,10 @@ function JSTextbox() {
             }
             //enter key
             if(e.keycode == 294) {
-                console.log("entered!");
+                stage.fireEvent({
+                        type:"action",
+                        target:self
+                });
             }
             //backspace
             if(e.keycode == 295) {
@@ -1144,6 +1162,9 @@ function camelize(s) {
     return s.substring(0,1).toUpperCase() + s.substring(1);
 }
 function anim(node, prop, start, finish, dur) {
+    if(!node) {
+        console.log("ERROR! Can't animate. Node to animate is null!");
+    }
     return {
         node:node,
         prop:prop,

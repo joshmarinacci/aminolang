@@ -34,6 +34,7 @@ root.add(search);
 
 var label = core.createLabel();
 label.setTextColor(new amino.Color(1,1,1));
+label.setFontSize(20);
 label.setTx(2).setTy(40).setText("a label");
 root.add(label);
 

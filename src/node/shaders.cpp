@@ -135,7 +135,7 @@ FontShader::FontShader() {
       "uniform vec3 color;\n"
       "void main() {\n"
       "   vec4 texel = texture2D(tex, uv);\n"
-      "   if(texel.r > 0.5) { discard; }\n"
+      "   if(texel.r > 0.9) { discard; }\n"
       "   gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
       "}\n";
       
@@ -162,8 +162,8 @@ FontShader::FontShader() {
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, image_data);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     texID = texture;
@@ -181,7 +181,7 @@ void FontShader::setFontData(char* data, int w, int h) {
     texID = texture;
 }
 
-void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY,  float r, float g, float b) {
+void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY,  float r, float g, float b, float fsize) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
@@ -192,7 +192,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
     float charX = 0;
     int len = strlen(text);
     
-    float charScale = 1;
+    float charScale = fsize/34.0;
 
     for(int i=0; i<len; i++) {
         int ch = text[i];
@@ -204,7 +204,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, flo
         
 
         float tx  = cho/iw;
-        float ty  = 1.0-(35/ih);
+        float ty  = 1.0-(34/ih);
         float tx2 = (cho+chw)/iw;
         float ty2 = 1.0-(7/ih);
         /*

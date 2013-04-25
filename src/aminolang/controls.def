@@ -9,6 +9,7 @@ class Control extends Node {
     prop boolean bottomanchored = false;
     prop Color baseColor;
     prop Color textColor;
+    prop double fontSize = 10;
     func boolean contains(Point pt){
         if(pt.x < this.x){ return false; }
         if(pt.x > this.x + this.w) { return false; }

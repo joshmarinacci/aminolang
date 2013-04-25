@@ -196,7 +196,6 @@ Handle<Value> TestNative(const Arguments& args) {
     
 Handle<Value> LoadTexture(const Arguments& args) {
     HandleScope scope;
-    Local<Value> arg(args[0]);
     if(Buffer::HasInstance(args[0])) {
         Handle<Object> other = args[0]->ToObject();
         //size_t length = Buffer::Length(other);

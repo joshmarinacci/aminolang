@@ -707,6 +707,15 @@ function Control(){     this.x = 0;
     this.markDirty();
     return this;
   }
+     this.fontSize = 20;
+  this.getFontSize = function(){
+    return this.fontSize;
+  }
+  this.setFontSize = function(FontSize){
+    this.fontSize=FontSize;
+    this.markDirty();
+    return this;
+  }
 
     this.contains = function(pt){
             if(pt.x<this.x){

@@ -28,7 +28,7 @@ public:
 class FontShader: public Shader {
 public:
     FontShader();
-    virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text, float x, float y,  float r, float g, float b);
+    virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text, float x, float y,  float r, float g, float b, float fsize);
     virtual void setFontData(char* data, int x, int y);
     int prog;
     GLint u_matrix, u_trans, u_color;

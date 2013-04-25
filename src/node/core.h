@@ -55,8 +55,6 @@ public:
         
         if(args[1]->IsObject()) {
             Local<Object> bnds = args[1]->ToObject();
-            Local<Value> w = bnds->Get(String::New("w"));
-            //dumpValue(w);
             double dx = bnds->Get(String::New("x"))->NumberValue();
             double dy = bnds->Get(String::New("y"))->NumberValue();
             double dw = bnds->Get(String::New("w"))->NumberValue();
@@ -70,19 +68,29 @@ public:
     static Handle<v8::Value> node_fillQuadText(const v8::Arguments& args) {
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
-        Local<Value> arg(args[0]);
         
+        //text color
         Local<Object> color = args[0]->ToObject();
         double r = color->Get(String::New("r"))->NumberValue();
         double g = color->Get(String::New("g"))->NumberValue();
         double b = color->Get(String::New("b"))->NumberValue();
+        
+        //string to draw
         v8::String::Utf8Value param1(args[1]->ToString());
         std::string text = std::string(*param1);    
         char * cstr = new char [text.length()+1];
         std::strcpy (cstr, text.c_str());
+        
+        //x and y position
         double x = args[2]->ToNumber()->NumberValue();
         double y = args[3]->ToNumber()->NumberValue();
-        self->fillQuadText(cstr, x, y, r,g,b);
+        
+        double fsize = 35;
+        if(args.Length() >= 5) {
+            fsize = args[4]->ToNumber()->NumberValue();
+        }
+        
+        self->fillQuadText(cstr, x, y, r,g,b, fsize);
         return scope.Close(Undefined());
     }
     
@@ -199,7 +207,7 @@ public:
         dumpValue(arg);
         if(Buffer::HasInstance(args[0])) {
 			Handle<Object> other = args[0]->ToObject();
-            size_t length = Buffer::Length(other);
+            //size_t length = Buffer::Length(other);
             char* data = (char*) Buffer::Data(other);
             int w = (int)(args[1]->ToNumber()->NumberValue());
             int h = (int)(args[2]->ToNumber()->NumberValue());
@@ -251,8 +259,8 @@ public:
         colorShader->apply(modelView, globaltx, verts, colors);
     }
     
-    void fillQuadText(char* text, double x, double y, double r, double g, double b) {
-        fontShader->apply(modelView, globaltx, text, x, y, r, g, b);
+    void fillQuadText(char* text, double x, double y, double r, double g, double b, double fsize) {
+        fontShader->apply(modelView, globaltx, text, x, y, r, g, b, fsize);
     }
     void fillQuadTexture(int texid, double x, double y, double w, double h) {
 //        float x = 0;

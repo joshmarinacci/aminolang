@@ -883,7 +883,8 @@ function JSLabel() {
     
     this.draw = function(gfx) {
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+10);
+        var color = this.getTextColor();
+        gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10);
     };
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };

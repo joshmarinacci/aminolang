@@ -99,7 +99,7 @@ public:
         //do the drawing
         glClear( GL_COLOR_BUFFER_BIT );
         
-        GLfloat rot[16], scale[16], trans[16];
+//        GLfloat rot[16], scale[16], trans[16];
         modelView = new GLfloat[16];
         
         loadOrthoMatrix(modelView, 0, 360, 640, 0, 0, 100);
@@ -178,7 +178,7 @@ Handle<Value> TestNative(const Arguments& args) {
     while (glfwGetWindowParam(GLFW_OPENED))
     {
         glClear( GL_COLOR_BUFFER_BIT );
-        GLfloat rot[16], scale[16], trans[16];
+//        GLfloat rot[16], scale[16], trans[16];
         modelView = new GLfloat[16];
         loadOrthoMatrix(modelView, 0, 400, 400, 0, 0, 100);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -199,7 +199,7 @@ Handle<Value> LoadTexture(const Arguments& args) {
     Local<Value> arg(args[0]);
     if(Buffer::HasInstance(args[0])) {
         Handle<Object> other = args[0]->ToObject();
-        size_t length = Buffer::Length(other);
+        //size_t length = Buffer::Length(other);
         uint8_t* data = (uint8_t*) Buffer::Data(other);
         int w = (int)(args[1]->ToNumber()->NumberValue());
         int h = (int)(args[2]->ToNumber()->NumberValue());

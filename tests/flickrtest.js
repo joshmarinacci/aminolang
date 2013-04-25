@@ -27,6 +27,17 @@ var stage = core.createStage();
 var root = core.createGroup();
 stage.setRoot(root);
 
+
+var search = core.createTextbox();
+search.setW(300).setText("foo").setTx(2).setTy(2);
+root.add(search);
+
+var label = core.createLabel();
+label.setTextColor(new amino.Color(1,1,1));
+label.setTx(2).setTy(40).setText("a label");
+root.add(label);
+
+
 var grid = core.createListView();
 grid.listModel = [];
 grid.setW(75*3).setH(300).setTy(100);
@@ -58,9 +69,6 @@ var setupTextures = function() {
 }
 
 
-var search = core.createTextbox();
-search.setW(300).setText("foo").setTx(2).setTy(2);
-root.add(search);
 
 
 

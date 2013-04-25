@@ -41,7 +41,6 @@ public:
     static Handle<v8::Value> node_fillQuadColor(const v8::Arguments& args) {
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
-        Local<Value> arg(args[0]);
         
         double r = 1;
         double g = 0;
@@ -73,13 +72,17 @@ public:
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
         Local<Value> arg(args[0]);
         
+        Local<Object> color = args[0]->ToObject();
+        double r = color->Get(String::New("r"))->NumberValue();
+        double g = color->Get(String::New("g"))->NumberValue();
+        double b = color->Get(String::New("b"))->NumberValue();
         v8::String::Utf8Value param1(args[1]->ToString());
         std::string text = std::string(*param1);    
         char * cstr = new char [text.length()+1];
         std::strcpy (cstr, text.c_str());
         double x = args[2]->ToNumber()->NumberValue();
         double y = args[3]->ToNumber()->NumberValue();
-        self->fillQuadText(cstr, x, y);
+        self->fillQuadText(cstr, x, y, r,g,b);
         return scope.Close(Undefined());
     }
     
@@ -248,8 +251,8 @@ public:
         colorShader->apply(modelView, globaltx, verts, colors);
     }
     
-    void fillQuadText(char* text, double x, double y) {
-        fontShader->apply(modelView, globaltx, text, x, y);
+    void fillQuadText(char* text, double x, double y, double r, double g, double b) {
+        fontShader->apply(modelView, globaltx, text, x, y, r, g, b);
     }
     void fillQuadTexture(int texid, double x, double y, double w, double h) {
 //        float x = 0;

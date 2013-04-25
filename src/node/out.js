@@ -698,6 +698,15 @@ function Control(){     this.x = 0;
     this.markDirty();
     return this;
   }
+     this.textColor;
+  this.getTextColor = function(){
+    return this.textColor;
+  }
+  this.setTextColor = function(TextColor){
+    this.textColor=TextColor;
+    this.markDirty();
+    return this;
+  }
 
     this.contains = function(pt){
             if(pt.x<this.x){

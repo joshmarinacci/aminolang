@@ -132,12 +132,11 @@ FontShader::FontShader() {
 //      "precision mediump float;\n"
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
+      "uniform vec3 color;\n"
       "void main() {\n"
-      //"   gl_FragColor = texture2D(tex,uv);\n"
       "   vec4 texel = texture2D(tex, uv);\n"
       "   if(texel.r > 0.5) { discard; }\n"
-      "   gl_FragColor = vec4(texel.r,texel.g,texel.b,texel.a);\n"
-//        "   gl_FragColor = vec4(1.0,0.0,1.0,1.0);\n"
+      "   gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
       "}\n";
       
     GLuint vert = compileVertShader(vertShaderText);
@@ -150,6 +149,7 @@ FontShader::FontShader() {
     attr_tex = glGetAttribLocation(prog, "tex");
     u_matrix = glGetUniformLocation(prog, "modelviewProjection");
     u_trans  = glGetUniformLocation(prog, "trans");
+    u_color  = glGetUniformLocation(prog, "color");
     
     GLubyte image_data[12] = {
         255,0  ,255,
@@ -181,13 +181,14 @@ void FontShader::setFontData(char* data, int w, int h) {
     texID = texture;
 }
 
-void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY) {
+void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY,  float r, float g, float b) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
+    glUniform3f(u_color, r,g,b);
     glUniform1i(attr_tex, 0);
 
-    //printf("FontShader::apply( %s %f %f )\n",text,offX,offY);
+    //printf("FontShader::apply( %s %f %f, %f %f %f )\n",text,offX,offY, r, g, b);
     float charX = 0;
     int len = strlen(text);
     

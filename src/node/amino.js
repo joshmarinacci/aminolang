@@ -902,15 +902,21 @@ core.createToggleButton = function() {
     return comp;
 }
 
+function notNull(name, obj) {
+    if(!obj) throw (name + " is null!!!");
+}
 
 function JSLabel() {
     var self = this;
     this.w = 200;
     this.h = 100;
+    this.textColor = new Color(0,0,0);
     
     this.draw = function(gfx) {
         var bnds = self.getBounds();
+        notNull("bounds",bnds);
         var color = this.getTextColor();
+        notNull("color", color);
         gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10, this.getFontSize());
     };
     this.getBounds = function() {

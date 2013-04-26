@@ -6,6 +6,7 @@
 static int old_x;
 static int old_y;
 static int old_but;
+static int old_height, old_width, new_width, new_height;
 class MacCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
@@ -17,10 +18,16 @@ public:
         printf("inited the GLFW\n");
     }
     
-    
+    static void GLFW_WINDOW_SIZE_CALLBACK_FUNCTION(int width, int height) {
+        new_width = width;
+        new_height = height;
+    }
     static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
         HandleScope scope;
-        int ret = glfwOpenWindow(360, 640, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
+        old_width = 360;
+        old_height = 640;
+        int ret = glfwOpenWindow(old_width, old_height, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
+        glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
         if(!ret) {
             printf("error. quitting\n");
             glfwTerminate();
@@ -52,6 +59,20 @@ public:
         textureShader = new TextureShader();
         glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
         return scope.Close(Undefined());
+    }
+    
+    static void processWindowEvents(Local<Function> eventCB) {
+        //printf("new = %d %d old = %d %d\n",new_width,new_height,old_width,old_height);
+        if(new_width == old_width && new_height == old_height) return;
+        
+        old_width = new_width;
+        old_height = new_height;
+        Local<Object> event_obj = Object::New();
+        event_obj->Set(String::NewSymbol("type"),   String::New("windowsize"));
+        event_obj->Set(String::NewSymbol("width"),  Number::New(old_width));
+        event_obj->Set(String::NewSymbol("height"), Number::New(old_height));
+        Handle<Value> event_argv[] = {event_obj};
+        eventCB->Call(Context::GetCurrent()->Global(), 1, event_argv);
     }
     
     static void processMouseEvents(Local<Function> eventCB) {
@@ -94,19 +115,18 @@ public:
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
         global_event_CB = eventCB;
          
+        processWindowEvents(eventCB);
         processMouseEvents(eventCB);
         
         //do the drawing
         glClear( GL_COLOR_BUFFER_BIT );
-        
-//        GLfloat rot[16], scale[16], trans[16];
         modelView = new GLfloat[16];
-        
-        loadOrthoMatrix(modelView, 0, 360, 640, 0, 0, 100);
+
+        glViewport(0,0,old_width, old_height);
+        loadOrthoMatrix(modelView, 0, old_width, old_height, 0, 0, 100);
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        //printf("setting up gfx fill quad\n");
         Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
         point_templ->SetInternalFieldCount(1);
         point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());

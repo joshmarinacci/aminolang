@@ -106,6 +106,8 @@ for(var i=65; i<=90; i++) {
 
 
 function JSStage() {
+    this.width = 360;
+    this.height = 480;
     this.listeners = {};
     this.on = function(name, target, fn) {
         if(!this.listeners[name]) {
@@ -171,16 +173,9 @@ function JSStage() {
         root.draw(ctx);
         
         if(root instanceof generated.Transform) {
-            //ctx.scale(root.getScalex(),root.getScaley());
-            //var theta = root.getRotate()/180*Math.PI;
-//            console.log("rotating by: " + root.getRotate());
-            //ctx.rotate(theta);
             ctx.scale(root.getScalex(),root.getScaley());
             ctx.rotate(root.getRotate());
         }
-        
-        
-        
         
         if(root.isParent && root.isParent()) {
             for(var i=0; i<root.getChildCount(); i++) {
@@ -190,24 +185,44 @@ function JSStage() {
         ctx.restore();
     }
     
-    //self.prevButton = 0;
     this.processEvents = function(e) {
         if(e.type == "key") {
             self.processRawKeyEvent(e);
+            return;
         }
         if(e.type == "press") {
             self.processPointerEvent("PRESS", new Point(e.x,e.y));
+            return;
         }
         if(e.type == "release") {
             self.processPointerEvent("RELEASE", new Point(e.x,e.y));
+            return;
         }
         if(e.type == "drag") {
             self.processPointerEvent("DRAG",new Point(e.x,e.y));
+            return;
         }
+        
+        //skip move events for now
+        if(e.type == "move") {
+            return;
+        }
+        
+        if(e.type == "windowsize") {
+            self.processWindowSizeEvent(e);
+            return;
+        }
+        console.log("unhandled event:",e);
+        
         //self.prevButton = e.button;
     }
     
-    
+    this.processWindowSizeEvent = function(e) {
+        this.width = e.width;
+        this.height = e.height;
+        console.log("changed window size to " + this.width + " " + this.height);
+        this.fireEvent({type:"WINDOWSIZE",width:this.width, height:this.height, target: this});
+    }
     
     this.processRawKeyEvent = function(e) {
         console.log("key event:",e);

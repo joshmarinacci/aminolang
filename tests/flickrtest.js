@@ -77,6 +77,7 @@ var panel = core.createAnchorPanel();
 panel.setW(400).setH(400).setTx(400);
 root.add(panel);
 
+
 function SlideRightTransition(src, dst) {
     this.src = src;
     this.dst = dst;
@@ -90,15 +91,44 @@ function SlideRightTransition(src, dst) {
         stage.addAnim(amino.anim(this.dst,"tx",0,400,250));
     }
 }
-var trans = new SlideRightTransition(grid,panel);
 
-stage.on("SELECT",grid, function() {
-    console.log("selecting it");
-    trans.push();
-});
-stage.on("PRESS",panel, function() {
-    trans.pop();
-});
+
+function NavigationManager() {
+    this.panels = [];
+    this.register = function(panel) {
+        this.panels.push(panel);
+    }
+    this.transitions = {};
+    this.createTransition = function(name,src,dst,type) {
+        this.transitions[name] = {
+            name:name,
+            src:src,
+            dst:dst,
+            type:type
+        };
+    }
+    this.navstack = [];
+    this.push = function(name) {
+        var trans = this.transitions[name];
+        stage.addAnim(amino.anim(trans.src, "tx", 0, -400, 250));
+        stage.addAnim(amino.anim(trans.dst, "tx", 400,  0, 250));
+        this.navstack.push(trans);
+    }
+    this.pop = function() {
+        var trans = this.navstack.pop();
+        stage.addAnim(amino.anim(trans.src, "tx", -400, 0, 250));
+        stage.addAnim(amino.anim(trans.dst, "tx", 0,  400, 250));
+    }
+}
+
+var nav = new NavigationManager();
+nav.register(grid);
+nav.register(panel);
+nav.createTransition("fullview",grid,panel,"slideright");
+
+stage.on("SELECT", grid,  function() { nav.push("fullview"); });
+stage.on("PRESS",  panel, function() { nav.pop(); });
+
 
 
 var searchButton  =  core.createToggleButton();

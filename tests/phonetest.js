@@ -133,10 +133,24 @@ stage.on("PRESS",stage.find("upButton"),function(e) {
     
 });
 
+function setupEmail() {
+    var a = stage.find("app3");
+    var c = stage.find("composePanel");
+    nav.register(a);
+    nav.register(c);
+    nav.createTransition("composeEmail",a,c,"slideRight");
+    
+    stage.on("PRESS",stage.find("composeButton"),function(e) {
+        nav.push("composeEmail");
+    });
+    stage.on("PRESS",stage.find("composeCancel"),function(e) {
+        nav.pop();
+    });
+    
+    stage.find("contactsPanel").setVisible(false);
+}
 
-stage.find("composePanel").setVisible(false);
-stage.find("contactsPanel").setVisible(false);
-
+setupEmail();
 
 
 stage.on("PRESS",stage.find("addItemButton"),function(e) {

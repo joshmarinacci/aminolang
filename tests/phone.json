@@ -290,7 +290,7 @@
               }
               ,{
                "type":"PushButton"
-              ,"id":"id456766"
+              ,"id":"composeButton"
               ,"enabled":true
               ,"text":"compose"
               ,"h":30.0

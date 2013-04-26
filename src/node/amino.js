@@ -213,14 +213,11 @@ function JSStage() {
             return;
         }
         console.log("unhandled event:",e);
-        
-        //self.prevButton = e.button;
     }
     
     this.processWindowSizeEvent = function(e) {
         this.width = e.width;
         this.height = e.height;
-        console.log("changed window size to " + this.width + " " + this.height);
         this.fireEvent({type:"WINDOWSIZE",width:this.width, height:this.height, target: this});
     }
     

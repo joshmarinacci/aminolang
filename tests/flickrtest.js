@@ -134,7 +134,6 @@ var setupTextures = function() {
 
 
 stage.on("WINDOWSIZE", stage, function(e) {
-    console.log("stage resized",e.width,e.height);
     search.setW(e.width-10);
 });
 

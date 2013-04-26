@@ -1016,6 +1016,48 @@ core.createSlider = function() {
 }
 
 
+function JSImageView() {
+    this.loaded = false;
+    this.loading = false;
+    this.stage = null;
+    this.iw = 100;
+    this.ih = 100;
+    this.install = function(stage)  {
+        this.stage = stage;
+    }
+    this.setUrl = function(url) {
+        this.url = url;
+        this.loaded = false;
+        this.loading = false;
+    }
+    var self = this;
+    this.loadImage = function() {
+        if(this.loading) return;
+        if(!this.url) return;
+        console.log("starting to load the image " + this.url);
+        this.loading = true;
+        this.stage.loadRemoteTexture(this.url, this.iw, this.ih, function(id) {
+            console.log("finished loading the image view");
+            self.texid = id;
+            self.loaded = true;
+        });
+    }
+    this.draw = function(gfx) {
+        if(this.loaded) {
+            gfx.fillQuadTexture(this.texid, 0,0, 256, 256);
+        } else {
+            this.loadImage();
+        }
+    }
+}
+JSImageView.extend(generated.ImageView);
+core.createImageView = function() {
+    var comp = new JSImageView();
+    comp.install(this.stage);
+    return comp;
+}
+
+
 
 var SceneParser = function() {
     this.parseChildren = function(core, val, obj) {

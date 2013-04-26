@@ -77,7 +77,6 @@ var panel = core.createAnchorPanel();
 panel.setW(400).setH(400).setTx(400);
 root.add(panel);
 
-
 function SlideRightTransition(src, dst) {
     this.src = src;
     this.dst = dst;
@@ -117,6 +116,14 @@ var cameraButton = core.createToggleButton()
     .setText("Camera").setTx(220).setTy(500).setW(100).setH(40);
 root.add(cameraButton);
 
+
+var fullView = core.createImageView();
+fullView.setW(300).setH(300);
+fullView.iw = 300;
+fullView.ih = 300;
+//fullView.setUrl("http://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Mona_Lisa.jpg/396px-Mona_Lisa.jpg");
+//fullView.setUrl("http://farm9.staticflickr.com/8386/8682730192_701bfa9614_s.jpg");
+panel.add(fullView);
 
 
 core.started = false;

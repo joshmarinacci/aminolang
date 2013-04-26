@@ -1108,3 +1108,4 @@ exports.AnchorPanel = AnchorPanel;
 exports.Transform = Transform;
 exports.ListView = ListView;
 exports.Textbox = Textbox;
+exports.ImageView = ImageView;

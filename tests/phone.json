@@ -5,49 +5,6 @@
        "type":"Group"
         ,"children":[
            {
-           "type":"AnchorPanel"
-          ,"id":"app1"
-          ,"h":430.0
-          ,"w":320.0
-          ,"fill":"#a0a0a0"
-          ,"ty":38.0
-          ,"tx":0.0
-            ,"children":[
-               {
-               "type":"Label"
-              ,"id":"id21148"
-              ,"text":"todos"
-              ,"h":50.0
-              ,"color":"#000000"
-              ,"w":100.0
-              ,"ty":15.0
-              ,"fontSize":18.0
-              ,"tx":15.0
-              }
-              ,{
-               "type":"ListView"
-              ,"id":"todoList"
-              ,"selectedIndex":0.0
-              ,"h":300.0
-              ,"w":285.0
-              ,"columnWidth":100.0
-              ,"rowheight":20.0
-              ,"ty":63.0
-              ,"tx":15.0
-              }
-              ,{
-               "type":"PushButton"
-              ,"id":"addItemButton"
-              ,"enabled":true
-              ,"text":"add item"
-              ,"h":30.0
-              ,"w":100.0
-              ,"ty":383.0
-              ,"tx":15.0
-              }
-            ]
-          }
-          ,{
            "type":"PushButton"
           ,"id":"leftButton"
           ,"enabled":true
@@ -78,6 +35,66 @@
           ,"tx":78.0
           }
           ,{
+           "type":"AnchorPanel"
+          ,"id":"app1"
+          ,"anchorLeft":true
+          ,"h":430.0
+          ,"w":320.0
+          ,"fill":"#a0a0a0"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@35ea67e3"
+          ,"ty":47.0
+          ,"anchorRight":false
+          ,"tx":0.0
+            ,"children":[
+               {
+               "type":"Label"
+              ,"id":"id151091"
+              ,"anchorLeft":true
+              ,"text":"Todo List"
+              ,"h":23.0
+              ,"color":"#000000"
+              ,"w":124.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":12.5
+              ,"ty":15.0
+              ,"anchorRight":false
+              ,"tx":16.0
+              }
+              ,{
+               "type":"ListView"
+              ,"id":"todoList"
+              ,"anchorLeft":true
+              ,"selectedIndex":0.0
+              ,"w":319.0
+              ,"anchorTop":true
+              ,"rowheight":20.0
+              ,"ty":40.0
+              ,"tx":0.0
+              ,"anchorRight":true
+              ,"h":340.0
+              ,"anchorBottom":true
+              ,"columnWidth":100.0
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"addItemButton"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"Exit"
+              ,"h":30.0
+              ,"w":100.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":390.0
+              ,"tx":6.0
+              ,"anchorRight":false
+              }
+            ]
+          }
+          ,{
            "type":"PushButton"
           ,"id":"downButton"
           ,"enabled":true
@@ -92,7 +109,7 @@
           ,"id":"quicksettings"
           ,"h":200.0
           ,"w":320.0
-          ,"fill":"#a0a0a0"
+          ,"fill":"#fff8e3"
           ,"ty":1.0
           ,"tx":350.0
             ,"children":[
@@ -100,12 +117,69 @@
                "type":"ToggleButton"
               ,"id":"id423289"
               ,"enabled":true
-              ,"text":"airplane mode"
+              ,"text":"Airplane Mode"
+              ,"selected":false
+              ,"h":27.0
+              ,"w":98.0
+              ,"ty":15.0
+              ,"tx":15.0
+              }
+              ,{
+               "type":"Label"
+              ,"id":"id667877"
+              ,"text":"Volume"
+              ,"h":28.0
+              ,"color":"#000000"
+              ,"w":109.0
+              ,"ty":56.0
+              ,"fontSize":12.5
+              ,"tx":15.0
+              }
+              ,{
+               "type":"Slider"
+              ,"id":"id843816"
+              ,"enabled":true
+              ,"h":20.0
+              ,"w":183.0
+              ,"minValue":"0.0"
+              ,"value":50.0
+              ,"ty":57.5
+              ,"tx":127.0
+              ,"maxValue":100.0
+              }
+              ,{
+               "type":"Label"
+              ,"id":"id607480"
+              ,"text":"Brightness"
+              ,"h":24.0
+              ,"color":"#000000"
+              ,"w":103.0
+              ,"ty":88.0
+              ,"fontSize":12.5
+              ,"tx":15.0
+              }
+              ,{
+               "type":"Slider"
+              ,"id":"id418665"
+              ,"enabled":true
+              ,"h":20.0
+              ,"w":179.0
+              ,"minValue":"0.0"
+              ,"value":50.0
+              ,"ty":91.0
+              ,"tx":127.0
+              ,"maxValue":100.0
+              }
+              ,{
+               "type":"ToggleButton"
+              ,"id":"id635715"
+              ,"enabled":true
+              ,"text":"Wifi Active"
               ,"selected":false
               ,"h":30.0
               ,"w":100.0
-              ,"ty":15.0
-              ,"tx":15.0
+              ,"ty":11.0
+              ,"tx":168.0
               }
             ]
           }
@@ -135,34 +209,46 @@
           ,"tx":0.0
             ,"children":[
                {
-               "type":"PushButton"
-              ,"id":"id226190"
-              ,"enabled":true
-              ,"text":"take picture"
-              ,"h":30.0
-              ,"w":100.0
-              ,"ty":385.0
-              ,"tx":15.0
-              }
-              ,{
-               "type":"PushButton"
-              ,"id":"id965006"
-              ,"enabled":true
-              ,"text":"gallery"
-              ,"h":30.0
-              ,"w":100.0
-              ,"ty":385.0
-              ,"tx":208.0
-              }
-              ,{
                "type":"Rect"
-              ,"id":"id205014"
-              ,"h":250.0
-              ,"w":250.0
+              ,"id":"id584735"
+              ,"anchorLeft":true
+              ,"h":370.0
+              ,"w":320.0
               ,"fill":"#0000ff"
               ,"opacity":1.0
-              ,"ty":35.0
-              ,"tx":35.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"tx":0.0
+              ,"anchorRight":true
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"id665523"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"snap photo"
+              ,"h":60.0
+              ,"w":160.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":370.0
+              ,"tx":0.0
+              ,"anchorRight":false
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"id789663"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"gallery"
+              ,"h":60.0
+              ,"w":160.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":370.0
+              ,"tx":160.0
+              ,"anchorRight":true
               }
             ]
           }

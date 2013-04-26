@@ -115,7 +115,6 @@ stage.on("PRESS",stage.find("upButton"),function(e) {
     
     dock.setTx(0);
     stage.addAnim(a(dock,"ty",stage.height,stage.height-60,200));
-    console.log(dock.getTy());
     
     //insert a transparent shim
     var shim = core.createRect();
@@ -153,12 +152,13 @@ todoList.setW(stage.width).setH(stage.height-200).setTx(0);
 stage.find("addItemButton").setTy(10).setY(0);
 
 
+var os = 2.0/3.0;
 stage.on("PRESS",stage.find("rightButton"),function(e) {
     if(curr == apps.length-1) return;
     for(var i=0; i<apps.length; i++) {
         stage.addAnim(a(apps[i],"tx", 
-            (i-curr)*stage.width/3+stage.width/4, 
-            (i-curr-1)*stage.width/3+stage.width/4,
+            (i-curr)*stage.width*os+stage.width/4, 
+            (i-curr-1)*stage.width*os+stage.width/4,
             300).setEase(amino.cubicInOut));
     }
     curr++;
@@ -168,8 +168,8 @@ stage.on("PRESS",stage.find("leftButton"),function(e) {
     if(curr == 0) return;
     for(var i=0; i<apps.length; i++) {
         stage.addAnim(a(apps[i],"tx", 
-            (i-curr)*stage.width/3+stage.width/4, 
-            (i-curr+1)*stage.width/3+stage.width/4, 
+            (i-curr)*stage.width*os+stage.width/4, 
+            (i-curr+1)*stage.width*os+stage.width/4, 
             300).setEase(amino.cubicInOut));
     }
     curr--;

@@ -659,13 +659,29 @@ JSAnchorPanel = function() {
         return this;
     }
     this.redoLayout = function() {
+        console.log("redoing layout " + this.id);
         for(var i in this.nodes) {
             var node = this.nodes[i];
-            if(node.anchorBottom) {
+            //bottom aligned
+            if(node.anchorBottom && !node.anchorTop) {
                 node.setTy(this.getH() - (this.orig_h - node.orig_ty));
             }
-            if(node.anchorRight) {
+            //stretch vert
+            if(node.anchorBottom && node.anchorTop) {
+                var obottom = this.orig_h - node.orig_ty - node.orig_h;
+                node.setTy(node.orig_ty);
+                node.setH(this.getH()-obottom);
+            }
+            //right aligned
+            if(node.anchorRight && !node.anchorLeft) {
                 node.setTx(this.getW() - (this.orig_w - node.orig_tx));
+            }
+            //stretch horiz
+            if(node.anchorRight && node.anchorLeft) {
+                var oright = this.orig_w - node.orig_tx - node.orig_w;
+                console.log("original = " + node.orig_tx + " " + oright);
+                node.setTx(node.orig_tx);
+                node.setW(this.getW()-oright);
             }
         }
     }
@@ -842,7 +858,7 @@ function JSPushButton() {
         }
 
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3);
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize());
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
@@ -888,7 +904,7 @@ function JSToggleButton() {
             gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
         }
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3);
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize());
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
@@ -1094,11 +1110,15 @@ var SceneParser = function() {
         }
         out.orig_tx = obj.tx;
         out.orig_ty = obj.ty;
+        out.orig_w = obj.w;
+        out.orig_h = obj.h;
+        /*
         if(obj.type == "AnchorPanel") {
             console.log("doing an anchor panel. orig w h = " + obj.w + " " + obj.h);
             out.orig_w = obj.w;
             out.orig_h = obj.h;
         }
+        */
     }
     
     this.findNode = function(id, node) {
@@ -1115,6 +1135,7 @@ var SceneParser = function() {
     this.parseBindings = function(val, obj) {
         console.log("parsing bindings " + obj.bindings.length);
         val.bindings = [];
+        /*
         for(var i=0; i<obj.bindings.length; i++) {
             var bin = obj.bindings[i];
             var trans = new Transition();
@@ -1123,6 +1144,7 @@ var SceneParser = function() {
             trans.pushTarget = this.findNode(bin.pushTarget,val);
             val.bindings.push(trans);
         }
+        */
     }
 
     this.typeMap = {

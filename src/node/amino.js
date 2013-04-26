@@ -260,7 +260,6 @@ function JSStage() {
         }
         
         var node = this.findNodeByXY(point);
-        //console.log("clicked on node: " + node);
         event.point = point;
         if(type=="PRESS"){
             this.dragFocus = node;
@@ -563,6 +562,10 @@ core.createGroup = function() {
 function JSTransform() {
     this.isParent = function() {        return true; }
     this.getChildCount = function() {   return 1;  }
+    this.setChild = function(ch) {
+        this.child = ch;
+        this.child.setParent(this);
+    }
     this.getChild = function(i) {       return this.child;   }
     this.toInnerCoords = function(pt) {
         //console.log("turning ", pt2);
@@ -584,10 +587,13 @@ function JSTransform() {
 //            console.log("theta = " + (Math.cos(theta)*pt2.x + Math.sin(theta)*pt2.y));
 //            console.log("theta = " + (Math.sin(theta)*pt2.x - Math.cos(theta)*pt2.y));
     }
+    this.type = "Transform";
 }
 JSTransform.extend(generated.Transform);
 core.createTransform = function() {
-    return new JSTransform();
+    var comp = new JSTransform();
+    comp.type = "Transform";
+    return comp;
 }
 
 JSAnchorPanel = function() {
@@ -659,7 +665,6 @@ JSAnchorPanel = function() {
         return this;
     }
     this.redoLayout = function() {
-        console.log("redoing layout " + this.id);
         for(var i in this.nodes) {
             var node = this.nodes[i];
             //bottom aligned
@@ -679,7 +684,6 @@ JSAnchorPanel = function() {
             //stretch horiz
             if(node.anchorRight && node.anchorLeft) {
                 var oright = this.orig_w - node.orig_tx - node.orig_w;
-                console.log("original = " + node.orig_tx + " " + oright);
                 node.setTx(node.orig_tx);
                 node.setW(this.getW()-oright);
             }
@@ -805,12 +809,13 @@ JSListView = function() {
             }
         });
         stage.on("RELEASE", this, function(e) {
-            console.log("released at ", e.point);
+            //console.log("released at ", e.point);
+            if(!pressPoint) return;
             var dx = e.point.x-pressPoint.x;
             var dy = e.point.y-pressPoint.y;
-            console.log("delta = " + dx + " " + dy);
+            //console.log("delta = " + dx + " " + dy);
             if(Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-                console.log("firing a selection");
+                //console.log("firing a selection");
                 stage.fireEvent({
                     type:"SELECT",
                     target:self
@@ -1261,7 +1266,6 @@ function anim(node, prop, start, finish, dur) {
                 t = this.easefn(t);
             }
             var v = (this.fval-this.sval)*t + this.sval;
-            //console.log("t = " + t + " " + v);
             node["set"+camelize(this.prop)](v);
         },
         update:function() {
@@ -1269,6 +1273,7 @@ function anim(node, prop, start, finish, dur) {
             if(!this.running) {
                 this.startTime = new Date().getTime();
                 this.running = true;
+                if(this.beforecb) this.beforecb();
                 return;
             }
             var time = new Date().getTime();
@@ -1276,6 +1281,7 @@ function anim(node, prop, start, finish, dur) {
             var t = dt/this.dur;
             if(t > 1) {
                 this.finished = true;
+                if(this.aftercb) this.aftercb();
                 this.setVal(1);
                 return;
             }
@@ -1284,7 +1290,15 @@ function anim(node, prop, start, finish, dur) {
         setEase:function(easefn) {
             this.easefn = easefn;
             return this;
-        }
+        },
+        after: function(aftercb) {
+            this.aftercb = aftercb;
+            return this;
+        },
+        before: function(beforecb) {
+            this.beforecb = beforecb;
+            return this;
+        },
     };
 }
 

@@ -43,7 +43,6 @@ function animIn(trns, soff, eoff) {
 function NavigationManager() {
     this.panels = [];
     this.register = function(panel) {
-        console.log("registered");
         this.panels.push(panel);
     }
     this.transitions = {};
@@ -59,20 +58,28 @@ function NavigationManager() {
     this.push = function(name) {
         var trans = this.transitions[name];
         stage.addAnim(amino.anim(trans.src, "tx", 0, -stage.width, 250));
-        stage.addAnim(amino.anim(trans.dst, "tx", stage.width,  0, 250));
+        stage.addAnim(amino.anim(trans.dst, "tx", stage.width,  0, 250)
+            .before(function(){ trans.dst.setVisible(true);})
+            );
         this.navstack.push(trans);
     }
     this.pop = function() {
         var trans = this.navstack.pop();
         stage.addAnim(amino.anim(trans.src, "tx", -400, 0, 250));
-        stage.addAnim(amino.anim(trans.dst, "tx", 0,  400, 250));
+        stage.addAnim(amino.anim(trans.dst, "tx", 0,  400, 250)
+            .after(function() { trans.dst.setVisible(false); })
+            );
     }
     var self = this;
     stage.on("WINDOWSIZE", stage, function(e) {
-        console.log('window changed. resizing panels to ' + e.width + " " + e.height);
         for(var i in self.panels) {
             var panel = self.panels[i];
             panel.setW(e.width).setH(e.height-50);
+            if(panel.getParent().type == "Transform") {
+                panel.setTy(0);
+            } else {
+                panel.setTy(50);
+            }
         }
     });
 }
@@ -103,12 +110,13 @@ for(var i=0; i<apps.length; i++) {
     nav.register(apps[i].getChild());
 }
 
-
+var zoomState = "in";
 
 //init the dock
 var dock = stage.find("dock");
 dock.setTx(stage.height).setW(stage.width);
 stage.on("PRESS",stage.find("upButton"),function(e) {
+    zoomStage = "out";
     for(var i=0; i<apps.length; i++) {
         animOut(apps[i],(i-curr)*stage.width,(i-curr)*stage.width * 2/3);
     }
@@ -129,6 +137,7 @@ stage.on("PRESS",stage.find("upButton"),function(e) {
             animIn(apps[i],(i-curr)*stage.width * 2/3,(i-curr)*stage.width);
         }
         stage.addAnim(a(dock,"ty",stage.height-60,stage.height,200));
+        zoomStage = "in";
     });
     
 });
@@ -136,6 +145,7 @@ stage.on("PRESS",stage.find("upButton"),function(e) {
 function setupEmail() {
     var a = stage.find("app3");
     var c = stage.find("composePanel");
+    c.setVisible(false);
     nav.register(a);
     nav.register(c);
     nav.createTransition("composeEmail",a,c,"slideRight");
@@ -152,6 +162,17 @@ function setupEmail() {
 
 setupEmail();
 
+function setupDialer() {
+    var a = stage.find("app5");
+    var c = stage.find("contactsPanel");
+    c.setVisible(false);
+    nav.register(a);
+    nav.register(c);
+    nav.createTransition("selectContact",a,c,"slideRight");
+    stage.on("PRESS",stage.find("contactsButton"), function() { nav.push("selectContact"); });
+    stage.on("PRESS",stage.find("contactsClose"), function() { nav.pop(); });
+}
+setupDialer();
 
 stage.on("PRESS",stage.find("addItemButton"),function(e) {
     process.exit(0);
@@ -170,10 +191,13 @@ var os = 2.0/3.0;
 stage.on("PRESS",stage.find("rightButton"),function(e) {
     if(curr == apps.length-1) return;
     for(var i=0; i<apps.length; i++) {
-        stage.addAnim(a(apps[i],"tx", 
-            (i-curr)*stage.width*os+stage.width/4, 
-            (i-curr-1)*stage.width*os+stage.width/4,
-            300).setEase(amino.cubicInOut));
+        var sx = (i-curr)*stage.width*os+stage.width/4; 
+        var ex = (i-curr-1)*stage.width*os+stage.width/4 ;
+        if(zoomState == "in") {
+            //sx = (i-curr)*stage.width + 0;
+            //ex = (i-curr-1)*stage.width + 0;
+        }
+        stage.addAnim(a(apps[i],"tx", sx, ex, 300).setEase(amino.cubicInOut));
     }
     curr++;
     if(curr > apps.length-1) curr = apps.length-1;
@@ -181,10 +205,13 @@ stage.on("PRESS",stage.find("rightButton"),function(e) {
 stage.on("PRESS",stage.find("leftButton"),function(e) {
     if(curr == 0) return;
     for(var i=0; i<apps.length; i++) {
-        stage.addAnim(a(apps[i],"tx", 
-            (i-curr)*stage.width*os+stage.width/4, 
-            (i-curr+1)*stage.width*os+stage.width/4, 
-            300).setEase(amino.cubicInOut));
+        var sx = (i-curr)*stage.width*os+stage.width/4;
+        var ex = (i-curr+1)*stage.width*os+stage.width/4;
+        if(zoomState == "in") {
+            //sx = (i-curr)*stage.width + 0;
+            //ex = (i-curr+1)*stage.width + 0;
+        }
+        stage.addAnim(a(apps[i],"tx", sx, ex, 300).setEase(amino.cubicInOut));
     }
     curr--;
     if(curr < 0) curr = 0;

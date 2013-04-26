@@ -38,30 +38,29 @@
            "type":"AnchorPanel"
           ,"id":"app1"
           ,"anchorLeft":true
-          ,"h":430.0
-          ,"w":320.0
           ,"fill":"#a0a0a0"
-          ,"anchorBottom":false
+          ,"w":320.0
           ,"anchorTop":true
-          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@35ea67e3"
           ,"ty":47.0
           ,"anchorRight":false
           ,"tx":0.0
+          ,"h":430.0
+          ,"anchorBottom":false
             ,"children":[
                {
                "type":"Label"
               ,"id":"id151091"
               ,"anchorLeft":true
               ,"text":"Todo List"
-              ,"h":23.0
-              ,"color":"#000000"
               ,"w":124.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":12.5
               ,"ty":15.0
               ,"anchorRight":false
               ,"tx":16.0
+              ,"h":23.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
               ,{
                "type":"ListView"
@@ -72,8 +71,8 @@
               ,"anchorTop":true
               ,"rowheight":20.0
               ,"ty":40.0
-              ,"tx":0.0
               ,"anchorRight":true
+              ,"tx":0.0
               ,"h":340.0
               ,"anchorBottom":true
               ,"columnWidth":100.0
@@ -81,16 +80,16 @@
               ,{
                "type":"PushButton"
               ,"id":"addItemButton"
-              ,"enabled":true
               ,"anchorLeft":true
+              ,"enabled":true
               ,"text":"Exit"
-              ,"h":30.0
               ,"w":100.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":390.0
-              ,"tx":6.0
               ,"anchorRight":false
+              ,"tx":6.0
+              ,"h":30.0
+              ,"anchorBottom":false
               }
             ]
           }
@@ -212,43 +211,43 @@
                "type":"Rect"
               ,"id":"id584735"
               ,"anchorLeft":true
-              ,"h":370.0
-              ,"w":320.0
               ,"fill":"#0000ff"
-              ,"opacity":1.0
-              ,"anchorBottom":true
+              ,"w":320.0
               ,"anchorTop":true
               ,"ty":0.0
-              ,"tx":0.0
               ,"anchorRight":true
+              ,"tx":0.0
+              ,"h":370.0
+              ,"anchorBottom":true
+              ,"opacity":1.0
               }
               ,{
                "type":"PushButton"
               ,"id":"id665523"
-              ,"enabled":true
               ,"anchorLeft":true
+              ,"enabled":true
               ,"text":"snap photo"
-              ,"h":60.0
               ,"w":160.0
-              ,"anchorBottom":true
               ,"anchorTop":false
               ,"ty":370.0
-              ,"tx":0.0
               ,"anchorRight":false
+              ,"tx":0.0
+              ,"h":60.0
+              ,"anchorBottom":true
               }
               ,{
                "type":"PushButton"
               ,"id":"id789663"
-              ,"enabled":true
               ,"anchorLeft":true
+              ,"enabled":true
               ,"text":"gallery"
-              ,"h":60.0
               ,"w":160.0
-              ,"anchorBottom":true
               ,"anchorTop":false
               ,"ty":370.0
-              ,"tx":160.0
               ,"anchorRight":true
+              ,"tx":160.0
+              ,"h":60.0
+              ,"anchorBottom":true
               }
             ]
           }
@@ -267,56 +266,68 @@
           ,"tx":0.0
             ,"children":[
                {
-               "type":"Label"
-              ,"id":"id674719"
-              ,"text":"email"
-              ,"h":50.0
-              ,"color":"#000000"
-              ,"w":100.0
-              ,"ty":4.0
-              ,"fontSize":12.5
-              ,"tx":9.0
-              }
-              ,{
-               "type":"ListView"
-              ,"id":"id465831"
-              ,"selectedIndex":0.0
-              ,"h":324.0
-              ,"w":294.0
-              ,"columnWidth":100.0
-              ,"rowheight":20.0
-              ,"ty":45.0
-              ,"tx":15.0
-              }
-              ,{
-               "type":"PushButton"
-              ,"id":"composeButton"
-              ,"enabled":true
-              ,"text":"compose"
-              ,"h":30.0
-              ,"w":86.0
-              ,"ty":389.0
-              ,"tx":17.0
-              }
-              ,{
                "type":"PushButton"
               ,"id":"id474978"
               ,"enabled":true
               ,"text":"reply"
-              ,"h":28.0
-              ,"w":86.0
+              ,"h":40.0
+              ,"w":84.0
               ,"ty":390.0
-              ,"tx":121.0
+              ,"tx":94.0
               }
               ,{
                "type":"PushButton"
               ,"id":"id625084"
               ,"enabled":true
               ,"text":"delete"
-              ,"h":30.0
+              ,"h":40.0
               ,"w":86.0
               ,"ty":390.0
-              ,"tx":223.0
+              ,"tx":182.0
+              }
+              ,{
+               "type":"ListView"
+              ,"id":"id472083"
+              ,"anchorLeft":true
+              ,"selectedIndex":0.0
+              ,"w":319.0
+              ,"anchorTop":true
+              ,"rowheight":20.0
+              ,"ty":30.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"h":360.0
+              ,"anchorBottom":true
+              ,"columnWidth":100.0
+              }
+              ,{
+               "type":"Label"
+              ,"id":"id97305"
+              ,"anchorLeft":true
+              ,"text":"Email"
+              ,"w":297.0
+              ,"anchorTop":true
+              ,"fontSize":12.5
+              ,"ty":4.0
+              ,"anchorRight":false
+              ,"tx":6.0
+              ,"h":32.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"composeButton"
+              ,"anchorLeft":true
+              ,"enabled":true
+              ,"text":"Compose"
+              ,"w":93.0
+              ,"anchorTop":false
+              ,"ty":391.0
+              ,"anchorRight":false
+              ,"tx":0.0
+              ,"h":39.0
+              ,"anchorBottom":true
               }
             ]
           }
@@ -418,44 +429,60 @@
           ,"tx":0.0
             ,"children":[
                {
+               "type":"Rect"
+              ,"id":"id32015"
+              ,"anchorLeft":true
+              ,"h":400.0
+              ,"w":320.0
+              ,"fill":"#ff8339"
+              ,"opacity":1.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"tx":0.0
+              ,"anchorRight":true
+              }
+              ,{
                "type":"PushButton"
-              ,"id":"id339056"
+              ,"id":"id400949"
               ,"enabled":true
-              ,"text":"play"
+              ,"anchorLeft":true
+              ,"text":"Prev"
               ,"h":30.0
               ,"w":100.0
-              ,"ty":286.0
-              ,"tx":108.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":400.0
+              ,"tx":0.0
+              ,"anchorRight":false
               }
               ,{
                "type":"PushButton"
-              ,"id":"id35093"
+              ,"id":"id658995"
               ,"enabled":true
-              ,"text":"next"
+              ,"anchorLeft":true
+              ,"text":"Play"
               ,"h":30.0
-              ,"w":40.0
-              ,"ty":284.0
-              ,"tx":259.0
+              ,"w":100.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":400.0
+              ,"tx":105.0
+              ,"anchorRight":false
               }
               ,{
                "type":"PushButton"
-              ,"id":"id626661"
+              ,"id":"id233181"
               ,"enabled":true
-              ,"text":"prev"
+              ,"anchorLeft":true
+              ,"text":"Next"
               ,"h":30.0
-              ,"w":40.0
-              ,"ty":285.0
-              ,"tx":15.0
-              }
-              ,{
-               "type":"Rect"
-              ,"id":"id732144"
-              ,"h":260.0
-              ,"w":295.0
-              ,"fill":"#c6004a"
-              ,"opacity":1.0
-              ,"ty":8.0
-              ,"tx":15.0
+              ,"w":100.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":400.0
+              ,"tx":211.0
+              ,"anchorRight":false
               }
             ]
           }
@@ -606,66 +633,90 @@
               }
               ,{
                "type":"PushButton"
-              ,"id":"id810126"
+              ,"id":"id986915"
               ,"enabled":true
-              ,"text":"dial"
+              ,"anchorLeft":true
+              ,"text":"Dial"
               ,"h":30.0
               ,"w":100.0
-              ,"ty":391.0
-              ,"tx":20.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":389.0
+              ,"tx":12.0
+              ,"anchorRight":false
               }
               ,{
                "type":"PushButton"
-              ,"id":"id243901"
+              ,"id":"contactsButton"
               ,"enabled":true
-              ,"text":"contacts"
+              ,"anchorLeft":false
+              ,"text":"Contacts"
               ,"h":30.0
               ,"w":100.0
-              ,"ty":390.0
-              ,"tx":180.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":387.0
+              ,"tx":199.0
+              ,"anchorRight":true
               }
             ]
           }
           ,{
            "type":"AnchorPanel"
           ,"id":"contactsPanel"
+          ,"anchorLeft":true
           ,"h":430.0
-          ,"w":320.0
+          ,"w":300.0
           ,"fill":"#cdffc6"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@729bd2fb"
           ,"ty":0.0
-          ,"tx":334.0
+          ,"anchorRight":false
+          ,"tx":331.0
             ,"children":[
                {
-               "type":"Label"
-              ,"id":"id565703"
-              ,"text":"Contacts"
-              ,"h":38.0
-              ,"color":"#000000"
-              ,"w":256.0
-              ,"ty":9.0
-              ,"fontSize":18.0
-              ,"tx":9.0
-              }
-              ,{
                "type":"ListView"
-              ,"id":"id899161"
+              ,"id":"id391973"
+              ,"anchorLeft":true
               ,"selectedIndex":0.0
-              ,"h":324.0
-              ,"w":290.243553008596
+              ,"w":300.0
+              ,"anchorTop":true
+              ,"rowheight":3.0
+              ,"ty":35.0
+              ,"tx":0.0
+              ,"anchorRight":true
+              ,"h":360.0
+              ,"anchorBottom":true
               ,"columnWidth":100.0
-              ,"rowheight":20.0
-              ,"ty":55.0
-              ,"tx":12.0
               }
               ,{
                "type":"PushButton"
-              ,"id":"contactsBack"
+              ,"id":"id596488"
               ,"enabled":true
-              ,"text":"back"
-              ,"h":30.0
+              ,"anchorLeft":true
+              ,"text":"search"
+              ,"h":34.0
+              ,"w":298.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"tx":0.0
+              ,"anchorRight":true
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"contactsClose"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"Close"
+              ,"h":35.0
               ,"w":100.0
-              ,"ty":392.0
-              ,"tx":10.24355300859601
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":394.0
+              ,"tx":0.0
+              ,"anchorRight":false
               }
             ]
           }

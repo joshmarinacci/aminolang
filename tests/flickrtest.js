@@ -101,6 +101,24 @@ stage.on("PRESS",panel, function() {
     trans.pop();
 });
 
+
+var searchButton  =  core.createToggleButton();
+searchButton
+    .setText("Search")
+    .setTx(3).setTy(500)
+    .setW(100).setH(40);
+root.add(searchButton);
+
+var uploadButton = core.createToggleButton()
+    .setText("Upload").setTx(110).setTy(500).setW(100).setH(40);
+root.add(uploadButton);
+
+var cameraButton = core.createToggleButton()
+    .setText("Camera").setTx(220).setTy(500).setW(100).setH(40);
+root.add(cameraButton);
+
+
+
 core.started = false;
 var setupTextures = function() {
     core.started = true;

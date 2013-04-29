@@ -146,6 +146,10 @@ class EventManager {
             event.target = node;
             this.fireEvent(event);
         }
+        if(type == Events.Drag) {
+            event.target = this;
+            this.fireEvent(event);
+        }
     }
 }
 

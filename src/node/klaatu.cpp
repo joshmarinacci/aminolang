@@ -309,6 +309,7 @@ public:
     }
     static Handle<Value> NewInstance(const Arguments& args) {
       HandleScope scope;
+      
       const unsigned argc = 1;
       Handle<Value> argv[argc] = { args[0] };
       Local<Object> instance = constructor->NewInstance(argc, argv);

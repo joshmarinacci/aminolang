@@ -36,6 +36,10 @@ var old_eventManager = EventManager;
 EventManager = function() {
     this.listeners = {};
     this.on = function(name, target, fn) {
+        //deal with globals first
+        if(target == null) {
+            target = this;
+        }
         if(!this.listeners[name]) {
             this.listeners[name] = [];
         }

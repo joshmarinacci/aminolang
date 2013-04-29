@@ -58,6 +58,9 @@ function NavigationManager() {
             }
         }
     });
+    stage.on("DRAG", stage, function(e) {
+        console.log("drag event " + e);
+    });
 }
 
 var nav = new NavigationManager();
@@ -125,5 +128,5 @@ initStatusBar();
 
 setTimeout(function() {
     core.start();
-},1000);
+},3000);
 

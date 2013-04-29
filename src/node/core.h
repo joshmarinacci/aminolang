@@ -24,7 +24,8 @@ public:
         if(val->IsFunction()) { printf("it is a function\n"); }
         if(val->IsString()) { printf("it is a string\n"); }
         if(val->IsArray()) {    printf("it is an array\n"); }
-        if(val->IsObject()) {   printf("it is an object\n"); }
+        if(val->IsObject()) {   printf("it is an objects\n"); }
+        printf("yep it is\n");
         if(val->IsBoolean()) {  printf("it is a boolean\n");  }
         if(val->IsNumber()) {  printf("it is a number\n");  }
         if(val->IsExternal()) {  printf("it is external\n");  }
@@ -205,12 +206,15 @@ public:
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
         Local<Value> arg(args[0]);
         dumpValue(arg);
+        printf("looking at the buffer\n");
         if(Buffer::HasInstance(args[0])) {
 			Handle<Object> other = args[0]->ToObject();
             //size_t length = Buffer::Length(other);
             char* data = (char*) Buffer::Data(other);
+            printf("looking at the numbers\n");
             int w = (int)(args[1]->ToNumber()->NumberValue());
             int h = (int)(args[2]->ToNumber()->NumberValue());
+            printf("setting\n");
             self->setFontData(data,w,h);
         }
         return scope.Close(Undefined());        

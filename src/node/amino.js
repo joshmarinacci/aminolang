@@ -35,10 +35,12 @@ if(OS == "MAC") {
     PNG = require('png-js');
     FONT_IMAGE_PATH = "./tests/font2.png";
 } else {
-    generated = require('/data/node/out.js');
-    amino = require('/data/node/aminonative');
-    PNG = require('/data/node/png-node.js');
-    FONT_IMAGE_PATH = "/data/node/font2.png";
+    console.log("about to load amino");
+    amino = require('/data/phonetest/aminonative');
+    console.log("loaded up here");
+    generated = require('/data/phonetest/out.js');
+    PNG = require('/data/phonetest/png-node.js');
+    FONT_IMAGE_PATH = "/data/phonetest/font2.png";
 }
 
 var Point = generated.Point;
@@ -273,6 +275,12 @@ function JSStage() {
             this.fireEvent(event)
         }
         this.mouselast = point;        
+        
+        //send a second drag to the stage just for swipe events
+        if(type == "DRAG") {
+            event.target = this;
+            this.fireEvent(event);
+        }
     }
     function fromScreenCoords(point) {
         var x = point.x;

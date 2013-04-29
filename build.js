@@ -348,6 +348,34 @@ function jogltest(cb) {
     doExec("java -cp " + classpath.join(":") + " General", cb);
 }
 
+function devicephone(cb) {
+    console.log("doing the device phone");
+    //copy amino.js and out.js to build dir
+    //copy font2.png and other resources
+    var out = outdir+"/"+"devicephone";
+    jb.mkdir(out);
+    var src = "src/node/";
+    copyFileTo(src+"amino.js",out);
+    copyFileTo(src+"out.js",out);
+    copyFileTo("tests/font2.png",out);
+    copyFileTo("tests/phone3.js",out);
+    copyFileTo("tests/phone3.json",out);
+    
+    
+    var dirs = fs.readdirSync(out);
+    console.log(dirs);
+    doExec("adb push " + out + " /data/phonetest");
+    var modout = out + "/node_modules";
+    jb.mkdir(modout);
+    copyFileTo("node_modules/xml2js/lib/xml2js.js",modout);
+    copyFileTo("node_modules/xml2js/node_Modules/sax/lib/sax.js",modout);
+    doExec("adb push " + modout + " /data/phonetest/node_modules");
+    
+}
+
+
+
+
 function help(cb) {
     p("Available commands");
     var keys = Object.keys(tasks);
@@ -374,6 +402,8 @@ tasks = {
     cppgen:         new Task(cppgen,         [],                      "Generate C++ Core"),
     
     langtest:       new Task(langtest,       [],                      "Test AminoLang itself"),
+    
+    devicephone:    new Task(devicephone,    [],                      "Device Phone"),
 }
 
 if(!command) {

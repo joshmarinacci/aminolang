@@ -28,7 +28,7 @@ var amino;
 var PNG;
 var FONT_IMAGE_PATH;
 
-var OS = "MAC";
+var OS = "KLAATU";
 if(OS == "MAC") {
     generated = require('./out.js');
     amino = require('../../build/Release/amino.node');
@@ -1198,13 +1198,16 @@ var SceneParser = function() {
 
 core.windowCreated = false;
 
+var log = function(s) {
+    console.log(s);
+}
+
 core.start = function() {
     if(!this.windowCreated) {
         core.real_OpenWindow();
     }
     var drawcb = this.stage.draw;
     var eventcb = this.stage.processEvents;
-    
     core.real_Init();
     setInterval(function() {
         core.real_Repaint(drawcb,eventcb);
@@ -1213,7 +1216,6 @@ core.start = function() {
 
 core.setDevice = function(device) {
     if(device == "galaxynexus") {
-        console.log("setting to be a galaxy nexus");
         core.SCREEN_ROTATE = false;
         core.SCALE2X = true;
     }

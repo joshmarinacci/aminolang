@@ -1,7 +1,7 @@
-/*#include <ui/DisplayInfo.h>
+#include <ui/DisplayInfo.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
-*/
+
 
 #include "gfx.h"
 

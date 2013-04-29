@@ -4,9 +4,9 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 SHOW_COMMANDS         := show
 LOCAL_MODULE_TAGS     := optional
-LOCAL_MODULE          := libv8
+LOCAL_MODULE          := libv8.so
 LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
-LOCAL_SRC_FILES       := libssl.so
+LOCAL_SRC_FILES       := libssl.so libv8.so
 include $(BUILD_PREBUILT)
 
 
@@ -24,9 +24,9 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/skia/include/core \
 	bionic \
 	external/stlport/stlport \
-	external/myapps/node/src \
-	external/myapps/node/deps/uv/include \
-	external/myapps/node/deps/v8/include \
+	external/node/src \
+	external/node/deps/uv/include \
+	external/node/deps/v8/include \
 	frameworks/base/include/surfaceflinger
 LOCAL_STATIC_LIBRARIES := libcutils libc
 # libpng libz

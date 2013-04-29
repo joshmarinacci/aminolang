@@ -1,13 +1,15 @@
 var fs = require('fs');
 var url = require('url');
 var http = require('http');
-var amino = require('../src/node/amino.js');
+//var amino = require('../src/node/amino.js');
+var amino = require('./amino.js');
 var core = amino.getCore();
 var XML = require('xml2js');
-core.setDevice("mac");
+core.setDevice("galaxynexus");
+//core.setDevice("mac");
 
 var stage = core.createStage();
-var filedata = fs.readFileSync('tests/phone3.json');
+var filedata = fs.readFileSync('phone3.json');
 var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
@@ -98,6 +100,7 @@ function getWeather(cb) {
     }).end();
 }
 
+/*
 setInterval(function() {
         getWeather(function(w) {
             console.log(w);
@@ -105,6 +108,7 @@ setInterval(function() {
             weather.setText(""+w+"o");
         });
 },5000);
+*/
 
 function initStatusBar() {
     var time = stage.find("sbTime");

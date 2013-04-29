@@ -103,8 +103,10 @@ void klaatu_init_graphics(int *width, int *height)
   int status = mSession->getDisplayInfo(0, &display_info);
   *width = display_info.w;
   *height = display_info.h;
-  mControl = mSession->createSurface(
-      0, *width, *height, android::PIXEL_FORMAT_RGB_888);
+  
+  mControl = mSession->createSurface(android::String8("aminolang1"),
+      *width, *height, android::PIXEL_FORMAT_RGB_888, 0);
+  
   android::SurfaceComposerClient::openGlobalTransaction();
   mControl->setLayer(0x40000000);
   android::SurfaceComposerClient::closeGlobalTransaction();
@@ -183,6 +185,7 @@ static int winHeight;
 class KlaatuCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
+        printf("started the KlaatuCore\n");
     }
     
     
@@ -194,6 +197,7 @@ public:
 
     static v8::Handle<v8::Value> real_Init(const v8::Arguments& args) {
         HandleScope scope;
+        printf("doing real Klaatu init\n");
 
         EGLint egl_major, egl_minor;
         const char *s;
@@ -228,8 +232,6 @@ public:
         eventSingleton = new EVDispatcher();
         enable_touch(winWidth,winHeight);
 
-        //
-        
         //have to start the threadpool first or we will get no sound
         ProcessState::self()->startThreadPool();
 
@@ -257,6 +259,7 @@ public:
         loadPixelPerfect(proj, winWidth, winHeight, 500, 100, -1000);
 //        make_trans_matrix(1,0,trans);
         mul_matrix(modelView, proj, idmat);
+        
         
         
         //create a wrapper template for gfx
@@ -287,6 +290,7 @@ public:
         Local<Object> obj = point_templ->NewInstance();
         obj->SetInternalField(0, External::New(gfx));
         Handle<Value> argv[] = { obj };
+        printf("drawing\n");
         drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
         delete gfx;
 

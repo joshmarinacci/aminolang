@@ -1,6 +1,9 @@
 var fs = require('fs');
+var url = require('url');
+var http = require('http');
 var amino = require('../src/node/amino.js');
 var core = amino.getCore();
+var XML = require('xml2js');
 core.setDevice("mac");
 
 var stage = core.createStage();
@@ -68,18 +71,49 @@ function initSettings() {
     stage.on("PRESS",settings,function(e) {
         stage.addAnim(amino.anim(settings,"ty",0,-settings.getH(),300));
     });
+    var weather = stage.find("weatherText");
+    weather.setFontSize(20);
+    weather.setText("foo rainy cloudy poo");
 }
 initSettings();
 
+function getWeather(cb) {
+    var options = url.parse("http://weather.yahooapis.com/forecastrss?w=2502265&u=f");
+    options.method = 'get';
+    console.log(options);
+    http.request(options, function(res) {
+//            console.log("response = ",res);
+            var str = "";
+            res.on("data",function(d) {
+                    str = str + d;
+            });
+            res.on("end", function() {
+                //console.log("done. data = " + str);
+                XML.parseString(str, function(err, result) {
+                    var temp = result.rss.channel[0].item[0]["yweather:condition"][0].$.temp;
+                    //console.log(temp);
+                    cb(temp);
+                });
+            });
+    }).end();
+}
+
+setInterval(function() {
+        getWeather(function(w) {
+            console.log(w);
+            var weather = stage.find("weatherText");
+            weather.setText(""+w+"o");
+        });
+},5000);
 
 function initStatusBar() {
     var time = stage.find("sbTime");
-    time.setText("foo");
+    time.setText("00.00.00 00/00");
     setInterval(function(){
         var date = new Date();
         var txt = date.getHours() + "." + date.getMinutes() + "." + date.getSeconds()
         + "  " + date.getMonth() + "/"+date.getDay();
-        console.log(txt);
+        //console.log(txt);
         time.setText(txt);
     },1000);
 }

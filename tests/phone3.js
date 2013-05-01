@@ -140,6 +140,36 @@ function initApps() {
 }
 initApps();
 
+function initTodoList() {
+    var firstNames = ["Bob","Jason","Sally","Alice","Mick"];
+    var lastNames = ["Smith","Jones","Stewart","Erickson","McMacky"];
+    var contacts = [];
+    for(var i=0; i<40; i++) {
+        var first = firstNames[Math.floor(Math.random()*firstNames.length)]; 
+        var last =  lastNames[Math.floor(Math.random()*lastNames.length)]; 
+        var person = {
+            first: first,
+            last: last,
+            email: first.toLowerCase()+"@"+last.toLowerCase()+".org"
+        };
+        console.log(person);
+        contacts.push(person);
+    }
+    
+    var list = stage.find("mainlist");
+    list.listModel = contacts;
+    list.cellHeight = 50;
+    list.cellRenderer = function(gfx, item, bounds) {
+        gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
+        gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y);
+    };
+}
+initTodoList();
+
+function initContactsList() {
+}
+initContactsList();
+
 /*
 setInterval(function() {
         getWeather(function(w) {

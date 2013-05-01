@@ -50,11 +50,11 @@ function NavigationManager() {
     stage.on("WINDOWSIZE", stage, function(e) {
         for(var i in self.panels) {
             var panel = self.panels[i];
-            panel.setW(e.width).setH(e.height-50);
+            panel.setW(e.width).setH(e.height-30);
             if(panel.getParent().type == "Transform") {
                 panel.setTy(0);
             } else {
-                panel.setTy(50);
+                panel.setTy(30);
             }
         }
     });
@@ -245,6 +245,8 @@ function initTodoList() {
         var n = nouns[Math.floor(Math.random()*nouns.length)];
         todos.push({ title: i + " " + v + " " + n });
     }
+    var panel = stage.find("todoapp");
+    var details = stage.find("tododetails");
     var list = stage.find("todomainlist");
     list.listModel = todos;
     list.cellHeight = 50;
@@ -259,6 +261,15 @@ function initTodoList() {
     stage.on("SELECT",list,function(e) {
         //console.log("selected " + e.index);
         selectedIndex = e.index;
+        nav.push("showTodoDetails");
+    });
+    
+    nav.register(panel);
+    nav.register(details);
+    details.setVisible(false);
+    nav.createTransition("showTodoDetails",panel,details,"easeIn");
+    stage.on("PRESS",stage.find("todoDetailsCloseButton"),function() {
+            nav.pop();
     });
 }
 initTodoList();

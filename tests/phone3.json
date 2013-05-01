@@ -82,13 +82,13 @@
            "type":"AnchorPanel"
           ,"id":"settings"
           ,"anchorLeft":true
-          ,"w":320.0
-          ,"fill":"#00711c"
+          ,"w":324.0
+          ,"fill":"#ffe3f8"
           ,"anchorTop":true
           ,"ty":0.0
           ,"anchorRight":false
           ,"tx":343.0
-          ,"h":133.0
+          ,"h":164.0
           ,"anchorBottom":false
             ,"children":[
                {
@@ -168,6 +168,36 @@
               }
             ]
           }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"tododetails"
+          ,"anchorLeft":true
+          ,"h":300.0
+          ,"w":300.0
+          ,"fill":"#c6ffd5"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@6ad89088"
+          ,"ty":164.0
+          ,"anchorRight":false
+          ,"tx":355.0
+            ,"children":[
+               {
+               "type":"PushButton"
+              ,"id":"todoDetailsCloseButton"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"back"
+              ,"h":42.0
+              ,"w":117.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"tx":0.0
+              ,"anchorRight":false
+              }
+            ]
+          }
         ]
       }
       ,{
@@ -210,8 +240,8 @@
               ,"w":300.0
               ,"anchorTop":true
               ,"ty":30.0
-              ,"anchorRight":true
               ,"tx":0.0
+              ,"anchorRight":true
               ,"cellWidth":30.0
               ,"h":380.0
               ,"layout":"vert"

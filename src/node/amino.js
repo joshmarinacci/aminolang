@@ -161,14 +161,19 @@ function JSStage() {
     
     var imageLoaded = false;
     var self = this;
+    var repaintTimer = new SpeedTimer("Stage.draw");
     this.draw = function(gfx)  {
+        repaintTimer.start();        
         if(!imageLoaded && pixel_data != null) {
             gfx.setFontData(pixel_data,1121,34);
             imageLoaded = true;
         }
+        
         self.processAnims();
         if(core.SCALE2X) gfx.scale(2,2);
         self.draw_helper(gfx,self.root);
+        
+        repaintTimer.end();
     }
     
     this.draw_helper = function(ctx, root) {
@@ -1245,6 +1250,39 @@ var log = function(s) {
     console.log(s);
 }
 
+function SpeedTimer(title) {
+    this.count = 0;
+    this.title = title;
+    this.startTime = new Date().getTime();
+    this.pulse = function() {
+        this.count++;
+        if(this.count >= 10) {
+            var time = new Date().getTime();
+            var dt = time-this.startTime;
+            console.log(title + " " + (dt/10) + "msec / frame");
+            this.count = 0;
+            this.startTime = time;
+        }
+    }
+    this.cstart = 0;
+    this.accum = 0;
+    this.start = function() {
+        this.cstart = new Date().getTime();
+    }
+    this.end = function() {
+        this.accum += (new Date().getTime() - this.cstart);
+        this.check();
+    }
+    this.check = function() {
+        this.count++;
+        if(this.count >= 10) {
+            console.log(title +"  : " + this.accum/10 + " ms/frame");
+            this.count = 0;
+            this.accum = 0;
+        }
+    }
+}
+
 core.start = function() {
     if(!this.windowCreated) {
         core.real_OpenWindow();
@@ -1257,7 +1295,9 @@ core.start = function() {
         core.stage.fireEvent({type:"WINDOWSIZE",width:core.stage.width, height:core.stage.height, target: core.stage});
     }
     
+    var tim = new SpeedTimer("fps");
     setInterval(function() {
+        tim.pulse();
         core.real_Repaint(drawcb,eventcb);
     },0)
 }

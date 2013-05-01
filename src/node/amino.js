@@ -263,6 +263,10 @@ function JSStage() {
         }
         if(type == "DRAG") {
             event.delta = point.minus(this.mouselast);
+            if(core.SCALE2X) {
+                event.delta.x = event.delta.x/2;
+                event.delta.y = event.delta.y/2;
+            }
             event.point = point;
         }
         
@@ -1248,12 +1252,18 @@ core.start = function() {
     var drawcb = this.stage.draw;
     var eventcb = this.stage.processEvents;
     core.real_Init();
+    //send one windowsize event on phones
+    if(core.device == "galaxynexus") {
+        core.stage.fireEvent({type:"WINDOWSIZE",width:core.stage.width, height:core.stage.height, target: core.stage});
+    }
+    
     setInterval(function() {
         core.real_Repaint(drawcb,eventcb);
     },0)
 }
 
 core.setDevice = function(device) {
+    this.device = device;
     if(device == "galaxynexus") {
         core.SCREEN_ROTATE = false;
         core.SCALE2X = true;

@@ -777,9 +777,19 @@ JSListView = function() {
                 var y = i*this.cellHeight;
                 if(y < this.scroll-this.cellHeight) continue;
                 if(y > this.getH()+this.scroll) break;
-                gfx.fillQuadText(new Color(0,0,0), 
-                    this.listModel[i],
-                    bnds.x+10, bnds.y+3+y-this.scroll);
+                if(this.cellRenderer) {
+                    this.cellRenderer(gfx, this.listModel[i], 
+                        {
+                            x:bnds.x, 
+                            y:bnds.y+3+y-this.scroll,
+                            w:this.getW(), 
+                            h:this.cellHeight-2
+                        });
+                } else {
+                    gfx.fillQuadText(new Color(0,0,0), 
+                        this.listModel[i],
+                        bnds.x+10, bnds.y+3+y-this.scroll);
+                }
             }
             return;
         }

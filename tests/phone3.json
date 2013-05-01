@@ -13,53 +13,53 @@
                {
                "type":"PushButton"
               ,"id":"prevButton"
-              ,"anchorLeft":true
               ,"enabled":true
+              ,"anchorLeft":true
               ,"text":"prev"
+              ,"h":30.0
               ,"w":100.0
+              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":0.0
-              ,"anchorRight":false
               ,"tx":0.0
-              ,"h":30.0
-              ,"anchorBottom":false
+              ,"anchorRight":false
               }
               ,{
                "type":"PushButton"
               ,"id":"nextButton"
-              ,"anchorLeft":true
               ,"enabled":true
+              ,"anchorLeft":true
               ,"text":"next"
+              ,"h":30.0
               ,"w":100.0
+              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":0.0
-              ,"anchorRight":false
               ,"tx":200.0
-              ,"h":30.0
-              ,"anchorBottom":false
+              ,"anchorRight":false
               }
               ,{
                "type":"PushButton"
               ,"id":"settingsButton"
-              ,"anchorLeft":true
               ,"enabled":true
+              ,"anchorLeft":true
               ,"text":"settings"
+              ,"h":30.0
               ,"w":100.0
+              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":0.0
-              ,"anchorRight":false
               ,"tx":100.0
-              ,"h":30.0
-              ,"anchorBottom":false
+              ,"anchorRight":false
               }
             ]
           }
           ,{
            "type":"AnchorPanel"
-          ,"id":"id209811"
+          ,"id":"todoapp"
           ,"anchorLeft":true
-          ,"fill":"#c6ffd5"
           ,"w":300.0
+          ,"fill":"#c6ffd5"
           ,"anchorTop":true
           ,"ty":60.0
           ,"anchorRight":false
@@ -72,30 +72,15 @@
               ,"id":"id37075"
               ,"anchorLeft":true
               ,"text":"Todo List"
-              ,"h":27.0
-              ,"color":"#000000"
               ,"w":92.0
-              ,"anchorBottom":false
               ,"anchorTop":true
-              ,"fontSize":12.5
               ,"ty":3.0
+              ,"fontSize":12.5
               ,"anchorRight":false
               ,"tx":2.0
-              }
-              ,{
-               "type":"ListView"
-              ,"id":"id366139"
-              ,"anchorLeft":true
-              ,"selectedIndex":0.0
-              ,"w":300.0
-              ,"anchorTop":true
-              ,"rowheight":20.0
-              ,"ty":32.0
-              ,"tx":0.0
-              ,"anchorRight":true
-              ,"h":332.0
-              ,"anchorBottom":true
-              ,"columnWidth":100.0
+              ,"h":27.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
               ,{
                "type":"PushButton"
@@ -105,8 +90,8 @@
               ,"text":"add"
               ,"h":30.0
               ,"w":100.0
-              ,"anchorBottom":false
-              ,"anchorTop":true
+              ,"anchorBottom":true
+              ,"anchorTop":false
               ,"ty":366.0
               ,"tx":0.0
               ,"anchorRight":false
@@ -115,15 +100,31 @@
                "type":"PushButton"
               ,"id":"id986879"
               ,"enabled":true
-              ,"anchorLeft":true
+              ,"anchorLeft":false
               ,"text":"edit"
               ,"h":30.0
               ,"w":100.0
-              ,"anchorBottom":false
-              ,"anchorTop":true
+              ,"anchorBottom":true
+              ,"anchorTop":false
               ,"ty":366.0
               ,"tx":198.0
-              ,"anchorRight":false
+              ,"anchorRight":true
+              }
+              ,{
+               "type":"ListView"
+              ,"id":"mainlist"
+              ,"anchorLeft":true
+              ,"selectedIndex":0.0
+              ,"h":267.0
+              ,"cellHeight":30.0
+              ,"layout":"vert"
+              ,"w":299.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":30.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"cellWidth":30.0
               }
             ]
           }
@@ -131,8 +132,8 @@
            "type":"AnchorPanel"
           ,"id":"settings"
           ,"anchorLeft":true
-          ,"fill":"#00711c"
           ,"w":320.0
+          ,"fill":"#00711c"
           ,"anchorTop":true
           ,"ty":0.0
           ,"anchorRight":false
@@ -175,15 +176,15 @@
               ,"id":"weatherText"
               ,"anchorLeft":true
               ,"text":"Weather:"
-              ,"h":29.0
-              ,"color":"#000000"
               ,"w":297.0
-              ,"anchorBottom":false
               ,"anchorTop":true
-              ,"fontSize":12.5
               ,"ty":57.0
+              ,"fontSize":12.5
               ,"anchorRight":true
               ,"tx":11.0
+              ,"h":29.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
             ]
           }
@@ -191,30 +192,65 @@
            "type":"AnchorPanel"
           ,"id":"statusBar"
           ,"anchorLeft":true
-          ,"h":30.0
           ,"w":300.0
           ,"fill":"#a0a0a0"
-          ,"anchorBottom":false
           ,"anchorTop":true
-          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@6498a2b8"
           ,"ty":30.0
           ,"anchorRight":false
           ,"tx":0.0
+          ,"h":30.0
+          ,"anchorBottom":false
             ,"children":[
                {
                "type":"Label"
               ,"id":"sbTime"
               ,"anchorLeft":true
               ,"text":"12:00"
-              ,"h":24.0
-              ,"color":"#000000"
               ,"w":53.0
-              ,"anchorBottom":false
               ,"anchorTop":true
-              ,"fontSize":20
               ,"ty":0.0
+              ,"fontSize":12.5
               ,"anchorRight":false
               ,"tx":0.0
+              ,"h":24.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
+              }
+            ]
+          }
+        ]
+      }
+      ,{
+       "type":"Group"
+        ,"children":[
+           {
+           "type":"AnchorPanel"
+          ,"id":"contactsapp"
+          ,"anchorLeft":true
+          ,"h":454.0
+          ,"w":303.0
+          ,"fill":"#e3ffff"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@714bd064"
+          ,"ty":0.0
+          ,"anchorRight":false
+          ,"tx":0.0
+            ,"children":[
+               {
+               "type":"Label"
+              ,"id":"id990900"
+              ,"anchorLeft":true
+              ,"text":"Contacts"
+              ,"h":24.0
+              ,"color":"#000000"
+              ,"w":57.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":12.5
+              ,"ty":6.0
+              ,"anchorRight":false
+              ,"tx":6.0
               }
             ]
           }

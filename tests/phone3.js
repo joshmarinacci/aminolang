@@ -69,6 +69,10 @@ var nav = new NavigationManager();
 function initSettings() {
     var settingsButton = stage.find("settingsButton");
     var settings = stage.find("settings");
+    var p = settings.getParent();
+    p.remove(settings);
+    p.add(settings);
+    
     settings.setTx(0).setTy(-settings.getH());
     stage.on("PRESS",settingsButton, function(e) {
         stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,300));
@@ -87,7 +91,6 @@ function getWeather(cb) {
     options.method = 'get';
     console.log(options);
     http.request(options, function(res) {
-//            console.log("response = ",res);
             var str = "";
             res.on("data",function(d) {
                     str = str + d;
@@ -102,6 +105,40 @@ function getWeather(cb) {
             });
     }).end();
 }
+
+
+
+function initApps() {
+    var apps = [];
+    apps.push(stage.find("todoapp"));
+    apps.push(stage.find("contactsapp"));
+    for(var i in apps) {
+        var app = apps[i];
+        app.setW(stage.width);
+        app.setH(stage.height-70);
+        app.setTx(0);
+        app.setTy(70);
+        app.setVisible(false);
+    }
+    
+    var current = 0;
+    function update() {
+        apps.forEach(function(a) {
+            a.setVisible(false);
+        });
+        apps[current].setVisible(true);
+    }
+    update();
+    stage.on("PRESS",stage.find("nextButton"), function(e) {
+        current++;
+        update();
+    });
+    stage.on("PRESS",stage.find("prevButton"), function(e) {
+        current--;
+        update();
+    });
+}
+initApps();
 
 /*
 setInterval(function() {

@@ -277,6 +277,8 @@ public:
         point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
         point_templ->Set(String::NewSymbol("rotate"),FunctionTemplate::New(GLGFX::node_rotate)->GetFunction());
         point_templ->Set(String::NewSymbol("scale"),FunctionTemplate::New(GLGFX::node_scale)->GetFunction());
+        point_templ->Set(String::NewSymbol("enableClip"),FunctionTemplate::New(GLGFX::node_enableClip)->GetFunction());
+        point_templ->Set(String::NewSymbol("disableClip"),FunctionTemplate::New(GLGFX::node_disableClip)->GetFunction());
         
         GLGFX* gfx = new GLGFX();
         //for the nexus 7
@@ -293,6 +295,7 @@ public:
         Local<Object> obj = point_templ->NewInstance();
         obj->SetInternalField(0, External::New(gfx));
         Handle<Value> argv[] = { obj };
+                
         drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
         delete gfx;
 

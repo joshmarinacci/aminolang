@@ -736,6 +736,16 @@ JSListView = function() {
     this.scroll = 0;
     this.layout = "vert";
     this.draw = function(gfx) {
+        var bounds = this.getBounds();
+        var b = {
+            x:0,
+            y:+this.getTy()*2+40*2,
+            w:bounds.w*2,
+            h:bounds.h*2
+        }
+        gfx.enableClip(b);
+        
+        
         //border
         var border = self.getBounds();
         border.x--;
@@ -756,6 +766,7 @@ JSListView = function() {
         }
         
         this.drawCells(gfx);
+        gfx.disableClip();
     }
     this.drawCells = function(gfx) {
         if(this.layout == "horizwrap") {

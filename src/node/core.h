@@ -242,13 +242,44 @@ public:
         fontShader->setFontData(data, w, h);
     }
     
+
+    static Handle<v8::Value> node_enableClip(const v8::Arguments& args) {
+        //printf("in enable clip\n");
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        
+        //printf("checking object\n");
+        if(args[0]->IsObject()) {
+            Local<Object> bnds = args[0]->ToObject();
+            //printf("got object\n");
+            double dx = bnds->Get(String::New("x"))->NumberValue();
+            double dy = bnds->Get(String::New("y"))->NumberValue();
+            double dw = bnds->Get(String::New("w"))->NumberValue();
+            double dh = bnds->Get(String::New("h"))->NumberValue();
+            //printf("got vals: %f %f %f %f\n",dx,dy,dw,dh);
+            //self->enableClip(new Bounds(dx,dy,dw,dh));
+            glScissor(dx,dy,dw,dh);
+            glEnable(GL_SCISSOR_TEST);
+        }
+        return scope.Close(Undefined());
+    }
+    
+    static Handle<v8::Value> node_disableClip(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        //self->disableClip();
+        glDisable(GL_SCISSOR_TEST);
+        return scope.Close(Undefined());
+    }
+
+
     void fillQuadColor(float r, float g, float b, Bounds* bounds) {
         
         float x =  bounds->getX();
         float y =  bounds->getY();
         float x2 = bounds->getX()+bounds->getW();
         float y2 = bounds->getY()+bounds->getH();
-        
+
         
         GLfloat verts[6][2];
         verts[0][0] = x;

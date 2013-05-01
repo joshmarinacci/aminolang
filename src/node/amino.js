@@ -366,6 +366,9 @@ function JSStage() {
     }
     
     this.loadTexture = function(path, w, h, cb) {
+        if(!core.started) {
+            throw "Can't load a texture before core is started";
+        }
         PNG.decode(path, function(pixels) {
             var texid = amino.loadTexture(pixels,w, h);
             cb(texid);
@@ -799,7 +802,7 @@ JSListView = function() {
                             x:bnds.x, 
                             y:bnds.y+3+y-this.scroll,
                             w:this.getW(), 
-                            h:this.cellHeight-2
+                            h:this.cellHeight
                         });
                 } else {
                     gfx.fillQuadText(new Color(0,0,0), 
@@ -1283,6 +1286,7 @@ function SpeedTimer(title) {
     }
 }
 
+core.started = false;
 core.start = function() {
     if(!this.windowCreated) {
         core.real_OpenWindow();
@@ -1294,7 +1298,7 @@ core.start = function() {
     if(core.device == "galaxynexus") {
         core.stage.fireEvent({type:"WINDOWSIZE",width:core.stage.width, height:core.stage.height, target: core.stage});
     }
-    
+    core.started = true;
     var tim = new SpeedTimer("fps");
     setInterval(function() {
         tim.pulse();

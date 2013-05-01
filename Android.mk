@@ -2,9 +2,9 @@ LOCAL_PATH:= $(call my-dir)
 
 #define a prebuilt shared lib for v8
 include $(CLEAR_VARS)
-LOCAL_MODULE          := libv8xx
+LOCAL_MODULE          := libv8.so
 LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
-LOCAL_MODULE_PATH     := $(TARGET_OUT)/foo
+#LOCAL_MODULE_PATH     := $(TARGET_OUT)/foo
 LOCAL_MODULE_TAGS     := optional
 #LOCAL_SHARED_LIBRARIES := libssl.so libcrypto.so
 LOCAL_SRC_FILES       := libv8.so
@@ -34,7 +34,7 @@ LOCAL_STATIC_LIBRARIES := libcutils libc
 
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput \
-    libv8xx \
+    libv8 \
     libmedia libbinder libcutils
 #libmedia libcutils libbinder
 

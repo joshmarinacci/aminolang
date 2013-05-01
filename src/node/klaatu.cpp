@@ -104,8 +104,10 @@ void klaatu_init_graphics(int *width, int *height)
   *width = display_info.w;
   *height = display_info.h;
   
-  mControl = mSession->createSurface(android::String8("aminolang1"),
+  printf("doing surface\n");
+  mControl = mSession->createSurface(0,
       *width, *height, android::PIXEL_FORMAT_RGB_888, 0);
+  printf("done with surface s\n");
   
   android::SurfaceComposerClient::openGlobalTransaction();
   mControl->setLayer(0x40000000);
@@ -201,7 +203,7 @@ public:
 
         EGLint egl_major, egl_minor;
         const char *s;
-        
+        printf("about to init screen\n");
         klaatu_init_graphics( &winWidth, &winHeight);
         if (!mEglDisplay) {
             printf("Error: eglGetDisplay() failed\n");
@@ -257,7 +259,6 @@ public:
         make_identity_matrix(idmat);
         //loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
         loadPixelPerfect(proj, winWidth, winHeight, 500, 100, -1000);
-//        make_trans_matrix(1,0,trans);
         mul_matrix(modelView, proj, idmat);
         
         
@@ -290,7 +291,6 @@ public:
         Local<Object> obj = point_templ->NewInstance();
         obj->SetInternalField(0, External::New(gfx));
         Handle<Value> argv[] = { obj };
-        printf("drawing\n");
         drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
         delete gfx;
 
@@ -495,7 +495,7 @@ public:
         return scope.Close(Undefined());
     };
 };
-//Persistent<Function> AminoMediaPlayer::constructor;
+Persistent<Function> AminoMediaPlayer::constructor;
 
 Handle<Value> CreateMediaPlayer(const Arguments& args) {
     HandleScope scope;

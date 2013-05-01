@@ -62,7 +62,7 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 ColorShader::ColorShader() {
    static const char *fragShaderText =
    //the precision only seems to work on mobile, not desktop
-//      "precision mediump float;\n"
+      "precision mediump float;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_FragColor = v_color;\n"
@@ -129,7 +129,7 @@ FontShader::FontShader() {
       "}\n";
       
     static const char *fragShaderText =
-//      "precision mediump float;\n"
+      "precision mediump float;\n"
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "uniform vec3 color;\n"
@@ -272,7 +272,7 @@ TextureShader::TextureShader() {
       "}\n";
       
     static const char *fragShaderText =
-//      "precision mediump float;\n"
+      "precision mediump float;\n"
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "void main() {\n"

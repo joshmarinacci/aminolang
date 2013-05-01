@@ -93,11 +93,11 @@ function SwipeRecognizer(stage,cb) {
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(function() {
             //console.log("later");
-            if( startY < 150 && dy > 300 && dt < 500) {
+            if( startY < 75 && dy > 150 && dt < 500) {
                 //console.log("down swipe");
                 cb({type:"down"});
             }
-            if( startY > 1000 && dy < -250 && dt < 300) {
+            if( startY > 500 && dy < -125 && dt < 300) {
                 //console.log("up swipe");
                 cb({type:"up"});
             }
@@ -212,7 +212,7 @@ function initContactsList() {
         var first = firstNames[Math.floor(Math.random()*firstNames.length)]; 
         var last =  lastNames[Math.floor(Math.random()*lastNames.length)]; 
         var person = {
-            first: first,
+            first: i + "  " + first,
             last: last,
             email: first.toLowerCase()+"@"+last.toLowerCase()+".org"
         };
@@ -227,26 +227,39 @@ function initContactsList() {
         gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
         gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y);
     };
+    /*
+    stage.on("SELECT",list,function(e) {
+        console.log("selected",e);
+    });
+    */
 }
 initContactsList();
 
 function initTodoList() {
+    var selectedIndex = 0;
     var verbs = ["go to","buy","sell","create","throwaway"];
     var nouns = ["apple","cart","lawn","Buddy","ball"];
     var todos = [];
     for(var i=0; i<40; i++) {
         var v = verbs[Math.floor(Math.random()*verbs.length)];
         var n = nouns[Math.floor(Math.random()*nouns.length)];
-        todos.push({ title: v + " " + n });
+        todos.push({ title: i + " " + v + " " + n });
     }
     var list = stage.find("todomainlist");
     list.listModel = todos;
     list.cellHeight = 50;
     list.cellRenderer = function(gfx, item,bounds) {
-        gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
+        var color = new amino.Color(1,1,1);
+        if(item == todos[selectedIndex]) {
+            color = new amino.Color(0.5,0.5,1);
+        }
+        gfx.fillQuadColor(color,bounds);
         gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y);
     };
-        
+    stage.on("SELECT",list,function(e) {
+        //console.log("selected " + e.index);
+        selectedIndex = e.index;
+    });
 }
 initTodoList();
 

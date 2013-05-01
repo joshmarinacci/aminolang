@@ -5,56 +5,6 @@
        "type":"Group"
         ,"children":[
            {
-           "type":"DynamicGroup"
-          ,"id":"fakeNav"
-          ,"translateY":-1.0
-          ,"translateX":0.0
-            ,"children":[
-               {
-               "type":"PushButton"
-              ,"id":"prevButton"
-              ,"enabled":true
-              ,"anchorLeft":true
-              ,"text":"prev"
-              ,"h":30.0
-              ,"w":100.0
-              ,"anchorBottom":false
-              ,"anchorTop":true
-              ,"ty":0.0
-              ,"tx":0.0
-              ,"anchorRight":false
-              }
-              ,{
-               "type":"PushButton"
-              ,"id":"nextButton"
-              ,"enabled":true
-              ,"anchorLeft":true
-              ,"text":"next"
-              ,"h":30.0
-              ,"w":100.0
-              ,"anchorBottom":false
-              ,"anchorTop":true
-              ,"ty":0.0
-              ,"tx":200.0
-              ,"anchorRight":false
-              }
-              ,{
-               "type":"PushButton"
-              ,"id":"settingsButton"
-              ,"enabled":true
-              ,"anchorLeft":true
-              ,"text":"settings"
-              ,"h":30.0
-              ,"w":100.0
-              ,"anchorBottom":false
-              ,"anchorTop":true
-              ,"ty":0.0
-              ,"tx":100.0
-              ,"anchorRight":false
-              }
-            ]
-          }
-          ,{
            "type":"AnchorPanel"
           ,"id":"todoapp"
           ,"anchorLeft":true
@@ -119,8 +69,8 @@
               ,"w":299.0
               ,"anchorTop":true
               ,"ty":30.0
-              ,"anchorRight":true
               ,"tx":0.0
+              ,"anchorRight":true
               ,"cellWidth":30.0
               ,"h":267.0
               ,"layout":"vert"
@@ -195,7 +145,7 @@
           ,"w":300.0
           ,"fill":"#a0a0a0"
           ,"anchorTop":true
-          ,"ty":30.0
+          ,"ty":0.0
           ,"anchorRight":false
           ,"tx":0.0
           ,"h":30.0
@@ -227,8 +177,8 @@
            "type":"AnchorPanel"
           ,"id":"contactsapp"
           ,"anchorLeft":true
-          ,"fill":"#e3ffff"
           ,"w":300.0
+          ,"fill":"#e3ffff"
           ,"anchorTop":true
           ,"ty":0.0
           ,"anchorRight":false
@@ -243,8 +193,8 @@
               ,"text":"Contacts"
               ,"w":57.0
               ,"anchorTop":true
-              ,"fontSize":12.5
               ,"ty":6.0
+              ,"fontSize":12.5
               ,"anchorRight":false
               ,"tx":6.0
               ,"h":24.0
@@ -256,16 +206,16 @@
               ,"id":"contactsmainlist"
               ,"anchorLeft":true
               ,"selectedIndex":0.0
-              ,"h":380.0
               ,"cellHeight":30.0
-              ,"layout":"vert"
               ,"w":300.0
-              ,"anchorBottom":true
               ,"anchorTop":true
               ,"ty":30.0
               ,"anchorRight":true
               ,"tx":0.0
               ,"cellWidth":30.0
+              ,"h":380.0
+              ,"layout":"vert"
+              ,"anchorBottom":true
               }
             ]
           }

@@ -92,14 +92,15 @@ function SwipeRecognizer(stage,cb) {
         //console.log("pressed it", " x/y ", e.point.x , e.point.y, "  dx/dy  ", dx, dy, "  dt", dt);
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(function() {
-            console.log("later");
-            if(
-                startY < 150 &&
-                dy > 300 &&
-                dt < 500) {
-                console.log("down swipe");
+            //console.log("later");
+            if( startY < 150 && dy > 300 && dt < 500) {
+                //console.log("down swipe");
                 cb({type:"down"});
-           }
+            }
+            if( startY > 1000 && dy < -250 && dt < 300) {
+                //console.log("up swipe");
+                cb({type:"up"});
+            }
             reset();
         },100);
     });
@@ -115,7 +116,6 @@ var nav = new NavigationManager();
 
 
 function initSettings() {
-    var settingsButton = stage.find("settingsButton");
     var settings = stage.find("settings");
     var p = settings.getParent();
     p.remove(settings);
@@ -124,14 +124,6 @@ function initSettings() {
     settings.setTx(0)
             .setTy(-settings.getH())
             .setW(stage.width);
-    
-    /*
-    stage.on("PRESS",settingsButton, function(e) {
-        stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,300));
-    });
-    stage.on("PRESS",settings,function(e) {
-        stage.addAnim(amino.anim(settings,"ty",0,-settings.getH(),300));
-    });*/
     var weather = stage.find("weatherText");
     weather.setFontSize(20);
     weather.setText("foo rainy cloudy poo");
@@ -167,9 +159,9 @@ function initApps() {
     for(var i in apps) {
         var app = apps[i];
         app.setW(stage.width);
-        app.setH(stage.height-70);
+        app.setH(stage.height-30);
         app.setTx(0);
-        app.setTy(70);
+        app.setTy(30);
         app.setVisible(false);
     }
     
@@ -181,16 +173,6 @@ function initApps() {
         apps[current].setVisible(true);
     }
     update();
-    /*
-    stage.on("PRESS",stage.find("nextButton"), function(e) {
-        current++;
-        update();
-    });
-    stage.on("PRESS",stage.find("prevButton"), function(e) {
-        current--;
-        update();
-    });
-    */
     
     var settingsOpen = false;
     sr = new SwipeRecognizer(stage,function(s){
@@ -204,22 +186,20 @@ function initApps() {
                 stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,200));
             }
         }
-            /*
-        console.log("got swipe: ",s);
-        if(s.type == "down") {
-            stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,300));
-        }
-        if(s.type == "left") {
+        if(s.type == "up") {
+            var old = current;
             current++;
-            if(current > apps.length-1) current = apps.length-1;
-            update();
+            if(current > apps.length-1) current = 0;
+            //set all visible
+            apps.forEach(function(a) {
+                a.setVisible(false);
+            });
+            
+            apps[old].setVisible(true);
+            apps[current].setVisible(true);
+            stage.addAnim(amino.anim(apps[old],"tx",0,-stage.width,300));
+            stage.addAnim(amino.anim(apps[current],"tx",stage.width,0,300));
         }
-        if(s.type == "right") {
-            current--;
-            if(current < 0) current = 0;
-            update();
-        }
-        */
     });
 }
 initApps();
@@ -280,16 +260,20 @@ setInterval(function() {
 },5000);
 */
 
+
 function initStatusBar() {
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     var time = stage.find("sbTime");
     time.setText("00.00.00 00/00");
+    time.setFontSize(25);
     setInterval(function(){
         var date = new Date();
-        var txt = date.getHours() + "." + date.getMinutes() + "." + date.getSeconds()
-        + "  " + date.getMonth() + "/"+date.getDay();
+        var txt = date.getHours() + "." + date.getMinutes() + " " + date.getSeconds()
+        + "    " + months[date.getMonth()] + " "+date.getDay() + " " + date.getFullYear();
         //console.log(txt);
         time.setText(txt);
     },1000);
+    stage.find("statusBar").setW(stage.width);
 }
 initStatusBar();
 

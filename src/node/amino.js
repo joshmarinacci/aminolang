@@ -112,6 +112,9 @@ function JSStage() {
     this.height = core.DEFAULT_HEIGHT;
     this.listeners = {};
     this.on = function(name, target, fn) {
+        if(target == null) {
+            target = this;
+        }
         if(!this.listeners[name]) {
             this.listeners[name] = [];
         }

@@ -58,12 +58,60 @@ function NavigationManager() {
             }
         }
     });
-    stage.on("DRAG", stage, function(e) {
-        console.log("drag event " + e);
+}
+
+function SwipeRecognizer(stage,cb) {
+    
+    var MAX_SWIPE_DURATION = 500;
+    var MIN_SWIPE_DISTANCE = 50;
+    
+    var started;
+    var startTime;
+    var startX;
+    var startY;
+    function reset() {
+        started = false;
+        startTime = 0;
+        startX = 0;
+        startY = 0;
+    }
+    reset();
+    
+    var lastTimeout = 0;
+    stage.on("DRAG",null,function(e) {
+        var time = Date.now();
+        if(!started) {
+            started = true;
+            startTime = time;
+            startX = e.point.x;
+            startY = e.point.y;
+        }
+        var dx = e.point.x - startX;
+        var dy = e.point.y - startY;
+        var dt = time-startTime;
+        //console.log("pressed it", " x/y ", e.point.x , e.point.y, "  dx/dy  ", dx, dy, "  dt", dt);
+        clearTimeout(lastTimeout);
+        lastTimeout = setTimeout(function() {
+            console.log("later");
+            if(
+                startY < 150 &&
+                dy > 300 &&
+                dt < 500) {
+                console.log("down swipe");
+                cb({type:"down"});
+           }
+            reset();
+        },100);
     });
 }
 
+
+
 var nav = new NavigationManager();
+
+
+
+
 
 
 function initSettings() {
@@ -73,13 +121,17 @@ function initSettings() {
     p.remove(settings);
     p.add(settings);
     
-    settings.setTx(0).setTy(-settings.getH());
+    settings.setTx(0)
+            .setTy(-settings.getH())
+            .setW(stage.width);
+    
+    /*
     stage.on("PRESS",settingsButton, function(e) {
         stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,300));
     });
     stage.on("PRESS",settings,function(e) {
         stage.addAnim(amino.anim(settings,"ty",0,-settings.getH(),300));
-    });
+    });*/
     var weather = stage.find("weatherText");
     weather.setFontSize(20);
     weather.setText("foo rainy cloudy poo");
@@ -107,7 +159,7 @@ function getWeather(cb) {
 }
 
 
-
+var sr;
 function initApps() {
     var apps = [];
     apps.push(stage.find("todoapp"));
@@ -129,6 +181,7 @@ function initApps() {
         apps[current].setVisible(true);
     }
     update();
+    /*
     stage.on("PRESS",stage.find("nextButton"), function(e) {
         current++;
         update();
@@ -136,6 +189,37 @@ function initApps() {
     stage.on("PRESS",stage.find("prevButton"), function(e) {
         current--;
         update();
+    });
+    */
+    
+    var settingsOpen = false;
+    sr = new SwipeRecognizer(stage,function(s){
+        if(s.type == "down") {
+            var settings = stage.find("settings");
+            if(settingsOpen) {
+                settingsOpen = false;
+                stage.addAnim(amino.anim(settings,"ty",0,-settings.getH(),200));
+            } else {
+                settingsOpen = true;
+                stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,200));
+            }
+        }
+            /*
+        console.log("got swipe: ",s);
+        if(s.type == "down") {
+            stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,300));
+        }
+        if(s.type == "left") {
+            current++;
+            if(current > apps.length-1) current = apps.length-1;
+            update();
+        }
+        if(s.type == "right") {
+            current--;
+            if(current < 0) current = 0;
+            update();
+        }
+        */
     });
 }
 initApps();

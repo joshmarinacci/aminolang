@@ -358,6 +358,7 @@ function devicephone(cb) {
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"out.js",out);
     copyFileTo("tests/font2.png",out);
+    copyFileTo("tests/skin.png",out);
     copyFileTo("tests/phone3.js",out);
     copyFileTo("tests/phone3.json",out);
     

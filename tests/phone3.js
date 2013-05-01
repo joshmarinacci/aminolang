@@ -16,6 +16,8 @@ stage.setRoot(root);
 
 
 
+
+
 function NavigationManager() {
     this.panels = [];
     this.register = function(panel) {
@@ -302,6 +304,11 @@ function initStatusBar() {
     stage.find("statusBar").setW(stage.width);
 }
 initStatusBar();
+
+
+stage.loadTexture("/data/phonetest/skin.png",512,512,function(texid) {
+    console.log("loaded skin png: " + texid);
+});
 
 setTimeout(function() {
     core.start();

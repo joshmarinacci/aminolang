@@ -266,9 +266,11 @@ public:
         //create a wrapper template for gfx
         Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
         point_templ->SetInternalFieldCount(1);
+        
         point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
+        point_templ->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(GLGFX::node_fillQuadTextureSlice)->GetFunction());
         point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
         point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
         point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
@@ -395,6 +397,14 @@ Handle<Value> LoadTexture(const Arguments& args) {
         int w = (int)(args[1]->ToNumber()->NumberValue());
         int h = (int)(args[2]->ToNumber()->NumberValue());
         printf("LoadTexture with image size %d x %d\n",w,h);
+        /*
+        for(int j=0; j<h; j++) {
+            for(int i=0; i<w; i++) {
+                printf("%d ",data[j*w+i]);
+            }
+            printf("\n");
+        }
+        */
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -403,6 +413,7 @@ Handle<Value> LoadTexture(const Arguments& args) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        printf("got back texture id: %d\n",texture);
         Local<Number> num = Number::New(texture);
         return scope.Close(num);
     }

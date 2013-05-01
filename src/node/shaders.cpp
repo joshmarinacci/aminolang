@@ -312,8 +312,9 @@ TextureShader::TextureShader() {
 }
 
 void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
-//    printf("doing texture shader apply\n");
+    //printf("doing texture shader apply %d\n",texid);
     glUseProgram(prog);
+    
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
     glUniform1i(attr_tex, 0);

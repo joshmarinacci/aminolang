@@ -107,6 +107,22 @@ public:
         return scope.Close(Undefined());
     }
     
+    static Handle<v8::Value> node_fillQuadTextureSlice(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        int texid  = args[0]->ToNumber()->NumberValue();
+        double sx  = args[1]->ToNumber()->NumberValue();
+        double sy  = args[2]->ToNumber()->NumberValue();
+        double sw  = args[3]->ToNumber()->NumberValue();
+        double sh  = args[4]->ToNumber()->NumberValue();
+        double dx  = args[5]->ToNumber()->NumberValue();
+        double dy  = args[6]->ToNumber()->NumberValue();
+        double dw  = args[7]->ToNumber()->NumberValue();
+        double dh  = args[8]->ToNumber()->NumberValue();
+        self->fillQuadTextureSlice(texid,sx,sy,sw,sh, dx,dy,dw,dh);
+        return scope.Close(Undefined());
+    }
+    
     //GLfloat* transform;
     GLGFX() {
         globaltx = new GLfloat[16];
@@ -286,6 +302,40 @@ public:
         float ty2 = 1;
         float tx2 = 1;
         float ty  = 0;
+        texcoords[0][0] = tx;    texcoords[0][1] = ty;
+        texcoords[1][0] = tx2;   texcoords[1][1] = ty;
+        texcoords[2][0] = tx2;   texcoords[2][1] = ty2;
+        
+        texcoords[3][0] = tx2;   texcoords[3][1] = ty2;
+        texcoords[4][0] = tx;    texcoords[4][1] = ty2;
+        texcoords[5][0] = tx;    texcoords[5][1] = ty;
+        
+        textureShader->apply(modelView, globaltx, verts, texcoords, texid);
+    }
+    void fillQuadTextureSlice(int texid, 
+        double sx, double sy, double sw, double sh,
+        double x, double y, double w, double h
+        ) {
+    
+        float x2 = x+w;
+        float y2 = y+h;
+        GLfloat verts[6][2];
+        verts[0][0] = x;    verts[0][1] = y;
+        verts[1][0] = x2;   verts[1][1] = y;
+        verts[2][0] = x2;   verts[2][1] = y2;
+        
+        verts[3][0] = x2;   verts[3][1] = y2;
+        verts[4][0] = x;    verts[4][1] = y2;
+        verts[5][0] = x;    verts[5][1] = y;
+        
+         
+        float fw = 512;
+        float fh = 512;
+        GLfloat texcoords[6][2];
+        float tx  = sx/fw;
+        float ty  = sy/fh;
+        float tx2 = (sx+sw)/fw;
+        float ty2 = (sy+sh)/fh;
         texcoords[0][0] = tx;    texcoords[0][1] = ty;
         texcoords[1][0] = tx2;   texcoords[1][1] = ty;
         texcoords[2][0] = tx2;   texcoords[2][1] = ty2;

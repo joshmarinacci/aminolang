@@ -191,20 +191,22 @@ function JSStage() {
     }
     
     this.processEvents = function(e) {
+        var x = e.x;
+        var y = e.y;
         if(e.type == "key") {
             self.processRawKeyEvent(e);
             return;
         }
         if(e.type == "press") {
-            self.processPointerEvent("PRESS", new Point(e.x,e.y));
+            self.processPointerEvent("PRESS", new Point(x,y));
             return;
         }
         if(e.type == "release") {
-            self.processPointerEvent("RELEASE", new Point(e.x,e.y));
+            self.processPointerEvent("RELEASE", new Point(x,y));
             return;
         }
         if(e.type == "drag") {
-            self.processPointerEvent("DRAG",new Point(e.x,e.y));
+            self.processPointerEvent("DRAG",new Point(x,y));
             return;
         }
         
@@ -265,7 +267,9 @@ function JSStage() {
         }
         
         var node = this.findNodeByXY(point);
-        event.point = point;
+        var pt2 = fromScreenCoords(point);
+        event.point = pt2;
+        
         if(type=="PRESS"){
             this.dragFocus = node;
             this.keyboardFocus = node;
@@ -804,7 +808,7 @@ JSListView = function() {
     this.install = function(stage) {
         var pressPoint = null;
         stage.on("PRESS", this, function(e) {
-            console.log("pressed on list at: ",e.point);
+            //console.log("pressed on list at: ",e.point);
             pressPoint = e.point;
         });
         stage.on("DRAG", this, function(e) {
@@ -837,10 +841,24 @@ JSListView = function() {
             //console.log("delta = " + dx + " " + dy);
             if(Math.abs(dx) < 5 && Math.abs(dy) < 5) {
                 //console.log("firing a selection");
-                stage.fireEvent({
+                var event = {
                     type:"SELECT",
-                    target:self
-                });
+                    target:self,
+                }
+                if(self.layout == "vert") {
+                    event.index = -99;
+                    //console.log("x = " + e.point.y + " "+ self.scroll + " " + self.getTy());
+                    var py = e.point.y -self.getTy() + self.scroll;
+                    var index = Math.round(py/self.cellHeight);
+                    //console.log("py",py,"index",index);
+                    index--;
+                    if(index < 0) index = 0;
+                    if(index > self.listModel.length-1) {
+                        index = self.listModel.length;
+                    }
+                    event.index = index;
+                }
+                stage.fireEvent(event);
             }
         });
     }

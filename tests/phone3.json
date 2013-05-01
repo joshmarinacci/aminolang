@@ -9,7 +9,7 @@
           ,"id":"todoapp"
           ,"anchorLeft":true
           ,"w":300.0
-          ,"fill":"#c6ffd5"
+          ,"fill":"#fbffe3"
           ,"anchorTop":true
           ,"ty":60.0
           ,"anchorRight":false
@@ -174,7 +174,7 @@
           ,"anchorLeft":true
           ,"h":300.0
           ,"w":300.0
-          ,"fill":"#c6ffd5"
+          ,"fill":"#fff8e3"
           ,"anchorBottom":false
           ,"anchorTop":true
           ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@6ad89088"
@@ -195,6 +195,36 @@
               ,"ty":0.0
               ,"tx":0.0
               ,"anchorRight":false
+              }
+              ,{
+               "type":"Label"
+              ,"id":"todoDetailsTitle"
+              ,"anchorLeft":true
+              ,"text":"---"
+              ,"h":48.0
+              ,"color":"#000000"
+              ,"w":290.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":30.0
+              ,"ty":80.0
+              ,"anchorRight":false
+              ,"tx":10.0
+              }
+              ,{
+               "type":"Label"
+              ,"id":"asdfasdf"
+              ,"anchorLeft":true
+              ,"text":"title"
+              ,"h":32.0
+              ,"color":"#000000"
+              ,"w":89.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":20.0
+              ,"ty":50.0
+              ,"anchorRight":false
+              ,"tx":6.0
               }
             ]
           }

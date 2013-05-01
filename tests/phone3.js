@@ -262,6 +262,8 @@ function initTodoList() {
         //console.log("selected " + e.index);
         selectedIndex = e.index;
         nav.push("showTodoDetails");
+        var title = stage.find("todoDetailsTitle");
+        title.setText(list.listModel[selectedIndex].title);
     });
     
     nav.register(panel);

@@ -10,7 +10,7 @@
                     <property name='anchorTop' value='true' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='bottom' value='-260.0' type='java.lang.Double' exported='false' visible='false' bindable='false' compound='false' list='false' masterprop='null'>                    </property>
                     <property name='class' value='com.joshondesign.treegui.modes.aminolang.Defs$VisualBase' type='java.lang.String' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop='null'>                    </property>
-                    <property name='fill' value='ffc6ffd5' type='org.joshy.gfx.draw.FlatColor' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
+                    <property name='fill' value='fffbffe3' type='org.joshy.gfx.draw.FlatColor' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='height' exportname='h' value='400.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='right' value='-100.0' type='java.lang.Double' exported='false' visible='false' bindable='false' compound='false' list='false' masterprop='null'>                    </property>
                     <property name='self' value='null' type='java.lang.Object' exported='true' visible='false' bindable='true' compound='false' list='false' masterprop=''>                    </property>
@@ -219,7 +219,7 @@
                     <property name='anchorRight' value='false' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='anchorTop' value='true' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='class' value='com.joshondesign.treegui.modes.aminolang.Defs$VisualBase' type='java.lang.String' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop='null'>                    </property>
-                    <property name='fill' value='ffc6ffd5' type='org.joshy.gfx.draw.FlatColor' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
+                    <property name='fill' value='fffff8e3' type='org.joshy.gfx.draw.FlatColor' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='height' exportname='h' value='300.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
                     <property name='self' value='null' type='java.lang.Object' exported='true' visible='false' bindable='true' compound='false' list='false' masterprop=''>                    </property>
                     <property name='translateX' exportname='tx' value='355.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                    </property>
@@ -243,6 +243,40 @@
                             <property name='width' exportname='w' value='117.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
                             <property name='right' type='java.lang.Double' value='183.0'>                            </property>
                             <property name='bottom' type='java.lang.Double' value='258.0'>                            </property>
+                            <children>                            </children>
+                        </node>
+                        <node id='todoDetailsTitle' class='com.joshondesign.treegui.modes.aminolang.Defs$VisualBase' visual='true' resize='Any' container='false' custom='false' name='Label'>
+                            <property name='anchorBottom' value='false' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='anchorLeft' value='true' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='anchorRight' value='false' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='anchorTop' value='true' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='class' value='com.joshondesign.treegui.modes.aminolang.Defs$VisualBase' type='java.lang.String' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop='null'>                            </property>
+                            <property name='color' value='ff000000' type='org.joshy.gfx.draw.FlatColor' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='fontSize' value='30.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='height' exportname='h' value='48.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='text' value='---' type='java.lang.CharSequence' exported='true' visible='true' bindable='true' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='translateX' exportname='tx' value='10.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='translateY' exportname='ty' value='80.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='width' exportname='w' value='290.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='right' type='java.lang.Double' value='0.0'>                            </property>
+                            <property name='bottom' type='java.lang.Double' value='172.0'>                            </property>
+                            <children>                            </children>
+                        </node>
+                        <node id='asdfasdf' class='com.joshondesign.treegui.modes.aminolang.Defs$VisualBase' visual='true' resize='Any' container='false' custom='false' name='Label'>
+                            <property name='anchorBottom' value='false' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='anchorLeft' value='true' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='anchorRight' value='false' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='anchorTop' value='true' type='boolean' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='class' value='com.joshondesign.treegui.modes.aminolang.Defs$VisualBase' type='java.lang.String' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop='null'>                            </property>
+                            <property name='color' value='ff000000' type='org.joshy.gfx.draw.FlatColor' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='fontSize' value='20.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='height' exportname='h' value='32.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='text' value='title' type='java.lang.CharSequence' exported='true' visible='true' bindable='true' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='translateX' exportname='tx' value='6.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='translateY' exportname='ty' value='50.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='width' exportname='w' value='89.0' type='double' exported='true' visible='true' bindable='false' compound='false' list='false' masterprop=''>                            </property>
+                            <property name='right' type='java.lang.Double' value='205.0'>                            </property>
+                            <property name='bottom' type='java.lang.Double' value='218.0'>                            </property>
                             <children>                            </children>
                         </node>
                     </children>

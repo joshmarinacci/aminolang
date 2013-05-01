@@ -119,7 +119,7 @@ function initSettings() {
     var settings = stage.find("settings");
     var p = settings.getParent();
     p.remove(settings);
-    p.add(settings);
+    stage.getRoot().add(settings);
     
     settings.setTx(0)
             .setTy(-settings.getH())

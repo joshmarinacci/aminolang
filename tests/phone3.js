@@ -237,6 +237,8 @@ function initContactsList() {
 }
 initContactsList();
 
+var skinid = 0;
+
 function initTodoList() {
     var selectedIndex = 0;
     var verbs = ["go to","buy","sell","create","throwaway"];
@@ -252,12 +254,33 @@ function initTodoList() {
     var list = stage.find("todomainlist");
     list.listModel = todos;
     list.cellHeight = 50;
+    
+    function fill9slice(gfx, id, sb, insets, db) {
+        var sxs = [sb.x, sb.x+insets.left, sb.x+sb.w-insets.right,  sb.x+sb.w];
+        var dxs = [db.x, db.x+insets.left, db.x+db.w-insets.right,  db.x+db.w];
+        var sys = [sb.y, sb.y+insets.top,  sb.y+sb.h-insets.bottom, sb.y+sb.h];
+        var dys = [db.y, db.y+insets.top,  db.y+db.h-insets.bottom, db.y+db.h];
+        for(var j=0; j<3; j++) {
+            for(var i=0; i<3; i++) {
+                gfx.fillQuadTextureSlice(id, 
+                    sxs[i], sys[j], sxs[i+1]-sxs[i], sys[j+1]-sys[j],
+                    dxs[i], dys[j], dxs[i+1]-dxs[i], dys[j+1]-dys[j] 
+                );
+            }
+        }
+    }
+    
     list.cellRenderer = function(gfx, item,bounds) {
         var color = new amino.Color(1,1,1);
         if(item == todos[selectedIndex]) {
             color = new amino.Color(0.5,0.5,1);
         }
-        gfx.fillQuadColor(color,bounds);
+        //gfx.fillQuadColor(color,bounds);
+        if(skinid > 0) {
+            var sb = {x:27,y:33,w:201,h:53};
+            var insets = { left: 10, right: 10, top: 10, bottom: 10 };
+            fill9slice(gfx,skinid, sb, insets, bounds);
+        }
         gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y);
     };
     stage.on("SELECT",list,function(e) {
@@ -305,12 +328,14 @@ function initStatusBar() {
 }
 initStatusBar();
 
-
-stage.loadTexture("/data/phonetest/skin.png",512,512,function(texid) {
-    console.log("loaded skin png: " + texid);
-});
+function postInit() {
+    stage.loadTexture("/data/phonetest/skin.png",512,512,function(texid) {
+        skinid = texid;
+    });
+}
 
 setTimeout(function() {
     core.start();
+    postInit();
 },3000);
 

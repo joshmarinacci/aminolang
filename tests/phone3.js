@@ -224,7 +224,7 @@ function initApps() {
 }
 initApps();
 
-function initTodoList() {
+function initContactsList() {
     var firstNames = ["Bob","Jason","Sally","Alice","Mick"];
     var lastNames = ["Smith","Jones","Stewart","Erickson","McMacky"];
     var contacts = [];
@@ -240,7 +240,7 @@ function initTodoList() {
         contacts.push(person);
     }
     
-    var list = stage.find("mainlist");
+    var list = stage.find("contactsmainlist");
     list.listModel = contacts;
     list.cellHeight = 50;
     list.cellRenderer = function(gfx, item, bounds) {
@@ -248,11 +248,27 @@ function initTodoList() {
         gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y);
     };
 }
-initTodoList();
-
-function initContactsList() {
-}
 initContactsList();
+
+function initTodoList() {
+    var verbs = ["go to","buy","sell","create","throwaway"];
+    var nouns = ["apple","cart","lawn","Buddy","ball"];
+    var todos = [];
+    for(var i=0; i<40; i++) {
+        var v = verbs[Math.floor(Math.random()*verbs.length)];
+        var n = nouns[Math.floor(Math.random()*nouns.length)];
+        todos.push({ title: v + " " + n });
+    }
+    var list = stage.find("todomainlist");
+    list.listModel = todos;
+    list.cellHeight = 50;
+    list.cellRenderer = function(gfx, item,bounds) {
+        gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
+        gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y);
+    };
+        
+}
+initTodoList();
 
 /*
 setInterval(function() {

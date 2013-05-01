@@ -112,19 +112,19 @@
               }
               ,{
                "type":"ListView"
-              ,"id":"mainlist"
+              ,"id":"todomainlist"
               ,"anchorLeft":true
               ,"selectedIndex":0.0
-              ,"h":267.0
               ,"cellHeight":30.0
-              ,"layout":"vert"
               ,"w":299.0
-              ,"anchorBottom":true
               ,"anchorTop":true
               ,"ty":30.0
               ,"anchorRight":true
               ,"tx":0.0
               ,"cellWidth":30.0
+              ,"h":267.0
+              ,"layout":"vert"
+              ,"anchorBottom":true
               }
             ]
           }
@@ -227,30 +227,45 @@
            "type":"AnchorPanel"
           ,"id":"contactsapp"
           ,"anchorLeft":true
-          ,"h":454.0
-          ,"w":303.0
           ,"fill":"#e3ffff"
-          ,"anchorBottom":false
+          ,"w":300.0
           ,"anchorTop":true
-          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@714bd064"
           ,"ty":0.0
           ,"anchorRight":false
           ,"tx":0.0
+          ,"h":454.0
+          ,"anchorBottom":false
             ,"children":[
                {
                "type":"Label"
               ,"id":"id990900"
               ,"anchorLeft":true
               ,"text":"Contacts"
-              ,"h":24.0
-              ,"color":"#000000"
               ,"w":57.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":12.5
               ,"ty":6.0
               ,"anchorRight":false
               ,"tx":6.0
+              ,"h":24.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
+              }
+              ,{
+               "type":"ListView"
+              ,"id":"contactsmainlist"
+              ,"anchorLeft":true
+              ,"selectedIndex":0.0
+              ,"h":380.0
+              ,"cellHeight":30.0
+              ,"layout":"vert"
+              ,"w":300.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":30.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"cellWidth":30.0
               }
             ]
           }

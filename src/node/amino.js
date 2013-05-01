@@ -108,8 +108,8 @@ for(var i=65; i<=90; i++) {
 
 
 function JSStage() {
-    this.width = 360;
-    this.height = 480;
+    this.width = core.DEFAULT_WIDTH;
+    this.height = core.DEFAULT_HEIGHT;
     this.listeners = {};
     this.on = function(name, target, fn) {
         if(!this.listeners[name]) {
@@ -1226,10 +1226,14 @@ core.setDevice = function(device) {
     if(device == "galaxynexus") {
         core.SCREEN_ROTATE = false;
         core.SCALE2X = true;
+        core.DEFAULT_WIDTH=360;
+        core.DEFAULT_HEIGHT=640;
     }
     if(device == "mac") {
         core.SCREEN_ROTATE = false;
         core.SCALE2X = false;
+        core.DEFAULT_WIDTH=640;
+        core.DEFAULT_HEIGHT=480;
     }
 }
 

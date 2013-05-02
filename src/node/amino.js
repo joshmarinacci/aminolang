@@ -1088,24 +1088,28 @@ function JSSlider() {
     }
     this.draw = function(gfx) {
         var color = new Color(0.5,0.5,0.5);
+        var bounds = self.getBounds();
         gfx.fillQuadColor(color,self.getBounds());
         color = new Color(0,0,0);
         var v = this.valueToPoint(this.value);
         var bds = { 
-            x: self.x + self.getTx(), 
-            y: self.y + self.getTy(),
+            x: bounds.x,
+            y: bounds.y,
             w: v,
-            h: self.getH()
+            h: bounds.h
         };
         gfx.fillQuadColor(color, bds);
         
     }
-    /*
-    EventManager.get().on(Events.Drag, this, function(e) {
-        var r = e.target;
-        r.setValue(r.pointToValue(e.point.x-r.getX()));
-    });
-    */
+    
+    var self = this;
+    this.install = function(stage) {
+        stage.on("DRAG", this, function(e) {
+            var r = e.target;
+            r.setValue(r.pointToValue(e.point.x-r.getTx()));
+        });
+    }
+    
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
@@ -1113,7 +1117,9 @@ function JSSlider() {
 }
 JSSlider.extend(generated.Slider);
 core.createSlider = function() {
-    return new JSSlider();
+    var comp = new JSSlider();
+    comp.install(this.stage);
+    return comp;
 }
 
 
@@ -1220,7 +1226,7 @@ var SceneParser = function() {
         "PushButton": "createPushButton",
         "ToggleButton":"createToggleButton",
         "Label":"createLabel",
-//        "Slider":Slider,
+        "Slider":"createSlider",
         "ListView":"createListView",
         "Document":"createGroup",
         "DynamicGroup":"createGroup",

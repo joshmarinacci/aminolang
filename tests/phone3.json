@@ -138,18 +138,18 @@
               }
               ,{
                "type":"Slider"
-              ,"id":"id411149"
+              ,"id":"volumeSlider"
               ,"anchorLeft":true
               ,"enabled":true
-              ,"h":24.0
-              ,"minValue":"0.0"
               ,"w":249.0
-              ,"anchorBottom":false
-              ,"value":50.0
+              ,"minValue":"0.0"
               ,"anchorTop":true
-              ,"ty":90.0
+              ,"ty":89.0
               ,"anchorRight":true
               ,"tx":70.0
+              ,"h":24.0
+              ,"anchorBottom":false
+              ,"value":50.0
               ,"maxValue":100.0
               }
               ,{
@@ -157,15 +157,15 @@
               ,"id":"id82235"
               ,"anchorLeft":true
               ,"text":"Volume"
-              ,"h":25.0
-              ,"color":"#000000"
               ,"w":55.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":12.5
               ,"ty":89.0
               ,"anchorRight":false
               ,"tx":3.0
+              ,"h":25.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
             ]
           }
@@ -203,8 +203,8 @@
            "type":"AnchorPanel"
           ,"id":"tododetails"
           ,"anchorLeft":true
-          ,"fill":"#fff8e3"
           ,"w":300.0
+          ,"fill":"#fff8e3"
           ,"anchorTop":true
           ,"ty":164.0
           ,"anchorRight":false
@@ -215,16 +215,16 @@
                {
                "type":"PushButton"
               ,"id":"todoDetailsCloseButton"
-              ,"anchorLeft":true
               ,"enabled":true
+              ,"anchorLeft":true
               ,"text":"back"
+              ,"h":42.0
               ,"w":117.0
+              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":0.0
-              ,"anchorRight":false
               ,"tx":0.0
-              ,"h":42.0
-              ,"anchorBottom":false
+              ,"anchorRight":false
               }
               ,{
                "type":"Label"
@@ -233,8 +233,8 @@
               ,"text":"---"
               ,"w":290.0
               ,"anchorTop":true
-              ,"fontSize":30.0
               ,"ty":80.0
+              ,"fontSize":30.0
               ,"anchorRight":false
               ,"tx":10.0
               ,"h":48.0
@@ -248,8 +248,8 @@
               ,"text":"title"
               ,"w":89.0
               ,"anchorTop":true
-              ,"fontSize":20.0
               ,"ty":50.0
+              ,"fontSize":20.0
               ,"anchorRight":false
               ,"tx":6.0
               ,"h":32.0
@@ -296,7 +296,7 @@
               ,"id":"contactsmainlist"
               ,"anchorLeft":true
               ,"selectedIndex":0.0
-              ,"cellHeight":30.0
+              ,"cellHeight":35.0
               ,"w":300.0
               ,"anchorTop":true
               ,"ty":30.0
@@ -306,6 +306,80 @@
               ,"h":380.0
               ,"layout":"vert"
               ,"anchorBottom":true
+              }
+            ]
+          }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"contactsDetails"
+          ,"anchorLeft":true
+          ,"h":341.0
+          ,"w":300.0
+          ,"fill":"#e3ffff"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@5094224e"
+          ,"ty":30.0
+          ,"anchorRight":false
+          ,"tx":310.0
+            ,"children":[
+               {
+               "type":"PushButton"
+              ,"id":"contactsDetailsCloseButton"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"back"
+              ,"h":30.0
+              ,"w":100.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":10.0
+              ,"tx":10.0
+              ,"anchorRight":false
+              }
+              ,{
+               "type":"Label"
+              ,"id":"contactsName"
+              ,"anchorLeft":true
+              ,"text":"name"
+              ,"h":26.0
+              ,"color":"#000000"
+              ,"w":181.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":20.0
+              ,"ty":50.0
+              ,"anchorRight":false
+              ,"tx":110.0
+              }
+              ,{
+               "type":"Rect"
+              ,"id":"id78219"
+              ,"anchorLeft":true
+              ,"h":75.0
+              ,"w":75.0
+              ,"fill":"#0000ff"
+              ,"opacity":1.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":50.0
+              ,"tx":10.0
+              ,"anchorRight":false
+              }
+              ,{
+               "type":"Label"
+              ,"id":"contactsEmail"
+              ,"anchorLeft":true
+              ,"text":"email"
+              ,"h":26.0
+              ,"color":"#000000"
+              ,"w":184.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":20.0
+              ,"ty":77.0
+              ,"anchorRight":false
+              ,"tx":109.0
               }
             ]
           }

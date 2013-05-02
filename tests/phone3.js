@@ -207,6 +207,7 @@ function initApps() {
 initApps();
 
 function initContactsList() {
+    var selectedIndex = 0;
     var firstNames = ["Bob","Jason","Sally","Alice","Mick"];
     var lastNames = ["Smith","Jones","Stewart","Erickson","McMacky"];
     var contacts = [];
@@ -229,11 +230,29 @@ function initContactsList() {
         gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
         gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y);
     };
-    /*
+    
+    var panel = stage.find("contactsapp");
+    var details = stage.find("contactsDetails");
+    console.log("details = " + details);
+    
+    nav.register(panel);
+    nav.register(details);
+    details.setVisible(false);
+    nav.createTransition("showContactsDetails",panel,details,"easeIn");
+    
     stage.on("SELECT",list,function(e) {
-        console.log("selected",e);
+        console.log("selected contacts item" + e.index);
+        selectedIndex = e.index;
+        nav.push("showContactsDetails");
+        var contact = list.listModel[selectedIndex];
+        stage.find("contactsName").setText(contact.first + " " + contact.last);
+        stage.find("contactsEmail").setText(contact.email);
     });
-    */
+    
+    stage.on("PRESS",stage.find("contactsDetailsCloseButton"),function() {
+        nav.pop();
+    });
+    
 }
 initContactsList();
 
@@ -284,7 +303,7 @@ function initTodoList() {
         gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y);
     };
     stage.on("SELECT",list,function(e) {
-        //console.log("selected " + e.index);
+        console.log("selected todo item" + e.index);
         selectedIndex = e.index;
         nav.push("showTodoDetails");
         var title = stage.find("todoDetailsTitle");

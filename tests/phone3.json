@@ -98,12 +98,12 @@
               ,"anchorLeft":true
               ,"text":"Airplane Mode"
               ,"selected":false
-              ,"h":30.0
-              ,"w":97.0
+              ,"h":41.0
+              ,"w":135.0
               ,"anchorBottom":false
               ,"anchorTop":true
-              ,"ty":10.0
-              ,"tx":10.0
+              ,"ty":5.0
+              ,"tx":5.0
               ,"anchorRight":false
               }
               ,{
@@ -113,28 +113,59 @@
               ,"anchorLeft":false
               ,"text":"Toddler Mode"
               ,"selected":false
-              ,"h":30.0
-              ,"w":100.0
+              ,"h":41.0
+              ,"w":137.0
               ,"anchorBottom":false
               ,"anchorTop":true
-              ,"ty":10.0
-              ,"tx":210.0
+              ,"ty":5.0
+              ,"tx":181.0
               ,"anchorRight":true
               }
               ,{
                "type":"Label"
               ,"id":"weatherText"
               ,"anchorLeft":true
-              ,"text":"Weather:"
+              ,"text":"weather goes here"
               ,"w":297.0
               ,"anchorTop":true
-              ,"ty":57.0
+              ,"ty":51.0
               ,"fontSize":12.5
               ,"anchorRight":true
-              ,"tx":11.0
+              ,"tx":4.0
               ,"h":29.0
               ,"color":"#000000"
               ,"anchorBottom":false
+              }
+              ,{
+               "type":"Slider"
+              ,"id":"id411149"
+              ,"anchorLeft":true
+              ,"enabled":true
+              ,"h":24.0
+              ,"minValue":"0.0"
+              ,"w":249.0
+              ,"anchorBottom":false
+              ,"value":50.0
+              ,"anchorTop":true
+              ,"ty":90.0
+              ,"anchorRight":true
+              ,"tx":70.0
+              ,"maxValue":100.0
+              }
+              ,{
+               "type":"Label"
+              ,"id":"id82235"
+              ,"anchorLeft":true
+              ,"text":"Volume"
+              ,"h":25.0
+              ,"color":"#000000"
+              ,"w":55.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":12.5
+              ,"ty":89.0
+              ,"anchorRight":false
+              ,"tx":3.0
               }
             ]
           }
@@ -172,59 +203,58 @@
            "type":"AnchorPanel"
           ,"id":"tododetails"
           ,"anchorLeft":true
-          ,"h":300.0
-          ,"w":300.0
           ,"fill":"#fff8e3"
-          ,"anchorBottom":false
+          ,"w":300.0
           ,"anchorTop":true
-          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@6ad89088"
           ,"ty":164.0
           ,"anchorRight":false
           ,"tx":355.0
+          ,"h":300.0
+          ,"anchorBottom":false
             ,"children":[
                {
                "type":"PushButton"
               ,"id":"todoDetailsCloseButton"
-              ,"enabled":true
               ,"anchorLeft":true
+              ,"enabled":true
               ,"text":"back"
-              ,"h":42.0
               ,"w":117.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":0.0
-              ,"tx":0.0
               ,"anchorRight":false
+              ,"tx":0.0
+              ,"h":42.0
+              ,"anchorBottom":false
               }
               ,{
                "type":"Label"
               ,"id":"todoDetailsTitle"
               ,"anchorLeft":true
               ,"text":"---"
-              ,"h":48.0
-              ,"color":"#000000"
               ,"w":290.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":30.0
               ,"ty":80.0
               ,"anchorRight":false
               ,"tx":10.0
+              ,"h":48.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
               ,{
                "type":"Label"
               ,"id":"asdfasdf"
               ,"anchorLeft":true
               ,"text":"title"
-              ,"h":32.0
-              ,"color":"#000000"
               ,"w":89.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":20.0
               ,"ty":50.0
               ,"anchorRight":false
               ,"tx":6.0
+              ,"h":32.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
             ]
           }

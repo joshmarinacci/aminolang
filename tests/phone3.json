@@ -148,8 +148,8 @@
               ,"anchorRight":true
               ,"tx":70.0
               ,"h":24.0
-              ,"anchorBottom":false
               ,"value":50.0
+              ,"anchorBottom":false
               ,"maxValue":100.0
               }
               ,{
@@ -159,8 +159,8 @@
               ,"text":"Volume"
               ,"w":55.0
               ,"anchorTop":true
-              ,"fontSize":12.5
               ,"ty":89.0
+              ,"fontSize":12.5
               ,"anchorRight":false
               ,"tx":3.0
               ,"h":25.0
@@ -206,7 +206,7 @@
           ,"w":300.0
           ,"fill":"#fff8e3"
           ,"anchorTop":true
-          ,"ty":164.0
+          ,"ty":200.0
           ,"anchorRight":false
           ,"tx":355.0
           ,"h":300.0
@@ -313,73 +313,169 @@
            "type":"AnchorPanel"
           ,"id":"contactsDetails"
           ,"anchorLeft":true
-          ,"h":341.0
-          ,"w":300.0
           ,"fill":"#e3ffff"
-          ,"anchorBottom":false
+          ,"w":300.0
           ,"anchorTop":true
-          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@5094224e"
           ,"ty":30.0
           ,"anchorRight":false
           ,"tx":310.0
+          ,"h":341.0
+          ,"anchorBottom":false
             ,"children":[
                {
                "type":"PushButton"
               ,"id":"contactsDetailsCloseButton"
-              ,"enabled":true
               ,"anchorLeft":true
+              ,"enabled":true
               ,"text":"back"
-              ,"h":30.0
               ,"w":100.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":10.0
-              ,"tx":10.0
               ,"anchorRight":false
+              ,"tx":10.0
+              ,"h":30.0
+              ,"anchorBottom":false
               }
               ,{
                "type":"Label"
               ,"id":"contactsName"
               ,"anchorLeft":true
               ,"text":"name"
-              ,"h":26.0
-              ,"color":"#000000"
               ,"w":181.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":20.0
               ,"ty":50.0
               ,"anchorRight":false
               ,"tx":110.0
+              ,"h":26.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
               }
               ,{
                "type":"Rect"
               ,"id":"id78219"
               ,"anchorLeft":true
-              ,"h":75.0
-              ,"w":75.0
               ,"fill":"#0000ff"
-              ,"opacity":1.0
-              ,"anchorBottom":false
+              ,"w":75.0
               ,"anchorTop":true
               ,"ty":50.0
-              ,"tx":10.0
               ,"anchorRight":false
+              ,"tx":10.0
+              ,"h":75.0
+              ,"anchorBottom":false
+              ,"opacity":1.0
               }
               ,{
                "type":"Label"
               ,"id":"contactsEmail"
               ,"anchorLeft":true
               ,"text":"email"
-              ,"h":26.0
-              ,"color":"#000000"
               ,"w":184.0
-              ,"anchorBottom":false
               ,"anchorTop":true
               ,"fontSize":20.0
               ,"ty":77.0
               ,"anchorRight":false
               ,"tx":109.0
+              ,"h":26.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
+              }
+            ]
+          }
+        ]
+      }
+      ,{
+       "type":"Group"
+        ,"children":[
+           {
+           "type":"AnchorPanel"
+          ,"id":"photosapp"
+          ,"anchorLeft":true
+          ,"h":413.0
+          ,"w":320.0
+          ,"fill":"#a0a0a0"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@355dddf2"
+          ,"ty":1.0
+          ,"anchorRight":false
+          ,"tx":1.0
+            ,"children":[
+               {
+               "type":"Label"
+              ,"id":"id613337"
+              ,"anchorLeft":true
+              ,"text":"Photos"
+              ,"h":39.0
+              ,"color":"#000000"
+              ,"w":318.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":20.0
+              ,"ty":0.0
+              ,"anchorRight":false
+              ,"tx":0.0
+              }
+              ,{
+               "type":"ListView"
+              ,"id":"photosList"
+              ,"anchorLeft":true
+              ,"selectedIndex":0.0
+              ,"h":372.0
+              ,"cellHeight":150.0
+              ,"layout":"horizwrap"
+              ,"w":320.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":40.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"cellWidth":150.0
+              }
+            ]
+          }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"photosDetails"
+          ,"anchorLeft":true
+          ,"h":413.0
+          ,"w":298.0
+          ,"fill":"#a0a0a0"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@355dddf2"
+          ,"ty":1.0
+          ,"anchorRight":false
+          ,"tx":329.0
+            ,"children":[
+               {
+               "type":"Label"
+              ,"id":"id764297"
+              ,"anchorLeft":true
+              ,"text":"the photo details go here"
+              ,"h":50.0
+              ,"color":"#000000"
+              ,"w":100.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"fontSize":20.0
+              ,"ty":150.0
+              ,"anchorRight":false
+              ,"tx":68.0
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"photoDetailsBackButton"
+              ,"enabled":true
+              ,"anchorLeft":true
+              ,"text":"Back"
+              ,"h":43.0
+              ,"w":122.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"tx":0.0
+              ,"anchorRight":false
               }
             ]
           }

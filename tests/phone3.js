@@ -1,15 +1,26 @@
 var fs = require('fs');
 var url = require('url');
 var http = require('http');
-//var amino = require('../src/node/amino.js');
-var amino = require('./amino.js');
+console.log(process.platform);
+var amino;
+if(process.platform == "darwin") {
+    amino = require('../src/node/amino.js');
+} else {
+    amino = require('./amino.js');
+}
 var core = amino.getCore();
 var XML = require('xml2js');
-core.setDevice("galaxynexus");
-//core.setDevice("mac");
+if(process.platform == "darwin") {
+    core.setDevice("mac");
+} else {
+    core.setDevice("galaxynexus");
+}
+
+
+var apppath = "tests/";
 
 var stage = core.createStage();
-var filedata = fs.readFileSync('phone3.json');
+var filedata = fs.readFileSync(apppath+'phone3.json');
 var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
@@ -158,6 +169,7 @@ function initApps() {
     var apps = [];
     apps.push(stage.find("todoapp"));
     apps.push(stage.find("contactsapp"));
+    apps.push(stage.find("photosapp"));
     for(var i in apps) {
         var app = apps[i];
         app.setW(stage.width);
@@ -219,7 +231,6 @@ function initContactsList() {
             last: last,
             email: first.toLowerCase()+"@"+last.toLowerCase()+".org"
         };
-        console.log(person);
         contacts.push(person);
     }
     
@@ -233,7 +244,6 @@ function initContactsList() {
     
     var panel = stage.find("contactsapp");
     var details = stage.find("contactsDetails");
-    console.log("details = " + details);
     
     nav.register(panel);
     nav.register(details);
@@ -241,7 +251,6 @@ function initContactsList() {
     nav.createTransition("showContactsDetails",panel,details,"easeIn");
     
     stage.on("SELECT",list,function(e) {
-        console.log("selected contacts item" + e.index);
         selectedIndex = e.index;
         nav.push("showContactsDetails");
         var contact = list.listModel[selectedIndex];
@@ -320,6 +329,49 @@ function initTodoList() {
 }
 initTodoList();
 
+var photos = [
+    { path: "tests/photos/photo1.jpg" },
+    { path: "tests/photos/photo2.jpg" },
+    { path: "tests/photos/photo3.jpg" },
+    { path: "tests/photos/photo1.jpg" },
+    { path: "tests/photos/photo2.jpg" },
+    { path: "tests/photos/photo3.jpg" },
+    { path: "tests/photos/photo1.jpg" },
+    { path: "tests/photos/photo2.jpg" },
+    { path: "tests/photos/photo3.jpg" }
+];
+
+function initPhotos() {
+    var selectedIndex = 0;
+    var list = stage.find("photosList");
+    var panel = stage.find("photosapp");
+    var details = stage.find("photosDetails");
+    nav.register(panel);
+    nav.register(details);
+    details.setVisible(false);
+    nav.createTransition("showPhotoDetails",panel,details,"easeIn");
+    stage.on("SELECT",list,function(e) {
+        console.log("selected photo item" + e.index);
+        selectedIndex = e.index;
+        nav.push("showPhotoDetails");
+//        var title = stage.find("todoDetailsTitle");
+//        title.setText(list.listModel[selectedIndex].title);
+    });
+    stage.on("PRESS",stage.find("photoDetailsBackButton"),function() {
+        nav.pop();
+    });
+    
+    //renderer for the photos
+    list.listModel = photos;
+    list.cellRenderer = function(gfx, item, bounds) {
+        gfx.fillQuadColor(new amino.Color(1,0,0.8),bounds);
+        if(item.texid) {
+            gfx.fillQuadTexture(item.texid, bounds.x, bounds.y, 150, 150);
+        }
+    };
+}
+initPhotos();
+
 /*
 setInterval(function() {
         getWeather(function(w) {
@@ -348,8 +400,14 @@ function initStatusBar() {
 initStatusBar();
 
 function postInit() {
-    stage.loadTexture("/data/phonetest/skin.png",512,512,function(texid) {
+    stage.loadTexture(apppath+"skin.png",512,512,function(texid) {
         skinid = texid;
+    });
+    photos.forEach(function(p) {
+        console.log("photo = " + p.path);
+        stage.loadTexture(p.path,150,150,function(texid) {
+                p.texid = texid;
+        });
     });
 }
 

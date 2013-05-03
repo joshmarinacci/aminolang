@@ -7,6 +7,7 @@ exports.Point = Point;
 
 var http = require('http');
 var url = require('url');
+var fs = require('fs');
 var child_process = require('child_process');
 // 'extend' is From Jo lib, by Dave Balmer
 // syntactic sugar to make it easier to extend a class
@@ -22,6 +23,15 @@ Function.prototype.extend = function(superclass, proto) {
 	}
 	*/
 };
+
+
+//String extension
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function(suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
+
 
 var generated;
 var amino;
@@ -164,9 +174,9 @@ function JSStage() {
     
     var imageLoaded = false;
     var self = this;
-    var repaintTimer = new SpeedTimer("Stage.draw");
+    //var repaintTimer = new SpeedTimer("Stage.draw");
     this.draw = function(gfx)  {
-        repaintTimer.start();        
+        //repaintTimer.start();        
         if(!imageLoaded && pixel_data != null) {
             gfx.setFontData(pixel_data,1121,34);
             imageLoaded = true;
@@ -176,7 +186,7 @@ function JSStage() {
         if(core.SCALE2X) gfx.scale(2,2);
         self.draw_helper(gfx,self.root);
         
-        repaintTimer.end();
+        //repaintTimer.end();
     }
     
     this.draw_helper = function(ctx, root) {
@@ -372,11 +382,24 @@ function JSStage() {
         if(!core.started) {
             throw "Can't load a texture before core is started";
         }
+        if(path.toLowerCase().endsWith(".jpg"))  {
+            console.log("doing a jpeg");
+            this.loadLocalJPG(path,w,h,cb);
+            return;
+        } 
         PNG.decode(path, function(pixels) {
             var texid = amino.loadTexture(pixels,w, h);
             cb(texid);
         });
     }
+    this.loadLocalJPG = function(path, w, h, cb) {
+        var buf = fs.readFileSync(path);
+        decodeImage(w,h,buf,function(err,img) {
+            var texid = amino.loadTexture(img.buffer,w,h);
+            cb(texid);
+        });
+    };
+    
     this.loadRemoteTexture = function(path, w, h, cb) {
         var options = url.parse(path);
         options.encoding = null;
@@ -1319,9 +1342,9 @@ core.start = function() {
         core.stage.fireEvent({type:"WINDOWSIZE",width:core.stage.width, height:core.stage.height, target: core.stage});
     }
     core.started = true;
-    var tim = new SpeedTimer("fps");
+    //var tim = new SpeedTimer("fps");
     setInterval(function() {
-        tim.pulse();
+        //tim.pulse();
         core.real_Repaint(drawcb,eventcb);
     },0)
 }

@@ -29,6 +29,9 @@ var PNG;
 var FONT_IMAGE_PATH;
 
 var OS = "KLAATU";
+if(process.platform == "darwin") {
+    OS = "MAC";
+}
 if(OS == "MAC") {
     generated = require('./out.js');
     amino = require('../../build/Release/amino.node');

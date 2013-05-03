@@ -32,6 +32,7 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 LOCAL_STATIC_LIBRARIES := libcutils libc
 # libpng libz
 
+LOCAL_CFLAGS = -DKLAATU
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput \
     libv8 \

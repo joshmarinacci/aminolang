@@ -6,6 +6,16 @@
 #include "shaders.h"
 #include "mathutils.h"
 
+#include <time.h>
+
+// from android samples
+/* return current time in milliseconds */
+static double now_ms(void) {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+}
+
 
 using namespace v8;
 using namespace node;
@@ -19,6 +29,44 @@ static std::stack<void*> matrixStack;
 
 class GLGFX : public node::ObjectWrap {
 public:
+    static v8::Persistent<v8::Function> constructor;
+    
+    static void Init() {
+        Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+        tpl->SetClassName(String::NewSymbol("GFX"));
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(node_fillQuadColor)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(node_fillQuadText)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(node_fillQuadTexture)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(node_fillQuadTextureSlice)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(node_setFontData)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("save"),FunctionTemplate::New(node_save)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("restore"),FunctionTemplate::New(node_restore)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("translate"),FunctionTemplate::New(node_translate)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("rotate"),FunctionTemplate::New(node_rotate)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("scale"),FunctionTemplate::New(node_scale)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("enableClip"),FunctionTemplate::New(node_enableClip)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("disableClip"),FunctionTemplate::New(node_disableClip)->GetFunction());
+        constructor = Persistent<Function>::New(tpl->GetFunction());
+    }
+    static Handle<Value> NewInstance(const Arguments& args) {
+      HandleScope scope;
+      
+      const unsigned argc = 1;
+      Handle<Value> argv[argc] = { args[0] };
+      Local<Object> instance = constructor->NewInstance(argc, argv);
+      return scope.Close(instance);
+    }
+    
+    //wrap the real constructor
+    static Handle<Value> New(const Arguments& args) {
+      HandleScope scope;
+      GLGFX* obj = new GLGFX();
+      obj->Wrap(args.This());
+      return args.This();
+    }
+    
+    
     static void dumpValue(Local<Value> val) {
         if(val.IsEmpty()) { printf("is empty\n"); }
         if(val->IsFunction()) { printf("it is a function\n"); }
@@ -380,6 +428,7 @@ public:
     
 private:
 };
+Persistent<Function> GLGFX::constructor;
 
 
 class NodeCore {

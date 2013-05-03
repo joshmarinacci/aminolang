@@ -20,6 +20,9 @@ static sp<android::SurfaceControl>        mControl;
 static sp<android::Surface>               mAndroidSurface;
 
 static int audioCount = 0;
+static double elapsedTime;
+static int elapsedCount;
+
 class MyListener : public android::MediaPlayerListener {
 public:
     android::sp<android::MediaPlayer> mp;
@@ -243,10 +246,13 @@ public:
         //startCB->Call(Context::GetCurrent()->Global(), 0, start_argv);
 
         modelView = new GLfloat[16];
+        
+        
         return scope.Close(Undefined());
     }
     
     static v8::Handle<v8::Value> real_Repaint(const v8::Arguments& args) {
+        double startTime = now_ms();
         HandleScope scope;
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
@@ -264,23 +270,8 @@ public:
         
         
         //create a wrapper template for gfx
-        Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
-        point_templ->SetInternalFieldCount(1);
-        
-        point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
-        point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
-        point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
-        point_templ->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(GLGFX::node_fillQuadTextureSlice)->GetFunction());
-        point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
-        point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
-        point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
-        point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
-        point_templ->Set(String::NewSymbol("rotate"),FunctionTemplate::New(GLGFX::node_rotate)->GetFunction());
-        point_templ->Set(String::NewSymbol("scale"),FunctionTemplate::New(GLGFX::node_scale)->GetFunction());
-        point_templ->Set(String::NewSymbol("enableClip"),FunctionTemplate::New(GLGFX::node_enableClip)->GetFunction());
-        point_templ->Set(String::NewSymbol("disableClip"),FunctionTemplate::New(GLGFX::node_disableClip)->GetFunction());
-        
-        GLGFX* gfx = new GLGFX();
+        Handle<Value> obj = GLGFX::NewInstance(args);
+        GLGFX* gfx = node::ObjectWrap::Unwrap<GLGFX>(obj->ToObject());        
         //for the nexus 7
         //gfx->translate(400,640);
         //gfx->scale(1,-1);
@@ -289,21 +280,27 @@ public:
         //for the galaxy nexus
         gfx->scale(1,-1);
         gfx->translate(-winWidth/2,-winHeight/2);
-        //gfx->scale(2,2);
         
-        
-        Local<Object> obj = point_templ->NewInstance();
-        obj->SetInternalField(0, External::New(gfx));
         Handle<Value> argv[] = { obj };
                 
         drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
-        delete gfx;
 
+        double endTime = now_ms();
+        elapsedTime += endTime-startTime;
+        elapsedCount++;
+        if(elapsedCount >= 10) {
+            printf("ctime = %f\n", elapsedTime/elapsedCount);
+            elapsedCount = 0;
+            elapsedTime = 0;
+        }
         eglSwapBuffers(mEglDisplay, mEglSurface);
         return scope.Close(Undefined());
     }
     
     static void Init() {
+        elapsedTime = 0;
+        elapsedCount = 0;
+        
         Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
         tpl->SetClassName(String::NewSymbol("Core"));
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -518,6 +515,7 @@ Handle<Value> CreateMediaPlayer(const Arguments& args) {
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     KlaatuCore::Init();
+    GLGFX::Init();
     AminoMediaPlayer::Init();
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());

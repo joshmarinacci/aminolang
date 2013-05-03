@@ -3,10 +3,13 @@ var url = require('url');
 var http = require('http');
 console.log(process.platform);
 var amino;
+var apppath = "tests/";
+
 if(process.platform == "darwin") {
     amino = require('../src/node/amino.js');
 } else {
     amino = require('./amino.js');
+    apppath = "/data/phonetest/";
 }
 var core = amino.getCore();
 var XML = require('xml2js');
@@ -17,7 +20,6 @@ if(process.platform == "darwin") {
 }
 
 
-var apppath = "tests/";
 
 var stage = core.createStage();
 var filedata = fs.readFileSync(apppath+'phone3.json');
@@ -330,15 +332,15 @@ function initTodoList() {
 initTodoList();
 
 var photos = [
-    { path: "tests/photos/photo1.jpg" },
-    { path: "tests/photos/photo2.jpg" },
-    { path: "tests/photos/photo3.jpg" },
-    { path: "tests/photos/photo1.jpg" },
-    { path: "tests/photos/photo2.jpg" },
-    { path: "tests/photos/photo3.jpg" },
-    { path: "tests/photos/photo1.jpg" },
-    { path: "tests/photos/photo2.jpg" },
-    { path: "tests/photos/photo3.jpg" }
+    { path: apppath+"/photos/photo1.jpg" },
+    { path: apppath+"/photos/photo2.jpg" },
+    { path: apppath+"/photos/photo3.jpg" },
+    { path: apppath+"/photos/photo1.jpg" },
+    { path: apppath+"/photos/photo2.jpg" },
+    { path: apppath+"/photos/photo3.jpg" },
+    { path: apppath+"/photos/photo1.jpg" },
+    { path: apppath+"/photos/photo2.jpg" },
+    { path: apppath+"/photos/photo3.jpg" }
 ];
 
 function initPhotos() {
@@ -405,9 +407,7 @@ function postInit() {
     });
     photos.forEach(function(p) {
         console.log("photo = " + p.path);
-        stage.loadTexture(p.path,150,150,function(texid) {
-                p.texid = texid;
-        });
+        //stage.loadTexture(p.path,150,150,function(texid) { p.texid = texid; });
     });
 }
 

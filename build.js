@@ -361,6 +361,11 @@ function devicephone(cb) {
     copyFileTo("tests/skin.png",out);
     copyFileTo("tests/phone3.js",out);
     copyFileTo("tests/phone3.json",out);
+    var photosdir = out+"/photos";
+    jb.mkdir(photosdir);
+    copyFileTo("tests/photos/photo1.jpg",photosdir);
+    copyFileTo("tests/photos/photo2.jpg",photosdir);
+    copyFileTo("tests/photos/photo3.jpg",photosdir);
     
     
     var dirs = fs.readdirSync(out);

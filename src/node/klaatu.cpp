@@ -466,7 +466,7 @@ GLuint blah_load_jpeg(char* filename) {
         return 0;
     }
     printf("opened\n");
-    cinfo.err = jpeg_std_error(&jerr.pub);
+    cinfo.err = jpeg_std_error(&jerr);
     //jerr.pub.error_exit = my_error_exit;
     
     /* Establish the setjmp return context for my_error_exit to use. */
@@ -527,19 +527,8 @@ GLuint blah_load_jpeg(char* filename) {
     return texture;
 }
 
-void bar_load_jpeg(void * args) {
-    printf("loading a jpeg\n");
-    
-}
 Handle<Value> LoadJpegFromBuffer(const Arguments& args) {
     HandleScope scope;
-    /*
-    uv_thread_t id;
-    int arg = 0;
-    uv_thread_create(&id, blah_load_jpeg,&arg);
-    uv_thread_join(&id);
-    */
-    
     v8::String::Utf8Value param1(args[0]->ToString());
     std::string text = std::string(*param1);    
     char * file = new char [text.length()+1];

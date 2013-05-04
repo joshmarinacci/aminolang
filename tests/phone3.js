@@ -402,12 +402,14 @@ function initStatusBar() {
 initStatusBar();
 
 function postInit() {
+    /*
     stage.loadTexture(apppath+"skin.png",512,512,function(texid) {
         skinid = texid;
     });
+    */
     photos.forEach(function(p) {
         console.log("photo = " + p.path);
-        //stage.loadTexture(p.path,150,150,function(texid) { p.texid = texid; });
+        p.texid = core.loadJpegFromBuffer(p.path);
     });
 }
 

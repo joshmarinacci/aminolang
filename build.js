@@ -352,9 +352,10 @@ function devicephone(cb) {
     console.log("doing the device phone");
     //copy amino.js and out.js to build dir
     //copy font2.png and other resources
-    var out = outdir+"/"+"devicephone";
+    var out = outdir+"/"+"devicephone/";
     jb.mkdir(out);
     var src = "src/node/";
+    copyFileTo("aminonative.node",out);
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"out.js",out);
     copyFileTo("tests/font2.png",out);

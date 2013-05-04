@@ -59,6 +59,7 @@ if(OS == "MAC") {
 var Point = generated.Point;
 var core = amino.createCore();
 core.testNative = amino.testNative;
+core.loadJpegFromBuffer = amino.loadJpegFromBuffer;
 
 var pixel_data = null;
 PNG.decode(FONT_IMAGE_PATH, function(pixels) {

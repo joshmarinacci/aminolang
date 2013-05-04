@@ -165,10 +165,27 @@ function getWeather(cb) {
     }).end();
 }
 
+function animIn(trns, soff, eoff) {
+    stage.addAnim(amino.anim(trns,"scalex",0.5,1.0,200));
+    stage.addAnim(amino.anim(trns,"scaley",0.5,1.0,200));
+    stage.addAnim(amino.anim(trns,"tx",stage.width/4+soff,0+eoff,200));
+    stage.addAnim(amino.anim(trns,"ty",stage.height/4,30,200));
+}
+
+function animOut(trns, soff, eoff) {
+    var cs = trns.getScalex();
+    var cx = trns.getTx();
+    var cy = trns.getTy();
+    stage.addAnim(amino.anim(trns,"scalex",cs,0.5,200));
+    stage.addAnim(amino.anim(trns,"scaley",cs,0.5,200));
+    stage.addAnim(amino.anim(trns,"tx",cx,stage.width/4+eoff,200));
+    stage.addAnim(amino.anim(trns,"ty",cy,stage.height/4,200));
+}
 
 var sr;
 function initApps() {
     var apps = [];
+    var trans = [];
     apps.push(stage.find("todoapp"));
     apps.push(stage.find("contactsapp"));
     apps.push(stage.find("photosapp"));
@@ -177,8 +194,17 @@ function initApps() {
         app.setW(stage.width);
         app.setH(stage.height-30);
         app.setTx(0);
-        app.setTy(30);
-        app.setVisible(false);
+        app.setTy(0);
+//        app.setVisible(false);
+        
+        var tr = core.createTransform();
+        app.setTy(0);
+        var p = app.getParent();
+        p.remove(app);
+        tr.setChild(app);
+        tr.setTy(30);
+        p.add(tr);
+        trans.push(tr);
     }
     
     var current = 0;
@@ -191,6 +217,31 @@ function initApps() {
     update();
     
     var settingsOpen = false;
+    var navOut = false;
+    var shim = core.createRect();
+    shim.setTx(0).setTy(0).setW(stage.width).setH(stage.height);
+    //disable drawing. we just want it for capturing events
+    shim.draw = function(){}
+    root.add(shim);
+    shim.setVisible(false);
+    function backIn() {
+        navOut = false;
+        shim.setVisible(false);
+        for(var i=0; i<apps.length; i++) {
+            apps[i].setVisible(true);
+            animIn(trans[i],(i-current)*stage.width*2/3,(i-current)*stage.width);
+        }
+    }
+    
+    function backOut() {
+        navOut = true;
+        shim.setVisible(true);
+        for(var i=0; i<apps.length; i++) {
+            apps[i].setVisible(true);
+            animOut(trans[i],(i-current)*stage.width,(i-current)*stage.width * 2/3);
+        }
+    }        
+    
     sr = new SwipeRecognizer(stage,function(s){
         if(s.type == "down") {
             var settings = stage.find("settings");
@@ -203,19 +254,38 @@ function initApps() {
             }
         }
         if(s.type == "up") {
-            var old = current;
-            current++;
-            if(current > apps.length-1) current = 0;
-            //set all visible
-            apps.forEach(function(a) {
-                a.setVisible(false);
-            });
-            
-            apps[old].setVisible(true);
-            apps[current].setVisible(true);
-            stage.addAnim(amino.anim(apps[old],"tx",0,-stage.width,300));
-            stage.addAnim(amino.anim(apps[current],"tx",stage.width,0,300));
+            if(navOut) {
+                backIn();
+            } else {
+                backOut();
+            }
         }
+    });
+    
+    var shimmoved = 0;
+    stage.on("DRAG", shim, function(e) {
+        for(var i=0; i<apps.length; i++) {
+            trans[i].setTx(trans[i].getTx()+e.delta.x);
+        }
+        shimmoved += e.delta.x;
+    });
+    stage.on("RELEASE", shim, function(e) {
+        if(shimmoved < -50) {
+            current++;
+            if(current > apps.length-1) current = apps.length-1;
+            backOut();
+            shimmoved = 0;
+            return;
+        }
+        if(shimmoved > 50) {
+            current--;
+            if(current < 0) current = 0;
+            backOut();
+            shimmoved = 0;
+            return;
+        }
+        shimmoved = 0;
+        backIn();
     });
 }
 initApps();

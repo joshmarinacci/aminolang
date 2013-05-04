@@ -499,20 +499,12 @@ GLuint blah_load_jpeg(char* filename) {
 
     while (cinfo.output_scanline < cinfo.output_height) {
         (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+        memcpy(data + count*row_stride, buffer[0], row_stride);
         count++;
-        for(int i=0; i<row_stride; i++) {
-            data[count*row_stride + i] = buffer[0][i];
-        }
     }
     printf("read in %d scan lines\n",count);
     printf("read in %d bytes\n",count*row_stride);
     printf("finishing the decompression\n");
-    /*
-    for(int i=0; i<30; i++) {
-        int ptr = row_stride*i;
-        printf("row %d = %d %d %d\n",i, data[ptr],data[ptr+1],data[ptr+2]);
-    }
-    */
     
     printf("loading a texture of size = %d x %d\n",w,h);
     GLuint texture;

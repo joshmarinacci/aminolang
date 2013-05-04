@@ -28,16 +28,19 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/node/src \
 	external/node/deps/uv/include \
 	external/node/deps/v8/include \
+	external/jpeg \
 	frameworks/base/include/surfaceflinger
 LOCAL_STATIC_LIBRARIES := libcutils libc
 # libpng libz
 
 LOCAL_CFLAGS = -DKLAATU
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
-LOCAL_SHARED_LIBRARIES := libEGL libGLESv2 libui libgui libutils libstlport libinput \
+LOCAL_SHARED_LIBRARIES := \
+    libEGL libGLESv2 libui libgui \
+    libutils libstlport libinput \
     libv8 \
+    libjpeg \
     libmedia libbinder libcutils
-#libmedia libcutils libbinder
 
 #include $(BUILD_EXECUTABLE)
 #building a shared lib because this is for a NodeJS addon

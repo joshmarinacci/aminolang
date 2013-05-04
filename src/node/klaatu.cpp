@@ -8,6 +8,14 @@
 #include "core.h"
 #include "klaatu_events.h"
 
+//jpeg
+extern "C" {
+    #include "jpeglib.h"
+    #include "setjmp.h"
+    #include <uv.h>
+}
+
+
 using android::sp;
 using android::ProcessState;
 using android::MediaPlayer;
@@ -420,6 +428,137 @@ Handle<Value> LoadTexture(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;	/* "public" fields */
+
+  jmp_buf setjmp_buffer;	/* for return to caller */
+};
+
+typedef struct my_error_mgr * my_error_ptr;
+METHODDEF(void)
+my_error_exit (j_common_ptr cinfo)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  my_error_ptr myerr = (my_error_ptr) cinfo->err;
+
+  /* Always display the message. */
+  /* We could postpone this until after returning, if we chose. */
+  (*cinfo->err->output_message) (cinfo);
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+
+GLuint blah_load_jpeg(char* filename) {
+//    char * filename = "/data/phonetest/photos/photo1.jpg";
+    printf("loading a jpeg\n");
+    
+    struct jpeg_decompress_struct cinfo;
+    struct my_error_mgr jerr;
+    FILE * infile;		/* source file */
+    JSAMPARRAY buffer;		/* Output row buffer */
+    int row_stride;		/* physical row width in output buffer */
+    printf("opening\n");
+    if ((infile = fopen(filename, "rb")) == NULL) {
+        fprintf(stderr, "can't open %s\n", filename);
+        return 0;
+    }
+    printf("opened\n");
+    cinfo.err = jpeg_std_error(&jerr.pub);
+    //jerr.pub.error_exit = my_error_exit;
+    
+    /* Establish the setjmp return context for my_error_exit to use. */
+    /*
+    if (setjmp(jerr.setjmp_buffer)) {
+        jpeg_destroy_decompress(&cinfo);
+        fclose(infile);
+        return;
+    }
+    */
+    
+    jpeg_create_decompress(&cinfo);
+    jpeg_stdio_src(&cinfo, infile);
+    (void) jpeg_read_header(&cinfo, TRUE);
+    (void) jpeg_start_decompress(&cinfo);
+    
+    row_stride = cinfo.output_width * cinfo.output_components;
+    printf("row stride = %d\n",row_stride);
+    buffer = (*cinfo.mem->alloc_sarray)
+        ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+        
+    int w = cinfo.output_width;
+    int h = cinfo.output_height;
+    
+    int count = 0;
+    int datalen = cinfo.output_height * row_stride;
+    printf("data len = %d\n",datalen);
+    char *data;
+    data=new char[datalen];
+
+    while (cinfo.output_scanline < cinfo.output_height) {
+        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+        count++;
+        for(int i=0; i<row_stride; i++) {
+            data[count*row_stride + i] = buffer[0][i];
+        }
+    }
+    printf("read in %d scan lines\n",count);
+    printf("read in %d bytes\n",count*row_stride);
+    printf("finishing the decompression\n");
+    /*
+    for(int i=0; i<30; i++) {
+        int ptr = row_stride*i;
+        printf("row %d = %d %d %d\n",i, data[ptr],data[ptr+1],data[ptr+2]);
+    }
+    */
+    
+    printf("loading a texture of size = %d x %d\n",w,h);
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    printf("got back texture id: %d\n",texture);
+    
+    delete [] data;
+    (void) jpeg_finish_decompress(&cinfo);
+    printf("destroying\n");
+    jpeg_destroy_decompress(&cinfo);
+    printf("closing\n");
+    //fclose(infile);
+    return texture;
+}
+
+void bar_load_jpeg(void * args) {
+    printf("loading a jpeg\n");
+    
+}
+Handle<Value> LoadJpegFromBuffer(const Arguments& args) {
+    HandleScope scope;
+    /*
+    uv_thread_t id;
+    int arg = 0;
+    uv_thread_create(&id, blah_load_jpeg,&arg);
+    uv_thread_join(&id);
+    */
+    
+    v8::String::Utf8Value param1(args[0]->ToString());
+    std::string text = std::string(*param1);    
+    char * file = new char [text.length()+1];
+    std::strcpy (file, text.c_str());
+    printf("LoadJpegFromBuffer %s\n",file);
+    GLuint texture = blah_load_jpeg(file);
+    printf("got back texture id: %d\n",texture);
+    Local<Number> num = Number::New(texture);
+    return scope.Close(num);
+}
+
 class AminoMediaPlayer : public node::ObjectWrap {
 public:
     static v8::Persistent<v8::Function> constructor;
@@ -520,6 +659,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
+    exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromBuffer)->GetFunction());
     exports->Set(String::NewSymbol("createMediaPlayer"),FunctionTemplate::New(CreateMediaPlayer)->GetFunction());
 }
 

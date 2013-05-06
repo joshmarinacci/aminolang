@@ -23,8 +23,8 @@ node build jscanvasgen
 ```
 
 This will generate `build/jscanvas/out.js` scene graph bindings. You must
-currently load that file along with the src/jscanvas files to have a valid
-library. See tests/general.html for an example of loading the file and putting
+currently load that file along with the `src/jscanvas` files to have a valid
+library. See `tests/general.html` for an example of loading the file and putting
 some shapes and widgets on the screen.
 
 Amino on the Mac desktop
@@ -43,20 +43,21 @@ node tests/general.js
 ```
 
 
-Amino on headless Android
+Amino on Android
 =========================
 
 
 Amino can be run with NodeJS on Android from the command line on developer
 unlocked devices running Android 4.1.x. It does not use Java/Dalvik and does not
 require the full Android stack. It uses OpenGL directly. Node and V8 are tricky
-to build so I've put prebuilt binaries in the prebuilt directory. To build the
-native module you must have the Android OS source setup and built on your
-machine. Copy or link `aminolang` into `android_src/external`. Cd to external
-and run `mm` to build it. You may need to link in the node JS source as well for
-the header files. Copy the resulting generated so file to the aminolang
-directory as `aminonative.node`. Run `node devicephone` to push everything over
-to your USB attached Android phone using ADB.
+to build so I've put pre-built binaries in the `prebuilt` directory. To build
+the native module you must have the Android OS source setup and built on your
+machine. Copy or link `aminolang` into `android_src/external`. Cd to
+`external/aminolang/` and run `mm` to build it. You may need to link in the
+NodeJS source as well for the header files. Copy the resulting generated `.so`
+file to the aminolang project root directory as `aminonative.node`. Run `node
+devicephone` to push everything over to your USB attached Android phone using
+ADB.
 
 Test it with:
 

@@ -8,10 +8,10 @@
 #include "core.h"
 #include "klaatu_events.h"
 
-//jpeg
 extern "C" {
     #include "jpeglib.h"
     #include "setjmp.h"
+    #include "image.h"
     #include <uv.h>
 }
 
@@ -255,6 +255,10 @@ public:
 
         modelView = new GLfloat[16];
         
+        printf("about to test a PNG image\n");
+        pngfile_to_bytes("/data/phonetest/font2.png");
+        
+        printf("finishing up with init\n");
         
         return scope.Close(Undefined());
     }
@@ -466,7 +470,7 @@ GLuint blah_load_jpeg(char* filename) {
         return 0;
     }
     printf("opened\n");
-    cinfo.err = jpeg_std_error(&jerr);
+    cinfo.err = jpeg_std_error(&jerr.pub);
     //jerr.pub.error_exit = my_error_exit;
     
     /* Establish the setjmp return context for my_error_exit to use. */
@@ -527,7 +531,7 @@ GLuint blah_load_jpeg(char* filename) {
     return texture;
 }
 
-Handle<Value> LoadJpegFromBuffer(const Arguments& args) {
+Handle<Value> LoadJpegFromFile(const Arguments& args) {
     HandleScope scope;
     v8::String::Utf8Value param1(args[0]->ToString());
     std::string text = std::string(*param1);    
@@ -535,6 +539,33 @@ Handle<Value> LoadJpegFromBuffer(const Arguments& args) {
     std::strcpy (file, text.c_str());
     printf("LoadJpegFromBuffer %s\n",file);
     GLuint texture = blah_load_jpeg(file);
+    printf("got back texture id: %d\n",texture);
+    Local<Number> num = Number::New(texture);
+    return scope.Close(num);
+}
+
+Handle<Value> LoadPngFromFile(const Arguments& args) {
+    HandleScope scope;
+    v8::String::Utf8Value param1(args[0]->ToString());
+    std::string text = std::string(*param1);    
+    char * file = new char [text.length()+1];
+    std::strcpy (file, text.c_str());
+    printf("LoadPngFromFile %s\n",file);
+    pngfile_to_bytes(file);
+    GLuint texture;
+    texture = 3;
+    /*
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    printf("got back texture id: %d\n",texture);
+    free(data);
+    */
     printf("got back texture id: %d\n",texture);
     Local<Number> num = Number::New(texture);
     return scope.Close(num);
@@ -640,7 +671,8 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
-    exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromBuffer)->GetFunction());
+    exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromFile)->GetFunction());
+    exports->Set(String::NewSymbol("loadPngFromBuffer"),FunctionTemplate::New(LoadPngFromFile)->GetFunction());
     exports->Set(String::NewSymbol("createMediaPlayer"),FunctionTemplate::New(CreateMediaPlayer)->GetFunction());
 }
 

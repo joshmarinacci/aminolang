@@ -2,6 +2,8 @@
 
 #include "core.h"
 
+#include "image.h"
+
 
 static int old_x;
 static int old_y;
@@ -240,12 +242,59 @@ Handle<Value> LoadTexture(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+Handle<Value> LoadJpegFromFile(const Arguments& args) {
+    HandleScope scope;
+    v8::String::Utf8Value param1(args[0]->ToString());
+    std::string text = std::string(*param1);    
+    char * file = new char [text.length()+1];
+    std::strcpy (file, text.c_str());
+    printf("LoadJpegFromFile %s\n",file);
+    Image* image = jpegfile_to_bytes(file);
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    printf("got back texture id: %d\n",texture);
+    free(image->data);
+    Local<Number> num = Number::New(texture);
+    return scope.Close(num);
+}
+
+Handle<Value> LoadPngFromFile(const Arguments& args) {
+    HandleScope scope;
+    v8::String::Utf8Value param1(args[0]->ToString());
+    std::string text = std::string(*param1);    
+    char * file = new char [text.length()+1];
+    std::strcpy (file, text.c_str());
+    printf("LoadPngFromFile %s\n",file);
+    Image* image = pngfile_to_bytes(file);
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    printf("got back texture id: %d\n",texture);
+    free(image->data);
+    Local<Number> num = Number::New(texture);
+    return scope.Close(num);
+}
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     MacCore::Init();
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
     exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
+    exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromFile)->GetFunction());
+    exports->Set(String::NewSymbol("loadPngFromBuffer"),FunctionTemplate::New(LoadPngFromFile)->GetFunction());
 }
 
 NODE_MODULE(amino, InitAll)

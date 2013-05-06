@@ -56,17 +56,18 @@ machine. Copy or link `aminolang` into `android_src/external`. Cd to
 `external/aminolang/` and run `mm` to build it. You may need to link in the
 NodeJS source as well for the header files. Copy the resulting generated `.so`
 file to the aminolang project root directory as `aminonative.node`. Run `node
-devicephone` to push everything over to your USB attached Android phone using
+build androidtest` to push everything over to your USB attached Android phone using
 ADB.
 
-Test it with:
+Run the demo app (a phone UI mockup) with:
 
 ```
 adb root
 adb shell
 cd /data/phonetest 
 export LD_LIBRARY_PATH=/data/phonetest
-./node nodetest.js
+chmod 755 node
+./node phone3.js
 ```
 
 

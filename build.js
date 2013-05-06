@@ -348,20 +348,28 @@ function jogltest(cb) {
     doExec("java -cp " + classpath.join(":") + " General", cb);
 }
 
-function devicephone(cb) {
-    console.log("doing the device phone");
+function androidtest(cb) {
+    console.log("copying files to the device attached with ADB");
     //copy amino.js and out.js to build dir
     //copy font2.png and other resources
     var out = outdir+"/"+"devicephone/";
     jb.mkdir(out);
     var src = "src/node/";
-    copyFileTo("aminonative.node",out);
+    //src files
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"out.js",out);
+    //native addon
+    copyFileTo("aminonative.node",out);
+    //prebuilts
+    copyFileTo("prebuilt/libv8.so",out);
+    copyFileTo("prebuilt/node",out);
+    //support resources
     copyFileTo("tests/font2.png",out);
     copyFileTo("tests/skin.png",out);
     copyFileTo("tests/phone3.js",out);
     copyFileTo("tests/phone3.json",out);
+    
+    //photos used by the phone demo
     var photosdir = out+"/photos";
     jb.mkdir(photosdir);
     copyFileTo("tests/photos/photo1.jpg",photosdir);
@@ -410,7 +418,7 @@ tasks = {
     
     langtest:       new Task(langtest,       [],                      "Test AminoLang itself"),
     
-    devicephone:    new Task(devicephone,    [],                      "Device Phone"),
+    androidtest:    new Task(androidtest,    [],                      "Device Phone"),
 }
 
 if(!command) {

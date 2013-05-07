@@ -8,9 +8,7 @@ core.setDevice("mac");
 var stage = core.createStage();
 var root = core.createGroup();
 stage.setRoot(root);
-
-//stage.setSize(1200,800);
-//manual anchor?
+//stage.setSize(1000,700);
 
 
 function setupWidgets() {
@@ -19,7 +17,7 @@ function setupWidgets() {
     function setupClock() {
         var widget = core.createGroup();
         var bg = core.createRect();
-        bg.setW(300).setH(100).setFill("#ff0000");
+        bg.setW(300).setH(100).setFill("#ff2299");
         widget.add(bg);
         var text = core.createLabel();
         text.setText("12:00").setTextColor(new amino.Color(0,0,0)).setFontSize(30);
@@ -37,7 +35,7 @@ function setupWidgets() {
     function setupWeather() {
         var widget = core.createGroup();
         var bg = core.createRect();
-        bg.setW(300).setH(100).setFill("#8800ff");
+        bg.setW(300).setH(100).setFill("#cc00ff");
         widget.add(bg);
         var text = core.createLabel();
         text.setText("abc").setFontSize(30);
@@ -56,9 +54,78 @@ function setupWidgets() {
     widgets.add(setupWeather().setTy(100));
 
     
-    var music   = core.createRect();
-    music.setW(300).setH(100).setFill("#0088ff").setTy(200);
-    widgets.add(music);
+    function setupMusic() {
+        var lib = {
+            albums: [
+                {
+                    artist: "The Beatles",
+                    name:"Yellow Submarine",
+                    tracks: [
+                        {
+                            title: "Yellow Submarine",
+                        },
+                        {
+                            title: "Hey Bulldog",
+                        },
+                        {
+                            title: "Eleanor Rigby",
+                        },
+                        {
+                            title: "Nowhere Man",
+                        }
+                    ]
+                }
+            ]
+        }
+        
+        
+        var widget = core.createGroup();
+        var bg = core.createRect();
+        bg.setW(300).setH(100).setFill("#0088ff");
+        widget.add(bg);
+        
+        var currentAlbum = lib.albums[0];
+        var currentTrack = 0;
+        
+
+        var title = core.createLabel();
+        title.setText("now playing...");
+        widget.add(title);
+        
+        function nextTrack() {
+            currentTrack++;
+            if(currentTrack > currentAlbum.tracks.length-1) {
+                currentTrack = 0;
+            }
+            title.setText(currentAlbum.tracks[currentTrack].title);
+        }
+        function prevTrack() {
+            currentTrack--;
+            if(currentTrack < 0) currentTrack = 0;
+            title.setText(currentAlbum.tracks[currentTrack].title);
+        }
+        function togglePlay() {
+        }
+        
+        
+        var play = core.createPushButton();
+        play.setText("play").setW(50).setH(28).setTx(100).setTy(40);
+        widget.add(play);
+        
+        var prev = core.createPushButton().setText("prev");
+        prev.setW(50).setH(28).setTy(40).setTx(0);
+        widget.add(prev);
+        stage.on("PRESS",prev,prevTrack);
+
+        var next = core.createPushButton().setText("next");
+        next.setW(50).setH(28).setTy(40).setTx(200);
+        widget.add(next);
+        stage.on("PRESS",next,nextTrack);
+
+        
+        return widget;
+    }
+    widgets.add(setupMusic().setTy(300));
 
     return widgets;
 }

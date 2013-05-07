@@ -32,6 +32,22 @@ if (typeof String.prototype.endsWith !== 'function') {
     };
 }
 
+function ParseRGBString(Fill) {
+    if(typeof Fill == "string") {
+        //strip off any leading #
+        if(Fill.substring(0,1) == "#") {
+            Fill = Fill.substring(1);
+        }
+        //pull out the components
+        var r = parseInt(Fill.substring(0,2),16);
+        var g = parseInt(Fill.substring(2,4),16);
+        var b = parseInt(Fill.substring(4,6),16);
+        //turn into a Color object
+        return new Color(r/255,g/255,b/255);
+    }
+    //else pass through
+    return Fill;
+}
 
 var generated;
 var amino;
@@ -493,7 +509,7 @@ function JSRect() {
         return this.fill;
     }
     this.setFill = function(Fill){
-        this.fill=Fill;
+        this.fill = ParseRGBString(Fill);
         this.markDirty();
         return this;
     }
@@ -652,7 +668,7 @@ core.createTransform = function() {
 
 JSAnchorPanel = function() {
     this.nodes = [];
-    this.fill = "#cccccc";
+    this.fill = ParseRGBString("#cccccc");
     this.isParent = function() { return true; }
     this.getChildCount = function() {
         return this.nodes.length;
@@ -661,7 +677,7 @@ JSAnchorPanel = function() {
         return this.nodes[i];
     }
     this.setFill = function(fill) {
-        this.fill = fill;
+        this.fill = ParseRGBString("#cccccc");
         return this;
     };
     this.getFill = function() {
@@ -685,22 +701,7 @@ JSAnchorPanel = function() {
         gfx.fillQuadColor(new Color(0,0,0), border);
         
         var fill = this.getFill();
-        if(typeof fill == "string") {
-            var r = parseInt(fill.substring(1,3),16);
-            var g = parseInt(fill.substring(3,5),16);
-            var b = parseInt(fill.substring(5,7),16);
-            gfx.fillQuadColor(new Color(r/255,g/255,b/255), this.getBounds());
-        } else {
-            gfx.fillQuadColor(this.getFill(),this.getBounds());
-        }
-        
-        /*
-        g.fillStyle = this.fill;
-        g.fillRect(0,0,this.getW(),this.getH());
-        g.lineWidth = 2;
-        g.strokeStyle = "black";
-        g.strokeRect(0,0,this.getW(),this.getH());
-        */
+        gfx.fillQuadColor(this.getFill(),this.getBounds());
     };    
     var self = this;
     this.getBounds = function() {
@@ -782,16 +783,8 @@ JSListView = function() {
         gfx.fillQuadColor(new Color(0,0,0), border);
         
         //background
-        var fill = "#ccffff";
-        if(typeof fill == "string") {
-            var r = parseInt(fill.substring(1,3),16);
-            var g = parseInt(fill.substring(3,5),16);
-            var b = parseInt(fill.substring(5,7),16);
-            gfx.fillQuadColor(new Color(r/255,g/255,b/255), this.getBounds());
-        } else {
-            gfx.fillQuadColor(this.getFill(),this.getBounds());
-        }
-        
+        var fill =  ParseRGBString("#ccffff");
+        gfx.fillQuadColor(fill,this.getBounds());
         this.drawCells(gfx);
         gfx.disableClip();
     }
@@ -954,7 +947,11 @@ function JSPushButton() {
         var bnds = self.getBounds();
         gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize());
     };
-    this.setBaseColor(new Color(0.5,0.5,0.5));
+    this.setBaseColor = function(base) {
+        this.baseColor = ParseRGBString(base);
+    }
+    this.setBaseColor("#888888");
+        
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
     };

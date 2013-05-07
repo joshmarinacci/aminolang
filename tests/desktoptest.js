@@ -45,8 +45,8 @@ function setupWidgets() {
         //var api_key = "9141895e44f34f36f8211b87336c6a11";
         //37.8267,-122.423
         
-        var latitude = 37.8267;
-        var longitude = -122.423;
+        var latitude = 44.051944;
+        var longitude = -123.086667;
         weather.getAt(latitude,longitude, function(json) {
             text.setText(json.currently.temperature+" degrees");
         });

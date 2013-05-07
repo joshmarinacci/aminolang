@@ -304,7 +304,6 @@ function JSStage() {
             }
             event.point = point;
         }
-        
         var node = this.findNodeByXY(point);
         var pt2 = fromScreenCoords(point);
         event.point = pt2;
@@ -375,7 +374,10 @@ function JSStage() {
                 if(ret != null) return ret;
             }
         }
-        if(node.contains(pt2)) {
+        if(!node.contains) {
+            console.log("WARNING! Node is missing contains method");
+        }
+        if(node.contains && node.contains(pt2)) {
             return node;
         }
         return null;

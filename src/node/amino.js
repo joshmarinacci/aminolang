@@ -255,7 +255,7 @@ function JSStage() {
     this.processRawKeyEvent = function(e) {
         console.log("key event:",e);
         var event = this.createEvent();
-        if(e.action == 0) {
+        if(e.action == 1) {
             event.type = "KEYPRESS";
             event.keycode = e.keycode;
             if(KEY_TO_CHAR_MAP[e.keycode]) {

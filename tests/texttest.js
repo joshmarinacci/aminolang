@@ -47,7 +47,7 @@ function TextView() {
         var code = ch.charCodeAt(0);
         var n = code-this.font.json.minchar;
         var w = this.font.json.widths[n];
-        return w;
+        return w*this.font.scale;
     }
     this.getStringWidth = function(str) {
         var len = 0;
@@ -103,7 +103,7 @@ function TextView() {
         this.lines = [];
         
         var maxW = 300;
-        var lineheight = this.font.json.height;
+        var lineheight = this.font.json.height*this.font.scale;
         console.log("line height = " + lineheight);
         var w = 0;
         var n = 0;
@@ -225,16 +225,17 @@ function TextArea() {
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
                 gfx.fillQuadText(run.color, run.text.substring(run.start,run.end), run.x, line.y,
-                    20,font.fontid
+                    font.scaledsize,font.fontid
                     );
             });
         });
         var pos = this.view.indexToXY(this.cursor.index);
+        var h = this.font.json.height* this.font.scale;
         gfx.fillQuadColor(new amino.Color(0,0,1), {
                 x: pos.x,
-                y: pos.y+10,
+                y: pos.y,
                 w: 2,
-                h: 40
+                h: this.font.json.height*this.font.scale
         });
     }
     
@@ -284,8 +285,12 @@ function TextArea() {
 }
 
 var font = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+font.basesize = font.json.size;
+font.scaledsize = 20;
+font.scale = font.scaledsize/font.basesize
+console.log("scale = " + font.scale);
 
-var nltext = "This is some text for you to read.\nIt has two lines.";
+var nltext = "This is some text for you to read. It has two lines.";
 var view = new TextArea();
 view.setNewlineText(nltext);
 view.font = font;
@@ -295,23 +300,7 @@ view.install(stage);
 stage.setRoot(view);
 
 
-/*
-var jsonfile = fs.readFileSync("tests/test1.json");
-var fontjson = JSON.parse(jsonfile);
-*/
-//var g = core.createGroup();
-//var rect = core.createRect().setW(500).setH(500).setFill("#ff0000");
-//g.add(rect);
-/*
-var label = core.createLabel();
-label.setText("Greetings Earthling!");
-label.font = font;
-g.add(label);
-stage.setRoot(g);
-*/
-
 setTimeout(function() {
     core.start();
-    //label.font = font;
 },1000);
 

@@ -115,8 +115,8 @@ void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[
 
 
 
-static int keys[] =  {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,63,72,-1,74,75,76,78,68,80,81,79,83,64,84,65,66,53,54,55,56,57,58,59,60,61,62,-1,67,-1,85,-1,-1,73,0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,69,71,70,77,82,-1,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-static double offsets[] = {0.0,15.0,17.0,16.0,35.0,15.0,52.0,17.0,71.0,13.0,86.0,12.0,100.0,17.0,119.0,18.0,139.0,18.0,159.0,7.0,168.0,6.0,176.0,15.0,193.0,12.0,207.0,22.0,231.0,18.0,251.0,19.0,272.0,14.0,288.0,19.0,309.0,15.0,326.0,13.0,341.0,13.0,356.0,17.0,375.0,14.0,391.0,22.0,415.0,14.0,431.0,13.0,446.0,14.0,462.0,13.0,477.0,15.0,494.0,11.0,507.0,15.0,524.0,13.0,539.0,8.0,549.0,13.0,564.0,15.0,581.0,6.0,589.0,6.0,597.0,13.0,612.0,6.0,620.0,22.0,644.0,15.0,661.0,14.0,677.0,15.0,694.0,15.0,711.0,10.0,723.0,11.0,736.0,8.0,746.0,15.0,763.0,12.0,777.0,19.0,798.0,13.0,813.0,12.0,827.0,11.0,840.0,14.0,856.0,14.0,872.0,14.0,888.0,14.0,904.0,14.0,920.0,14.0,936.0,14.0,952.0,14.0,968.0,14.0,984.0,14.0,1000.0,6.0,1008.0,6.0,1016.0,6.0,1024.0,9.0,1035.0,6.0,1043.0,5.0,1050.0,8.0,1060.0,8.0,1070.0,9.0,1081.0,6.0,1089.0,22.0,1113.0,16.0,1131.0,14.0,1147.0,20.0,1169.0,13.0,1184.0,18.0,1204.0,13.0,1219.0,7.0,1228.0,7.0,1237.0,11.0,1250.0,14.0,1266.0,8.0,1276.0,14.0,};
+//static int keys[] =  {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,63,72,-1,74,75,76,78,68,80,81,79,83,64,84,65,66,53,54,55,56,57,58,59,60,61,62,-1,67,-1,85,-1,-1,73,0,1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,69,71,70,77,82,-1,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+//static double offsets[] = {0.0,15.0,17.0,16.0,35.0,15.0,52.0,17.0,71.0,13.0,86.0,12.0,100.0,17.0,119.0,18.0,139.0,18.0,159.0,7.0,168.0,6.0,176.0,15.0,193.0,12.0,207.0,22.0,231.0,18.0,251.0,19.0,272.0,14.0,288.0,19.0,309.0,15.0,326.0,13.0,341.0,13.0,356.0,17.0,375.0,14.0,391.0,22.0,415.0,14.0,431.0,13.0,446.0,14.0,462.0,13.0,477.0,15.0,494.0,11.0,507.0,15.0,524.0,13.0,539.0,8.0,549.0,13.0,564.0,15.0,581.0,6.0,589.0,6.0,597.0,13.0,612.0,6.0,620.0,22.0,644.0,15.0,661.0,14.0,677.0,15.0,694.0,15.0,711.0,10.0,723.0,11.0,736.0,8.0,746.0,15.0,763.0,12.0,777.0,19.0,798.0,13.0,813.0,12.0,827.0,11.0,840.0,14.0,856.0,14.0,872.0,14.0,888.0,14.0,904.0,14.0,920.0,14.0,936.0,14.0,952.0,14.0,968.0,14.0,984.0,14.0,1000.0,6.0,1008.0,6.0,1016.0,6.0,1024.0,9.0,1035.0,6.0,1043.0,5.0,1050.0,8.0,1060.0,8.0,1070.0,9.0,1081.0,6.0,1089.0,22.0,1113.0,16.0,1131.0,14.0,1147.0,20.0,1169.0,13.0,1184.0,18.0,1204.0,13.0,1219.0,7.0,1228.0,7.0,1237.0,11.0,1250.0,14.0,1266.0,8.0,1276.0,14.0,};
 
 FontShader::FontShader() {
     static const char *vertShaderText =
@@ -139,8 +139,9 @@ FontShader::FontShader() {
       "uniform vec3 color;\n"
       "void main() {\n"
       "   vec4 texel = texture2D(tex, uv);\n"
-      "   if(texel.r > 0.9) { discard; }\n"
-      "   gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
+//      "   if(texel.r > 0.9) { discard; }\n"
+//      "   gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
+      "    gl_FragColor = vec4(texel.r,texel.g,texel.b,texel.a);\n"
       "}\n";
       
     GLuint vert = compileVertShader(vertShaderText);
@@ -173,92 +174,86 @@ FontShader::FontShader() {
     texID = texture;
 }
 
-void FontShader::setFontData(char* data, int w, int h) {
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    texID = texture;
+static void drawLetter(float tx, float ty, float tx2, float ty2,
+    float x, float y, float x2, float y2,
+    int attr_pos, int attr_texcoords, AminoFont* font
+    ) {
+
+    GLfloat texcoords[6][2];
+    texcoords[0][0] = tx;    texcoords[0][1] = ty;
+    texcoords[1][0] = tx2;   texcoords[1][1] = ty;
+    texcoords[2][0] = tx2;   texcoords[2][1] = ty2;
+    
+    texcoords[3][0] = tx2;   texcoords[3][1] = ty2;
+    texcoords[4][0] = tx;    texcoords[4][1] = ty2;
+    texcoords[5][0] = tx;    texcoords[5][1] = ty;
+    
+    glVertexAttribPointer(attr_texcoords, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
+    glEnableVertexAttribArray(attr_texcoords);
+    
+    GLfloat verts[6][2];
+    verts[0][0] = x;    verts[0][1] = y;
+    verts[1][0] = x2;   verts[1][1] = y;
+    verts[2][0] = x2;   verts[2][1] = y2;
+    
+    verts[3][0] = x2;   verts[3][1] = y2;
+    verts[4][0] = x;    verts[4][1] = y2;
+    verts[5][0] = x;    verts[5][1] = y;
+    
+    //set the vertices
+    glVertexAttribPointer(attr_pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(attr_pos);
+    //set the active texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D,font->texid);
+    //draw it
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    //break it down
+    glDisableVertexAttribArray(attr_pos);
+    glDisableVertexAttribArray(attr_texcoords);
 }
 
-void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], char* text, float offX, float offY,  float r, float g, float b, float fsize) {
+void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], 
+        char* text, float offX, float offY,  
+        float r, float g, float b, 
+        float fsize,
+        AminoFont* font
+        ) {
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
     glUniform3f(u_color, r,g,b);
     glUniform1i(attr_tex, 0);
-
-    //printf("FontShader::apply( %s %f %f, %f %f %f )\n",text,offX,offY, r, g, b);
-    float charX = 0;
-    int len = strlen(text);
     
-    float charScale = fsize/34.0;
-
+    int len = strlen(text);
+    int iw = 2153;
+    int ih = 58;
+    float scale = fsize/40.0;
+    float charx = 0;
     for(int i=0; i<len; i++) {
         int ch = text[i];
-        int n = keys[ch];
-        float cho = (float) offsets[n*2];
-        float chw = (float) offsets[n*2+1];
-        float iw = 1121;
-        float ih = 34;
+        int n = ch - font->minchar;
         
-
-        float tx  = cho/iw;
-        float ty  = 1.0-(34/ih);
-        float tx2 = (cho+chw)/iw;
-        float ty2 = 1.0-(7/ih);
-        /*
-        tx= 0;
-        ty = 1;
-        tx2 = 1;
-        ty2 = 0;
-        */
-
-        GLfloat texcoords[6][2];
-        texcoords[0][0] = tx;    texcoords[0][1] = ty;
-        texcoords[1][0] = tx2;   texcoords[1][1] = ty;
-        texcoords[2][0] = tx2;   texcoords[2][1] = ty2;
+        float tx = font->offsets[n]/iw;
+        float ty = 0;
+        float tw = font->widths[n]/iw;
+        float th = 1;
+    
+        float x = charx + offX;
+        float y = 0 + offY;
+        float w = font->widths[n];
+        float h = ih;
         
-        texcoords[3][0] = tx2;   texcoords[3][1] = ty2;
-        texcoords[4][0] = tx;    texcoords[4][1] = ty2;
-        texcoords[5][0] = tx;    texcoords[5][1] = ty;
-
-        //set the texture coordinates
-        glVertexAttribPointer(attr_texcoords, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
-        glEnableVertexAttribArray(attr_texcoords);
-
-
-        Bounds* bounds = new Bounds(charX, 0, chw*charScale, (ih-8)*charScale);
-        float x = (float)bounds->getX()+offX;
-        float y = (float)bounds->getY()+offY;
-        float x2 = (float)bounds->getX()+bounds->getW()+offX;
-        float y2 = (float)bounds->getY()+bounds->getH()+offY;
-
-        GLfloat verts[6][2];
-        verts[0][0] = x;    verts[0][1] = y;
-        verts[1][0] = x2;   verts[1][1] = y;
-        verts[2][0] = x2;   verts[2][1] = y2;
-        
-        verts[3][0] = x2;   verts[3][1] = y2;
-        verts[4][0] = x;    verts[4][1] = y2;
-        verts[5][0] = x;    verts[5][1] = y;
-        
-        //set the vertices
-        glVertexAttribPointer(attr_pos, 2, GL_FLOAT, GL_FALSE, 0, verts);
-        glEnableVertexAttribArray(attr_pos);
-        //set the active texture
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,texID);
-        //draw it
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        charX += chw*charScale;
-        glDisableVertexAttribArray(attr_pos);
-        glDisableVertexAttribArray(attr_texcoords);
+        drawLetter(
+            tx,ty,tx+tw,ty+th,
+            x,y,x+w,y+h,
+            attr_pos, attr_texcoords, font);
+        charx += w;
     }
+    glDisable(GL_BLEND);
 }
 
 

@@ -2,6 +2,7 @@
 #include <node_buffer.h>
 #include <stack>
 #include <string>
+#include <map>
 #include "common.h"
 #include "shaders.h"
 #include "mathutils.h"
@@ -34,6 +35,8 @@ static FontShader* fontShader;
 static TextureShader* textureShader;
 static std::stack<void*> matrixStack;
 
+static std::map<int,AminoFont*> fontmap;
+
 class GLGFX : public node::ObjectWrap {
 public:
     static v8::Persistent<v8::Function> constructor;
@@ -46,7 +49,6 @@ public:
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(node_fillQuadText)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(node_fillQuadTexture)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(node_fillQuadTextureSlice)->GetFunction());
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(node_setFontData)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("save"),FunctionTemplate::New(node_save)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("restore"),FunctionTemplate::New(node_restore)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("translate"),FunctionTemplate::New(node_translate)->GetFunction());
@@ -146,7 +148,13 @@ public:
             fsize = args[4]->ToNumber()->NumberValue();
         }
         
-        self->fillQuadText(cstr, x, y, r,g,b, fsize);
+        int fontid = -1;
+        AminoFont* font = NULL;
+        if(args.Length() >= 6) {
+            fontid = args[5]->ToNumber()->NumberValue();
+            font = fontmap[fontid];
+        }
+        self->fillQuadText(cstr, x, y, r,g,b, fsize, font);
         return scope.Close(Undefined());
     }
     
@@ -272,32 +280,6 @@ public:
         for (int i = 0; i < 16; i++) globaltx[i] = temp[i];
     }
     
-    static Handle<v8::Value> node_setFontData(const v8::Arguments& args) {
-        HandleScope scope;
-        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
-        Local<Value> arg(args[0]);
-        dumpValue(arg);
-        printf("looking at the buffer\n");
-        if(Buffer::HasInstance(args[0])) {
-			Handle<Object> other = args[0]->ToObject();
-            //size_t length = Buffer::Length(other);
-            char* data = (char*) Buffer::Data(other);
-            printf("looking at the numbers\n");
-            int w = (int)(args[1]->ToNumber()->NumberValue());
-            int h = (int)(args[2]->ToNumber()->NumberValue());
-            printf("setting\n");
-            self->setFontData(data,w,h);
-        }
-        return scope.Close(Undefined());        
-    }
-    
-    
-
-    void setFontData(char* data, int w, int h) {
-        fontShader->setFontData(data, w, h);
-    }
-    
-
     static Handle<v8::Value> node_enableClip(const v8::Arguments& args) {
         //printf("in enable clip\n");
         HandleScope scope;
@@ -365,8 +347,8 @@ public:
         colorShader->apply(modelView, globaltx, verts, colors);
     }
     
-    void fillQuadText(char* text, double x, double y, double r, double g, double b, double fsize) {
-        fontShader->apply(modelView, globaltx, text, x, y, r, g, b, fsize);
+    void fillQuadText(char* text, double x, double y, double r, double g, double b, double fsize, AminoFont* font) {
+        fontShader->apply(modelView, globaltx, text, x, y, r, g, b, fsize, font);
     }
     void fillQuadTexture(int texid, double x, double y, double w, double h) {
 //        float x = 0;

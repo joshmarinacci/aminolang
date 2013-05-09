@@ -25,16 +25,7 @@ Image * jpegfile_to_bytes(char* filename) {
     }
     printf("opened\n");
     cinfo.err = jpeg_std_error(&jerr);
-    //jerr.pub.error_exit = my_error_exit;
     
-    /* Establish the setjmp return context for my_error_exit to use. */
-    /*
-    if (setjmp(jerr.setjmp_buffer)) {
-        jpeg_destroy_decompress(&cinfo);
-        fclose(infile);
-        return;
-    }
-    */
     
     jpeg_create_decompress(&cinfo); 
     jpeg_stdio_src(&cinfo, infile);
@@ -101,9 +92,6 @@ Image * pngfile_to_bytes(char* file_name) {
     if (!end_ptr) abort_("[read_png_file] png_create_info_struct failed");
     
     printf("create an info struct\n");
-    
-    if (setjmp(png_jmpbuf(png_ptr)))
-        abort_("[read_png_file] Error during init_io");
         
     png_init_io(png_ptr, fp);
     png_set_sig_bytes(png_ptr, 0);
@@ -137,7 +125,8 @@ Image * pngfile_to_bytes(char* file_name) {
 //        printf("pixel: %d  %x %x %x\n",i, outData[i*4],outData[i*4+1], (unsigned)outData[i*4+2]);
 //    }
 //    free(outData);
-    return NULL;
+    
+    return img;
 }
 
 

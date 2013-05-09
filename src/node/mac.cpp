@@ -135,7 +135,6 @@ public:
         point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(GLGFX::node_fillQuadTextureSlice)->GetFunction());
-        point_templ->Set(String::NewSymbol("setFontData"),FunctionTemplate::New(GLGFX::node_setFontData)->GetFunction());
         point_templ->Set(String::NewSymbol("save"),FunctionTemplate::New(GLGFX::node_save)->GetFunction());
         point_templ->Set(String::NewSymbol("restore"),FunctionTemplate::New(GLGFX::node_restore)->GetFunction());
         point_templ->Set(String::NewSymbol("translate"),FunctionTemplate::New(GLGFX::node_translate)->GetFunction());
@@ -277,7 +276,7 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -288,6 +287,55 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
     return scope.Close(num);
 }
 
+
+Handle<Value> CreateNativeFont(const Arguments& args) {
+    printf("-------\n");
+    HandleScope scope;
+    printf("creating a native font from the font data\n");
+    AminoFont* font = new AminoFont();
+    fontmap[0] = font;
+    
+    printf("num fonts loaded = %d\n",fontmap.size());
+    int texid = args[0]->ToNumber()->NumberValue();
+    printf("texture id = %d\n",texid);
+    font->texid = texid;
+    font->minchar = args[1]->ToNumber()->NumberValue();
+    printf("min char = %d\n",font->minchar);
+    font->maxchar = args[2]->ToNumber()->NumberValue();
+    printf("max char = %d\n",font->maxchar);
+    
+    Handle<Array> included = Handle<Array>::Cast(args[3]);
+    printf("length = %d\n",included->Length());
+    printf("included 0 = %f\n",included->Get(0)->ToNumber()->NumberValue());
+    font->includedLength = included->Length();
+    font->included = new float[included->Length()];
+    for(int i=0; i<included->Length(); i++) {
+        font->included[i] = included->Get(i)->ToNumber()->NumberValue();
+    }
+    
+    Handle<Array> widths = Handle<Array>::Cast(args[4]);
+    printf("widths 0 = %f\n",widths->Get(0)->ToNumber()->NumberValue());
+    font->widthsLength = widths->Length();
+    font->widths = new float[included->Length()];
+    for(int i=0; i<widths->Length(); i++) {
+        font->widths[i] = widths->Get(i)->ToNumber()->NumberValue();
+    }
+
+    Handle<Array> offsets = Handle<Array>::Cast(args[5]);
+    printf("offsets 0 = %f\n",offsets->Get(0)->ToNumber()->NumberValue());
+    font->offsetsLength = offsets->Length();
+    font->offsets = new float[offsets->Length()];
+    for(int i=0; i<offsets->Length(); i++) {
+        font->offsets[i] = offsets->Get(i)->ToNumber()->NumberValue();
+    }
+    
+    
+    
+    printf("-------\n");
+    Local<Number> num = Number::New(0);
+    return scope.Close(num);
+}
+
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     MacCore::Init();
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
@@ -295,6 +343,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
     exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromFile)->GetFunction());
     exports->Set(String::NewSymbol("loadPngFromBuffer"),FunctionTemplate::New(LoadPngFromFile)->GetFunction());
+    exports->Set(String::NewSymbol("createNativeFont"),FunctionTemplate::New(CreateNativeFont)->GetFunction());
 }
 
 NODE_MODULE(amino, InitAll)

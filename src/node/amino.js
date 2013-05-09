@@ -77,12 +77,6 @@ var core = amino.createCore();
 core.testNative = amino.testNative;
 core.loadJpegFromBuffer = amino.loadJpegFromBuffer;
 
-var pixel_data = null;
-PNG.decode(FONT_IMAGE_PATH, function(pixels) {
-    pixel_data = pixels;
-});
-
-
 function decodeImage (width, height, buffer, done)
 {
     var image =
@@ -189,15 +183,10 @@ function JSStage() {
         return this.root;
     };
     
-    var imageLoaded = false;
     var self = this;
     //var repaintTimer = new SpeedTimer("Stage.draw");
     this.draw = function(gfx)  {
         //repaintTimer.start();        
-        if(!imageLoaded && pixel_data != null) {
-            gfx.setFontData(pixel_data,1121,34);
-            imageLoaded = true;
-        }
         
         self.processAnims();
         if(core.SCALE2X) gfx.scale(2,2);
@@ -1026,7 +1015,7 @@ function JSLabel() {
         notNull("bounds",bnds);
         var color = this.getTextColor();
         notNull("color", color);
-        gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10, this.getFontSize());
+        gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10, this.getFontSize(), this.font.fontid);
     };
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
@@ -1036,6 +1025,41 @@ JSLabel.extend(generated.Label);
 core.createLabel = function() {
     var comp = new JSLabel();
     return comp;
+}
+
+function JSFont(jsonpath, pngpath, w, h) {
+    //load json
+    var jsontext = fs.readFileSync(jsonpath);
+    this.json = JSON.parse(jsontext);
+    console.log(this.json);
+    
+    var self = this;
+    this.loaded = false;
+    //load png
+    this.loadImage = function() {
+        console.log("loading image: " + pngpath);
+        var texid = amino.loadPngFromBuffer(pngpath);
+        console.log("texid = " + texid);
+        console.log("included 0 = " + self.json.included[0]);
+        console.log("width 0 = " + self.json.widths[0]);
+        console.log("offset 0 = " + self.json.offsets[0]);
+        self.fontid = amino.createNativeFont(
+            texid,
+            self.json.minchar,
+            self.json.maxchar,
+            self.json.included,
+            self.json.widths,
+            self.json.offsets
+            );
+        self.loaded = true;
+        console.log("fully loaded the font with id: " + self.fontid);
+    }    
+}
+core.fonts = [];
+core.createFont = function(jsonpath, pngpath, w, h) {
+    var font = new JSFont(jsonpath, pngpath, w, h);
+    core.fonts.push(font);
+    return font;
 }
 
 function JSTextbox() {
@@ -1337,6 +1361,12 @@ core.start = function() {
     var drawcb = this.stage.draw;
     var eventcb = this.stage.processEvents;
     core.real_Init();
+    
+    for(var i in core.fonts) {
+        var font = core.fonts[i];
+        font.loadImage();
+    }
+    
     //send one windowsize event on phones
     if(core.device == "galaxynexus") {
         core.stage.fireEvent({type:"WINDOWSIZE",width:core.stage.width, height:core.stage.height, target: core.stage});

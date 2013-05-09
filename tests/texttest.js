@@ -1,3 +1,4 @@
+var fs = require('fs');
 var amino = require('../src/node/amino.js');
 var core = amino.getCore();
 core.setDevice("mac");
@@ -209,14 +210,29 @@ function TextArea() {
     this.getTy = function() { return 0; }
     this.contains = function() { return true; }
 }
-
+/*
 var nltext = "This is some text for you to read.\nIt has two lines.";
 var view = new TextArea();
 view.setNewlineText(nltext);
 view.install(stage);
 stage.setRoot(view);
+*/
+/*
+var jsonfile = fs.readFileSync("tests/test1.json");
+var fontjson = JSON.parse(jsonfile);
+*/
+var g = core.createGroup();
+var rect = core.createRect().setW(500).setH(500).setFill("#ff0000");
+g.add(rect);
+var font = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+var label = core.createLabel();
+label.setText("Greetings Earthling!");
+label.font = font;
+g.add(label);
+stage.setRoot(g);
 
 setTimeout(function() {
     core.start();
+    label.font = font;
 },1000);
 

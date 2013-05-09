@@ -14,16 +14,12 @@ function TextModel() {
     }
     this.insertAt = function(text, cursor) {
         //update the text
-        p("old text = " + this.text);
         this.text = this.text.substring(0,cursor.index) + text + this.text.substring(cursor.index);
-        p("new text = " + this.text);
         //fire a change
         this.broadcast();
     }
     this.deleteAt = function(count, cursor) {
-        p("old text = " + this.text);
         this.text = this.text.substring(0,cursor.index-1) + this.text.substring(cursor.index);
-        p("new text = " + this.text);
         this.broadcast();
     }
     this.listen = function(listener) {
@@ -105,10 +101,20 @@ function TextView() {
         this.run = new RunBox();
         this.run.text = this.model.text;
         this.run.start = n;
+        this.lastspace = -1;
         while(true) {
             var ch = this.model.text.substring(n,n+1);
+            if(ch == ' ') {
+                lastspace = n;
+            }
             w += this.getCharWidth(ch);
             if(w > maxW || ch == '\n') {
+                p("breaking line. prev space at " + lastspace);
+                //go back to previous space
+                if(lastspace >= 0) {
+                    n = lastspace;
+                    lastspace = -1;
+                }
                 y+= lineheight;
                 this.endLine(n);
                 this.line.y = y;
@@ -195,13 +201,13 @@ function TextArea() {
     var self = this;
     this.install = function(stage) {
         stage.on("KEYPRESS",this,function(kp) {
-            p(kp.keycode);
             if(self.handlers[kp.keycode]) {
                 self.handlers[kp.keycode](kp);
                 return;
             }
             if(kp.printable) {
-                self.model.insertAt(kp.textChar,self.cursor);
+                self.model.insertAt(kp.printableChar,self.cursor);
+                self.cursor.advanceChar(+1);
                 return;
             }
         });

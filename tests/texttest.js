@@ -70,6 +70,18 @@ function TextView() {
         }
         return null;
     }
+    this.indexToLineNum = function(n) {
+        for(var i=0; i<this.lines.length; i++) {
+            var line = this.lines[i];
+            if(line.start <= n && n <= line.end) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    this.getLine = function(n) {
+        return this.lines[n];
+    }
     
     this.line = null;
     this.run = null;
@@ -109,7 +121,7 @@ function TextView() {
             }
             w += this.getCharWidth(ch);
             if(w > maxW || ch == '\n') {
-                p("breaking line. prev space at " + lastspace);
+                //p("breaking line. prev space at " + lastspace);
                 //go back to previous space
                 if(lastspace >= 0) {
                     n = lastspace;
@@ -158,11 +170,38 @@ function Cursor() {
         //var xy = this.view.indexToXY(this.index);
     }
     this.advanceLine = function(offset) {
-        var lineNum = this.view.indexToLine(this.index);
-        p("current index and line = " + this.index + " " + lineNum);
+        var lineNum = this.view.indexToLineNum(this.index);
+        var oldline = this.view.getLine(lineNum);
+        
+        //how many chars into the oldline are we
+        var inset = this.index - oldline.start;
+
+        //move to the new line
         lineNum += offset;
-        this.index = this.view.lineToIndex(lineNum);
-        p("new     index and line = " + this.index + " " + lineNum);
+        var newline = this.view.getLine(lineNum);
+        
+        //if we are off the end of the document now
+        if(!newline) {
+            //if going down, move to end of line
+            if(offset >= 0) {
+                this.index = oldline.end-1;
+            } else {
+                //else move to start of line
+                this.index = oldline.start;
+            }
+            return;
+        }
+        
+        //calc new index
+        this.index = newline.start+inset;
+        //if too long for the new line, go to end of new line
+        if(this.index > newline.end-1) {
+            this.index = newline.end-1;
+        }
+        
+        //done!
+        
+        //p("new     index and line = " + this.index + " " + lineNum);
     }
 }
 
@@ -171,6 +210,7 @@ function TextArea() {
     this.model = new TextModel();
     this.view = new TextView();
     this.view.setModel(this.model);
+    this.cursor.view = this.view;
     this.getBounds = function() {
         return {
             x:0,
@@ -225,11 +265,11 @@ function TextArea() {
             self.model.deleteAt(1,self.cursor);
             self.cursor.advanceChar(-1);
         },
-        DOWN: function(kp) {
-            this.cursor.advanceLine(+1);
+        284: function(kp) { // down arrow
+            self.cursor.advanceLine(+1);
         },
-        UP: function(kp) {
-            this.cursor.advanceLine(-1);
+        283: function(kp) { // up arrow
+            self.cursor.advanceLine(-1);
         },
     }
     

@@ -119,14 +119,34 @@ function decodeImage (width, height, buffer, done)
 // Keyboard setup
 
 var KEY_TO_CHAR_MAP = {};
-for(var i=32; i<=90; i++) {
+//lower symbols
+for(var i=32; i<=64; i++) {
     KEY_TO_CHAR_MAP[i]= String.fromCharCode(i);
+}
+//letters
+for(var i=65; i<90; i++) {
+    KEY_TO_CHAR_MAP[i]= String.fromCharCode(i+32);
 }
 //console.log(KEY_TO_CHAR_MAP);
 var SHIFT_MAP = {};
-for(var i=65; i<=90; i++) {
-    SHIFT_MAP[KEY_TO_CHAR_MAP[i]] = String.fromCharCode(i+32);
+//capital letters
+for(var i=97; i<=122; i++) {
+    SHIFT_MAP[String.fromCharCode(i)] = String.fromCharCode(i-32);
 }
+SHIFT_MAP['1'] = '!';
+SHIFT_MAP['2'] = '@';
+SHIFT_MAP['3'] = '#';
+SHIFT_MAP['4'] = '$';
+SHIFT_MAP['5'] = '%';
+SHIFT_MAP['6'] = '^';
+SHIFT_MAP['7'] = '&';
+SHIFT_MAP['8'] = '*';
+SHIFT_MAP['9'] = '(';
+SHIFT_MAP['0'] = ')';
+
+SHIFT_MAP[','] = '<';
+SHIFT_MAP['.'] = '>';
+SHIFT_MAP['/'] = '?';
 //console.log(SHIFT_MAP);
 
 
@@ -260,7 +280,7 @@ function JSStage() {
             event.keycode = e.keycode;
             if(KEY_TO_CHAR_MAP[e.keycode]) {
                 var ch = KEY_TO_CHAR_MAP[e.keycode];
-                if(e.shift == 0) {
+                if(e.shift == 1) {
                     if(SHIFT_MAP[ch]) {
                         ch = SHIFT_MAP[ch];
                     }

@@ -20,6 +20,12 @@ function TextModel() {
         //fire a change
         this.broadcast();
     }
+    this.deleteAt = function(count, cursor) {
+        p("old text = " + this.text);
+        this.text = this.text.substring(0,cursor.index-1) + this.text.substring(cursor.index);
+        p("new text = " + this.text);
+        this.broadcast();
+    }
     this.listen = function(listener) {
         this.listeners.push(listener);
     }
@@ -39,11 +45,20 @@ function TextView() {
         this.model.listen(this);
     }
     this.notify = function(sender) {
-        p("view notified of a changein the view");
         this.layout();
     }
     this.getCharWidth = function(ch) {
-        return 10;
+        var code = ch.charCodeAt(0);
+        var n = code-this.font.json.minchar;
+        var w = this.font.json.widths[n];
+        return w;
+    }
+    this.getStringWidth = function(str) {
+        var len = 0;
+        for(var i=0; i<str.length; i++) {
+            len += this.getCharWidth(str[i]);
+        }
+        return len;
     }
     this.indexToXY = function(n) {
         for(var i=0; i<this.lines.length; i++) {
@@ -51,7 +66,8 @@ function TextView() {
             if(line.start <= n && n <= line.end) {
                 var run = line.runs[0];
                 var inset = n-run.start;
-                var x = line.x + run.x + this.getCharWidth()*inset;
+                var txt = this.model.text.substring(run.start,n);
+                var x = line.x + run.x + this.getStringWidth(txt);
                 var y = line.y;
                 return {x:x, y:y};
             }
@@ -73,11 +89,14 @@ function TextView() {
         this.run.start = n+1;
     }
     this.layout = function() {
+        if(!this.font) return;
         p("doing layout");
+        //p(this.font.json);
         this.lines = [];
         
-        var maxW = 200;
-        var lineheight = 30;
+        var maxW = 300;
+        var lineheight = this.font.json.height;
+        console.log("line height = " + lineheight);
         var w = 0;
         var n = 0;
         var y = 0;
@@ -150,23 +169,26 @@ function TextArea() {
         return {
             x:0,
             y:0,
-            w:250,
+            w:300,
             h:200
         };
     }
     this.draw = function(gfx) {
         gfx.fillQuadColor(new amino.Color(1,0,0), this.getBounds());
+        var font = this.font;
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
-                gfx.fillQuadText(run.color, run.text.substring(run.start,run.end), run.x, line.y);
+                gfx.fillQuadText(run.color, run.text.substring(run.start,run.end), run.x, line.y,
+                    20,font.fontid
+                    );
             });
         });
         var pos = this.view.indexToXY(this.cursor.index);
         gfx.fillQuadColor(new amino.Color(0,0,1), {
                 x: pos.x,
-                y: pos.y,
+                y: pos.y+10,
                 w: 2,
-                h: 30
+                h: 40
         });
     }
     
@@ -193,6 +215,10 @@ function TextArea() {
         286: function(kp) { // right arrow
             self.cursor.advanceChar(+1);
         },
+        295: function(kp) { //delete/backspace key
+            self.model.deleteAt(1,self.cursor);
+            self.cursor.advanceChar(-1);
+        },
         DOWN: function(kp) {
             this.cursor.advanceLine(+1);
         },
@@ -210,29 +236,36 @@ function TextArea() {
     this.getTy = function() { return 0; }
     this.contains = function() { return true; }
 }
-/*
+
+var font = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+
 var nltext = "This is some text for you to read.\nIt has two lines.";
 var view = new TextArea();
 view.setNewlineText(nltext);
+view.font = font;
+view.view.font = font;
+view.view.layout();
 view.install(stage);
 stage.setRoot(view);
-*/
+
+
 /*
 var jsonfile = fs.readFileSync("tests/test1.json");
 var fontjson = JSON.parse(jsonfile);
 */
-var g = core.createGroup();
-var rect = core.createRect().setW(500).setH(500).setFill("#ff0000");
-g.add(rect);
-var font = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+//var g = core.createGroup();
+//var rect = core.createRect().setW(500).setH(500).setFill("#ff0000");
+//g.add(rect);
+/*
 var label = core.createLabel();
 label.setText("Greetings Earthling!");
 label.font = font;
 g.add(label);
 stage.setRoot(g);
+*/
 
 setTimeout(function() {
     core.start();
-    label.font = font;
+    //label.font = font;
 },1000);
 

@@ -127,6 +127,9 @@ public:
         HandleScope scope;
         GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
         
+        if(args.Length() < 6) {
+            printf("WARNING: node_fillQuadText not called with correct number of parameters\n");
+        }
         //text color
         Local<Object> color = args[0]->ToObject();
         double r = color->Get(String::New("r"))->NumberValue();

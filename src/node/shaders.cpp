@@ -244,8 +244,8 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16],
     
         float x = charx + offX;
         float y = 0 + offY;
-        float w = font->widths[n];
-        float h = ih;
+        float w = font->widths[n]*scale;
+        float h = ih*scale;
         
         drawLetter(
             tx,ty,tx+tw,ty+th,

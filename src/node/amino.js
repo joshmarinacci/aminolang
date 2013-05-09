@@ -1031,7 +1031,6 @@ function JSFont(jsonpath, pngpath, w, h) {
     //load json
     var jsontext = fs.readFileSync(jsonpath);
     this.json = JSON.parse(jsontext);
-    console.log(this.json);
     
     var self = this;
     this.loaded = false;

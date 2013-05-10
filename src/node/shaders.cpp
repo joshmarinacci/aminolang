@@ -141,7 +141,7 @@ FontShader::FontShader() {
       "   vec4 texel = texture2D(tex, uv);\n"
 //      "   if(texel.r > 0.9) { discard; }\n"
 //      "   gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
-      "    gl_FragColor = vec4(texel.r,texel.g,texel.b,texel.a);\n"
+      "    gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
       "}\n";
       
     GLuint vert = compileVertShader(vertShaderText);

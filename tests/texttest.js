@@ -33,6 +33,71 @@ function TextModel() {
     }
 }
 function StyleModel() {
+    this.runs = [];
+    
+    this.runs.push({
+            start: 5,
+            end: 10,
+            color: new amino.Color(0,1,0),
+    });
+    
+    this.runs.push({
+            start:20,
+            end: 25,
+            color: new amino.Color(0,0,1),
+    });
+    
+    /*
+    this.runs.push({
+            start:30,
+            end:-1,
+            atomic:true,
+            kind:"newline",
+    });
+    */
+    
+    this.doesStyleChange = function(n) {
+        for(var i=0; i<this.runs.length; i++) {
+            if(this.runs[i].start == n) return true;
+            if(this.runs[i].end   == n) return true;
+        }
+        return false;
+    }
+    this.colorAt = function(n) {
+        for(var i=0; i<this.runs.length; i++) {
+            var run = this.runs[i];
+            if(n >= run.start && n < run.end) {
+                if(run.color) {
+                    return run.color;
+                }
+            }
+        }
+        return new amino.Color(1,1,1);
+    }
+    
+    this.newlineAt = function(n) {
+        for(var i=0; i<this.runs.length; i++) {
+            var run = this.runs[i];
+            if(run.start == n && run.atomic && run.kind == "newline") {
+                return true;
+            }
+        }
+        return false;
+    }
+    this.insertAt = function(text, cursor) {
+        var len = text.length;
+        this.model.insertAt(text,cursor);
+        var n = cursor.index;
+        for(var i=0; i<this.runs.length; i++) {
+            var run = this.runs[i];
+            if(n >= run.start && n < run.end) {
+                run.end += len;
+            }
+        }
+    }
+    this.deleteAt = function(count, cursor) {
+        this.model.deleteAt(count,cursor);
+    }
 }
 function TextView() {
     this.lines = [];
@@ -85,16 +150,23 @@ function TextView() {
     
     this.line = null;
     this.run = null;
+    this.y = 0;
+    this.w = 0;
     this.endLine = function(n) {
         this.run.end = n+1;
         this.line.end = n+1;
         this.line.runs.push(this.run);
         this.lines.push(this.line);
         this.line = new LineBox();
+        this.y+= this.lineheight;
+        this.line.y = this.y;
         this.line.start = n+1;
         this.run = new RunBox();
+        this.run.color = this.styles.colorAt(n);
         this.run.text = this.model.text;
         this.run.start = n+1;
+        
+        this.w = 0;
     }
     this.layout = function() {
         if(!this.font) return;
@@ -103,34 +175,51 @@ function TextView() {
         this.lines = [];
         
         var maxW = 300;
-        var lineheight = this.font.json.height*this.font.scale;
-        console.log("line height = " + lineheight);
-        var w = 0;
+        this.lineheight = this.font.json.height*this.font.scale;
         var n = 0;
-        var y = 0;
+        this.w = 0;
+        this.y = 0;
         this.line = new LineBox();
         this.line.start = n;
         this.run = new RunBox();
+        this.run.color = this.styles.colorAt(n);
         this.run.text = this.model.text;
         this.run.start = n;
         this.lastspace = -1;
         while(true) {
+            
+            var change = this.styles.doesStyleChange(n)
+            if(change) {
+                this.run.end = n;
+                this.line.runs.push(this.run);
+                
+                var newline = this.styles.newlineAt(n);
+                console.log("newline = " + newline);
+                if(newline) {
+                    this.endLine(n);
+                } else {
+                    this.run = new RunBox();
+                    this.run.color = this.styles.colorAt(n);
+                    this.run.x = this.w;
+                    this.run.text = this.model.text;
+                    this.run.start = n;
+                }
+            }
+            
+            
             var ch = this.model.text.substring(n,n+1);
             if(ch == ' ') {
                 lastspace = n;
             }
-            w += this.getCharWidth(ch);
-            if(w > maxW || ch == '\n') {
+            this.w += this.getCharWidth(ch);
+            if(this.w > maxW || ch == '\n') {
                 //p("breaking line. prev space at " + lastspace);
                 //go back to previous space
                 if(lastspace >= 0) {
                     n = lastspace;
                     lastspace = -1;
                 }
-                y+= lineheight;
                 this.endLine(n);
-                this.line.y = y;
-                w = 0;
             }
             n++;
             if(n >= this.model.text.length) {
@@ -158,7 +247,7 @@ function RunBox() {
     this.text = "";
     this.start = 0;
     this.end = 0;
-    this.color = new amino.Color(0,1,0);
+    this.color = new amino.Color(1,1,1);
     this.toString = function() {
         return "run: " + this.text.substring(this.start, this.end);
     }
@@ -209,7 +298,10 @@ function TextArea() {
     this.cursor = new Cursor();
     this.model = new TextModel();
     this.view = new TextView();
+    this.styles = new StyleModel();
+    this.view.styles = this.styles;
     this.view.setModel(this.model);
+    this.styles.model = this.model;
     this.cursor.view = this.view;
     this.getBounds = function() {
         return {
@@ -220,7 +312,7 @@ function TextArea() {
         };
     }
     this.draw = function(gfx) {
-        gfx.fillQuadColor(new amino.Color(1,0,0), this.getBounds());
+        gfx.fillQuadColor(new amino.Color(0,0,0), this.getBounds());
         var font = this.font;
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
@@ -247,7 +339,7 @@ function TextArea() {
                 return;
             }
             if(kp.printable) {
-                self.model.insertAt(kp.printableChar,self.cursor);
+                self.styles.insertAt(kp.printableChar,self.cursor);
                 self.cursor.advanceChar(+1);
                 return;
             }
@@ -290,7 +382,8 @@ font.scaledsize = 20;
 font.scale = font.scaledsize/font.basesize
 console.log("scale = " + font.scale);
 
-var nltext = "This is some text for you to read. It has two lines.";
+var nltext = "'The Way' is a song by the American alternative rock band Fastball. It was released in February 1998 as the lead single from their second studio album, All the Pain Money Can Buy.";
+//var nltext = "This is some text for you to read. It has two lines.";
 var view = new TextArea();
 view.setNewlineText(nltext);
 view.font = font;

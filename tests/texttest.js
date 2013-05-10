@@ -39,7 +39,7 @@ function TextModel() {
 }
 function StyleModel() {
     this.runs = [];
-    
+    /*
     this.runs.push({
             start: 5,
             end: 10,
@@ -59,7 +59,7 @@ function StyleModel() {
             atomic:true,
             kind:"newline",
     });
-    
+    */
     
     this.doesStyleChange = function(n) {
         for(var i=0; i<this.runs.length; i++) {
@@ -149,6 +149,7 @@ function StyleModel() {
 }
 function TextView() {
     this.lines = [];
+    this.wrapping = true;
     this.setModel = function(model) {
         this.model = model;
         this.model.listen(this);
@@ -259,7 +260,8 @@ function TextView() {
                 lastspace = n;
             }
             this.w += this.getCharWidth(ch);
-            if(this.w > maxW || ch == '\n') {
+            console.log("wrapping = " + this.wrapping);
+            if(this.wrapping && (this.w > maxW || ch == '\n')) {
                 //p("breaking line. prev space at " + lastspace);
                 //go back to previous space
                 if(lastspace >= 0) {
@@ -347,6 +349,7 @@ function Cursor() {
 }
 
 function TextControl() {
+    this.wrapping = true;
     this.cursor = new Cursor();
     this.model = new TextModel();
     this.view = new TextView();
@@ -434,6 +437,7 @@ function TextControl() {
             self.cursor.advanceLine(-1);
         },
         294: function(kb) { // enter/return key
+            if(!self.wrapping) return;
             self.styles.insertNewline(self.cursor);
             //self.cursor.advanceChar(1);
         },
@@ -469,18 +473,34 @@ stage.setRoot(view);
 
 function TextArea(font) {
     TextControl();
+    this.wrapping = true;
     this.font = font;
     this.view.font = font;
+    this.view.wrapping = this.wrapping;
     this.view.layout();
 }
 TextArea.extend(TextControl);
 
-function TextField() {
+function TextField(font) {
+    TextControl();
+    this.wrapping = false;
+    this.font = font;
+    this.view.font = font;
+    this.view.wrapping = this.wrapping;
+    this.view.layout();
+    this.getBounds = function() {
+        return {
+            x:0,
+            y:0,
+            w:300,
+            h:30
+        };
+    }
 }
 TextField.extend(TextControl);
 
 
-var view = new TextArea(font);
+var view = new TextField(font);
 view.install(stage);
 view.setNewlineText(nltext);
 stage.setRoot(view);

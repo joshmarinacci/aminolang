@@ -346,7 +346,7 @@ function Cursor() {
     }
 }
 
-function TextArea() {
+function TextControl() {
     this.cursor = new Cursor();
     this.model = new TextModel();
     this.view = new TextView();
@@ -365,11 +365,17 @@ function TextArea() {
         };
     }
     this.draw = function(gfx) {
+        gfx.save();
+
         var bds = this.getBounds();
         bds.w += 10;
         bds.h += 10;
+        gfx.fillQuadColor(new amino.Color(0.5,0.5,0.5), bds);
+        bds.w -= 2;
+        bds.h -= 2;
+        gfx.translate(1,1);
         gfx.fillQuadColor(new amino.Color(1,1,1), bds);
-        gfx.save();
+        
         gfx.translate(5,5);
         var font = this.font;
         this.view.lines.forEach(function(line) {
@@ -451,14 +457,33 @@ console.log("scale = " + font.scale);
 
 var nltext = "'The Way' is a song by the American alternative rock band Fastball. It was released in February 1998 as the lead single from their second studio album, All the Pain Money Can Buy.";
 //var nltext = "This is some text for you to read. It has two lines.";
-var view = new TextArea();
+/*
+var view = new TextControl();
 view.setNewlineText(nltext);
 view.font = font;
 view.view.font = font;
 view.view.layout();
 view.install(stage);
 stage.setRoot(view);
+*/
 
+function TextArea(font) {
+    TextControl();
+    this.font = font;
+    this.view.font = font;
+    this.view.layout();
+}
+TextArea.extend(TextControl);
+
+function TextField() {
+}
+TextField.extend(TextControl);
+
+
+var view = new TextArea(font);
+view.install(stage);
+view.setNewlineText(nltext);
+stage.setRoot(view);
 
 setTimeout(function() {
     core.start();

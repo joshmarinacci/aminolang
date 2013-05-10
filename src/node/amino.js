@@ -272,8 +272,20 @@ function JSStage() {
         this.fireEvent({type:"WINDOWSIZE",width:this.width, height:this.height, target: this});
     }
     
+    var self = this;
+    this.repeatEvent = null;
+    this.repeatTimeout = null;
+    this.repeatKey = function() {
+        self.fireEvent(self.repeatEvent);
+        self.repeatTimeout = setTimeout(self.repeatKey, 20);
+    }
     this.processRawKeyEvent = function(e) {
-        console.log("key event:",e);
+        //console.log("key event:",e);
+        if(this.repeatTimeout) {
+            clearTimeout(this.repeatTimeout);
+            this.repeatTimeout = null;
+            this.repeatEvent = null;
+        }
         var event = this.createEvent();
         if(e.action == 1) {
             event.type = "KEYPRESS";
@@ -290,6 +302,8 @@ function JSStage() {
             }
             if(this.keyboardFocus != null) {
                 event.target = this.keyboardFocus;
+                this.repeatTimeout = setTimeout(this.repeatKey,300);
+                this.repeatEvent = event;
                 this.fireEvent(event);
             }
         }

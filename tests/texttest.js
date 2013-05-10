@@ -12,6 +12,9 @@ function TextModel() {
         this.text = text;
         this.broadcast();
     }
+    this.getLength = function() {
+        return this.text.length;
+    }
     this.insertAt = function(text, cursor) {
         //update the text
         this.text = this.text.substring(0,cursor.index) + text + this.text.substring(cursor.index);
@@ -278,7 +281,9 @@ function Cursor() {
     this.index = 0;
     this.advanceChar = function(offset) {
         this.index += offset;
-        //var xy = this.view.indexToXY(this.index);
+        if(this.index > this.model.getLength()-1) {
+            this.index = this.model.getLength()-1;
+        }
     }
     this.advanceLine = function(offset) {
         var lineNum = this.view.indexToLineNum(this.index);
@@ -325,6 +330,7 @@ function TextArea() {
     this.view.setModel(this.model);
     this.styles.model = this.model;
     this.cursor.view = this.view;
+    this.cursor.model = this.model;
     this.getBounds = function() {
         return {
             x:0,
@@ -377,6 +383,7 @@ function TextArea() {
             self.cursor.advanceChar(+1);
         },
         295: function(kp) { //delete/backspace key
+            if(self.cursor.index - 1 < 0) return;
             self.styles.deleteAt(1,self.cursor);
             self.cursor.advanceChar(-1);
         },

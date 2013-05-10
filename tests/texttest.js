@@ -19,8 +19,10 @@ function TextModel() {
         this.broadcast();
     }
     this.deleteAt = function(count, cursor) {
+        if(cursor.index - count < 0) return false;
         this.text = this.text.substring(0,cursor.index-1) + this.text.substring(cursor.index);
         this.broadcast();
+        return true;
     }
     this.listen = function(listener) {
         this.listeners.push(listener);
@@ -102,7 +104,8 @@ function StyleModel() {
         }
     }
     this.deleteAt = function(count, cursor) {
-        this.model.deleteAt(count, cursor);
+        var deleted = this.model.deleteAt(count, cursor);
+        if(!deleted) return;
         var n = cursor.index;
         for(var i=0; i<this.runs.length; i++) {
             var run = this.runs[i];

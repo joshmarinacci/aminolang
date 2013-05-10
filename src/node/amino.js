@@ -72,10 +72,13 @@ if(OS == "MAC") {
     FONT_IMAGE_PATH = "/data/phonetest/font2.png";
 }
 
+
 var Point = generated.Point;
 var core = amino.createCore();
 core.testNative = amino.testNative;
 core.loadJpegFromBuffer = amino.loadJpegFromBuffer;
+
+
 
 function decodeImage (width, height, buffer, done)
 {
@@ -841,7 +844,7 @@ JSListView = function() {
                         this.cellRenderer(gfx, this.listModel[i], {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
                     } else {
                         gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
-                        gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly);
+                        gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly,this.getFontSize(), this.font.fontid);
                     }
                 }
                 lx += this.cellWidth;
@@ -881,7 +884,8 @@ JSListView = function() {
                 } else {
                     gfx.fillQuadText(new Color(0,0,0), 
                         this.listModel[i],
-                        bnds.x+10, bnds.y+3+y-this.scroll);
+                        bnds.x+10, bnds.y+3+y-this.scroll,
+                        this.getFontSize(), this.font.fontid);
                 }
             }
             return;
@@ -988,7 +992,7 @@ function JSPushButton() {
         }
 
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize());
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
     };
     this.setBaseColor = function(base) {
         this.baseColor = ParseRGBString(base);
@@ -1002,6 +1006,7 @@ function JSPushButton() {
 JSPushButton.extend(generated.PushButton);
 core.createPushButton = function() {
     var comp = new JSPushButton();
+    comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;
 }
@@ -1038,7 +1043,7 @@ function JSToggleButton() {
             gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
         }
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize());
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {
@@ -1076,6 +1081,7 @@ function JSLabel() {
 JSLabel.extend(generated.Label);
 core.createLabel = function() {
     var comp = new JSLabel();
+    comp.font = this.DEFAULT_FONT;
     return comp;
 }
 
@@ -1112,6 +1118,13 @@ core.createFont = function(jsonpath, pngpath, w, h) {
     core.fonts.push(font);
     return font;
 }
+core.DEFAULT_FONT = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+/*
+font.basesize = font.json.size;
+font.scaledsize = 20;
+font.scale = font.scaledsize/font.basesize;
+*/
+
 
 function JSTextbox() {
     var self = this;
@@ -1160,7 +1173,7 @@ function JSTextbox() {
             gfx.fillQuadColor(new Color(0.5,0.5,0.5), bnds);
         }
         
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3);
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
     };
 
     this.getBounds = function() {
@@ -1524,6 +1537,7 @@ function anim(node, prop, start, finish, dur) {
         },
     };
 }
+
 
 
 exports.getCore =function() { return core; }

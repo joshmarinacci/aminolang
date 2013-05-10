@@ -1,6 +1,7 @@
 var https = require('https');
 var amino = require('../src/node/amino.js');
 
+
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
 var core = amino.getCore();
 core.setDevice("mac");
@@ -138,6 +139,8 @@ function setupMain() {
     var panel = core.createRect();
     panel.setW(800).setH(800).setFill("#ffffff");
     main.add(panel);
+    
+    
     main.setTx(300).setTy(0);
     return main;
 }

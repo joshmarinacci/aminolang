@@ -306,6 +306,7 @@ function JSStage() {
         if(e.action == 1) {
             event.type = "KEYPRESS";
             event.keycode = e.keycode;
+            event.shift = (e.shift == 1);
             if(KEY_TO_CHAR_MAP[e.keycode]) {
                 var ch = KEY_TO_CHAR_MAP[e.keycode];
                 if(e.shift == 1) {
@@ -313,6 +314,7 @@ function JSStage() {
                         ch = SHIFT_MAP[ch];
                     }
                 }
+                
                 event.printableChar = ch;
                 event.printable = true;
             }

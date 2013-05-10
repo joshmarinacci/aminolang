@@ -201,11 +201,14 @@ function TextView() {
     this.run = null;
     this.y = 0;
     this.w = 0;
+    this.maxW = 300;
     this.endLine = function(n) {
         this.run.end = n+1;
         this.line.end = n+1;
         this.line.runs.push(this.run);
         this.lines.push(this.line);
+        this.line.h = this.lineheight;
+        this.line.w = this.maxW;
         this.line = new LineBox();
         this.y+= this.lineheight;
         this.line.y = this.y;
@@ -214,7 +217,6 @@ function TextView() {
         this.run.color = this.styles.colorAt(n);
         this.run.text = this.model.text;
         this.run.start = n+1;
-        
         this.w = 0;
     }
     this.layout = function() {
@@ -223,7 +225,6 @@ function TextView() {
         //p(this.font.json);
         this.lines = [];
         
-        var maxW = 300;
         this.lineheight = this.font.json.height*this.font.scale;
         var n = 0;
         this.w = 0;
@@ -260,8 +261,7 @@ function TextView() {
                 lastspace = n;
             }
             this.w += this.getCharWidth(ch);
-            console.log("wrapping = " + this.wrapping);
-            if(this.wrapping && (this.w > maxW || ch == '\n')) {
+            if(this.wrapping && (this.w > this.maxW || ch == '\n')) {
                 //p("breaking line. prev space at " + lastspace);
                 //go back to previous space
                 if(lastspace >= 0) {
@@ -303,6 +303,7 @@ function RunBox() {
 }
 function Cursor() {
     this.index = 0;
+    this.control = null;
     this.advanceChar = function(offset) {
         this.index += offset;
         if(this.index < 0) {
@@ -311,6 +312,21 @@ function Cursor() {
         if(this.index > this.model.getLength()-1) {
             this.index = this.model.getLength()-1;
         }
+    }
+    this.selectionActive = function() {
+        return (this.control.selection != null);
+    }
+    this.clearSelection = function() {
+        this.control.selection = null;
+    }
+    this.extendSelection = function(offset) {
+        if(!this.control.selection) {
+            this.control.selection = new TextSelection();
+            this.control.selection.start = this.index;
+        }
+        this.index += offset;
+        this.control.selection.end = this.index;
+        console.log("selection = ", this.control.selection);
     }
     this.advanceLine = function(offset) {
         var lineNum = this.view.indexToLineNum(this.index);
@@ -348,9 +364,16 @@ function Cursor() {
     }
 }
 
+function TextSelection() {
+    this.start = -1;
+    this.end = -1;
+}
+
 function TextControl() {
+    this.selection = null;
     this.wrapping = true;
     this.cursor = new Cursor();
+    this.cursor.control = this;
     this.model = new TextModel();
     this.view = new TextView();
     this.styles = new StyleModel();
@@ -381,6 +404,46 @@ function TextControl() {
         
         gfx.translate(5,5);
         var font = this.font;
+        
+        
+        if(this.selection != null) {
+            var sel = this.selection;
+            var view = this.view;
+            var model = this.model;
+            for(var i=0; i<this.view.lines.length; i++) {
+                var line = this.view.lines[i];
+                //before selection
+                if(line.end < sel.start) continue;
+                
+                var x = 0;
+                //selection start on this line
+                if(line.start <= sel.start && line.end > sel.start) {
+                    var before = model.text.substring(line.start,sel.start);
+                    x = view.getStringWidth(before);
+                }
+                var x2 = line.w;
+                //selection starts and ends on this line
+                if(line.start <= sel.start && sel.end < line.end) {
+                    var during = model.text.substring(sel.start,sel.end);
+                    var w = view.getStringWidth(during);
+                    x2 = x + w;
+                }
+                
+                //selection ends on this line
+                if(sel.end < line.end) {
+                    var during = model.text.substring(line.start, sel.end);
+                    var w = view.getStringWidth(during);
+                    x2 = w;
+                }
+                
+                //selection ends before this line
+                if(sel.end < line.start) continue;
+                
+                gfx.fillQuadColor(new amino.Color(0.5,1.0,0.5), 
+                    { x: line.x+x, y: line.y, w: x2-x, h:line.h });
+            }
+        }
+        
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
                 gfx.fillQuadText(run.color, 
@@ -420,21 +483,51 @@ function TextControl() {
     var self = this;
     this.handlers = {
         285: function(kp) { // left arrow
-            self.cursor.advanceChar(-1);
+            if(kp.shift) {
+                self.cursor.extendSelection(-1);
+            } else {
+                if(self.cursor.selectionActive()) {
+                    self.cursor.clearSelection();
+                } else {
+                    self.cursor.advanceChar(-1);
+                }
+            }
         },
         286: function(kp) { // right arrow
-            self.cursor.advanceChar(+1);
+            if(kp.shift) {
+                self.cursor.extendSelection(+1);
+            } else {
+                if(self.cursor.selectionActive()) {
+                    self.cursor.clearSelection();
+                } else {
+                    self.cursor.advanceChar(+1);
+                }
+            }
+        },
+        284: function(kp) { // down arrow
+            if(kp.shift) {
+            } else {
+                if(self.cursor.selectionActive()) {
+                    self.cursor.clearSelection();
+                } else {
+                    self.cursor.advanceLine(+1);
+                }
+            }
+        },
+        283: function(kp) { // up arrow
+            if(kp.shift) {
+            } else {
+                if(self.cursor.selectionActive()) {
+                    self.cursor.clearSelection();
+                } else {
+                    self.cursor.advanceLine(-1);
+                }
+            }
         },
         295: function(kp) { //delete/backspace key
             if(self.cursor.index - 1 < 0) return;
             self.styles.deleteAt(1,self.cursor);
             self.cursor.advanceChar(-1);
-        },
-        284: function(kp) { // down arrow
-            self.cursor.advanceLine(+1);
-        },
-        283: function(kp) { // up arrow
-            self.cursor.advanceLine(-1);
         },
         294: function(kb) { // enter/return key
             if(!self.wrapping) return;
@@ -500,7 +593,7 @@ function TextField(font) {
 TextField.extend(TextControl);
 
 
-var view = new TextField(font);
+var view = new TextArea(font);
 view.install(stage);
 view.setNewlineText(nltext);
 stage.setRoot(view);

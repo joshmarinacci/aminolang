@@ -90,13 +90,32 @@ function StyleModel() {
         var n = cursor.index;
         for(var i=0; i<this.runs.length; i++) {
             var run = this.runs[i];
+            //before the run
+            if(n < run.start) {
+                run.start += len;
+                run.end += len;
+            }
+            //inside the run
             if(n >= run.start && n < run.end) {
                 run.end += len;
             }
         }
     }
     this.deleteAt = function(count, cursor) {
-        this.model.deleteAt(count,cursor);
+        this.model.deleteAt(count, cursor);
+        var n = cursor.index;
+        for(var i=0; i<this.runs.length; i++) {
+            var run = this.runs[i];
+            if(n < run.start) {
+                run.start -= count;
+                run.end   -= count;
+                continue;
+            }
+            if(n >= run.start && n < run.end) {
+                run.end   -= count;
+                continue;
+            }
+        }
     }
 }
 function TextView() {
@@ -355,7 +374,7 @@ function TextArea() {
             self.cursor.advanceChar(+1);
         },
         295: function(kp) { //delete/backspace key
-            self.model.deleteAt(1,self.cursor);
+            self.styles.deleteAt(1,self.cursor);
             self.cursor.advanceChar(-1);
         },
         284: function(kp) { // down arrow

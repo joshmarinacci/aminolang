@@ -7,7 +7,7 @@ var stage = core.createStage();
 function p(s) { console.log(s); }
 function TextModel() {
     this.listeners = [];
-    this.text = "this is some text";
+    this.text = "";//this is some text";
     this.setText = function(text) {
         this.text = text;
         this.broadcast();
@@ -382,6 +382,17 @@ function TextControl() {
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;
+    this.setWrapping = function(wrapping) {
+        this.wrapping = wrapping;
+        this.view.wrapping = wrapping;
+        return this;
+    }
+    this.setFont = function(font) {
+        this.font = font;
+        this.view.font = font;
+        return this;
+    }
+
     this.getBounds = function() {
         return {
             x:0,
@@ -464,8 +475,9 @@ function TextControl() {
         gfx.restore();
     }
     
-    var self = this;
     this.install = function(stage) {
+        this.stage = stage;
+        var self = this;
         stage.on("KEYPRESS",this,function(kp) {
             console.log(kp.keycode);
             if(self.handlers[kp.keycode]) {
@@ -480,7 +492,8 @@ function TextControl() {
         });
     };
     
-    var self = this;
+    this.setupHandlers = function() {
+        var self = this;
     this.handlers = {
         285: function(kp) { // left arrow
             if(kp.shift) {
@@ -530,10 +543,16 @@ function TextControl() {
             self.cursor.advanceChar(-1);
         },
         294: function(kb) { // enter/return key
-            if(!self.wrapping) return;
-            self.styles.insertNewline(self.cursor);
-            //self.cursor.advanceChar(1);
+            if(self.wrapping) {
+                self.styles.insertNewline(self.cursor);
+            } else {
+                stage.fireEvent({
+                    type:"ACTION",
+                    target:self,
+                });
+            }
         },
+    }
     }
     
     this.setNewlineText = function(text) {
@@ -566,20 +585,18 @@ stage.setRoot(view);
 
 function TextArea(font) {
     TextControl();
-    this.wrapping = true;
-    this.font = font;
-    this.view.font = font;
-    this.view.wrapping = this.wrapping;
+    this.setupHandlers();
+    this.setFont(font);
+    this.setWrapping(true);
     this.view.layout();
 }
 TextArea.extend(TextControl);
 
 function TextField(font) {
     TextControl();
-    this.wrapping = false;
-    this.font = font;
-    this.view.font = font;
-    this.view.wrapping = this.wrapping;
+    this.setupHandlers();
+    this.setFont(font);
+    this.setWrapping(false);
     this.view.layout();
     this.getBounds = function() {
         return {
@@ -593,10 +610,14 @@ function TextField(font) {
 TextField.extend(TextControl);
 
 
-var view = new TextArea(font);
+var view = new TextField(font);
 view.install(stage);
-view.setNewlineText(nltext);
+//view.setNewlineText(nltext);
 stage.setRoot(view);
+
+stage.on("ACTION",view,function(a) {
+    console.log("action fired");
+});
 
 setTimeout(function() {
     core.start();

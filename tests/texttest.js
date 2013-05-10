@@ -52,14 +52,14 @@ function StyleModel() {
             color: new amino.Color(0,0,1),
     });
     
-    /*
+    
     this.runs.push({
-            start:30,
+            start:40,
             end:-1,
             atomic:true,
             kind:"newline",
     });
-    */
+    
     
     this.doesStyleChange = function(n) {
         for(var i=0; i<this.runs.length; i++) {
@@ -110,6 +110,7 @@ function StyleModel() {
         var deleted = this.model.deleteAt(count, cursor);
         if(!deleted) return;
         var n = cursor.index;
+        var toremove = [];
         for(var i=0; i<this.runs.length; i++) {
             var run = this.runs[i];
             if(n < run.start) {
@@ -117,11 +118,33 @@ function StyleModel() {
                 run.end   -= count;
                 continue;
             }
+            if(n == run.start && run.atomic) {
+                toremove.push(run);
+                continue;
+            }
+            if(n == run.start && run.end <= run.start) {
+                toremove.push(run);
+                continue;
+            }
             if(n >= run.start && n < run.end) {
                 run.end   -= count;
                 continue;
             }
         }
+        var self = this;
+        toremove.forEach(function(item) {
+            var n = self.runs.indexOf(item);
+            self.runs.splice(n,1);
+        });
+    }
+    this.insertNewline = function(cursor) {
+        this.runs.push({
+                start:cursor.index-1,
+                end:-1,
+                atomic:true,
+                kind:"newline",
+        });
+        this.model.broadcast();
     }
 }
 function TextView() {
@@ -219,7 +242,6 @@ function TextView() {
                 this.line.runs.push(this.run);
                 
                 var newline = this.styles.newlineAt(n);
-                console.log("newline = " + newline);
                 if(newline) {
                     this.endLine(n);
                 } else {
@@ -281,6 +303,9 @@ function Cursor() {
     this.index = 0;
     this.advanceChar = function(offset) {
         this.index += offset;
+        if(this.index < 0) {
+            this.index = 0;
+        }
         if(this.index > this.model.getLength()-1) {
             this.index = this.model.getLength()-1;
         }
@@ -340,28 +365,37 @@ function TextArea() {
         };
     }
     this.draw = function(gfx) {
-        gfx.fillQuadColor(new amino.Color(0,0,0), this.getBounds());
+        var bds = this.getBounds();
+        bds.w += 10;
+        bds.h += 10;
+        gfx.fillQuadColor(new amino.Color(0,0,0), bds);
+        gfx.save();
+        gfx.translate(5,5);
         var font = this.font;
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
-                gfx.fillQuadText(run.color, run.text.substring(run.start,run.end), run.x, line.y,
-                    font.scaledsize,font.fontid
+                gfx.fillQuadText(run.color, 
+                    run.text.substring(run.start,run.end), 
+                    run.x, line.y,
+                    font.scaledsize, font.fontid
                     );
             });
         });
         var pos = this.view.indexToXY(this.cursor.index);
         var h = this.font.json.height* this.font.scale;
-        gfx.fillQuadColor(new amino.Color(0,0,1), {
+        gfx.fillQuadColor(new amino.Color(1,0,1), {
                 x: pos.x,
                 y: pos.y,
                 w: 2,
                 h: this.font.json.height*this.font.scale
         });
+        gfx.restore();
     }
     
     var self = this;
     this.install = function(stage) {
         stage.on("KEYPRESS",this,function(kp) {
+            console.log(kp.keycode);
             if(self.handlers[kp.keycode]) {
                 self.handlers[kp.keycode](kp);
                 return;
@@ -392,6 +426,10 @@ function TextArea() {
         },
         283: function(kp) { // up arrow
             self.cursor.advanceLine(-1);
+        },
+        294: function(kb) { // enter/return key
+            self.styles.insertNewline(self.cursor);
+            //self.cursor.advanceChar(1);
         },
     }
     

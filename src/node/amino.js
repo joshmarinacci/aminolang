@@ -127,6 +127,11 @@ for(var i=32; i<=64; i++) {
 for(var i=65; i<90; i++) {
     KEY_TO_CHAR_MAP[i]= String.fromCharCode(i+32);
 }
+//upper symbols
+KEY_TO_CHAR_MAP[91]=String.fromCharCode(91);
+KEY_TO_CHAR_MAP[92]=String.fromCharCode(92);
+KEY_TO_CHAR_MAP[93]=String.fromCharCode(93);
+KEY_TO_CHAR_MAP[96]=String.fromCharCode(96);
 //console.log(KEY_TO_CHAR_MAP);
 var SHIFT_MAP = {};
 //capital letters
@@ -143,6 +148,17 @@ SHIFT_MAP['7'] = '&';
 SHIFT_MAP['8'] = '*';
 SHIFT_MAP['9'] = '(';
 SHIFT_MAP['0'] = ')';
+
+SHIFT_MAP['-'] = '_';
+SHIFT_MAP['='] = '+';
+SHIFT_MAP['['] = '{';
+SHIFT_MAP[']'] = '}';
+SHIFT_MAP['\\'] = '\|';
+SHIFT_MAP['`'] = '~';
+
+
+SHIFT_MAP[';'] = ':';
+SHIFT_MAP['\''] = '\"';
 
 SHIFT_MAP[','] = '<';
 SHIFT_MAP['.'] = '>';

@@ -221,7 +221,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16],
         ) {
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_DST_COLOR);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);

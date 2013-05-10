@@ -77,7 +77,7 @@ function StyleModel() {
                 }
             }
         }
-        return new amino.Color(1,1,1);
+        return new amino.Color(0,0,0);
     }
     
     this.newlineAt = function(n) {
@@ -294,7 +294,7 @@ function RunBox() {
     this.text = "";
     this.start = 0;
     this.end = 0;
-    this.color = new amino.Color(1,1,1);
+    this.color = new amino.Color(1,0,0);
     this.toString = function() {
         return "run: " + this.text.substring(this.start, this.end);
     }
@@ -368,7 +368,7 @@ function TextArea() {
         var bds = this.getBounds();
         bds.w += 10;
         bds.h += 10;
-        gfx.fillQuadColor(new amino.Color(0,0,0), bds);
+        gfx.fillQuadColor(new amino.Color(1,1,1), bds);
         gfx.save();
         gfx.translate(5,5);
         var font = this.font;

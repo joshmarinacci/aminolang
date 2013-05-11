@@ -844,11 +844,7 @@ JSListView = function() {
                         this.cellRenderer(gfx, this.listModel[i], {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
                     } else {
                         gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
-<<<<<<< HEAD
                         gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly,this.getFontSize(), this.font.fontid);
-=======
-                        gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly, this.fontsize, this.font.fontid);
->>>>>>> f695fe6be6c5b07b6827665b911c7ecf07ace8f7
                     }
                 }
                 lx += this.cellWidth;
@@ -889,13 +885,7 @@ JSListView = function() {
                     gfx.fillQuadText(new Color(0,0,0), 
                         this.listModel[i],
                         bnds.x+10, bnds.y+3+y-this.scroll,
-<<<<<<< HEAD
                         this.getFontSize(), this.font.fontid);
-=======
-                        this.fontsize,
-                        this.font.fontid
-                        );
->>>>>>> f695fe6be6c5b07b6827665b911c7ecf07ace8f7
                 }
             }
             return;
@@ -1002,11 +992,7 @@ function JSPushButton() {
         }
 
         var bnds = self.getBounds();
-<<<<<<< HEAD
         gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
-=======
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, 20, this.font.fontid);
->>>>>>> f695fe6be6c5b07b6827665b911c7ecf07ace8f7
     };
     this.setBaseColor = function(base) {
         this.baseColor = ParseRGBString(base);
@@ -1057,11 +1043,7 @@ function JSToggleButton() {
             gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
         }
         var bnds = self.getBounds();
-<<<<<<< HEAD
         gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
-=======
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(),  this.font.fontid);
->>>>>>> f695fe6be6c5b07b6827665b911c7ecf07ace8f7
     };
     this.setBaseColor(new Color(0.5,0.5,0.5));
     this.getBounds = function() {

@@ -9,7 +9,7 @@ class Control extends Node {
     prop boolean bottomanchored = false;
     prop Color baseColor;
     prop Color textColor;
-    prop double fontSize = 10;
+    prop double fontSize = 20;
     func boolean contains(Point pt){
         if(pt.x < this.x){ return false; }
         if(pt.x > this.x + this.w) { return false; }
@@ -37,7 +37,7 @@ class ToggleButton extends Control {
 class Label extends Control {
     prop Color textColor;
     prop String text;
-    prop double fontsize = 12;
+    prop double fontsize = 20;
 }
 
 class ImageView extends Control {
@@ -53,7 +53,11 @@ class Slider extends Control {
     prop double value = 50;
 }
 
-class Textbox extends Control {
+class TextField extends Control {
+    prop String text;
+}
+
+class TextArea extends Control {
     prop String text;
 }
 

@@ -818,7 +818,7 @@ function Label(){     this.textColor;
     this.markDirty();
     return this;
   }
-     this.fontsize = 12;
+     this.fontsize = 20;
   this.getFontsize = function(){
     return this.fontsize;
   }
@@ -896,7 +896,7 @@ function Slider(){     this.accentColor;
   }
 }
 Slider.extend(Control);
-function Textbox(){     this.text;
+function TextField(){     this.text;
   this.getText = function(){
     return this.text;
   }
@@ -906,7 +906,18 @@ function Textbox(){     this.text;
     return this;
   }
 }
-Textbox.extend(Control);
+TextField.extend(Control);
+function TextArea(){     this.text;
+  this.getText = function(){
+    return this.text;
+  }
+  this.setText = function(Text){
+    this.text=Text;
+    this.markDirty();
+    return this;
+  }
+}
+TextArea.extend(Control);
 function Spinner(){     this.active = false;
   this.getActive = function(){
     return this.active;

@@ -299,7 +299,7 @@ function JSStage() {
         self.repeatTimeout = setTimeout(self.repeatKey, 20);
     }
     this.processRawKeyEvent = function(e) {
-        //console.log("key event:",e);
+        console.log("key event:",e);
         if(this.repeatTimeout) {
             clearTimeout(this.repeatTimeout);
             this.repeatTimeout = null;
@@ -310,6 +310,7 @@ function JSStage() {
             event.type = "KEYPRESS";
             event.keycode = e.keycode;
             event.shift = (e.shift == 1);
+            event.system = (e.system == 1);
             if(KEY_TO_CHAR_MAP[e.keycode]) {
                 var ch = KEY_TO_CHAR_MAP[e.keycode];
                 if(e.shift == 1) {
@@ -1498,6 +1499,7 @@ function RunBox() {
 function Cursor() {
     this.index = 0;
     this.control = null;
+    this.clipboard = "";
     this.advanceChar = function(offset) {
         this.index += offset;
         if(this.index < 0) {
@@ -1522,6 +1524,30 @@ function Cursor() {
         this.control.selection.end = this.index;
         console.log("selection = ", this.control.selection);
     }
+    this.cutSelection = function() {
+        var sel = this.control.selection;
+        var text =  this.control.model.text;
+        this.clipboard = text.substring(sel.start,sel.end);
+        this.control.model.text = text.substring(0,sel.start) + text.substring(sel.end);
+        this.index = sel.start;
+        this.clearSelection();
+        this.control.model.broadcast();
+        console.log("cut: " + this.clipboard);
+    }
+    this.pasteSelection = function() {
+        var model = this.control.model;
+        model.text = model.text.substring(0,this.index) + this.clipboard + model.text.substring(this.index);
+        this.index = this.index + this.clipboard.length;
+        this.control.model.broadcast();
+        console.log("pasted: " + this.clipboard);
+    }
+    this.copySelection = function() {
+        var model = this.control.model;
+        var sel = this.control.selection;
+        this.clipboard = text.substring(sel.start,sel.end);
+        console.log("copied: " + this.clipboard);
+    }
+    
     this.advanceLine = function(offset) {
         var lineNum = this.view.indexToLineNum(this.index);
         var oldline = this.view.getLine(lineNum);
@@ -1643,7 +1669,7 @@ function JSTextControl() {
                 //selection ends before this line
                 if(sel.end < line.start) continue;
                 
-                gfx.fillQuadColor(new amino.Color(0.5,1.0,0.5), 
+                gfx.fillQuadColor(new Color(0.5,1.0,0.5), 
                     { x: line.x+x, y: line.y, w: x2-x, h:line.h });
             }
         }
@@ -1677,6 +1703,21 @@ function JSTextControl() {
                 return;
             }
             if(kp.printable) {
+                //console.log(kp);
+                if(kp.printableChar == 'x' && kp.system) {
+                    self.cursor.cutSelection();
+                    return;
+                }
+                if(kp.printableChar == 'c' && kp.system) {
+                    self.cursor.copySelection();
+                    return;
+                }
+                if(kp.printableChar == 'v' && kp.system) {
+                    self.cursor.pasteSelection();
+                    return;
+                }
+                    
+                
                 self.styles.insertAt(kp.printableChar,self.cursor);
                 self.cursor.advanceChar(+1);
                 return;

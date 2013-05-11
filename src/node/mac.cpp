@@ -47,9 +47,13 @@ public:
         event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
         event_obj->Set(String::NewSymbol("action"), Number::New(action));
         int shift = 0;
+        int system = 0;
         if(glfwGetKey(GLFW_KEY_LSHIFT) == 1) shift = 1;
         if(glfwGetKey(GLFW_KEY_RSHIFT) == 1) shift = 1;
+        if(glfwGetKey(GLFW_KEY_LSUPER) == 1) system = 1;
+        if(glfwGetKey(GLFW_KEY_RSUPER) == 1) system = 1;
         event_obj->Set(String::NewSymbol("shift"), Number::New(shift));
+        event_obj->Set(String::NewSymbol("system"), Number::New(system));
         Handle<Value> event_argv[] = {event_obj};
         global_event_CB->Call(Context::GetCurrent()->Global(), 1, event_argv);
     }

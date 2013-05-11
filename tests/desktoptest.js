@@ -9,7 +9,7 @@ core.setDevice("mac");
 var stage = core.createStage();
 var root = core.createGroup();
 stage.setRoot(root);
-//stage.setSize(1000,700);
+stage.setSize(1000,700);
 
 
 function setupWidgets() {

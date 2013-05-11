@@ -173,6 +173,11 @@ SHIFT_MAP['/'] = '?';
 function JSStage() {
     this.width = core.DEFAULT_WIDTH;
     this.height = core.DEFAULT_HEIGHT;
+    
+    this.setSize = function(w,h) {
+        this.width = w;
+        this.height = h;
+    }
     this.listeners = {};
     this.on = function(name, target, fn) {
         if(target == null) {
@@ -2072,7 +2077,7 @@ function SpeedTimer(title) {
 core.started = false;
 core.start = function() {
     if(!this.windowCreated) {
-        core.real_OpenWindow();
+        core.real_OpenWindow(this.stage.width, this.stage.height);
     }
     var drawcb = this.stage.draw;
     var eventcb = this.stage.processEvents;

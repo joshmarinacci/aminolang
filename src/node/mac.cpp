@@ -28,6 +28,10 @@ public:
         HandleScope scope;
         old_width = 360;
         old_height = 640;
+        if(args.Length() == 2) {
+            old_width = args[0]->ToNumber()->NumberValue();
+            old_height = args[1]->ToNumber()->NumberValue();
+        }
         int ret = glfwOpenWindow(old_width, old_height, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
         glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
         if(!ret) {

@@ -140,6 +140,11 @@ function setupMain() {
     panel.setW(800).setH(800).setFill("#ffffff");
     main.add(panel);
     
+    var commandline = core.createTextField();
+    commandline.setW(800).setH(30).setTy(400);
+    commandline.setText('foo');
+    main.add(commandline);
+    
     
     main.setTx(300).setTy(0);
     return main;

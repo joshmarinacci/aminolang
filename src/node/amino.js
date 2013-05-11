@@ -1270,7 +1270,7 @@ function StyleModel() {
                 }
             }
         }
-        return new amino.Color(0,0,0);
+        return new Color(0,0,0);
     }
     
     this.newlineAt = function(n) {
@@ -1364,6 +1364,7 @@ function TextView() {
         return len;
     }
     this.indexToXY = function(n) {
+        if(n == 0) return {x:0, y:0};
         for(var i=0; i<this.lines.length; i++) {
             var line = this.lines[i];
             if(line.start <= n && n <= line.end) {
@@ -1375,7 +1376,7 @@ function TextView() {
                 return {x:x, y:y};
             }
         }
-        return null;
+        return { x:0, y:0 };
     }
     this.indexToLineNum = function(n) {
         for(var i=0; i<this.lines.length; i++) {
@@ -1414,7 +1415,7 @@ function TextView() {
     }
     this.layout = function() {
         if(!this.font) return;
-        p("doing layout");
+        //p("doing layout");
         //p(this.font.json);
         this.lines = [];
         
@@ -1471,9 +1472,9 @@ function TextView() {
         }
         
         this.lines.forEach(function(line) {
-            p("line");
+            //p("line");
             line.runs.forEach(function(run) {
-                p("   "+run.toString());
+                //p("   "+run.toString());
             });
         });
     }
@@ -1489,7 +1490,7 @@ function RunBox() {
     this.text = "";
     this.start = 0;
     this.end = 0;
-    this.color = new amino.Color(1,0,0);
+    this.color = new Color(1,0,0);
     this.toString = function() {
         return "run: " + this.text.substring(this.start, this.end);
     }
@@ -1575,6 +1576,16 @@ function JSTextControl() {
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;
+    this.setWrapping = function(wrapping) {
+        this.wrapping = wrapping;
+        this.view.wrapping = wrapping;
+        return this;
+    }
+    this.setFont = function(font) {
+        this.font = font;
+        this.view.font = font;
+        return this;
+    }
     this.getBounds = function() {
         return {
             x:0,
@@ -1589,11 +1600,11 @@ function JSTextControl() {
         var bds = this.getBounds();
         bds.w += 10;
         bds.h += 10;
-        gfx.fillQuadColor(new amino.Color(0.5,0.5,0.5), bds);
+        gfx.fillQuadColor(new Color(0.5,0.5,0.5), bds);
         bds.w -= 2;
         bds.h -= 2;
         gfx.translate(1,1);
-        gfx.fillQuadColor(new amino.Color(1,1,1), bds);
+        gfx.fillQuadColor(new Color(1,1,1), bds);
         
         gfx.translate(5,5);
         var font = this.font;
@@ -1648,7 +1659,7 @@ function JSTextControl() {
         });
         var pos = this.view.indexToXY(this.cursor.index);
         var h = this.font.json.height* this.font.scale;
-        gfx.fillQuadColor(new amino.Color(1,0,1), {
+        gfx.fillQuadColor(new Color(1,0,1), {
                 x: pos.x,
                 y: pos.y,
                 w: 2,
@@ -1732,11 +1743,21 @@ function JSTextControl() {
     this.setNewlineText = function(text) {
         this.model.setText(text);
     }
+    this.setText = function(text) {
+        this.model.setText(text);
+    }
     
     this.getVisible = function() { return true; }
-    this.getTx = function() { return 0; }
-    this.getTy = function() { return 0; }
+    this.tx = 0;
+    this.ty = 0;
+    this.getTx = function() { return this.tx; }
+    this.getTy = function() { return this.ty; }
+    this.setTx = function(tx) { this.tx = tx; return this; }
+    this.setTy = function(ty) { this.ty = ty; return this; }
     this.contains = function() { return true; }
+    this.setW = function(w) { this.w = w; return this; }
+    this.setH = function(h) { this.h = h; return this; }
+    this.setParent = function(p) { this.parent = p; return this; }
 }
 
 function JSTextArea() {
@@ -1772,6 +1793,7 @@ JSTextField.extend(JSTextControl);
 
 core.createTextField = function() {
     var comp = new JSTextField();
+    comp.setFont(this.DEFAULT_FONT);
     comp.install(this.stage);
     return comp;
 }

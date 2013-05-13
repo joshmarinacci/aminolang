@@ -1803,16 +1803,33 @@ function JSTextControl() {
     this.getVisible = function() { return true; }
     this.tx = 0;
     this.ty = 0;
+    this.x = 0;
+    this.y = 0;
     this.getTx = function() { return this.tx; }
     this.getTy = function() { return this.ty; }
     this.setTx = function(tx) { this.tx = tx; return this; }
     this.setTy = function(ty) { this.ty = ty; return this; }
-    this.contains = function() { return true; }
+//    this.contains = function() { return true; }
     this.setW = function(w) { this.w = w; return this; }
     this.setH = function(h) { this.h = h; return this; }
     this.getW = function() { return this.w; }
     this.getH = function() { return this.h; }
     this.setParent = function(p) { this.parent = p; return this; }
+    this.contains = function(pt){
+        if(pt.x<this.x){
+            return false;}
+        ;
+            if(pt.x>this.x+this.w){
+            return false;}
+        ;
+            if(pt.y<this.y){
+            return false;}
+        ;
+            if(pt.y>this.y+this.h){
+            return false;}
+        ;
+        return true;
+    }
 }
 
 function JSTextArea() {
@@ -1907,8 +1924,7 @@ function JSImageView() {
     this.loaded = false;
     this.loading = false;
     this.stage = null;
-    this.iw = 100;
-    this.ih = 100;
+    this.image = null;
     this.install = function(stage)  {
         this.stage = stage;
     }
@@ -1923,15 +1939,17 @@ function JSImageView() {
         if(!this.url) return;
         console.log("starting to load the image " + this.url);
         this.loading = true;
-        this.stage.loadRemoteTexture(this.url, this.iw, this.ih, function(id) {
-            console.log("finished loading the image view");
-            self.texid = id;
-            self.loaded = true;
-        });
+        this.image = amino.loadJpegFromBuffer(this.url);
+        console.log("image = ", this.image);
+        this.loaded = true;
     }
     this.draw = function(gfx) {
         if(this.loaded) {
-            gfx.fillQuadTexture(this.texid, 0,0, 256, 256);
+            if(this.sw && this.sh) {
+                gfx.fillQuadTexture(this.image.texid, 0,0, this.sw, this.sh);
+            } else {
+                gfx.fillQuadTexture(this.image.texid, 0,0, this.image.w, this.image.h);
+            }
         } else {
             this.loadImage();
         }

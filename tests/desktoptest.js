@@ -59,8 +59,9 @@ function setupWidgets() {
         var lib = {
             albums: [
                 {
-                    artist: "The Beatles",
                     name:"Yellow Submarine",
+                    artist: "The Beatles",
+                    artwork: "test/images/beatles_03.jpg",
                     tracks: [
                         {
                             title: "Yellow Submarine",
@@ -73,6 +74,70 @@ function setupWidgets() {
                         },
                         {
                             title: "Nowhere Man",
+                        }
+                    ]
+                },
+                {
+                    name:"Abbey Road",
+                    artist: "The Beatles",
+                    artwork: "test/images/beatles_01.jpg",
+                    tracks: [
+                        {
+                            title:"Come Together"
+                        },
+                        {
+                            title: "Something"
+                        },
+                        {
+                            title: "Maxwell's Silver Hammer",
+                        }
+                    ]
+                },
+                {
+                    name:"For Sale",
+                    artist: "The Beatles",
+                    artwork: "test/images/beatles_02.jpg",
+                    tracks: [
+                        {
+                            title:"No Reply"
+                        },
+                        {
+                            title: "I'm A Loser"
+                        },
+                        {
+                            title: "Baby's In Black",
+                        }
+                    ]
+                },
+                {
+                    name:"Hopes and Fears",
+                    artist: "Keane",
+                    artwork: "test/images/keane_01.jpg",
+                    tracks: [
+                        {
+                            title:"Somewhere Only We Know"
+                        },
+                        {
+                            title: "This Is The Last Time"
+                        },
+                        {
+                            title: "Bend & Break",
+                        }
+                    ]
+                },
+                {
+                    name:"Perfect Symmetry",
+                    artist: "Keane",
+                    artwork: "test/images/keane_02.jpg",
+                    tracks: [
+                        {
+                            title:"Spiralling"
+                        },
+                        {
+                            title: "The Lovers Are Losing"
+                        },
+                        {
+                            title: "Better Than This",
                         }
                     ]
                 }
@@ -91,6 +156,7 @@ function setupWidgets() {
 
         var title = core.createLabel();
         title.setText("now playing...");
+        title.setTy(0).setTx(70);
         widget.add(title);
         
         function nextTrack() {
@@ -110,19 +176,26 @@ function setupWidgets() {
         
         
         var play = core.createPushButton();
-        play.setText("play").setW(50).setH(28).setTx(100).setTy(40);
+        play.setText("play")
+            .setW(80).setH(28).setTx(100).setTy(70);
         widget.add(play);
         
         var prev = core.createPushButton().setText("prev");
-        prev.setW(50).setH(28).setTy(40).setTx(0);
+        prev.setW(80).setH(28).setTy(70).setTx(0);
         widget.add(prev);
         stage.on("PRESS",prev,prevTrack);
 
         var next = core.createPushButton().setText("next");
-        next.setW(50).setH(28).setTy(40).setTx(200);
+        next.setW(80).setH(28).setTy(70).setTx(230);
         widget.add(next);
         stage.on("PRESS",next,nextTrack);
 
+        
+        var artwork = core.createImageView();
+        artwork.setUrl("tests/images/beatles_01.jpg");
+        artwork.sw = 75;
+        artwork.sh = 75;
+        widget.add(artwork);
         
         return widget;
     }

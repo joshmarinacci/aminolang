@@ -268,8 +268,12 @@ Handle<Value> LoadJpegFromFile(const Arguments& args) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     printf("got back texture id: %d\n",texture);
     free(image->data);
-    Local<Number> num = Number::New(texture);
-    return scope.Close(num);
+    
+    Local<Object> obj = Object::New();
+    obj->Set(String::NewSymbol("texid"), Number::New(texture));
+    obj->Set(String::NewSymbol("w"),     Number::New(image->w));
+    obj->Set(String::NewSymbol("h"),     Number::New(image->h));
+    return scope.Close(obj);
 }
 
 Handle<Value> LoadPngFromFile(const Arguments& args) {

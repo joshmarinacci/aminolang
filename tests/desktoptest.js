@@ -9,7 +9,7 @@ core.setDevice("mac");
 var stage = core.createStage();
 var root = core.createGroup();
 stage.setRoot(root);
-stage.setSize(1000,700);
+stage.setSize(1000,520);
 
 
 function setupWidgets() {
@@ -136,24 +136,20 @@ root.add(setupWidgets());
 
 function setupMain() {
     var main = core.createAnchorPanel();
-    main.setW(400).setH(400);
     var bg = core.createRect();
-    bg.setW(400).setH(400).setFill("#ffffff");
-    bg.anchorLeft = true;
-    bg.anchorTop = true;
-    //bg.anchorRight = true;
-    //bg.anchorBottom = true;
+    bg.setW(600).setH(500).setFill("#ffffff");
     main.add(bg);
-    main.setW(500).setH(500);
+    main.setW(600).setH(500);
     
     
     var commandline = core.createTextField();
-    commandline.setW(400).setH(30).setTy(400-30).setTx(0);
-    //commandline.anchorBottom = true;
-    commandline.anchorLeft = true;
-    //commandline.anchorRight = true;
-    commandline.setText('foo');
+    commandline.setW(600).setH(30).setTy(500-30).setTx(0).setText('foo');
     main.add(commandline);
+    
+    stage.on("ACTION",commandline,function(e) {
+        console.log("action happened");
+        commandline.setText("");
+    });
     
     
     main.setTx(300).setTy(0);

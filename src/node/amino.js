@@ -1701,6 +1701,7 @@ function JSTextControl() {
     
     var self = this;
     this.install = function(stage) {
+        this.stage = stage;
         stage.on("KEYPRESS",this,function(kp) {
             console.log(kp.keycode);
             if(self.handlers[kp.keycode]) {
@@ -1730,7 +1731,6 @@ function JSTextControl() {
         });
     };
     
-    var self = this;
     this.handlers = {
         285: function(kp) { // left arrow
             if(kp.shift) {
@@ -1780,8 +1780,15 @@ function JSTextControl() {
             self.cursor.advanceChar(-1);
         },
         294: function(kb) { // enter/return key
-            if(!self.wrapping) return;
-            self.styles.insertNewline(self.cursor);
+            if(!kb.target.wrapping) {
+                console.log("firing an action event");
+                kb.target.stage.fireEvent({
+                    type:"ACTION",
+                    target:kb.target
+                });
+                return;
+            }
+            kb.target.styles.insertNewline(kb.target.cursor);
             //self.cursor.advanceChar(1);
         },
     }
@@ -1803,6 +1810,8 @@ function JSTextControl() {
     this.contains = function() { return true; }
     this.setW = function(w) { this.w = w; return this; }
     this.setH = function(h) { this.h = h; return this; }
+    this.getW = function() { return this.w; }
+    this.getH = function() { return this.h; }
     this.setParent = function(p) { this.parent = p; return this; }
 }
 
@@ -1830,8 +1839,8 @@ function JSTextField() {
         return {
             x:0,
             y:0,
-            w:300,
-            h:30
+            w:this.getW(),
+            h:this.getH()
         };
     }
 }

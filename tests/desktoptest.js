@@ -135,13 +135,23 @@ root.add(setupWidgets());
 
 
 function setupMain() {
-    var main = core.createGroup();
-    var panel = core.createRect();
-    panel.setW(800).setH(800).setFill("#ffffff");
-    main.add(panel);
+    var main = core.createAnchorPanel();
+    main.setW(400).setH(400);
+    var bg = core.createRect();
+    bg.setW(400).setH(400).setFill("#ffffff");
+    bg.anchorLeft = true;
+    bg.anchorTop = true;
+    //bg.anchorRight = true;
+    //bg.anchorBottom = true;
+    main.add(bg);
+    main.setW(500).setH(500);
+    
     
     var commandline = core.createTextField();
-    commandline.setW(800).setH(30).setTy(400);
+    commandline.setW(400).setH(30).setTy(400-30).setTx(0);
+    //commandline.anchorBottom = true;
+    commandline.anchorLeft = true;
+    //commandline.anchorRight = true;
     commandline.setText('foo');
     main.add(commandline);
     

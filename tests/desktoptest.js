@@ -61,7 +61,7 @@ function setupWidgets() {
                 {
                     name:"Yellow Submarine",
                     artist: "The Beatles",
-                    artwork: "test/images/beatles_03.jpg",
+                    artwork: "tests/images/beatles_03.jpg",
                     tracks: [
                         {
                             title: "Yellow Submarine",
@@ -80,7 +80,7 @@ function setupWidgets() {
                 {
                     name:"Abbey Road",
                     artist: "The Beatles",
-                    artwork: "test/images/beatles_01.jpg",
+                    artwork: "tests/images/beatles_01.jpg",
                     tracks: [
                         {
                             title:"Come Together"
@@ -96,7 +96,7 @@ function setupWidgets() {
                 {
                     name:"For Sale",
                     artist: "The Beatles",
-                    artwork: "test/images/beatles_02.jpg",
+                    artwork: "tests/images/beatles_02.jpg",
                     tracks: [
                         {
                             title:"No Reply"
@@ -112,7 +112,7 @@ function setupWidgets() {
                 {
                     name:"Hopes and Fears",
                     artist: "Keane",
-                    artwork: "test/images/keane_01.jpg",
+                    artwork: "tests/images/keane_01.jpg",
                     tracks: [
                         {
                             title:"Somewhere Only We Know"
@@ -128,7 +128,7 @@ function setupWidgets() {
                 {
                     name:"Perfect Symmetry",
                     artist: "Keane",
-                    artwork: "test/images/keane_02.jpg",
+                    artwork: "tests/images/keane_02.jpg",
                     tracks: [
                         {
                             title:"Spiralling"
@@ -157,7 +157,17 @@ function setupWidgets() {
         var title = core.createLabel();
         title.setText("now playing...");
         title.setTy(0).setTx(70);
+        title.setFontSize(16);
         widget.add(title);
+        
+        function setAlbum(album) {
+            currentAlbum = album;
+            currentTrack = 0;
+            var url = currentAlbum.artwork;
+            console.log(url);
+            artwork.setUrl(url);
+            title.setText(currentAlbum.tracks[currentTrack].title);
+        }
         
         function nextTrack() {
             currentTrack++;
@@ -197,9 +207,59 @@ function setupWidgets() {
         artwork.sh = 75;
         widget.add(artwork);
         
+        
+        var self = this;
+        var bg = core.createAnchorPanel();
+        bg.setW(500).setH(450).setTx(320).setTy(10).setFill("#00ff00");
+        var albumList = core.createListView();
+        albumList.setTx(0).setTy(0).setW(500).setH(400);
+        albumList.listModel = lib.albums;
+        albumList.cellRenderer = function(gfx, info, bounds) {
+            var color = amino.ParseRGBString("#ccffff");//amino.Color(0.5,0.5,0.5);
+            if(info.list.selectedIndex == info.index) {
+                color = new amino.Color(0.1,0.7,1.0);
+            }
+            gfx.fillQuadColor(color, bounds);
+            
+            gfx.fillQuadText(new amino.Color(0,0,0),
+                info.item.name,
+                bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
+        };
+        stage.on("SELECT",albumList, function(e) {
+            var n = e.index;
+            console.log("selected index: " + n);
+            setAlbum(lib.albums[n]);
+        });
+        
+        var closeButton = core.createPushButton().setText("done");
+        closeButton.setTx(400).setTy(420).setW(100).setH(28);
+        bg.add(closeButton);
+        bg.add(albumList);
+        
+        
+        var first = true;
+        function showPopup() {
+            console.log("popup pressed");
+            var root = stage.getRoot();
+            if(!first) {
+                root.remove(bg);
+                first = false;
+            }
+            root.add(bg);
+            bg.setVisible(true);
+        }
+        function hidePopup() {
+            bg.setVisible(false);
+        }
+        var popupButton = core.createPushButton().setText("more...");
+        popupButton.setTx(230).setTy(5).setW(80).setH(28);
+        widget.add(popupButton);        
+        stage.on("ACTION",popupButton,showPopup);
+        stage.on("ACTION",closeButton,hidePopup);
+        
         return widget;
     }
-    widgets.add(setupMusic().setTy(300));
+    widgets.add(setupMusic().setTy(200));
 
     return widgets;
 }

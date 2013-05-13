@@ -804,6 +804,7 @@ core.createAnchorPanel = function() {
 
 JSListView = function() {
     var self = this;
+    this.selectedIndex = -1;
     this.w = 100;
     this.h = 200;
     this.cellHeight = 32;
@@ -880,7 +881,12 @@ JSListView = function() {
                 if(y < this.scroll-this.cellHeight) continue;
                 if(y > this.getH()+this.scroll) break;
                 if(this.cellRenderer) {
-                    this.cellRenderer(gfx, this.listModel[i], 
+                    this.cellRenderer(gfx, 
+                        {
+                            list:this,
+                            index:i,
+                            item:this.listModel[i]
+                        },
                         {
                             x:bnds.x, 
                             y:bnds.y+3+y-this.scroll,
@@ -953,6 +959,7 @@ JSListView = function() {
                         index = self.listModel.length;
                     }
                     event.index = index;
+                    self.selectedIndex = index;
                 }
                 stage.fireEvent(event);
             }
@@ -962,6 +969,7 @@ JSListView = function() {
 JSListView.extend(generated.ListView);
 core.createListView = function() {
     var comp = new JSListView();
+    comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;
 }
@@ -975,6 +983,10 @@ function JSPushButton() {
         });
         stage.on("RELEASE", this, function(e) {
             self.setBaseColor("#aaaaaa");
+            stage.fireEvent({
+                    type:"ACTION",
+                    target:self
+            });
         });
     };
     
@@ -2225,6 +2237,7 @@ function anim(node, prop, start, finish, dur) {
 
 
 exports.getCore =function() { return core; }
+exports.ParseRGBString = ParseRGBString;
 exports.Color = Color;
 exports.SceneParser = SceneParser;
 exports.anim = anim;

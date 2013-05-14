@@ -6,31 +6,29 @@
         ,"children":[
            {
            "type":"AnchorPanel"
-          ,"id":"id203695"
+          ,"id":"main"
           ,"anchorLeft":true
-          ,"h":479.0
           ,"w":639.0
           ,"fill":"#a0a0a0"
-          ,"anchorBottom":false
           ,"anchorTop":true
-          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@b227f7a"
           ,"ty":0.0
           ,"anchorRight":false
           ,"tx":0.0
+          ,"h":479.0
+          ,"anchorBottom":false
             ,"children":[
                {
                "type":"AnchorPanel"
               ,"id":"clockWidget"
               ,"anchorLeft":true
-              ,"h":100.0
               ,"w":300.0
               ,"fill":"#ff5595"
-              ,"anchorBottom":false
               ,"anchorTop":true
-              ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@b227f7a"
               ,"ty":0.0
               ,"anchorRight":false
               ,"tx":0.0
+              ,"h":100.0
+              ,"anchorBottom":false
               ,"left":0.0
               ,"top":0.0
               ,"right":339.0
@@ -41,15 +39,15 @@
                   ,"id":"clockLabel"
                   ,"anchorLeft":true
                   ,"text":"clock"
-                  ,"h":52.0
-                  ,"color":"#000000"
                   ,"w":277.0
-                  ,"anchorBottom":false
                   ,"anchorTop":true
-                  ,"fontSize":30.0
                   ,"ty":10.0
+                  ,"fontSize":30.0
                   ,"anchorRight":false
                   ,"tx":10.0
+                  ,"h":52.0
+                  ,"color":"#000000"
+                  ,"anchorBottom":false
                   ,"left":10.0
                   ,"top":10.0
                   ,"right":13.0
@@ -61,18 +59,17 @@
                "type":"AnchorPanel"
               ,"id":"weatherWidget"
               ,"anchorLeft":true
-              ,"h":100.0
-              ,"w":299.0
+              ,"w":300.0
               ,"fill":"#d5aaff"
-              ,"anchorBottom":false
               ,"anchorTop":true
-              ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@b227f7a"
               ,"ty":100.0
               ,"anchorRight":false
               ,"tx":0.0
+              ,"h":100.0
+              ,"anchorBottom":false
               ,"left":0.0
               ,"top":100.0
-              ,"right":340.0
+              ,"right":339.0
               ,"bottom":279.0
                 ,"children":[
                    {
@@ -80,21 +77,206 @@
                   ,"id":"weatherLabel"
                   ,"anchorLeft":true
                   ,"text":"a label"
-                  ,"h":58.0
-                  ,"color":"#000000"
                   ,"w":283.0
-                  ,"anchorBottom":false
                   ,"anchorTop":true
-                  ,"fontSize":30.0
                   ,"ty":20.0
+                  ,"fontSize":30.0
                   ,"anchorRight":false
                   ,"tx":10.0
+                  ,"h":58.0
+                  ,"color":"#000000"
+                  ,"anchorBottom":false
                   ,"left":10.0
                   ,"top":20.0
-                  ,"right":6.0
+                  ,"right":7.0
                   ,"bottom":22.0
                   }
                 ]
+              }
+              ,{
+               "type":"AnchorPanel"
+              ,"id":"id877829"
+              ,"anchorLeft":true
+              ,"w":300.0
+              ,"fill":"#8eaaff"
+              ,"anchorTop":true
+              ,"ty":200.0
+              ,"anchorRight":false
+              ,"tx":0.0
+              ,"h":100.0
+              ,"anchorBottom":false
+              ,"left":0.0
+              ,"top":200.0
+              ,"right":339.0
+              ,"bottom":179.0
+                ,"children":[
+                   {
+                   "type":"ImageView"
+                  ,"id":"musicArtwork"
+                  ,"anchorLeft":true
+                  ,"h":50.0
+                  ,"url":"Heart.png"
+                  ,"w":100.0
+                  ,"anchorBottom":false
+                  ,"anchorTop":true
+                  ,"ty":0.0
+                  ,"tx":0.0
+                  ,"anchorRight":false
+                  ,"left":0.0
+                  ,"top":0.0
+                  ,"right":200.0
+                  ,"bottom":50.0
+                  }
+                  ,{
+                   "type":"PushButton"
+                  ,"id":"musicOpenButton"
+                  ,"anchorLeft":true
+                  ,"enabled":true
+                  ,"text":"more..."
+                  ,"w":75.0
+                  ,"anchorTop":true
+                  ,"ty":9.0
+                  ,"fontSize":15.0
+                  ,"anchorRight":false
+                  ,"tx":219.0
+                  ,"h":23.0
+                  ,"anchorBottom":false
+                  ,"left":219.0
+                  ,"top":9.0
+                  ,"right":6.0
+                  ,"bottom":68.0
+                  }
+                  ,{
+                   "type":"PushButton"
+                  ,"id":"prevButton"
+                  ,"anchorLeft":true
+                  ,"enabled":true
+                  ,"text":"prev"
+                  ,"w":100.0
+                  ,"anchorTop":true
+                  ,"ty":70.0
+                  ,"fontSize":15.0
+                  ,"anchorRight":false
+                  ,"tx":0.0
+                  ,"h":30.0
+                  ,"anchorBottom":false
+                  ,"left":0.0
+                  ,"top":70.0
+                  ,"right":200.0
+                  ,"bottom":0.0
+                  }
+                  ,{
+                   "type":"PushButton"
+                  ,"id":"playButton"
+                  ,"anchorLeft":true
+                  ,"enabled":true
+                  ,"text":"play"
+                  ,"w":100.0
+                  ,"anchorTop":true
+                  ,"ty":70.0
+                  ,"fontSize":15.0
+                  ,"anchorRight":false
+                  ,"tx":100.0
+                  ,"h":30.0
+                  ,"anchorBottom":false
+                  ,"left":100.0
+                  ,"top":70.0
+                  ,"right":100.0
+                  ,"bottom":0.0
+                  }
+                  ,{
+                   "type":"PushButton"
+                  ,"id":"nextButton"
+                  ,"anchorLeft":true
+                  ,"enabled":true
+                  ,"text":"next"
+                  ,"w":100.0
+                  ,"anchorTop":true
+                  ,"ty":70.0
+                  ,"fontSize":15.0
+                  ,"anchorRight":false
+                  ,"tx":200.0
+                  ,"h":30.0
+                  ,"anchorBottom":false
+                  ,"left":200.0
+                  ,"top":70.0
+                  ,"right":0.0
+                  ,"bottom":0.0
+                  }
+                  ,{
+                   "type":"Label"
+                  ,"id":"musicTitle"
+                  ,"anchorLeft":true
+                  ,"text":"a label"
+                  ,"w":230.0
+                  ,"anchorTop":true
+                  ,"fontSize":15.0
+                  ,"ty":34.0
+                  ,"anchorRight":false
+                  ,"tx":70.0
+                  ,"h":24.0
+                  ,"color":"#000000"
+                  ,"anchorBottom":false
+                  ,"left":70.0
+                  ,"top":34.0
+                  ,"right":0.0
+                  ,"bottom":42.0
+                  }
+                ]
+              }
+            ]
+          }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"musicPopup"
+          ,"anchorLeft":true
+          ,"fill":"#c6ffff"
+          ,"w":374.0
+          ,"anchorTop":true
+          ,"ty":0.0
+          ,"anchorRight":false
+          ,"tx":660.0
+          ,"h":354.0
+          ,"anchorBottom":false
+            ,"children":[
+               {
+               "type":"ListView"
+              ,"id":"albumList"
+              ,"anchorLeft":true
+              ,"selectedIndex":0
+              ,"cellHeight":30.0
+              ,"w":373.0
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"cellWidth":30.0
+              ,"h":322.0
+              ,"layout":"vert"
+              ,"anchorBottom":true
+              ,"left":0.0
+              ,"top":0.0
+              ,"right":1.0
+              ,"bottom":32.0
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"musicCloseButton"
+              ,"anchorLeft":false
+              ,"enabled":true
+              ,"text":"close"
+              ,"w":140.0
+              ,"anchorTop":false
+              ,"ty":323.0
+              ,"fontSize":15.0
+              ,"anchorRight":true
+              ,"tx":233.0
+              ,"h":30.0
+              ,"anchorBottom":true
+              ,"left":233.0
+              ,"top":323.0
+              ,"right":1.0
+              ,"bottom":1.0
               }
             ]
           }

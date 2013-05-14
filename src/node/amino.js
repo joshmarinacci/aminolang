@@ -997,8 +997,8 @@ function JSPushButton() {
 
         //draw the text
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
         
+        var x = bnds.x;
         //draw the icon
         if(this.url) {
             if(!this.iconImage && !this.iconLoading) {
@@ -1006,9 +1006,17 @@ function JSPushButton() {
                 this.iconImage = amino.loadPngFromBuffer("/Users/josh/projects/temp/"+this.url);
             }
             if(this.iconImage) {
-                gfx.fillQuadTexture(this.iconImage.texid, 0,0, this.iconImage.w, this.iconImage.h);
+                x += 10;
+                gfx.fillQuadTexture(this.iconImage.texid, x,0, this.iconImage.w, this.iconImage.h);
+                //x += this.iconImage.w;  image is too big right now. assume 30px
+                x += 30;
+                x += 10;
             }
         }
+        
+        var w = this.font.calcStringWidth(self.getText());
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
+        
     };
     this.setBaseColor = function(base) {
         this.baseColor = ParseRGBString(base);
@@ -1110,7 +1118,7 @@ function JSFont(jsonpath, pngpath, w, h) {
     this.loaded = false;
     //load png
     this.loadImage = function() {
-        console.log("loading image: " + pngpath);
+        console.log("font: loading image: " + pngpath);
         var fontImage = amino.loadPngFromBuffer(pngpath);
         self.fontid = amino.createNativeFont(
             fontImage.texid,
@@ -1123,6 +1131,16 @@ function JSFont(jsonpath, pngpath, w, h) {
         self.loaded = true;
         console.log("fully loaded the font with id: " + self.fontid);
     }    
+    this.calcStringWidth = function(str) {
+        for(var i=0; i<str.length; i++) {
+            var ch = str.charCodeAt(i);
+            console.log("ch = " + str.charCodeAt(i) + " minchar = " + this.json.minchar);
+            var n = ch - this.json.minchar;
+            var w = this.json.widths[n];
+            console.log("looking at: " + ch + " n = " + n +  " w = " + w);
+        }
+        return 80;
+    }
 }
 core.fonts = [];
 core.createFont = function(jsonpath, pngpath, w, h) {

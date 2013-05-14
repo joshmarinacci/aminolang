@@ -774,25 +774,21 @@ JSAnchorPanel = function() {
     this.redoLayout = function() {
         for(var i in this.nodes) {
             var node = this.nodes[i];
+            //top aligned
+            if(node.anchorTop && !node.anchorBottom) {
+                node.setTy(node.top);
+            }
             //bottom aligned
             if(node.anchorBottom && !node.anchorTop) {
-                node.setTy(this.getH() - (this.orig_h - node.orig_ty));
+                node.setTy(this.getH() - node.bottom - node.getH());
             }
-            //stretch vert
-            if(node.anchorBottom && node.anchorTop) {
-                var obottom = this.orig_h - node.orig_ty - node.orig_h;
-                node.setTy(node.orig_ty);
-                node.setH(this.getH()-obottom);
+            //left aligned
+            if(node.anchorLeft && !node.anchorRight) {
+                node.setTx(node.left);
             }
             //right aligned
             if(node.anchorRight && !node.anchorLeft) {
-                node.setTx(this.getW() - (this.orig_w - node.orig_tx));
-            }
-            //stretch horiz
-            if(node.anchorRight && node.anchorLeft) {
-                var oright = this.orig_w - node.orig_tx - node.orig_w;
-                node.setTx(node.orig_tx);
-                node.setW(this.getW()-oright);
+                node.setTx(this.getW() - node.right - node.getW());
             }
         }
     }
@@ -997,8 +993,10 @@ function JSPushButton() {
         border.w+=2;
         border.h+=2;
         
+        //draw the border
         gfx.fillQuadColor(new Color(0,0,0), border); 
         
+        //draw the background
         var fill = self.getBaseColor();
         if(typeof fill == "string") {
             var r = parseInt(fill.substring(1,3),16);
@@ -1009,8 +1007,28 @@ function JSPushButton() {
             gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
         }
 
+        //draw the text
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
+        
+        var x = bnds.x;
+        //draw the icon
+        if(this.url) {
+            if(!this.iconImage && !this.iconLoading) {
+                this.iconLoading = true;
+                this.iconImage = amino.loadPngFromBuffer("/Users/josh/projects/temp/"+this.url);
+            }
+            if(this.iconImage) {
+                x += 10;
+                gfx.fillQuadTexture(this.iconImage.texid, x,0, this.iconImage.w, this.iconImage.h);
+                //x += this.iconImage.w;  image is too big right now. assume 30px
+                x += 30;
+                x += 10;
+            }
+        }
+        
+        var w = this.font.calcStringWidth(self.getText());
+        gfx.fillQuadText(new Color(0,0,0), self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
+        
     };
     this.setBaseColor = function(base) {
         this.baseColor = ParseRGBString(base);
@@ -1112,14 +1130,10 @@ function JSFont(jsonpath, pngpath, w, h) {
     this.loaded = false;
     //load png
     this.loadImage = function() {
-        console.log("loading image: " + pngpath);
-        var texid = amino.loadPngFromBuffer(pngpath);
-        console.log("texid = " + texid);
-        console.log("included 0 = " + self.json.included[0]);
-        console.log("width 0 = " + self.json.widths[0]);
-        console.log("offset 0 = " + self.json.offsets[0]);
+        console.log("font: loading image: " + pngpath);
+        var fontImage = amino.loadPngFromBuffer(pngpath);
         self.fontid = amino.createNativeFont(
-            texid,
+            fontImage.texid,
             self.json.minchar,
             self.json.maxchar,
             self.json.included,
@@ -1129,6 +1143,16 @@ function JSFont(jsonpath, pngpath, w, h) {
         self.loaded = true;
         console.log("fully loaded the font with id: " + self.fontid);
     }    
+    this.calcStringWidth = function(str) {
+        for(var i=0; i<str.length; i++) {
+            var ch = str.charCodeAt(i);
+            console.log("ch = " + str.charCodeAt(i) + " minchar = " + this.json.minchar);
+            var n = ch - this.json.minchar;
+            var w = this.json.widths[n];
+            console.log("looking at: " + ch + " n = " + n +  " w = " + w);
+        }
+        return 80;
+    }
 }
 core.fonts = [];
 core.createFont = function(jsonpath, pngpath, w, h) {
@@ -1991,17 +2015,6 @@ var SceneParser = function() {
             if(prop == "children") continue;
             out[prop] = obj[prop];
         }
-        out.orig_tx = obj.tx;
-        out.orig_ty = obj.ty;
-        out.orig_w = obj.w;
-        out.orig_h = obj.h;
-        /*
-        if(obj.type == "AnchorPanel") {
-            console.log("doing an anchor panel. orig w h = " + obj.w + " " + obj.h);
-            out.orig_w = obj.w;
-            out.orig_h = obj.h;
-        }
-        */
     }
     
     this.findNode = function(id, node) {

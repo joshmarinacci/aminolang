@@ -729,7 +729,7 @@ JSAnchorPanel = function() {
         return this.nodes[i];
     }
     this.setFill = function(fill) {
-        this.fill = ParseRGBString("#cccccc");
+        this.fill = ParseRGBString(fill);
         return this;
     };
     this.getFill = function() {
@@ -2013,6 +2013,10 @@ var SceneParser = function() {
         for(var prop in obj) {
             if(prop == "type") continue;
             if(prop == "children") continue;
+            if(prop == "fill") {
+                out["set"+camelize(prop)](obj[prop]);
+                continue;
+            }
             out[prop] = obj[prop];
         }
     }

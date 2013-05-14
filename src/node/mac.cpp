@@ -284,6 +284,11 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
     std::strcpy (file, text.c_str());
     printf("LoadPngFromFile %s\n",file);
     Image* image = pngfile_to_bytes(file);
+    if(image == 0) {
+        printf("error loading\n");
+        return scope.Close(Undefined());
+    }
+        
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);

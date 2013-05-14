@@ -76,7 +76,10 @@ Image * pngfile_to_bytes(char* file_name) {
     int i;
         
     FILE *fp = fopen(file_name, "rb");
-    if (!fp) abort_("[read_png_file] File %s could not be opened for reading", file_name);
+    if (!fp) {
+        fprintf(stderr, "can't open %s\n", file_name);
+        return 0;
+    }
     
     printf("read the header\n");
         

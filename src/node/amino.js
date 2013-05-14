@@ -1027,6 +1027,7 @@ function JSPushButton() {
         }
         
         var w = this.font.calcStringWidth(self.getText());
+        w = w*this.getFontSize()/40.0; //scale down as needed
         gfx.fillQuadText(new Color(0,0,0), self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
         
     };
@@ -1144,14 +1145,14 @@ function JSFont(jsonpath, pngpath, w, h) {
         console.log("fully loaded the font with id: " + self.fontid);
     }    
     this.calcStringWidth = function(str) {
+        var total = 0;
         for(var i=0; i<str.length; i++) {
             var ch = str.charCodeAt(i);
-            console.log("ch = " + str.charCodeAt(i) + " minchar = " + this.json.minchar);
             var n = ch - this.json.minchar;
             var w = this.json.widths[n];
-            console.log("looking at: " + ch + " n = " + n +  " w = " + w);
+            total += w;
         }
-        return 80;
+        return total;
     }
 }
 core.fonts = [];
@@ -1975,12 +1976,16 @@ function JSImageView() {
         if(!this.url) return;
         console.log("starting to load the image " + this.url);
         this.loading = true;
-        this.image = amino.loadJpegFromBuffer(this.url);
+        if(this.url.toLowerCase().endsWith(".png")) {
+            this.image = amino.loadPngFromBuffer(this.url);
+        } else {
+            this.image = amino.loadJpegFromBuffer(this.url);
+        }
         console.log("image = ", this.image);
         this.loaded = true;
     }
     this.draw = function(gfx) {
-        if(this.loaded) {
+        if(this.loaded && this.image) {
             if(this.sw && this.sh) {
                 gfx.fillQuadTexture(this.image.texid, 0,0, this.sw, this.sh);
             } else {
@@ -2058,6 +2063,7 @@ var SceneParser = function() {
         "Document":"createGroup",
         "DynamicGroup":"createGroup",
         "AnchorPanel":"createAnchorPanel",
+        "ImageView":"createImageView",
     };
     this.parentTypeMap = {
         "Group":JSGroup,

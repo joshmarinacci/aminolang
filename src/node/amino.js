@@ -1580,7 +1580,6 @@ function Cursor() {
         this.index = sel.getStart();
         this.clearSelection();
         this.control.model.broadcast();
-        console.log("cut: " + this.clipboard);
     }
     this.pasteSelection = function() {
         var model = this.control.model;

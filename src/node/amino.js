@@ -1438,14 +1438,13 @@ function TextView() {
     this.run = null;
     this.y = 0;
     this.w = 0;
-    this.maxW = 300;
     this.endLine = function(n) {
         this.run.end = n+1;
         this.line.end = n+1;
         this.line.runs.push(this.run);
         this.lines.push(this.line);
         this.line.h = this.lineheight;
-        this.line.w = this.maxW;
+        this.line.w = this.control.getW();
         this.line = new LineBox();
         this.y+= this.lineheight;
         this.line.y = this.y;
@@ -1498,7 +1497,7 @@ function TextView() {
                 lastspace = n;
             }
             this.w += this.getCharWidth(ch);
-            if(this.wrapping && (this.w > this.maxW || ch == '\n')) {
+            if(this.wrapping && (this.w > this.control.getW() || ch == '\n')) {
                 //p("breaking line. prev space at " + lastspace);
                 //go back to previous space
                 if(lastspace >= 0) {
@@ -1577,8 +1576,8 @@ function Cursor() {
         var sel = this.control.selection;
         var text =  this.control.model.text;
         this.clipboard = text.substring(sel.start,sel.end);
-        this.control.model.text = text.substring(0,sel.start) + text.substring(sel.end);
-        this.index = sel.start;
+        this.control.model.text = text.substring(0,sel.getStart()) + text.substring(sel.getEnd());
+        this.index = sel.getStart();
         this.clearSelection();
         this.control.model.broadcast();
         console.log("cut: " + this.clipboard);
@@ -1588,13 +1587,12 @@ function Cursor() {
         model.text = model.text.substring(0,this.index) + this.clipboard + model.text.substring(this.index);
         this.index = this.index + this.clipboard.length;
         this.control.model.broadcast();
-        console.log("pasted: " + this.clipboard);
     }
     this.copySelection = function() {
         var model = this.control.model;
         var sel = this.control.selection;
-        this.clipboard = text.substring(sel.start,sel.end);
-        console.log("copied: " + this.clipboard);
+        var text =  this.control.model.text;
+        this.clipboard = text.substring(sel.getStart(), sel.getEnd());
     }
     
     this.advanceLine = function(offset) {
@@ -1656,6 +1654,7 @@ function JSTextControl() {
     this.styles = new StyleModel();
     this.view.styles = this.styles;
     this.view.setModel(this.model);
+    this.view.control = this;
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;

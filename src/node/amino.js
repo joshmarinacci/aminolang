@@ -1323,6 +1323,18 @@ function StyleModel() {
         }
         return false;
     }
+    
+    this.newlineCount = function(n) {
+        var count = 0;
+        for(var i=0; i<this.runs.length; i++) {
+            var run = this.runs[i];
+            if(run.start == n && run.atomic && run.kind == "newline") {
+                count++;
+            }
+        }
+        return count;
+    }
+    
     this.insertAt = function(text, index) {
         var len = text.length;
         this.model.insertAt(text,index);
@@ -1371,13 +1383,20 @@ function StyleModel() {
             self.runs.splice(n,1);
         });
     }
-    this.insertNewline = function(cursor) {
+    this.insertNewline = function(index) {
         this.runs.push({
-                start:cursor.index-1,
+                start:index-1,
                 end:-1,
                 atomic:true,
                 kind:"newline",
         });
+        /*
+        console.log("style model = ");
+        this.runs.forEach(function(run) {
+                console.log(run);
+        });
+        */
+            
         this.model.broadcast();
     }
 }
@@ -1462,8 +1481,6 @@ function TextView() {
     }
     this.layout = function() {
         if(!this.font) return;
-        console.log("doing layout " + this.control.getW());
-        //p(this.font.json);
         this.lines = [];
         
         this.lineheight = this.font.json.height*this.font.scale;
@@ -1485,6 +1502,9 @@ function TextView() {
                 var newline = this.styles.newlineAt(n);
                 if(newline) {
                     this.endLine(n);
+                    //var nlcount = this.styles.newlineCount(n);
+                    //this.y += nlcount*this.lineheight;
+                    //this.line.y = this.y;
                 } else {
                     this.run.end = n;
                     this.line.runs.push(this.run);
@@ -1575,6 +1595,17 @@ function Cursor() {
             this.control.styles.insertAt(ch,this.index+1);
         }
     }
+    this.insertNewline = function() {
+        if(this.bias == this.BACKWARD) {
+            this.control.styles.insertNewline(this.index);
+            this.bias = this.BACKWARD;
+        } else {
+            this.control.styles.insertNewline(this.index+1);
+            this.bias = this.BACKWARD;
+            this.advanceChar(1);
+        }
+    }
+
 
     this.selectionActive = function() {
         return (this.control.selection != null);
@@ -1875,15 +1906,13 @@ function JSTextControl() {
         },
         294: function(kb) { // enter/return key
             if(!kb.target.wrapping) {
-                console.log("firing an action event");
                 kb.target.stage.fireEvent({
                     type:"ACTION",
                     target:kb.target
                 });
                 return;
             }
-            kb.target.styles.insertNewline(kb.target.cursor);
-            //self.cursor.advanceChar(1);
+            self.cursor.insertNewline();
         },
     }
     

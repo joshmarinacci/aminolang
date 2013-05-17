@@ -137,8 +137,8 @@
                   ,"anchorTop":true
                   ,"ty":9.0
                   ,"fontSize":15.0
-                  ,"anchorRight":false
                   ,"tx":219.0
+                  ,"anchorRight":false
                   ,"h":23.0
                   ,"anchorBottom":false
                   ,"left":219.0
@@ -156,8 +156,8 @@
                   ,"anchorTop":true
                   ,"ty":70.0
                   ,"fontSize":15.0
-                  ,"anchorRight":false
                   ,"tx":0.0
+                  ,"anchorRight":false
                   ,"h":30.0
                   ,"anchorBottom":false
                   ,"left":0.0
@@ -175,8 +175,8 @@
                   ,"anchorTop":true
                   ,"ty":70.0
                   ,"fontSize":15.0
-                  ,"anchorRight":false
                   ,"tx":100.0
+                  ,"anchorRight":false
                   ,"h":30.0
                   ,"anchorBottom":false
                   ,"left":100.0
@@ -194,8 +194,8 @@
                   ,"anchorTop":true
                   ,"ty":70.0
                   ,"fontSize":15.0
-                  ,"anchorRight":false
                   ,"tx":200.0
+                  ,"anchorRight":false
                   ,"h":30.0
                   ,"anchorBottom":false
                   ,"left":200.0
@@ -210,8 +210,8 @@
                   ,"text":"a label"
                   ,"w":230.0
                   ,"anchorTop":true
-                  ,"fontSize":15.0
                   ,"ty":34.0
+                  ,"fontSize":15.0
                   ,"anchorRight":false
                   ,"tx":70.0
                   ,"h":24.0
@@ -224,14 +224,31 @@
                   }
                 ]
               }
+              ,{
+               "type":"TextField"
+              ,"id":"commandLine"
+              ,"anchorLeft":true
+              ,"text":"textfield"
+              ,"h":29.0
+              ,"w":640.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":450.0
+              ,"anchorRight":false
+              ,"tx":0.0
+              ,"left":0.0
+              ,"top":450.0
+              ,"right":-1.0
+              ,"bottom":0.0
+              }
             ]
           }
           ,{
            "type":"AnchorPanel"
           ,"id":"musicPopup"
           ,"anchorLeft":true
-          ,"fill":"#c6ffff"
           ,"w":374.0
+          ,"fill":"#c6ffff"
           ,"anchorTop":true
           ,"ty":0.0
           ,"anchorRight":false
@@ -248,8 +265,8 @@
               ,"w":373.0
               ,"anchorTop":true
               ,"ty":0.0
-              ,"anchorRight":true
               ,"tx":0.0
+              ,"anchorRight":true
               ,"cellWidth":30.0
               ,"h":322.0
               ,"layout":"vert"
@@ -269,8 +286,8 @@
               ,"anchorTop":false
               ,"ty":323.0
               ,"fontSize":15.0
-              ,"anchorRight":true
               ,"tx":233.0
+              ,"anchorRight":true
               ,"h":30.0
               ,"anchorBottom":true
               ,"left":233.0

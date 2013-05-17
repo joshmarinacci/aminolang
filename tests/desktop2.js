@@ -188,7 +188,7 @@ function setupMusic() {
 
 function setupEditor() {
     var editor = core.createTextArea();
-    editor.setTx(300).setH(500).setW(600);
+    editor.setTx(300).setH(500).setW(250);
     editor.setText("foo");
     root.add(editor);
 }

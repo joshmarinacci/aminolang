@@ -1251,15 +1251,13 @@ function TextModel() {
     this.getLength = function() {
         return this.text.length;
     }
-    this.insertAt = function(text, cursor) {
-        //update the text
-        this.text = this.text.substring(0,cursor.index) + text + this.text.substring(cursor.index);
-        //fire a change
+    this.insertAt = function(text, index) {
+        this.text = this.text.substring(0,index) + text + this.text.substring(index);
         this.broadcast();
     }
-    this.deleteAt = function(count, cursor) {
-        if(cursor.index - count < 0) return false;
-        this.text = this.text.substring(0,cursor.index-1) + this.text.substring(cursor.index);
+    this.deleteAt = function(count, index) {
+        if(index - count < 0) return false;
+        this.text = this.text.substring(0,index-1) + this.text.substring(index);
         this.broadcast();
         return true;
     }
@@ -1325,10 +1323,10 @@ function StyleModel() {
         }
         return false;
     }
-    this.insertAt = function(text, cursor) {
+    this.insertAt = function(text, index) {
         var len = text.length;
-        this.model.insertAt(text,cursor);
-        var n = cursor.index;
+        this.model.insertAt(text,index);
+        var n = index;
         for(var i=0; i<this.runs.length; i++) {
             var run = this.runs[i];
             //before the run
@@ -1342,10 +1340,10 @@ function StyleModel() {
             }
         }
     }
-    this.deleteAt = function(count, cursor) {
-        var deleted = this.model.deleteAt(count, cursor);
+    this.deleteAt = function(count, index) {
+        var deleted = this.model.deleteAt(count, index);
         if(!deleted) return;
-        var n = cursor.index;
+        var n = index;
         var toremove = [];
         for(var i=0; i<this.runs.length; i++) {
             var run = this.runs[i];
@@ -1399,6 +1397,10 @@ function TextView() {
         var w = this.font.json.widths[n];
         return w*this.font.scale;
     }
+    this.getCharAt = function(n) {
+        return this.model.text.substring(n,n+1);
+    }
+    
     this.getStringWidth = function(str) {
         var len = 0;
         for(var i=0; i<str.length; i++) {
@@ -1495,7 +1497,7 @@ function TextView() {
             }
             
             
-            var ch = this.model.text.substring(n,n+1);
+            var ch = this.getCharAt(n);
             if(ch == ' ') {
                 this.lastspace = n;
             }
@@ -1541,18 +1543,39 @@ function RunBox() {
     }
 }
 function Cursor() {
+    this.FORWARD = 0;
+    this.BACKWARD = 1;
     this.index = 0;
     this.control = null;
     this.clipboard = "";
+    this.bias = this.FORWARD;
     this.advanceChar = function(offset) {
         this.index += offset;
         if(this.index < 0) {
             this.index = 0;
+            this.bias = this.BACKWARD;
         }
         if(this.index > this.model.getLength()-1) {
             this.index = this.model.getLength()-1;
+            this.bias = this.FORWARD;
         }
     }
+    this.deleteChar = function() {
+        if(this.bias == this.FORWARD) {
+            this.control.styles.deleteAt(1,this.index+1);
+        } else {
+            this.control.styles.deleteAt(1,this.index);
+        }
+        this.advanceChar(-1);
+    }
+    this.insertChar = function(ch) {
+        if(this.bias == this.BACKWARD) {
+            this.control.styles.insertAt(ch,this.index);
+        } else {
+            this.control.styles.insertAt(ch,this.index+1);
+        }
+    }
+
     this.selectionActive = function() {
         return (this.control.selection != null);
     }
@@ -1724,6 +1747,28 @@ function JSTextControl() {
             }
         }
         
+        var ch  = this.view.getCharAt(this.cursor.index);
+        var chw = this.view.getCharWidth(ch);
+        var pos = this.view.indexToXY(this.cursor.index);
+        
+        var chx = 0;
+        
+        if(this.cursor.bias == this.cursor.FORWARD) {
+            chx = chw;
+        }
+        if(this.cursor.bias == this.cursor.BACKWARD) {
+        }
+        var chh = this.font.json.height* this.font.scale;
+
+
+        //draw block cursor
+        gfx.fillQuadColor(new Color(0.7,0.9,0.9), {
+                x:pos.x,
+                y:pos.y,
+                w: chw,
+                h: chh,
+        });
+        
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
                 gfx.fillQuadText(run.color, 
@@ -1733,13 +1778,14 @@ function JSTextControl() {
                     );
             });
         });
-        var pos = this.view.indexToXY(this.cursor.index);
-        var h = this.font.json.height* this.font.scale;
+        
+        
+        //draw line cursor
         gfx.fillQuadColor(new Color(1,0,1), {
-                x: pos.x,
+                x: pos.x+chx,
                 y: pos.y,
                 w: 2,
-                h: this.font.json.height*this.font.scale
+                h: chh,
         });
         gfx.restore();
     }
@@ -1768,8 +1814,7 @@ function JSTextControl() {
                     return;
                 }
                     
-                
-                self.styles.insertAt(kp.printableChar,self.cursor);
+                self.cursor.insertChar(kp.printableChar);
                 self.cursor.advanceChar(+1);
                 return;
             }
@@ -1825,8 +1870,7 @@ function JSTextControl() {
                 self.cursor.deleteSelection();
                 self.cursor.clearSelection();
             } else {
-                self.styles.deleteAt(1,self.cursor);
-                self.cursor.advanceChar(-1);
+                self.cursor.deleteChar();
             }
         },
         294: function(kb) { // enter/return key

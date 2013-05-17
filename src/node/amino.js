@@ -1434,6 +1434,7 @@ function TextView() {
         return this.lines[n];
     }
     
+    this.control = null;
     this.line = null;
     this.run = null;
     this.y = 0;
@@ -1457,7 +1458,7 @@ function TextView() {
     }
     this.layout = function() {
         if(!this.font) return;
-        //p("doing layout");
+        console.log("doing layout " + this.control.getW());
         //p(this.font.json);
         this.lines = [];
         
@@ -1500,9 +1501,9 @@ function TextView() {
             if(this.wrapping && (this.w > this.control.getW() || ch == '\n')) {
                 //p("breaking line. prev space at " + lastspace);
                 //go back to previous space
-                if(lastspace >= 0) {
-                    n = lastspace;
-                    lastspace = -1;
+                if(this.lastspace >= 0) {
+                    n = this.lastspace;
+                    this.lastspace = -1;
                 }
                 this.endLine(n);
             }
@@ -1650,10 +1651,10 @@ function JSTextControl() {
     this.cursor.control = this;
     this.model = new TextModel();
     this.view = new TextView();
+    this.view.control = this;
     this.styles = new StyleModel();
     this.view.styles = this.styles;
     this.view.setModel(this.model);
-    this.view.control = this;
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;
@@ -1852,11 +1853,11 @@ function JSTextControl() {
     this.ty = 0;
     this.x = 0;
     this.y = 0;
+    this.w = 100;
     this.getTx = function() { return this.tx; }
     this.getTy = function() { return this.ty; }
     this.setTx = function(tx) { this.tx = tx; return this; }
     this.setTy = function(ty) { this.ty = ty; return this; }
-//    this.contains = function() { return true; }
     this.setW = function(w) { this.w = w; return this; }
     this.setH = function(h) { this.h = h; return this; }
     this.getW = function() { return this.w; }
@@ -1898,6 +1899,7 @@ core.createTextArea = function() {
     var comp = new JSTextArea();
     comp.font = this.DEFAULT_FONT;
     comp.view.font = this.DEFAULT_FONT;
+    comp.view.control = comp;
     comp.install(this.stage);
     return comp;
 }

@@ -1564,8 +1564,15 @@ function Cursor() {
         }
         this.index += offset;
         this.control.selection.end = this.index;
-        console.log("selection = ", this.control.selection);
     }
+    this.deleteSelection = function() {
+        var sel = this.control.selection;
+        var text =  this.control.model.text;
+        this.control.model.text = text.substring(0,sel.getStart()) + text.substring(sel.getEnd());
+        this.index = sel.getStart();
+        this.control.model.broadcast();
+    }
+    
     this.cutSelection = function() {
         var sel = this.control.selection;
         var text =  this.control.model.text;
@@ -1629,6 +1636,14 @@ function Cursor() {
 function TextSelection() {
     this.start = -1;
     this.end = -1;
+    this.getStart = function() {
+        if(this.end < this.start) return this.end;
+        return this.start;
+    }
+    this.getEnd = function() {
+        if(this.end < this.start) return this.start;
+        return this.end;
+    }
 }
 
 function JSTextControl() {
@@ -1653,14 +1668,6 @@ function JSTextControl() {
         this.font = font;
         this.view.font = font;
         return this;
-    }
-    this.getBounds = function() {
-        return {
-            x:0,
-            y:0,
-            w:300,
-            h:200
-        };
     }
     this.draw = function(gfx) {
         gfx.save();
@@ -1813,8 +1820,13 @@ function JSTextControl() {
         },
         295: function(kp) { //delete/backspace key
             if(self.cursor.index - 1 < 0) return;
-            self.styles.deleteAt(1,self.cursor);
-            self.cursor.advanceChar(-1);
+            if(self.cursor.selectionActive()) {
+                self.cursor.deleteSelection();
+                self.cursor.clearSelection();
+            } else {
+                self.styles.deleteAt(1,self.cursor);
+                self.cursor.advanceChar(-1);
+            }
         },
         294: function(kb) { // enter/return key
             if(!kb.target.wrapping) {
@@ -1866,6 +1878,14 @@ function JSTextControl() {
             return false;}
         ;
         return true;
+    }
+    this.getBounds = function() {
+        return {
+            x:0,
+            y:0,
+            w:this.w,
+            h:this.h
+        };
     }
 }
 

@@ -34,7 +34,6 @@ function setupWeather() {
         text.setText(json.currently.temperature+" degrees");
     });
 }
-
 function setupMusic() {
         var lib = {
             albums: [
@@ -187,9 +186,16 @@ function setupMusic() {
     });
 }
 
+function setupEditor() {
+    var editor = core.createTextArea();
+    editor.setTx(300).setH(500).setW(600);
+    editor.setText("foo");
+    root.add(editor);
+}
 setupClock();
 setupWeather();
 setupMusic();
+setupEditor();
 
 setTimeout(function() {
     core.start();

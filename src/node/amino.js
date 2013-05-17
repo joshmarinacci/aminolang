@@ -1439,7 +1439,9 @@ function TextView() {
     this.run = null;
     this.y = 0;
     this.w = 0;
+    this.lineheight = 50;
     this.endLine = function(n) {
+        console.log("ending line at " + n);
         this.run.end = n+1;
         this.line.end = n+1;
         this.line.runs.push(this.run);
@@ -1477,13 +1479,13 @@ function TextView() {
             
             var change = this.styles.doesStyleChange(n)
             if(change) {
-                this.run.end = n;
-                this.line.runs.push(this.run);
                 
                 var newline = this.styles.newlineAt(n);
                 if(newline) {
                     this.endLine(n);
                 } else {
+                    this.run.end = n;
+                    this.line.runs.push(this.run);
                     this.run = new RunBox();
                     this.run.color = this.styles.colorAt(n);
                     this.run.x = this.w;
@@ -1515,9 +1517,9 @@ function TextView() {
         }
         
         this.lines.forEach(function(line) {
-            //p("line");
+            //console.log("line");
             line.runs.forEach(function(run) {
-                //p("   "+run.toString());
+                console.log("   "+run.toString());
             });
         });
     }

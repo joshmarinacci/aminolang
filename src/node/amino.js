@@ -1497,11 +1497,11 @@ function TextView() {
             
             var ch = this.model.text.substring(n,n+1);
             if(ch == ' ') {
-                lastspace = n;
+                this.lastspace = n;
             }
             this.w += this.getCharWidth(ch);
             if(this.wrapping && (this.w > this.control.getW() || ch == '\n')) {
-                //p("breaking line. prev space at " + lastspace);
+                console.log("breaking line. prev space at " + this.lastspace);
                 //go back to previous space
                 if(this.lastspace >= 0) {
                     n = this.lastspace;

@@ -1177,69 +1177,6 @@ core.DEFAULT_FONT.scale = core.DEFAULT_FONT.scaledsize/core.DEFAULT_FONT.basesiz
 
 //console.log("DEFAULT_FONT = ", core.DEFAULT_FONT);
 
-/*
-function JSTextbox() {
-    var self = this;
-    this.w = 200;
-    this.h = 40;
-    this.focused = false;
-    this.setFocused = function(focused) {
-        this.focused = focused;
-    }
-    this.install = function(stage) {
-        stage.on("PRESS", this, function(e) {
-            self.setFocused(true);
-        });
-        stage.on("KEYPRESS",this,function(e) {
-            if(e.printable) {
-                self.setText(self.getText()+e.printableChar);
-            }
-            //enter key
-            if(e.keycode == 294) {
-                stage.fireEvent({
-                        type:"action",
-                        target:self
-                });
-            }
-            //backspace
-            if(e.keycode == 295) {
-                console.log("backspace");
-                var txt = self.getText();
-                self.setText(txt.substring(0,txt.length-1));
-            }
-        });
-    };
-    this.draw = function(gfx) {
-        var border = self.getBounds();
-        border.x--;
-        border.y--;
-        border.w+=2;
-        border.h+=2;
-        
-        gfx.fillQuadColor(new Color(1.0,1.0,1.0), border);
-        
-        var bnds = self.getBounds();
-        if(this.focused) {
-            gfx.fillQuadColor(new Color(0.8,0.8,0.8), bnds);
-        } else {
-            gfx.fillQuadColor(new Color(0.5,0.5,0.5), bnds);
-        }
-        
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
-    };
-
-    this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
-    };
-}
-JSTextbox.extend(generated.Textbox);
-core.createTextbox = function() {
-    var comp = new JSTextbox();
-    comp.install(this.stage);
-    return comp;
-}
-*/
-
 
 function TextModel() {
     this.listeners = [];

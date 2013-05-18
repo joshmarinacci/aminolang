@@ -1337,6 +1337,9 @@ function TextView() {
     this.getElementAt = function(n) {
         var elem = this.model.getElementAt(n);
         elem.width = this.getCharWidth(elem.text);
+        if(elem.newline) {
+            elem.width = 0;
+        }
         return elem;
     }
     
@@ -1351,9 +1354,8 @@ function TextView() {
         if(n == 0) return {x:0, y:0};
         for(var i=0; i<this.lines.length; i++) {
             var line = this.lines[i];
-            if(line.start <= n && n <= line.end) {
+            if(line.start <= n && n < line.end) {
                 var run = line.runs[0];
-                var inset = n-run.start;
                 var txt = this.model.text.substring(run.start,n);
                 var x = line.x + run.x + this.getStringWidth(txt);
                 var y = line.y;
@@ -1636,23 +1638,7 @@ function JSTextControl() {
         this.view.font = font;
         return this;
     }
-    
-    this.draw = function(gfx) {
-        gfx.save();
-
-        var bds = this.getBounds();
-        bds.w += 10;
-        bds.h += 10;
-        gfx.fillQuadColor(new Color(0.5,0.5,0.5), bds);
-        bds.w -= 2;
-        bds.h -= 2;
-        gfx.translate(1,1);
-        gfx.fillQuadColor(new Color(1,1,1), bds);
-        
-        gfx.translate(5,5);
-        var font = this.font;
-        
-        
+    this.drawSelection = function(gfx) {
         if(this.selection != null) {
             var sel = this.selection;
             var view = this.view;
@@ -1690,29 +1676,42 @@ function JSTextControl() {
                     { x: line.x+x, y: line.y, w: x2-x, h:line.h });
             }
         }
+    }
+    this.draw = function(gfx) {
+        gfx.save();
+
+        var bds = this.getBounds();
+        bds.w += 10;
+        bds.h += 10;
+        gfx.fillQuadColor(new Color(0.5,0.5,0.5), bds);
+        bds.w -= 2;
+        bds.h -= 2;
+        gfx.translate(1,1);
+        gfx.fillQuadColor(new Color(1,1,1), bds);
         
-        var ch  = this.view.getCharAt(this.cursor.index);
-        var chw = this.view.getCharWidth(ch);
+        gfx.translate(5,5);
+        var font = this.font;
+        
+        this.drawSelection(gfx);
+        
+        var ch  = this.view.getElementAt(this.cursor.index);
+        //var chw = this.view.getCharWidth(ch);
         var pos = this.view.indexToXY(this.cursor.index);
         
         var chx = 0;
-        
-        if(this.cursor.bias == this.cursor.FORWARD) {
-            chx = chw;
-        }
-        if(this.cursor.bias == this.cursor.BACKWARD) {
-        }
+        if(this.cursor.bias == this.cursor.FORWARD)  { chx = ch.width; }
+        if(this.cursor.bias == this.cursor.BACKWARD) { }
         var chh = this.font.json.height* this.font.scale;
-
 
         //draw block cursor
         gfx.fillQuadColor(new Color(0.7,0.9,0.9), {
                 x:pos.x,
                 y:pos.y,
-                w: chw,
+                w: ch.width,
                 h: chh,
         });
         
+        //draw the actual text
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
                 gfx.fillQuadText(run.color, 

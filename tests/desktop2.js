@@ -188,9 +188,16 @@ function setupMusic() {
 
 function setupEditor() {
     var editor = core.createTextArea();
-    editor.setTx(300).setH(500).setW(250);
+    editor.setTx(300).setH(500).setW(650);
     editor.setText("foo");
+    var txt = fs.readFileSync("foo.txt");
+    editor.setText(txt.toString());
     root.add(editor);
+    function saveEditor() {
+        console.log("saving: " + editor.getText());
+        fs.writeFileSync("foo.txt",editor.getText());
+    }
+    setInterval(saveEditor,5000);
 }
 setupClock();
 setupWeather();

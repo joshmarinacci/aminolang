@@ -1195,6 +1195,9 @@ function TextModel() {
             whitespace: (ch == ' '),
         }
     }
+    this.getText = function() {
+        return this.text;
+    }
     
     this.getLength = function() {
         return this.text.length;
@@ -1831,6 +1834,9 @@ function JSTextControl() {
     }
     this.setText = function(text) {
         this.model.setText(text);
+    }
+    this.getText = function() {
+        return this.model.getText();
     }
     
     this.getVisible = function() { return true; }

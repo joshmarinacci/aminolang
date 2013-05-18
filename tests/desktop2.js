@@ -3,6 +3,8 @@ var fs = require('fs');
 var amino = require('../src/node/amino.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
 var core = amino.getCore();
+var URL = require('url');
+var http = require('http');
 core.setDevice("mac");
 
 var stage = core.createStage();
@@ -203,6 +205,20 @@ setupClock();
 setupWeather();
 setupMusic();
 setupEditor();
+
+function setupTodoView() {
+    var options = URL.parse("http://joshy.org:3001/bag/search");
+    var req = http.request(options, function(res) {
+        var content = "";
+        res.on("data", function(d) { content += d; });
+        res.on("end", function(d) {
+                var json = JSON.parse(content);
+                console.log("got it",json);
+        });
+    });
+    req.end();
+}
+setupTodoView();
 
 setTimeout(function() {
     core.start();

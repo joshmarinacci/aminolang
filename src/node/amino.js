@@ -1177,7 +1177,9 @@ core.DEFAULT_FONT.scale = core.DEFAULT_FONT.scaledsize/core.DEFAULT_FONT.basesiz
 
 //console.log("DEFAULT_FONT = ", core.DEFAULT_FONT);
 
-
+// currently text model just uses a string of characters, but it
+// exposes only Elements, so it could use other data formats internally
+// in the future.
 function TextModel() {
     this.listeners = [];
     this.text = "this is some text";
@@ -1185,6 +1187,15 @@ function TextModel() {
         this.text = text;
         this.broadcast();
     }
+    this.getElementAt = function(n) {
+        var ch = this.text.substring(n,n+1);
+        return {
+            text:ch,
+            newline: (ch == '\n'),
+            whitespace: (ch == ' '),
+        }
+    }
+    
     this.getLength = function() {
         return this.text.length;
     }
@@ -1251,27 +1262,6 @@ function StyleModel() {
         return new Color(0,0,0);
     }
     
-    this.newlineAt = function(n) {
-        for(var i=0; i<this.runs.length; i++) {
-            var run = this.runs[i];
-            if(run.start == n && run.atomic && run.kind == "newline") {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    this.newlineCount = function(n) {
-        var count = 0;
-        for(var i=0; i<this.runs.length; i++) {
-            var run = this.runs[i];
-            if(run.start == n && run.atomic && run.kind == "newline") {
-                count++;
-            }
-        }
-        return count;
-    }
-    
     this.insertAt = function(text, index) {
         var len = text.length;
         this.model.insertAt(text,index);
@@ -1320,23 +1310,8 @@ function StyleModel() {
             self.runs.splice(n,1);
         });
     }
-    this.insertNewline = function(index) {
-        this.runs.push({
-                start:index-1,
-                end:-1,
-                atomic:true,
-                kind:"newline",
-        });
-        /*
-        console.log("style model = ");
-        this.runs.forEach(function(run) {
-                console.log(run);
-        });
-        */
-            
-        this.model.broadcast();
-    }
 }
+
 function TextView() {
     this.lines = [];
     this.wrapping = true;
@@ -1355,6 +1330,11 @@ function TextView() {
     }
     this.getCharAt = function(n) {
         return this.model.text.substring(n,n+1);
+    }
+    this.getElementAt = function(n) {
+        var elem = this.model.getElementAt(n);
+        elem.width = this.getCharWidth(elem.text);
+        return elem;
     }
     
     this.getStringWidth = function(str) {
@@ -1399,7 +1379,6 @@ function TextView() {
     this.w = 0;
     this.lineheight = 50;
     this.endLine = function(n) {
-        console.log("ending line at " + n);
         this.run.end = n+1;
         this.line.end = n+1;
         this.line.runs.push(this.run);
@@ -1412,7 +1391,7 @@ function TextView() {
         this.line.start = n+1;
         this.run = new RunBox();
         this.run.color = this.styles.colorAt(n);
-        this.run.text = this.model.text;
+        this.run.model = this.model;
         this.run.start = n+1;
         this.w = 0;
     }
@@ -1421,46 +1400,29 @@ function TextView() {
         this.lines = [];
         
         this.lineheight = this.font.json.height*this.font.scale;
+        
         var n = 0;
         this.w = 0;
         this.y = 0;
         this.line = new LineBox();
         this.line.start = n;
         this.run = new RunBox();
+        this.run.model = this.model;
         this.run.color = this.styles.colorAt(n);
-        this.run.text = this.model.text;
         this.run.start = n;
         this.lastspace = -1;
+        
         while(true) {
-            
-            var change = this.styles.doesStyleChange(n)
-            if(change) {
-                
-                var newline = this.styles.newlineAt(n);
-                if(newline) {
-                    this.endLine(n);
-                    //var nlcount = this.styles.newlineCount(n);
-                    //this.y += nlcount*this.lineheight;
-                    //this.line.y = this.y;
-                } else {
-                    this.run.end = n;
-                    this.line.runs.push(this.run);
-                    this.run = new RunBox();
-                    this.run.color = this.styles.colorAt(n);
-                    this.run.x = this.w;
-                    this.run.text = this.model.text;
-                    this.run.start = n;
-                }
-            }
-            
-            
-            var ch = this.getCharAt(n);
-            if(ch == ' ') {
+            var ch = this.getElementAt(n);
+            if(ch.whitespace) {
                 this.lastspace = n;
             }
-            this.w += this.getCharWidth(ch);
+            
+            if(ch.newline) {
+                this.endLine(n);
+            }
+            this.w += ch.width;
             if(this.wrapping && (this.w > this.control.getW() || ch == '\n')) {
-                console.log("breaking line. prev space at " + this.lastspace);
                 //go back to previous space
                 if(this.lastspace >= 0) {
                     n = this.lastspace;
@@ -1469,7 +1431,7 @@ function TextView() {
                 this.endLine(n);
             }
             n++;
-            if(n >= this.model.text.length) {
+            if(n >= this.model.getLength()) {
                 this.endLine(n);
                 break;
             }
@@ -1483,11 +1445,13 @@ function TextView() {
         });
     }
 }
+
 function LineBox() {
     this.x = 0;
     this.y = 0;
     this.runs = [];
 }
+
 function RunBox() {
     this.x = 0;
     this.y = 0;
@@ -1496,9 +1460,10 @@ function RunBox() {
     this.end = 0;
     this.color = new Color(1,0,0);
     this.toString = function() {
-        return "run: " + this.text.substring(this.start, this.end);
+        return "run: " + this.model.text.substring(this.start, this.end);
     }
 }
+
 function Cursor() {
     this.FORWARD = 0;
     this.BACKWARD = 1;
@@ -1506,6 +1471,7 @@ function Cursor() {
     this.control = null;
     this.clipboard = "";
     this.bias = this.FORWARD;
+    
     this.advanceChar = function(offset) {
         this.index += offset;
         if(this.index < 0) {
@@ -1517,6 +1483,7 @@ function Cursor() {
             this.bias = this.FORWARD;
         }
     }
+    
     this.deleteChar = function() {
         if(this.bias == this.FORWARD) {
             this.control.styles.deleteAt(1,this.index+1);
@@ -1525,6 +1492,7 @@ function Cursor() {
         }
         this.advanceChar(-1);
     }
+    
     this.insertChar = function(ch) {
         if(this.bias == this.BACKWARD) {
             this.control.styles.insertAt(ch,this.index);
@@ -1532,12 +1500,13 @@ function Cursor() {
             this.control.styles.insertAt(ch,this.index+1);
         }
     }
+    
     this.insertNewline = function() {
         if(this.bias == this.BACKWARD) {
-            this.control.styles.insertNewline(this.index);
+            this.control.styles.insertAt('\n',this.index);
             this.bias = this.BACKWARD;
         } else {
-            this.control.styles.insertNewline(this.index+1);
+            this.control.styles.insertAt('\n',this.index+1);
             this.bias = this.BACKWARD;
             this.advanceChar(1);
         }
@@ -1639,7 +1608,6 @@ function TextSelection() {
 
 function JSTextControl() {
     this.selection = null;
-    this.wrapping = true;
     this.cursor = new Cursor();
     this.cursor.control = this;
     this.model = new TextModel();
@@ -1651,16 +1619,20 @@ function JSTextControl() {
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;
+    
+    this.wrapping = true;
     this.setWrapping = function(wrapping) {
         this.wrapping = wrapping;
         this.view.wrapping = wrapping;
         return this;
     }
+    
     this.setFont = function(font) {
         this.font = font;
         this.view.font = font;
         return this;
     }
+    
     this.draw = function(gfx) {
         gfx.save();
 
@@ -1740,7 +1712,7 @@ function JSTextControl() {
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
                 gfx.fillQuadText(run.color, 
-                    run.text.substring(run.start,run.end), 
+                    run.model.text.substring(run.start,run.end), 
                     run.x, line.y,
                     font.scaledsize, font.fontid
                     );

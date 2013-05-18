@@ -127,7 +127,7 @@ for(var i=32; i<=64; i++) {
     KEY_TO_CHAR_MAP[i]= String.fromCharCode(i);
 }
 //letters
-for(var i=65; i<90; i++) {
+for(var i=65; i<=90; i++) {
     KEY_TO_CHAR_MAP[i]= String.fromCharCode(i+32);
 }
 //upper symbols
@@ -1455,7 +1455,7 @@ function LineBox() {
 function RunBox() {
     this.x = 0;
     this.y = 0;
-    this.text = "";
+    this.model = null;
     this.start = 0;
     this.end = 0;
     this.color = new Color(1,0,0);
@@ -1505,6 +1505,7 @@ function Cursor() {
         if(this.bias == this.BACKWARD) {
             this.control.styles.insertAt('\n',this.index);
             this.bias = this.BACKWARD;
+            this.advanceChar(1);
         } else {
             this.control.styles.insertAt('\n',this.index+1);
             this.bias = this.BACKWARD;

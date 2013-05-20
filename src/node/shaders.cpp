@@ -219,7 +219,10 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16],
         float fsize,
         AminoFont* font
         ) {
-
+    if(font == NULL) {
+        printf("can't draw. null font passed in!!!\n");
+        return;
+    }
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(prog);

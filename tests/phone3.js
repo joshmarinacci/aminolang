@@ -311,7 +311,7 @@ function initContactsList() {
     list.cellHeight = 50;
     list.cellRenderer = function(gfx, item, bounds) {
         gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
-        gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y);
+        gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y, list.getFontSize(), list.font.fontid);
     };
     
     var panel = stage.find("contactsapp");
@@ -381,7 +381,7 @@ function initTodoList() {
             var insets = { left: 10, right: 10, top: 10, bottom: 10 };
             fill9slice(gfx,skinid, sb, insets, bounds);
         }
-        gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y);
+        gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y, list.getFontSize(), list.font.fontid);
     };
     stage.on("SELECT",list,function(e) {
         console.log("selected todo item" + e.index);
@@ -477,10 +477,12 @@ function postInit() {
         skinid = texid;
     });
     */
+    /*
     photos.forEach(function(p) {
         console.log("photo = " + p.path);
         p.texid = core.loadJpegFromBuffer(p.path);
     });
+    */
 }
 
 setTimeout(function() {

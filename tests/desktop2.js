@@ -2,6 +2,7 @@ var https = require('https');
 var fs = require('fs');
 var amino = require('../src/node/amino.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
+var UTILS = require("./Utils.js");
 var core = amino.getCore();
 var URL = require('url');
 var http = require('http');
@@ -14,7 +15,7 @@ var filedata = fs.readFileSync('tests/desktop2.json');
 var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
-stage.setSize(1000,520);
+stage.setSize(300+500+300,520);
 
 
 
@@ -190,7 +191,7 @@ function setupMusic() {
 
 function setupEditor() {
     var editor = core.createTextArea();
-    editor.setTx(300).setH(500).setW(650);
+    editor.setTx(300).setH(500).setW(500);
     editor.setText("foo");
     var txt = fs.readFileSync("foo.txt");
     editor.setText(txt.toString());
@@ -201,10 +202,56 @@ function setupEditor() {
     }
     setInterval(saveEditor,5000);
 }
+
+function setupTodos() {
+    var todos = core.createListView();
+    todos.setW(300).setH(500).setTx(800).setTy(0);
+    var items = [
+        {
+            id:"foo1",
+            data:{
+                text:"foo1"
+            }
+        },
+        {
+            id:"foo2",
+            data:{
+                text:"foo2"
+            }
+        },
+        {
+            id:"foo3",
+            data:{
+                text:"foo3"
+            }
+        }
+    ];
+    todos.listModel = items;
+    todos.cellRenderer = function(gfx,info,bounds) {
+        var color = amino.ParseRGBString("#ccffff");//amino.Color(0.5,0.5,0.5);
+        if(info.list.selectedIndex == info.index) {
+            color = new amino.Color(0.1,0.7,1.0);
+        }
+        gfx.fillQuadColor(color, bounds);
+        
+        gfx.fillQuadText(new amino.Color(0,0,0),
+            info.item.data.text,
+            bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
+    }
+    todos.setFontSize(15);
+    root.add(todos);
+    console.log("added the todos");
+    UTILS.getJSON("http://joshy.org:3001/bag/search",function(err,data){
+        if(err) return;
+        console.log("got the data",data);
+        todos.listModel = data;
+    });
+}
 setupClock();
 setupWeather();
 setupMusic();
 setupEditor();
+setupTodos();
 
 function setupTodoView() {
     var options = URL.parse("http://joshy.org:3001/bag/search");

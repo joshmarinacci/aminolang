@@ -15,10 +15,10 @@ include $(BUILD_PREBUILT)
 #reset to do the real build of our module
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= \
-    src/node/image.c \
     src/node/shaders.cpp \
     src/node/klaatu.cpp \
     src/node/klaatu_events.cpp \
+    src/node/image.cpp \
     
 LOCAL_MODULE:= aminolang
 LOCAL_MODULE_TAGS := optional

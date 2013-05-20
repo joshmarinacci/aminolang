@@ -9,10 +9,15 @@
 
 #include <time.h>
 
+#ifdef MAC
 #include <mach/mach_time.h>
+#endif
+
 
 // from android samples
 /* return current time in milliseconds */
+
+
 
 static double now_ms(void) {
     return 0;

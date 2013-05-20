@@ -820,7 +820,7 @@ JSListView = function() {
             w:bounds.w*2,
             h:bounds.h*2
         }
-        gfx.enableClip(b);
+        //gfx.enableClip(b);
         
         
         //border
@@ -835,7 +835,7 @@ JSListView = function() {
         var fill =  ParseRGBString("#ccffff");
         gfx.fillQuadColor(fill,this.getBounds());
         this.drawCells(gfx);
-        gfx.disableClip();
+        //gfx.disableClip();
     }
     this.drawCells = function(gfx) {
         if(this.layout == "horizwrap") {

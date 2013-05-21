@@ -233,24 +233,35 @@ function JSStage() {
         //repaintTimer.start(); 
         
         var wgfx = {
-            scale: gfx.scale,
-            translate: gfx.translate,
-            rotate: gfx.rotate,
-            save: gfx.save,
-            restore: gfx.restore,
             fillQuadColor: function(c,b) {
+                console.log("filling with color");
                 gfx.fillQuadColor(c,b);
             },
             fillQuadText: function(color, str, x, y, size, fontid) {
-                console.log("fillQuadText: ",color,str,x,y,size,fontid);
+                //console.log("fillQuadText: ",color,str,x,y,size,fontid);
                 if(!str) str = "ERROR";
                 if(!size) size = 20;
                 if(fontid == undefined) fontid = -1;
                 gfx.fillQuadText(color,str,x,y,size,fontid);
-            }
-            
+            },
+            fillQuadTexture: function() {
+                gfx.fillQuadTexture(arguments);
+            },
+            fillQuadTextureSlice: gfx.fillQuadTextureSlice,
+            //enableClip:gfx.enableClip,
+            //disableClip:gfx.disableClip
         };
-        wgfx.prototype = gfx;
+        
+        function delegate(obj, name, del) {
+            obj[name] = function() { del[name].apply(del,arguments); }
+        }
+        
+        //just delegate the rest of them directly
+        delegate(wgfx,"translate",gfx);
+        delegate(wgfx,"scale",gfx);
+        delegate(wgfx,"rotate",gfx);
+        delegate(wgfx,"save",gfx);
+        delegate(wgfx,"restore",gfx);
         
         self.processAnims();
         if(core.SCALE2X) wgfx.scale(2,2);

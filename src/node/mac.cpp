@@ -129,6 +129,7 @@ public:
         processMouseEvents(eventCB);
         
         //do the drawing
+        glClearColor(1,1,1,1);
         glClear( GL_COLOR_BUFFER_BIT );
         modelView = new GLfloat[16];
 

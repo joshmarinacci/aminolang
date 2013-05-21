@@ -4,6 +4,7 @@
 <script src='../build/jscanvas/out.js'></script>
 <script src='../src/jscanvas/handcoded7.js'></script>
 <script src='../src/jscanvas/monkeypatch.js'></script>
+<script src='generalutil.js'></script>
 <style type="text/css">
 canvas { border: 1px solid black; }
 </style>
@@ -12,7 +13,7 @@ canvas { border: 1px solid black; }
 <canvas id='mycanvas' width='600' height='300'></canvas>
 <script language="JavaScript">
 Corex.start(function(core) {
-    var root = core.createStage('mycanvas');
+    var stage = core.createStage('mycanvas');
     
         function elasticIn(t) {
             var p = 0.3;
@@ -133,7 +134,7 @@ Corex.start(function(core) {
             }
         }
     }
-    
+    /*
     function shapes(c) {
         var rect = core.createRect();
         rect.setX(100).setY(100).setW(50).setH(25).setFill("green");
@@ -208,27 +209,6 @@ Corex.start(function(core) {
         textbox.setW(100);
         textbox.setH(20);
         textbox.setText("foo");
-        /*
-        root.on(Events.KeyPress, textbox, function(e) {
-            var t = textbox.getText();
-            if(!t) t = "";
-            
-            if(e.e.keyCode == 45 || e.e.keyCode == 8) {
-                if(t.length > 0) {
-                    t = t.substring(0,t.length-1);
-                    textbox.setText(t);
-                    return;
-                }
-            }
-            var ch = String.fromCharCode(e.e.keyCode);
-            if(e.e.shiftKey) {
-                ch = ch.toUpperCase();
-            } else {
-                ch = ch.toLowerCase();
-            }
-            textbox.settext(t+ch);
-        });
-        */
         c.add(textbox);
         
         
@@ -272,8 +252,8 @@ Corex.start(function(core) {
         c.add(slider);
         
     }
-    
-    function anims(c) {
+    */    
+    function anims(c,core,stage) {
         var rect = new Rect();    
         rect.setX(0);
         rect.setY(0);
@@ -298,37 +278,39 @@ Corex.start(function(core) {
             ).after(function() {
                 console.log("all done!");
             });
-        root.addAnim(anim);
+        stage.addAnim(anim);
     }
     
-    var tests = [shapes,comps,events,anims];
+    var root = core.createGroup();
+    stage.setRoot(root);
+    var general = window["generalutil"];
+    var tests = [general.shapes, general.comps, general.events,anims];
     var current = -1;
     var testgroup = new Group();
     root.add(testgroup);
     
-    
     var prevButton = core.createPushButton();
     prevButton.setText("prev").setX(10).setY(10).setW(80).setH(20);
     root.add(prevButton);
-    root.on(Events.Press,prevButton,function(e){
+    stage.on(Events.Press,prevButton,function(e){
         testgroup.clear();
         current = current - 1;
         if(current < 0) {
             current = tests.length-1;
         }
-        tests[current](testgroup);
+        tests[current](testgroup,core,stage);
     });
     
     var nextButton = core.createPushButton();
     nextButton.setText("next").setX(100).setY(10).setW(80).setH(20);
     root.add(nextButton);
-    root.on(Events.Press,nextButton,function(e) {
+    stage.on(Events.Press,nextButton,function(e) {
         testgroup.clear();
         current = current + 1;
         if(current >= tests.length) {
             current = 0;
         }
-        tests[current](testgroup);
+        tests[current](testgroup,core,stage);
     });
 });
 </script>

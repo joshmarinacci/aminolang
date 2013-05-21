@@ -4,6 +4,8 @@ var amino = require('../src/node/amino.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
 var UTILS = require("./Utils.js");
 var core = amino.getCore();
+var URL = require('url');
+var http = require('http');
 core.setDevice("mac");
 
 var stage = core.createStage();
@@ -191,7 +193,14 @@ function setupEditor() {
     var editor = core.createTextArea();
     editor.setTx(300).setH(500).setW(500);
     editor.setText("foo");
+    var txt = fs.readFileSync("foo.txt");
+    editor.setText(txt.toString());
     root.add(editor);
+    function saveEditor() {
+        console.log("saving: " + editor.getText());
+        fs.writeFileSync("foo.txt",editor.getText());
+    }
+    setInterval(saveEditor,5000);
 }
 
 function setupTodos() {
@@ -243,6 +252,20 @@ setupWeather();
 setupMusic();
 setupEditor();
 setupTodos();
+
+function setupTodoView() {
+    var options = URL.parse("http://joshy.org:3001/bag/search");
+    var req = http.request(options, function(res) {
+        var content = "";
+        res.on("data", function(d) { content += d; });
+        res.on("end", function(d) {
+                var json = JSON.parse(content);
+                console.log("got it",json);
+        });
+    });
+    req.end();
+}
+setupTodoView();
 
 setTimeout(function() {
     core.start();

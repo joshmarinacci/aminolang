@@ -59,7 +59,7 @@ function comps(c) {
     
     var label = core.createLabel();
     label.setText("A Label");
-    label.setTextColor(new amino.Color(1,1,1));
+    label.setTextColor("#008800");
     label.setTx(200);
     label.setTy(140);
     c.add(label);
@@ -78,15 +78,17 @@ function comps(c) {
     c.add(textbox);
     
     
-    /*
+    
     var listview = core.createListView();
+    /*
     listview.listModel = [];
     for(var i=0; i<20; i++) {
         listview.listModel.push(i+" foo");
     }
-    listview.setW(200).setH(200).setTx(350).setTy(30);
-    c.add(listview);
     */
+    listview.setW(200).setH(200).setTx(380).setTy(30);
+    c.add(listview);
+    
 }
     
 

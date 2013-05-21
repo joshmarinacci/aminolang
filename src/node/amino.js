@@ -235,14 +235,14 @@ function JSStage() {
         var wgfx = {
             fillQuadColor: function(c,b) {
                 //console.log("filling with color");
-                gfx.fillQuadColor(c,b);
+                gfx.fillQuadColor(ParseRGBString(c),b);
             },
             fillQuadText: function(color, str, x, y, size, fontid) {
                 //console.log("fillQuadText: ",color,str,x,y,size,fontid);
                 if(!str) str = "ERROR";
                 if(!size) size = 20;
                 if(fontid == undefined) fontid = -1;
-                gfx.fillQuadText(color,str,x,y,size,fontid);
+                gfx.fillQuadText(ParseRGBString(color),str,x,y,size,fontid);
             },
             fillQuadTexture: function() {
                 gfx.fillQuadTexture(arguments);
@@ -751,7 +751,7 @@ core.createTransform = function() {
 
 JSAnchorPanel = function() {
     this.nodes = [];
-    this.fill = ParseRGBString("#cccccc");
+    this.setFill("#cccccc");
     this.isParent = function() { return true; }
     this.getChildCount = function() {
         return this.nodes.length;
@@ -759,13 +759,6 @@ JSAnchorPanel = function() {
     this.getChild = function(i) {
         return this.nodes[i];
     }
-    this.setFill = function(fill) {
-        this.fill = ParseRGBString(fill);
-        return this;
-    };
-    this.getFill = function() {
-        return this.fill;
-    };
     this.add = function(child) {
         if(child == null) {
             console.log("ERROR. tried to add a null child to a group");
@@ -781,14 +774,12 @@ JSAnchorPanel = function() {
         border.y--;
         border.w+=2;
         border.h+=2;
-        gfx.fillQuadColor(new Color(0,0,0), border);
-        
-        var fill = this.getFill();
+        gfx.fillQuadColor("#000000", border);
         gfx.fillQuadColor(this.getFill(),this.getBounds());
     };    
     var self = this;
     this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
+        return {x:this.x, y:this.y, w:this.w, h:this.h };
     };
     this.setW = function(w) {
         this.w = w;
@@ -837,7 +828,10 @@ JSListView = function() {
     this.cellHeight = 32;
     this.cellWidth = 32;
     this.DEBUG = false;
-	this.listModel = ['a','b','c'];
+    this.listModel = [];
+    for(var i=0; i<30; i++) {
+        this.listModel.push(i+"");
+    }
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
@@ -860,11 +854,10 @@ JSListView = function() {
         border.y--;
         border.w+=2;
         border.h+=2;
-        gfx.fillQuadColor(new Color(0,0,0), border);
+        gfx.fillQuadColor("#000000", border);
         
         //background
-        var fill =  ParseRGBString("#ccffff");
-        gfx.fillQuadColor(fill,this.getBounds());
+        gfx.fillQuadColor("#ccffff",this.getBounds());
         this.drawCells(gfx);
         //gfx.disableClip();
     }
@@ -877,8 +870,8 @@ JSListView = function() {
                     if(this.cellRenderer) {
                         this.cellRenderer(gfx, this.listModel[i], {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
                     } else {
-                        gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
-                        gfx.fillQuadText(new Color(0,0,0), this.listModel[i], lx, ly,this.getFontSize(), this.font.fontid);
+                        gfx.fillQuadColor("#888888", {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
+                        gfx.fillQuadText("#000000", this.listModel[i], lx, ly,this.getFontSize(), this.font.fontid);
                     }
                 }
                 lx += this.cellWidth;
@@ -895,7 +888,7 @@ JSListView = function() {
                 var lx = -this.scroll;
                 var ly = 0;
                 for(var i=0; i<this.listModel.length; i++) {
-                    gfx.fillQuadColor(new Color(0.5,0.5,0.5), {x:lx, y:ly, w:this.cellWidth-2, h:this.getH()-2});
+                    gfx.fillQuadColor("#888888", {x:lx, y:ly, w:this.cellWidth-2, h:this.getH()-2});
                     lx += this.cellWidth;
                 }
             }
@@ -907,6 +900,12 @@ JSListView = function() {
                 var y = i*this.cellHeight;
                 if(y < this.scroll-this.cellHeight) continue;
                 if(y > this.getH()+this.scroll) break;
+                var fillBounds = {
+                            x:bnds.x, 
+                            y:bnds.y+3+y-this.scroll,
+                            w:this.getW(), 
+                            h:this.cellHeight
+                        };
                 if(this.cellRenderer) {
                     this.cellRenderer(gfx, 
                         {
@@ -914,14 +913,13 @@ JSListView = function() {
                             index:i,
                             item:this.listModel[i]
                         },
-                        {
-                            x:bnds.x, 
-                            y:bnds.y+3+y-this.scroll,
-                            w:this.getW(), 
-                            h:this.cellHeight
-                        });
+                        fillBounds
+                        );
                 } else {
-                    gfx.fillQuadText(new Color(0,0,0), 
+                    if(this.selectedIndex == i) {
+                        gfx.fillQuadColor("#6666ff",fillBounds);
+                    }
+                    gfx.fillQuadText("#000000", 
                         this.listModel[i],
                         bnds.x+10, bnds.y+3+y-this.scroll,
                         this.getFontSize(), this.font.fontid);
@@ -937,7 +935,6 @@ JSListView = function() {
     this.install = function(stage) {
         var pressPoint = null;
         stage.on("PRESS", this, function(e) {
-            //console.log("pressed on list at: ",e.point);
             pressPoint = e.point;
         });
         stage.on("DRAG", this, function(e) {
@@ -963,23 +960,18 @@ JSListView = function() {
             }
         });
         stage.on("RELEASE", this, function(e) {
-            //console.log("released at ", e.point);
             if(!pressPoint) return;
             var dx = e.point.x-pressPoint.x;
             var dy = e.point.y-pressPoint.y;
-            //console.log("delta = " + dx + " " + dy);
             if(Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-                //console.log("firing a selection");
                 var event = {
                     type:"SELECT",
                     target:self,
                 }
                 if(self.layout == "vert") {
                     event.index = -99;
-                    //console.log("x = " + e.point.y + " "+ self.scroll + " " + self.getTy());
                     var py = e.point.y -self.getTy() + self.scroll;
                     var index = Math.round(py/self.cellHeight);
-                    //console.log("py",py,"index",index);
                     index--;
                     if(index < 0) index = 0;
                     if(index > self.listModel.length-1) {
@@ -1025,21 +1017,13 @@ function JSPushButton() {
         border.h+=2;
         
         //draw the border
-        gfx.fillQuadColor(new Color(0,0,0), border); 
+        gfx.fillQuadColor("#8888ff", border); 
         
         //draw the background
-        var fill = self.getBaseColor();
-        if(typeof fill == "string") {
-            var r = parseInt(fill.substring(1,3),16);
-            var g = parseInt(fill.substring(3,5),16);
-            var b = parseInt(fill.substring(5,7),16);
-            gfx.fillQuadColor(new Color(r/255,g/255,b/255), self.getBounds());
-        } else {
-            gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
-        }
+        gfx.fillQuadColor(this.getBaseColor(), this.getBounds());
 
         //draw the text
-        var bnds = self.getBounds();
+        var bnds = this.getBounds();
         
         var x = bnds.x;
         //draw the icon
@@ -1059,16 +1043,16 @@ function JSPushButton() {
         
         var w = this.font.calcStringWidth(self.getText());
         w = w*this.getFontSize()/40.0; //scale down as needed
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
+        gfx.fillQuadText("#000000", self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
         
     };
     this.setBaseColor = function(base) {
-        this.baseColor = ParseRGBString(base);
+        this.baseColor = base;
     }
     this.setBaseColor("#888888");
         
     this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
+        return {x:this.x, y:this.y, w:this.w, h:this.h };
     };
 }
 JSPushButton.extend(generated.PushButton);
@@ -1099,23 +1083,14 @@ function JSToggleButton() {
         border.y--;
         border.w+=2;
         border.h+=2;
-        gfx.fillQuadColor(new Color(0,0,0), border);
-        
-        var fill = self.getBaseColor();
-        if(typeof fill == "string") {
-            var r = parseInt(fill.substring(1,3),16);
-            var g = parseInt(fill.substring(3,5),16);
-            var b = parseInt(fill.substring(5,7),16);
-            gfx.fillQuadColor(new Color(r/255,g/255,b/255), self.getBounds());
-        } else {
-            gfx.fillQuadColor(self.getBaseColor(),self.getBounds());
-        }
+        gfx.fillQuadColor("#8888ff", border);
+        gfx.fillQuadColor(self.getBaseColor(), self.getBounds());
         var bnds = self.getBounds();
-        gfx.fillQuadText(new Color(0,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
+        gfx.fillQuadText("#000000", self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
     };
-    this.setBaseColor(new Color(0.5,0.5,0.5));
+    this.setBaseColor("#888888");
     this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
+        return {x:this.x, y:this.y, w:this.w, h:this.h };
     };
 }
 JSToggleButton.extend(generated.ToggleButton);
@@ -1134,16 +1109,11 @@ function JSLabel() {
     var self = this;
     this.w = 200;
     this.h = 100;
-    this.textColor = new Color(1,1,1);
-    
+    this.setTextColor("#ff0000");
     this.draw = function(gfx) {
-        var bnds = self.getBounds();
-        notNull("bounds",bnds);
-        gfx.fillQuadColor(new Color(0,1,0), bnds); 
-        var color = this.getTextColor();
-        notNull("color", color);
-        gfx.fillQuadText(new Color(1,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
-        //gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10, this.getFontSize(), this.font.fontid);
+        var bnds = this.getBounds();
+        //gfx.fillQuadColor("#888888", this.getBounds()); 
+        gfx.fillQuadText(this.getTextColor(), this.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
     };
     this.getBounds = function() {
         return { x:this.x, y:this.y, w:this.w, h:this.h };
@@ -1960,10 +1930,8 @@ function JSSlider() {
         return p * (this.maxvalue-this.minvalue)/this.w + this.minvalue;
     }
     this.draw = function(gfx) {
-        var color = new Color(0.5,0.5,0.5);
         var bounds = self.getBounds();
-        gfx.fillQuadColor(color,self.getBounds());
-        color = new Color(0,0,0);
+        gfx.fillQuadColor(this.getBaseColor(),this.getBounds());
         var v = this.valueToPoint(this.value);
         var bds = { 
             x: bounds.x,
@@ -1971,7 +1939,7 @@ function JSSlider() {
             w: v,
             h: bounds.h
         };
-        gfx.fillQuadColor(color, bds);
+        gfx.fillQuadColor("#ff0000", bds);
         
     }
     
@@ -1983,7 +1951,7 @@ function JSSlider() {
         });
     }
     
-    this.setBaseColor(new Color(0.5,0.5,0.5));
+    this.setBaseColor("#888888");
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
     };

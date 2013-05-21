@@ -1183,8 +1183,8 @@ core.createFont = function(jsonpath, pngpath, w, h) {
     core.fonts.push(font);
     return font;
 }
-//core.DEFAULT_FONT = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
-core.DEFAULT_FONT = core.createFont("test1.json","test1.png",2153, 58);
+core.DEFAULT_FONT = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+//core.DEFAULT_FONT = core.createFont("test1.json","test1.png",2153, 58);
 //var font = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
 core.DEFAULT_FONT.basesize = core.DEFAULT_FONT.json.size;
 core.DEFAULT_FONT.scaledsize = 20;

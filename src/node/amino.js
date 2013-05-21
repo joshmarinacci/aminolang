@@ -234,7 +234,7 @@ function JSStage() {
         
         var wgfx = {
             fillQuadColor: function(c,b) {
-                console.log("filling with color");
+                //console.log("filling with color");
                 gfx.fillQuadColor(c,b);
             },
             fillQuadText: function(color, str, x, y, size, fontid) {
@@ -1121,6 +1121,7 @@ function JSToggleButton() {
 JSToggleButton.extend(generated.ToggleButton);
 core.createToggleButton = function() {
     var comp = new JSToggleButton();
+    comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;
 }
@@ -1133,17 +1134,19 @@ function JSLabel() {
     var self = this;
     this.w = 200;
     this.h = 100;
-    this.textColor = new Color(0,0,0);
+    this.textColor = new Color(1,1,1);
     
     this.draw = function(gfx) {
         var bnds = self.getBounds();
         notNull("bounds",bnds);
+        gfx.fillQuadColor(new Color(0,1,0), bnds); 
         var color = this.getTextColor();
         notNull("color", color);
-        gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10, this.getFontSize(), this.font.fontid);
+        gfx.fillQuadText(new Color(1,0,0), self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
+        //gfx.fillQuadText(color, self.getText(), bnds.x+10, bnds.y+10, this.getFontSize(), this.font.fontid);
     };
     this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
+        return { x:this.x, y:this.y, w:this.w, h:this.h };
     };
 }
 JSLabel.extend(generated.Label);

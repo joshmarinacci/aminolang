@@ -1,6 +1,6 @@
 var https = require('https');
 var fs = require('fs');
-var amino = require('../src/node/amino.js');
+var amino = require('../build/desktop/amino.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
 var UTILS = require("./Utils.js");
 var core = amino.getCore();

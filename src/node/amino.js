@@ -52,7 +52,6 @@ function ParseRGBString(Fill) {
 var generated;
 var amino;
 var PNG;
-var FONT_IMAGE_PATH;
 
 var OS = "KLAATU";
 if(process.platform == "darwin") {
@@ -60,16 +59,13 @@ if(process.platform == "darwin") {
 }
 if(OS == "MAC") {
     generated = require('./out.js');
-    amino = require('../../build/Release/amino.node');
-    PNG = require('png-js');
-    FONT_IMAGE_PATH = "./tests/font2.png";
+    amino = require("./amino.node");
 } else {
     console.log("about to load amino");
     amino = require('/data/phonetest/aminonative');
     console.log("loaded up here");
     generated = require('/data/phonetest/out.js');
     PNG = require('/data/phonetest/png-node.js');
-    FONT_IMAGE_PATH = "/data/phonetest/font2.png";
 }
 
 
@@ -1199,13 +1195,10 @@ core.createFont = function(jsonpath, pngpath, w, h) {
     core.fonts.push(font);
     return font;
 }
-core.DEFAULT_FONT = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
-//core.DEFAULT_FONT = core.createFont("test1.json","test1.png",2153, 58);
-//var font = core.createFont("tests/test1.json","tests/test1.png",2153, 58);
+core.DEFAULT_FONT = core.createFont(__dirname+"/test1.json",__dirname+"/test1.png",2153, 58);
 core.DEFAULT_FONT.basesize = core.DEFAULT_FONT.json.size;
 core.DEFAULT_FONT.scaledsize = 20;
 core.DEFAULT_FONT.scale = core.DEFAULT_FONT.scaledsize/core.DEFAULT_FONT.basesize
-
 //console.log("DEFAULT_FONT = ", core.DEFAULT_FONT);
 
 // currently text model just uses a string of characters, but it

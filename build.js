@@ -348,6 +348,22 @@ function jogltest(cb) {
     doExec("java -cp " + classpath.join(":") + " General", cb);
 }
 
+function desktopbuild(cb) {
+    var out = outdir + "/desktop";
+    jb.mkdir(out);
+    console.log("copying files to " + out);
+    
+    var src = "src/node/";
+    //src files
+    copyFileTo(src+"amino.js",out);
+    copyFileTo(src+"out.js",out);
+    copyFileTo("build/Release/amino.node",out);
+    var test = "tests/";
+    copyFileTo(test+"test1.json",out);
+    copyFileTo(test+"test1.png",out);
+}
+
+
 function androidtest(cb) {
     console.log("copying files to the device attached with ADB");
     //copy amino.js and out.js to build dir
@@ -418,6 +434,7 @@ tasks = {
     
     langtest:       new Task(langtest,       [],                      "Test AminoLang itself"),
     
+    desktopbuild:   new Task(desktopbuild,    [],                      "Node Desktop"),
     androidtest:    new Task(androidtest,    [],                      "Device Phone"),
 }
 

@@ -743,7 +743,6 @@ core.createTransform = function() {
 
 JSAnchorPanel = function() {
     this.nodes = [];
-    this.setFill("#cccccc");
     this.isParent = function() { return true; }
     this.getChildCount = function() {
         return this.nodes.length;
@@ -809,7 +808,9 @@ JSAnchorPanel = function() {
 }
 JSAnchorPanel.extend(generated.AnchorPanel);
 core.createAnchorPanel = function() {
-    return new JSAnchorPanel();
+    var comp = new JSAnchorPanel();
+    comp.setFill("#cccccc");
+    return comp;
 }
 
 JSListView = function() {

@@ -248,13 +248,13 @@ function EventManager(){     this.mousestart;
     this.processPointerEvent = function(type,point){
         var event;
 event = this.createEvent();
-event.type = type;
-    if(type==Events.Press){
+event.type = type.toLowerCase();
+    if(event.type==Events.Press.toLowerCase()){
 this.mousestart = point;
 this.mouselast = point;
 event.point = point}
 ;
-    if(type==Events.Drag){
+    if(event.type==Events.Drag.toLowerCase()){
 var delta;
 delta = point.minus(this.mouselast);
 event.delta = delta;
@@ -280,6 +280,10 @@ this.dragFocus = null}
 ;
     if(node!=null){
 event.target = node;
+this.fireEvent(event)}
+;
+    if(type==Events.Drag){
+event.target = this;
 this.fireEvent(event)}
 
     }}
@@ -935,6 +939,15 @@ function AnchorPanel(){     this.nodes;
   }
   this.setNodes = function(Nodes){
     this.nodes=Nodes;
+    this.markDirty();
+    return this;
+  }
+     this.fill;
+  this.getFill = function(){
+    return this.fill;
+  }
+  this.setFill = function(Fill){
+    this.fill=Fill;
     this.markDirty();
     return this;
   }

@@ -36,6 +36,7 @@ var old_eventManager = EventManager;
 EventManager = function() {
     this.listeners = {};
     this.on = function(name, target, fn) {
+        name = name.toLowerCase();
         //deal with globals first
         if(target == null) {
             target = this;
@@ -50,8 +51,8 @@ EventManager = function() {
         return {};
     }
     this.fireEvent = function(e) {
-        if(this.listeners[e.type]) {
-            var list = this.listeners[e.type];
+        if(this.listeners[e.type.toLowerCase()]) {
+            var list = this.listeners[e.type.toLowerCase()];
             for(var i in list) {
                 var l = list[i];
                 if(l.target == e.target) l.fn(e);
@@ -151,7 +152,7 @@ function CanvasStage(can)  {
         var self = this;
         
         attachEvent(this.domCanvas,'mousedown',function(e){
-            self.processEvent(Events.Press,self.domCanvas,e);
+            self.processEvent("PRESS",self.domCanvas,e);
             self.mousePressed = true;
         });
         attachEvent(this.domCanvas,'mousemove',function(e){

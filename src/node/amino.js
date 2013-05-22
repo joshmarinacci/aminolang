@@ -587,15 +587,15 @@ function JSRect() {
     this.getH = function() {
         return this.h;
     };
-    this.fill = new Color(0.5,0.5,0.5);
     this.getFill = function(){
         return this.fill;
     }
     this.setFill = function(Fill){
-        this.fill = ParseRGBString(Fill);
+        this.fill = Fill;
         this.markDirty();
         return this;
     }
+    this.setFill("#888888");
     
     var self = this;
     this.draw = function(gfx) {
@@ -608,15 +608,7 @@ function JSRect() {
             
             gfx.fillQuadColor(new Color(0,0,0), border); 
         }
-        var fill = self.getFill();
-        if(typeof fill == "string") {
-            var r = parseInt(fill.substring(1,3),16);
-            var g = parseInt(fill.substring(3,5),16);
-            var b = parseInt(fill.substring(5,7),16);
-            gfx.fillQuadColor(new Color(r/255,g/255,b/255), self.getBounds());
-        } else {
-            gfx.fillQuadColor(self.getFill(),self.getBounds());
-        }
+        gfx.fillQuadColor(self.getFill(),self.getBounds());
     };
     this.getBounds = function() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };

@@ -106,14 +106,14 @@ class EventManager {
     func void processPointerEvent(Object type, Point point) {
         var event:XEvent;
         event = this.createEvent();
-        event.type = type;
+        event.type = type.toLowerCase();
         
-        if(type == Events.Press) {
+        if(event.type == Events.Press.toLowerCase()) {
             this.mousestart = point;
             this.mouselast = point;
             event.point = point;
         }
-        if(type == Events.Drag) {
+        if(event.type == Events.Drag.toLowerCase()) {
             var delta:Point;
             delta = point.minus(this.mouselast);
             event.delta = delta;

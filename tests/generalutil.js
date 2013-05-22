@@ -22,7 +22,7 @@ function shapes(c,core,stage) {
     }); 
     
     var r2 = core.createRect();
-    r2.setTx(50).setTy(200).setW(60).setH(60).setFill('#ffffff');
+    r2.setTx(50).setTy(200).setW(60).setH(60).setFill('#88ff88');
     c.add(r2);
     
 

@@ -67,19 +67,25 @@ Transform.extend(old_transform);
 
 var old_rect = Rect;
 Rect = function() {
-    this.fill = "blue";
-    this.draw = function(ctx) {
+    this.fill = "#888888";
+    this.draw = function(gfx) {
+        /*
         if(this.getOpacity() < 1) {
             ctx.save();
             ctx.globalAlpha = this.getOpacity();
-        }        
-        ctx.fillStyle = this.fill;
-        ctx.fillRect(this.x,this.y,this.w,this.h);
+        } 
+        */
+        gfx.fillStyle = this.fill;
+        gfx.fillRect(this.x,this.y,this.w,this.h);
+        /*
         ctx.fillStyle = "black";
         ctx.strokeRect(this.x,this.y,this.w,this.h);
+        */
+        /*
         if(this.getOpacity() < 1) {
             ctx.restore();
         }
+        */
     }
     this.getBounds = function() {
         var b = new Bounds(

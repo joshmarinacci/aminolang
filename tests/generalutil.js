@@ -10,7 +10,7 @@ function doGeneralUtil() {
 function shapes(c,core,stage) {
     console.log("inside general util");
     var rect = core.createRect();
-    rect.setX(100).setY(100).setW(50).setH(25).setFill("green");
+    rect.setX(100).setY(100).setW(50).setH(25).setFill("#00ff00");
     c.add(rect);
     
     stage.on("PRESS", rect, function() { 

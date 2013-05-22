@@ -218,6 +218,15 @@ function JSStage() {
         return {};
     }
     
+    this.keyboardFocus = null;
+    this.getKeyboardFocus = function(){
+        return this.keyboardFocus;
+    }
+    this.setKeyboardFocus = function(KeyboardFocus){
+        this.keyboardFocus=KeyboardFocus;
+        //this.markDirty();
+        return this;
+    }
     
     
     this.root = null;
@@ -982,6 +991,30 @@ JSListView = function() {
                 stage.fireEvent(event);
             }
         });
+        stage.on("KEYPRESS",this,function(kp) {
+            if(kp.keycode == 283) {
+                self.setSelectedIndex(self.getSelectedIndex()-1);
+                stage.fireEvent({type:"SELECT",target:self});
+            }
+            if(kp.keycode == 284) {
+                console.log("down arrow");
+                self.setSelectedIndex(self.getSelectedIndex()+1);
+            }
+            console.log("sel = " + self.getSelectedIndex());
+        });
+        
+    }
+    
+    this.setSelectedIndex = function(n) {
+        this.selectedIndex = n;
+        if(this.selectedIndex < 0) {
+            this.selectedIndex = 0;
+        }
+        if(this.selectedIndex > this.listModel.length-1) {
+            this.selectedIndex = this.listModel.length-1;
+        }
+        this.markDirty();
+        return this;
     }
 }
 JSListView.extend(generated.ListView);
@@ -1685,7 +1718,12 @@ function JSTextControl() {
         bds.w -= 2;
         bds.h -= 2;
         gfx.translate(1,1);
-        gfx.fillQuadColor(new Color(1,1,1), bds);
+        
+        var bgcolor = "#dddddd";
+        if(this.stage.getKeyboardFocus() == this) {
+            bgcolor = "#ffffff";
+        }
+        gfx.fillQuadColor(bgcolor, bds);
         
         gfx.translate(5,5);
         var font = this.font;

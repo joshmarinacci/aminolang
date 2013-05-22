@@ -21,6 +21,7 @@ function shapes(c,core,stage) {
         }
     }); 
     
+    
     var r2 = core.createRect();
     r2.setTx(50).setTy(200).setW(60).setH(60).setFill('#88ff88');
     c.add(r2);
@@ -40,22 +41,22 @@ function shapes(c,core,stage) {
     
     
     var r3 = core.createRect();
-    r3.setX(60).setY(100).setW(50).setH(50).setFill("#ffff00").setOpacity(0.5);
+    r3.setX(60).setY(100).setW(50).setH(50).setFill("#ff00ff");//.setOpacity(0.5);
     c.add(r3);
 }
 
 function comps(c,core,stage) {
 
     var button = core.createPushButton();
-    button.setText("button").setTx(200).setTy(50).setW(150).setH(30);
+    button.setText("button").setTx(10).setTy(70);
     c.add(button);
     
 
     var tbutton = core.createToggleButton();
     tbutton.setText("toggle");
-    tbutton.setTx(200).setTy(100).setW(150).setH(30);
+    tbutton.setTx(10).setTy(120);
     c.add(tbutton);
-    
+    /*
     var label = core.createLabel();
     label.setText("A Label");
     label.setTextColor("#008800");
@@ -81,7 +82,7 @@ function comps(c,core,stage) {
     var listview = core.createListView();
     listview.setW(200).setH(200).setTx(380).setTy(30);
     c.add(listview);
-    
+  */  
 }
 
 function events(c, core,stage) {

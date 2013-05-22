@@ -228,14 +228,40 @@ function CanvasStage(can)  {
             this.anims[i].update();
         }
     }
+    
+    function delegate(obj, name, del) {
+        obj[name] = function() { del[name].apply(del,arguments); }
+    }
         
     this.redraw = function() {
         var ctx = this.domCanvas.getContext('2d');
         ctx.fillStyle = 'white';
         ctx.font = "15px sans-serif";
         ctx.fillRect(0,0,this.domCanvas.width,this.domCanvas.height);
+        
+        var gfx = {
+            fillRect: function(c,b) {
+                ctx.fillStyle = c;
+                ctx.fillRect(b.x,b.y,b.w,b.h);
+                //console.log("drawing rect with width: " + b.w);
+            },
+            strokeRect: function(c,b) {
+                ctx.strokeStyle = c;
+                ctx.lineWidth = 1.0;
+                ctx.strokeRect(b.x+0.5,b.y+0.5,b.w,b.h);
+            },
+            drawText: function(c,t,x,y, size, id) {
+                //console.log("drawing with size " + size);
+                ctx.font = (size*0.75)+"pt sans-serif";
+                ctx.fillStyle = c;
+                ctx.fillText(t, x, y);
+            }
+        };
+        delegate(gfx,"save",ctx);
+        delegate(gfx,"restore",ctx);
+        delegate(gfx,"translate",ctx);
         for(var n in this.nodes) {
-            this.draw(ctx,this.nodes[n]);
+            this.draw(gfx,this.nodes[n]);
         }
     }
     
@@ -285,6 +311,9 @@ window.requestAnimFrame = (function(){
 })();
 
 
+var widgets = window['widgets'];
+widgets.CommonPushButton.extend(PushButton);
+widgets.CommonToggleButton.extend(ToggleButton);
 function Engine() {
     this.cans = [];
     
@@ -325,10 +354,14 @@ function Engine() {
         return new Transform();
     }
     this.createPushButton = function() {
-        return new PushButton();
+        var comp = new widgets.CommonPushButton();
+        comp.install(EventManager.get());
+        return comp;
     }
     this.createToggleButton = function() {
-        return new ToggleButton();
+        var comp = new widgets.CommonToggleButton();
+        comp.install(EventManager.get());
+        return comp;
     }
     this.createSlider = function() {
         return new Slider();

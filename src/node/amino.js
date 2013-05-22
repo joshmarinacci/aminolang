@@ -50,6 +50,7 @@ function ParseRGBString(Fill) {
 }
 
 var generated;
+var widgets;
 var amino;
 var PNG;
 
@@ -60,6 +61,7 @@ if(process.platform == "darwin") {
 if(OS == "MAC") {
     generated = require('./out.js');
     amino = require("./amino.node");
+    widgets = require('./widgets.js');
 } else {
     console.log("about to load amino");
     amino = require('/data/phonetest/aminonative');
@@ -256,6 +258,17 @@ function JSStage() {
             fillQuadTextureSlice: gfx.fillQuadTextureSlice,
             //enableClip:gfx.enableClip,
             //disableClip:gfx.disableClip
+            fillRect: function(color, bounds) {
+                this.fillQuadColor(color,bounds);
+            },
+            strokeRect: function(color, bounds) {
+                this.fillQuadColor(color,bounds);
+            },
+            drawText: function(color, text, x, y, size, font) {
+                //console.log(font);
+                //console.log(size);
+                this.fillQuadText(color, text, x, y-font.json.height/2, size, font.fontid);
+            },
         };
         
         function delegate(obj, name, del) {
@@ -1020,36 +1033,8 @@ core.createListView = function() {
     comp.install(this.stage);
     return comp;
 }
+/*
 function JSPushButton() {
-    var self = this;
-    this.w = 200;
-    this.h = 100;
-    this.install = function(stage) {
-        stage.on("PRESS", this, function(e) {
-            self.setBaseColor("#aaaaff");
-        });
-        stage.on("RELEASE", this, function(e) {
-            self.setBaseColor("#aaaaaa");
-            stage.fireEvent({
-                    type:"ACTION",
-                    target:self
-            });
-        });
-    };
-    
-    this.draw = function(gfx) {
-        var border = self.getBounds();
-        border.x--;
-        border.y--;
-        border.w+=2;
-        border.h+=2;
-        
-        //draw the border
-        gfx.fillQuadColor("#8888ff", border); 
-        
-        //draw the background
-        gfx.fillQuadColor(this.getBaseColor(), this.getBounds());
-
         //draw the text
         var bnds = this.getBounds();
         
@@ -1074,56 +1059,19 @@ function JSPushButton() {
         gfx.fillQuadText("#000000", self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
         
     };
-    this.setBaseColor = function(base) {
-        this.baseColor = base;
-    }
-    this.setBaseColor("#888888");
-        
-    this.getBounds = function() {
-        return {x:this.x, y:this.y, w:this.w, h:this.h };
-    };
-}
-JSPushButton.extend(generated.PushButton);
+*/
+widgets.CommonPushButton.extend(generated.PushButton);
 core.createPushButton = function() {
-    var comp = new JSPushButton();
+    var comp = new widgets.CommonPushButton();
     comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;
 }
 
 
-
-function JSToggleButton() {
-    var self = this;
-    this.w = 200;
-    this.h = 100;
-    this.install = function(stage) {
-        stage.on("PRESS", this, function(e) {
-            self.setBaseColor("#aaaaff");
-        });
-        stage.on("RELEASE", this, function(e) {
-            self.setBaseColor("#aaaaaa");
-        });
-    };
-    this.draw = function(gfx) {
-        var border = self.getBounds();
-        border.x--;
-        border.y--;
-        border.w+=2;
-        border.h+=2;
-        gfx.fillQuadColor("#8888ff", border);
-        gfx.fillQuadColor(self.getBaseColor(), self.getBounds());
-        var bnds = self.getBounds();
-        gfx.fillQuadText("#000000", self.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
-    };
-    this.setBaseColor("#888888");
-    this.getBounds = function() {
-        return {x:this.x, y:this.y, w:this.w, h:this.h };
-    };
-}
-JSToggleButton.extend(generated.ToggleButton);
+widgets.CommonToggleButton.extend(generated.ToggleButton);
 core.createToggleButton = function() {
-    var comp = new JSToggleButton();
+    var comp = new widgets.CommonToggleButton();
     comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;

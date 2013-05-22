@@ -75,8 +75,8 @@ Rect = function() {
             ctx.globalAlpha = this.getOpacity();
         } 
         */
-        gfx.fillStyle = this.fill;
-        gfx.fillRect(this.x,this.y,this.w,this.h);
+        //gfx.fillStyle = this.fill;
+        gfx.fillRect(this.fill, this.getBounds());//this.x,this.y,this.w,this.h);
         /*
         ctx.fillStyle = "black";
         ctx.strokeRect(this.x,this.y,this.w,this.h);
@@ -88,15 +88,7 @@ Rect = function() {
         */
     }
     this.getBounds = function() {
-        var b = new Bounds(
-            this.gettx()+this.getx(),
-            this.getty()+this.gety(),
-            this.getw(),this.geth());
-        b.x = this.gettx()+this.getx();
-        b.y = this.getty()+this.gety();
-        b.w = this.getw();
-        b.h = this.geth();
-        return b;
+        return {x:this.x, y:this.y, w:this.getW(), h:this.h };
     }
     return this;
 }
@@ -167,51 +159,6 @@ ImageView = function() {
     }
 }
 ImageView.extend(old_image);
-
-
-var old_pushbutton = PushButton;
-PushButton = function() {
-    this.draw = function(g) {
-        g.fillStyle = this.getBaseColor();
-        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
-        g.fillStyle = "black";
-        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
-    };
-    var self = this;
-    EventManager.get().on(Events.Press, this, function(e) {
-        self.setBaseColor("lightBlue");
-    });
-    
-    EventManager.get().on(Events.Release, this, function(e) {
-        self.setBaseColor("gray");
-    });
-    this.setBaseColor("gray");
-}
-PushButton.extend(old_pushbutton);
-
-
-var old_togglebutton = ToggleButton;
-ToggleButton = function() {
-    this.draw = function(g) {
-        g.fillStyle = this.getBaseColor();
-        if(this.getSelected()) {
-            g.fillStyle = "green";
-        }
-        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
-        g.fillStyle = "black";
-        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
-    };
-    var self = this;
-    EventManager.get().on(Events.Press, this, function(e) {
-        self.setBaseColor("lightBlue");
-    });
-    EventManager.get().on(Events.Release, this, function(e) {
-        self.setBaseColor("gray");
-        self.setSelected(!self.getSelected());
-    });
-    this.setBaseColor("gray");
-}
-ToggleButton.extend(old_togglebutton);
 
 
 var old_slider = Slider;

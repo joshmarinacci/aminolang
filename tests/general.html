@@ -2,6 +2,7 @@
 <head>
 <script src='../src/jscanvas/init.js'></script>
 <script src='../build/jscanvas/out.js'></script>
+<script src='../src/jscommon/widgets.js'></script>
 <script src='../src/jscanvas/handcoded7.js'></script>
 <script src='../src/jscanvas/monkeypatch.js'></script>
 <script src='generalutil.js'></script>
@@ -290,7 +291,7 @@ Corex.start(function(core) {
     root.add(testgroup);
     
     var prevButton = core.createPushButton();
-    prevButton.setText("prev").setX(10).setY(10).setW(80).setH(20);
+    prevButton.setText("prev").setX(10).setY(10);
     root.add(prevButton);
     stage.on(Events.Press,prevButton,function(e){
         testgroup.clear();
@@ -302,7 +303,7 @@ Corex.start(function(core) {
     });
     
     var nextButton = core.createPushButton();
-    nextButton.setText("next").setX(100).setY(10).setW(80).setH(20);
+    nextButton.setText("next").setX(180).setY(10);
     root.add(nextButton);
     stage.on(Events.Press,nextButton,function(e) {
         testgroup.clear();

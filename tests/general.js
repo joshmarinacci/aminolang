@@ -1,4 +1,4 @@
-var amino = require('../src/node/amino.js');
+var amino = require('../build/desktop/amino.js');
 var general = require('./generalutil.js');
 var core = amino.getCore();
 core.setDevice("mac");
@@ -44,7 +44,7 @@ root.add(testgroup);
 
 
 var prevButton = core.createPushButton();
-prevButton.setText("prev").setX(10).setY(10).setW(120).setH(30);
+prevButton.setText("prev").setX(10).setY(10);
 root.add(prevButton);
 stage.on("PRESS",prevButton,function(e){
     testgroup.clear();
@@ -56,7 +56,7 @@ stage.on("PRESS",prevButton,function(e){
 });
 
 var nextButton = core.createPushButton();
-nextButton.setText("next").setTx(200).setY(10).setW(120).setH(30);
+nextButton.setText("next").setTx(180).setY(10);
 root.add(nextButton);
 stage.on("PRESS",nextButton,function(e) {
     testgroup.clear();

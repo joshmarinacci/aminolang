@@ -291,7 +291,7 @@ Label = function() {
 }
 Label.extend(old_label);
 
-
+/*
 var old_textbox = Textbox;
 Textbox = function() {
     this.draw = function(g) {
@@ -309,7 +309,7 @@ Textbox = function() {
     return this;
 }
 Textbox.extend(old_textbox);
-
+*/
 var old_anchorpanel = AnchorPanel;
 AnchorPanel = function() {
     this.nodes = [];

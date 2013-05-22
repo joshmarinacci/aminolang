@@ -180,6 +180,7 @@ function JSStage() {
     }
     this.listeners = {};
     this.on = function(name, target, fn) {
+        name = name.toLowerCase();
         if(target == null) {
             target = this;
         }
@@ -204,9 +205,9 @@ function JSStage() {
     this.fireEvent = function(e) {
         // console.log("firing",e);
         // console.log(this.listeners);
-        if(this.listeners[e.type]) {
+        if(this.listeners[e.type.toLowerCase()]) {
             // console.log("got a list");
-            var list = this.listeners[e.type];
+            var list = this.listeners[e.type.toLowerCase()];
             for(var i in list) {
                 var l = list[i];
                 if(l.target == e.target) l.fn(e);
@@ -370,14 +371,14 @@ function JSStage() {
     this.mouselast = new Point(0,0);
     this.processPointerEvent= function(type, point) {
         //console.log("processing a pointer event " + type + " ", point);
-        
+        type = type.toLowerCase();
         var event = this.createEvent();
         event.type = type;
-        //console.log("type = " + event.type + " " + this.mouselast.x + " " + this.mouselast.y);
-        if(type == "PRESS") {
+        console.log("type = " + event.type + " " + this.mouselast.x + " " + this.mouselast.y);
+        if(type == "press") {
             event.point = point;
         }
-        if(type == "DRAG") {
+        if(type == "drag") {
             event.delta = point.minus(this.mouselast);
             if(core.SCALE2X) {
                 event.delta.x = event.delta.x/2;
@@ -389,11 +390,16 @@ function JSStage() {
         var pt2 = fromScreenCoords(point);
         event.point = pt2;
         
-        if(type=="PRESS"){
+        if(type=="press"){
             this.dragFocus = node;
             this.keyboardFocus = node;
         }
-        if(type=="RELEASE"){
+        if(type=="drag") {
+            if(this.dragFocus != null) {
+                node = this.dragFocus;
+            }
+        }
+        if(type=="release"){
             this.dragFocus = null;
         }
         if(node!=null){
@@ -403,7 +409,7 @@ function JSStage() {
         this.mouselast = point;        
         
         //send a second drag to the stage just for swipe events
-        if(type == "DRAG") {
+        if(type == "drag") {
             event.target = this;
             this.fireEvent(event);
         }

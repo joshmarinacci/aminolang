@@ -56,33 +56,33 @@ function comps(c,core,stage) {
     tbutton.setText("toggle");
     tbutton.setTx(10).setTy(120);
     c.add(tbutton);
-    /*
+    
     var label = core.createLabel();
     label.setText("A Label");
     label.setTextColor("#008800");
-    label.setTx(200);
-    label.setTy(140);
+    label.setTx(10);
+    label.setTy(180);
     c.add(label);
     
     var slider = core.createSlider();
-    slider.setTx(200).setTy(180);
+    slider.setTx(10).setTy(200);
     slider.setW(150).setH(30);
     c.add(slider);
     
     
-    
+    /*
     
     var textbox = core.createTextField();
     textbox.setTx(200).setTy(230).setW(150).setH(30);
     textbox.setText("foo");
     c.add(textbox);
     
-    
+    */
     
     var listview = core.createListView();
     listview.setW(200).setH(200).setTx(380).setTy(30);
     c.add(listview);
-  */  
+  
 }
 
 function events(c, core,stage) {

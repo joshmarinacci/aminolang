@@ -260,6 +260,8 @@ function CanvasStage(can)  {
         delegate(gfx,"save",ctx);
         delegate(gfx,"restore",ctx);
         delegate(gfx,"translate",ctx);
+        delegate(gfx,"scale",ctx);
+        delegate(gfx,"rotate",ctx);
         for(var n in this.nodes) {
             this.draw(gfx,this.nodes[n]);
         }
@@ -314,6 +316,9 @@ window.requestAnimFrame = (function(){
 var widgets = window['widgets'];
 widgets.CommonPushButton.extend(PushButton);
 widgets.CommonToggleButton.extend(ToggleButton);
+widgets.CommonLabel.extend(Label);
+widgets.CommonSlider.extend(Slider);
+widgets.CommonListView.extend(ListView);
 function Engine() {
     this.cans = [];
     
@@ -364,16 +369,22 @@ function Engine() {
         return comp;
     }
     this.createSlider = function() {
-        return new Slider();
+        var comp = new widgets.CommonSlider();
+        comp.install(EventManager.get());
+        return comp;
     }
     this.createLabel = function() {
-        return new Label();
+        var comp = new widgets.CommonLabel();
+        comp.install(EventManager.get());
+        return comp;
     }
     this.createTextbox = function() {
         return new Textbox();
     }
     this.createListView = function() {
-        return new ListView();
+        var comp = new widgets.CommonListView();
+        comp.install(EventManager.get());
+        return comp;
     }
 }
 Engine.extend(Core);

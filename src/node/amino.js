@@ -837,202 +837,14 @@ core.createAnchorPanel = function() {
     return comp;
 }
 
-JSListView = function() {
-    var self = this;
-    this.selectedIndex = -1;
-    this.w = 100;
-    this.h = 200;
-    this.cellHeight = 32;
-    this.cellWidth = 32;
-    this.DEBUG = false;
-    this.listModel = [];
-    for(var i=0; i<30; i++) {
-        this.listModel.push(i+"");
-    }
-    this.getBounds = function() {
-        return {x:self.x, y:self.y, w:self.w, h:self.h };
-    };
-    this.scroll = 0;
-    this.layout = "vert";
-    this.draw = function(gfx) {
-        var bounds = this.getBounds();
-        var b = {
-            x:0,
-            y:+this.getTy()*2+40*2,
-            w:bounds.w*2,
-            h:bounds.h*2
-        }
-        //gfx.enableClip(b);
-        
-        
-        //border
-        var border = self.getBounds();
-        border.x--;
-        border.y--;
-        border.w+=2;
-        border.h+=2;
-        gfx.fillQuadColor("#000000", border);
-        
-        //background
-        gfx.fillQuadColor("#ccffff",this.getBounds());
-        this.drawCells(gfx);
-        //gfx.disableClip();
-    }
-    this.drawCells = function(gfx) {
-        if(this.layout == "horizwrap") {
-            var lx = 0;
-            var ly = -this.scroll;
-            for(var i=0; i<this.listModel.length; i++) {
-                if(ly >= 0 - this.cellHeight && ly < this.getH()) {
-                    if(this.cellRenderer) {
-                        this.cellRenderer(gfx, this.listModel[i], {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
-                    } else {
-                        gfx.fillQuadColor("#888888", {x:lx, y:ly, w:this.cellWidth-2, h:this.cellHeight-2});
-                        gfx.fillQuadText("#000000", this.listModel[i], lx, ly,this.getFontSize(), this.font.fontid);
-                    }
-                }
-                lx += this.cellWidth;
-                if(lx + this.cellWidth > this.getW()) {
-                    lx = 0;
-                    ly += this.cellHeight;
-                }
-            }
-            return;
-        }
-        
-        if(this.layout == "horiz") {
-            for(var i=0; i<this.listModel.length; i++) {
-                var lx = -this.scroll;
-                var ly = 0;
-                for(var i=0; i<this.listModel.length; i++) {
-                    gfx.fillQuadColor("#888888", {x:lx, y:ly, w:this.cellWidth-2, h:this.getH()-2});
-                    lx += this.cellWidth;
-                }
-            }
-        }
-        
-        if(this.layout == "vert") {
-            var bnds = self.getBounds();
-            for(var i=0; i<this.listModel.length; i++) {
-                var y = i*this.cellHeight;
-                if(y < this.scroll-this.cellHeight) continue;
-                if(y > this.getH()+this.scroll) break;
-                var fillBounds = {
-                            x:bnds.x, 
-                            y:bnds.y+3+y-this.scroll,
-                            w:this.getW(), 
-                            h:this.cellHeight
-                        };
-                if(this.cellRenderer) {
-                    this.cellRenderer(gfx, 
-                        {
-                            list:this,
-                            index:i,
-                            item:this.listModel[i]
-                        },
-                        fillBounds
-                        );
-                } else {
-                    if(this.selectedIndex == i) {
-                        gfx.fillQuadColor("#6666ff",fillBounds);
-                    }
-                    gfx.fillQuadText("#000000", 
-                        this.listModel[i],
-                        bnds.x+10, bnds.y+3+y-this.scroll,
-                        this.getFontSize(), this.font.fontid);
-                }
-            }
-            return;
-        }
-        
-        
-        
-    }
-    
-    this.install = function(stage) {
-        var pressPoint = null;
-        stage.on("PRESS", this, function(e) {
-            pressPoint = e.point;
-        });
-        stage.on("DRAG", this, function(e) {
-            var maxScroll = 100;
-            if(self.layout == "vert") {
-                self.scroll -= e.delta.y;
-                maxScroll = self.cellHeight * self.listModel.length - self.getH();
-            }
-            if(self.layout == "horiz") {
-                self.scroll -= e.delta.x;
-                maxScroll = self.cellWidth * self.listModel.length - self.getW();
-            }
-            if(self.layout == "horizwrap") {
-                self.scroll -= e.delta.y;
-                var rowLen = Math.floor(self.getW() / self.cellWidth);
-                var rows = Math.ceil(self.listModel.length / rowLen);
-                maxScroll = self.cellHeight * rows - self.getH();
-            }
-            
-            if(self.scroll < 0) self.scroll = 0;
-            if(self.scroll > maxScroll) {
-                self.scroll = maxScroll;
-            }
-        });
-        stage.on("RELEASE", this, function(e) {
-            if(!pressPoint) return;
-            var dx = e.point.x-pressPoint.x;
-            var dy = e.point.y-pressPoint.y;
-            if(Math.abs(dx) < 5 && Math.abs(dy) < 5) {
-                var event = {
-                    type:"SELECT",
-                    target:self,
-                }
-                if(self.layout == "vert") {
-                    event.index = -99;
-                    var py = e.point.y -self.getTy() + self.scroll;
-                    var index = Math.round(py/self.cellHeight);
-                    index--;
-                    if(index < 0) index = 0;
-                    if(index > self.listModel.length-1) {
-                        index = self.listModel.length;
-                    }
-                    event.index = index;
-                    self.selectedIndex = index;
-                }
-                stage.fireEvent(event);
-            }
-        });
-        stage.on("KEYPRESS",this,function(kp) {
-            if(kp.keycode == 283) {
-                self.setSelectedIndex(self.getSelectedIndex()-1);
-                stage.fireEvent({type:"SELECT",target:self});
-            }
-            if(kp.keycode == 284) {
-                console.log("down arrow");
-                self.setSelectedIndex(self.getSelectedIndex()+1);
-            }
-            console.log("sel = " + self.getSelectedIndex());
-        });
-        
-    }
-    
-    this.setSelectedIndex = function(n) {
-        this.selectedIndex = n;
-        if(this.selectedIndex < 0) {
-            this.selectedIndex = 0;
-        }
-        if(this.selectedIndex > this.listModel.length-1) {
-            this.selectedIndex = this.listModel.length-1;
-        }
-        this.markDirty();
-        return this;
-    }
-}
-JSListView.extend(generated.ListView);
+widgets.CommonListView.extend(generated.ListView);
 core.createListView = function() {
-    var comp = new JSListView();
+    var comp = new widgets.CommonListView();
     comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;
 }
+
 /*
 function JSPushButton() {
         //draw the text
@@ -1077,28 +889,11 @@ core.createToggleButton = function() {
     return comp;
 }
 
-function notNull(name, obj) {
-    if(!obj) throw (name + " is null!!!");
-}
-
-function JSLabel() {
-    var self = this;
-    this.w = 200;
-    this.h = 100;
-    this.setTextColor("#000000");
-    this.draw = function(gfx) {
-        var bnds = this.getBounds();
-        //gfx.fillQuadColor("#888888", this.getBounds()); 
-        gfx.fillQuadText(this.getTextColor(), this.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font.fontid);
-    };
-    this.getBounds = function() {
-        return { x:this.x, y:this.y, w:this.w, h:this.h };
-    };
-}
-JSLabel.extend(generated.Label);
+widgets.CommonLabel.extend(generated.Label);
 core.createLabel = function() {
-    var comp = new JSLabel();
+    var comp = new widgets.CommonLabel();
     comp.font = this.DEFAULT_FONT;
+    comp.install(this.stage);
     return comp;
 }
 
@@ -1895,7 +1690,7 @@ core.createTextField = function() {
 }
 
 
-
+/*
 function JSSlider() {
     var self = this;
     this.w = 200;
@@ -1934,9 +1729,12 @@ function JSSlider() {
         return {x:self.x, y:self.y, w:self.w, h:self.h };
     };
 }
-JSSlider.extend(generated.Slider);
+*/
+
+widgets.CommonSlider.extend(generated.Slider);
 core.createSlider = function() {
-    var comp = new JSSlider();
+    var comp = new widgets.CommonSlider();
+    comp.font = this.DEFAULT_FONT;
     comp.install(this.stage);
     return comp;
 }

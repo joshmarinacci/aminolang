@@ -160,30 +160,6 @@ ImageView = function() {
 }
 ImageView.extend(old_image);
 
-
-var old_slider = Slider;
-Slider = function() {
-    this.valueToPoint = function(v) {
-        return (this.value-this.minvalue) *
-            (this.w / (this.maxvalue-this.minvalue));
-    }
-    this.pointToValue = function(p) {
-        return p * (this.maxvalue-this.minvalue)/this.w + this.minvalue;
-    }
-    this.draw = function(g) {
-        g.fillStyle = "gray";
-        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
-        g.fillStyle = "black";
-        var v = this.valueToPoint(this.value);
-        g.fillRect(this.getX(),this.getY(),v,this.getH());
-    }
-    EventManager.get().on(Events.Drag, this, function(e) {
-        var r = e.target;
-        r.setValue(r.pointToValue(e.point.x-r.getX()));
-    });
-}
-Slider.extend(old_slider);
-
 var old_spinner = Spinner;
 Spinner = function() {
     this.anim = new PropAnim(this,"rotation",0,90,500);//.setLoop(-1);
@@ -228,35 +204,6 @@ Spinner = function() {
 }
 Spinner.extend(old_spinner);
 
-var old_label = Label;
-Label = function() {
-    this.draw = function(g) {
-        g.fillStyle = "black";
-        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
-    };
-    return this;
-}
-Label.extend(old_label);
-
-/*
-var old_textbox = Textbox;
-Textbox = function() {
-    this.draw = function(g) {
-        g.fillStyle = "gray";
-        g.fillRect(this.getX(),this.getY(),this.getW(),this.getH());
-        
-        
-        g.fillStyle = "black";
-        g.fillText(this.getText(),this.getX()+5,this.getY()+15);
-        
-        g.lineWidth = 2;
-        g.strokeStyle = "black";
-        g.strokeRect(this.getX(),this.getY(),this.getW(),this.getH());
-    };
-    return this;
-}
-Textbox.extend(old_textbox);
-*/
 var old_anchorpanel = AnchorPanel;
 AnchorPanel = function() {
     this.nodes = [];
@@ -289,100 +236,6 @@ AnchorPanel = function() {
     return this;
 }
 AnchorPanel.extend(old_anchorpanel);
-
-var old_ListView = ListView;
-ListView = function() {
-    this.cb = [];
-	this.listModel = ['a','b','c'];
-    
-    this.index = 0;
-    this.setselectedIndex = function(index) {
-        var i = index;
-        if(this.listModel.items) {
-            if(i > this.listModel.items.length-1) {
-                i = this.listModel.items.length-1;
-            }
-        }
-        this.index = i;
-        this.fireChange();
-        return this;
-    }
-    this.getselectedObject = function() {
-        return this.listModel.get(this.index);
-    }
-    this.setselectedObject = function() {
-        return this;
-    }
-    this.fireChange = function() {
-        for(var i=0; i<this.cb.length; i++) {
-            this.cb[i](this);
-        }
-        this.markDirty();
-    }
-        
-    this.rh = 19;
-    
-	this.listen = function(cb) {
-	    this.cb.push(cb);
-        return this;
-    }
-
-    this.scroll = 0;
-    this.draw = function(ctx) {
-        ctx.font = "15px sans-serif";
-        //background
-        ctx.fillStyle = "#eee";
-        ctx.fillRect(this.x,this.y,this.w,this.h);
-        
-        //selected row background
-        ctx.fillStyle = "lightBlue";
-        ctx.fillRect(this.x,this.y+this.index*this.rh, this.w, this.rh);
-        
-        ctx.fillStyle = "black";
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(this.x,this.y,this.w,this.h);
-        ctx.clip();
-        for(var i=0; i<this.listModel.length; i++) {
-            var y = i*this.rh;
-            if(y < this.scroll-this.rh) continue;
-            if(y > this.getH()+this.scroll) break;
-            ctx.fillText(this.listModel[i],
-                this.x+5,this.y+y+15-this.scroll);
-        }
-        ctx.restore();
-        if(this.listModel.items) {
-            for(var i=0; i<this.listModel.items.length; i++) {
-                var y = i*this.rh;
-                if(y > this.getH()) break;
-                ctx.fillText(this.listModel.items[i],
-                    this.x+5,this.y+y+15);
-            }
-        }
-        
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x,this.y,this.w,this.h);
-    }
-	var self = this;
-	EventManager.get().on(Events.Press, this, function(e) {
-            var y = e.point.y - self.y - self.ty;
-            var n = parseInt(y / self.rh,10);
-            self.setselectedIndex(n);
-	});
-	EventManager.get().on(Events.Drag, this, function(e) {
-//            console.log("drag on listview at : ",e.delta);
-            self.scroll -= e.delta.y;
-            if(self.scroll < 0) self.scroll = 0;
-            var maxH = self.rh * self.listModel.length;
-            if(self.scroll + self.getH() > maxH) {
-                self.scroll = maxH-self.getH();
-            }
-	});
-    return this;
-}
-ListView.extend(old_ListView);
-
 
 var old_FlickrQuery = FlickrQuery
 FlickrQuery = function() {

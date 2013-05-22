@@ -1102,7 +1102,7 @@ function JSLabel() {
     var self = this;
     this.w = 200;
     this.h = 100;
-    this.setTextColor("#ff0000");
+    this.setTextColor("#000000");
     this.draw = function(gfx) {
         var bnds = this.getBounds();
         //gfx.fillQuadColor("#888888", this.getBounds()); 

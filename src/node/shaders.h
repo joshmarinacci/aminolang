@@ -22,6 +22,16 @@ public:
     GLint attr_color;    
 };
 
+class RectShader: public Shader {
+public:
+    RectShader();
+    virtual void apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]);
+    int prog;
+    GLint u_matrix, u_trans;
+    GLint attr_pos;
+    GLint attr_color;    
+};
+
 class FontShader: public Shader {
 public:
     FontShader();

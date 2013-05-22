@@ -262,7 +262,7 @@ function JSStage() {
                 this.fillQuadColor(color,bounds);
             },
             strokeRect: function(color, bounds) {
-                this.fillQuadColor(color,bounds);
+                gfx.strokeQuadColor(ParseRGBString(color),bounds);
             },
             drawText: function(color, text, x, y, size, font) {
                 //console.log(font);

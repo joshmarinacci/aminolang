@@ -36,6 +36,7 @@ using namespace node;
 static GLfloat* modelView;
 static GLfloat* globaltx;
 static ColorShader* colorShader;
+static RectShader* rectShader;
 static FontShader* fontShader;
 static TextureShader* textureShader;
 static std::stack<void*> matrixStack;
@@ -51,6 +52,7 @@ public:
         tpl->SetClassName(String::NewSymbol("GFX"));
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(node_fillQuadColor)->GetFunction());
+        tpl->PrototypeTemplate()->Set(String::NewSymbol("strokeQuadColor"),FunctionTemplate::New(node_strokeQuadColor)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(node_fillQuadText)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(node_fillQuadTexture)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(node_fillQuadTextureSlice)->GetFunction());
@@ -355,12 +357,79 @@ public:
         colorShader->apply(modelView, globaltx, verts, colors);
     }
     
+    
+    static Handle<v8::Value> node_strokeQuadColor(const v8::Arguments& args) {
+        HandleScope scope;
+        GLGFX* self = ObjectWrap::Unwrap<GLGFX>(args.This());
+        
+        double r = 1;
+        double g = 0;
+        double b = 1;
+        if(args[0]->IsObject()) {
+            Local<Object> fill = args[0]->ToObject();
+            r = fill->Get(String::New("r"))->NumberValue();
+            g = fill->Get(String::New("g"))->NumberValue();
+            b = fill->Get(String::New("b"))->NumberValue();
+        }
+        
+        
+        if(args[1]->IsObject()) {
+            Local<Object> bnds = args[1]->ToObject();
+            double dx = bnds->Get(String::New("x"))->NumberValue();
+            double dy = bnds->Get(String::New("y"))->NumberValue();
+            double dw = bnds->Get(String::New("w"))->NumberValue();
+            double dh = bnds->Get(String::New("h"))->NumberValue();
+            self->strokeQuadColor(r,g,b,new Bounds(dx,dy,dw,dh));
+        }
+
+        return scope.Close(Undefined());
+    }
+    
+    void strokeQuadColor(float r, float g, float b, Bounds* bounds) {
+        float x =  bounds->getX();
+        float y =  bounds->getY();
+        float x2 = bounds->getX()+bounds->getW();
+        float y2 = bounds->getY()+bounds->getH();
+
+        GLfloat verts[8][2];
+        verts[0][0] = x;
+        verts[0][1] = y;
+        verts[1][0] = x2;
+        verts[1][1] = y;
+        
+        verts[2][0] = x2;
+        verts[2][1] = y;
+        verts[3][0] = x2;
+        verts[3][1] = y2;
+        
+        verts[4][0] = x2;
+        verts[4][1] = y2;
+        verts[5][0] = x;
+        verts[5][1] = y2;
+        
+        verts[6][0] = x;
+        verts[6][1] = y2;
+        verts[7][0] = x;
+        verts[7][1] = y;
+
+        GLfloat colors[8][3];
+        
+        for(int i=0; i<8; i++) {
+            for(int j=0; j<3; j++) {
+                colors[i][j] = 0.5;
+                if(j==0) colors[i][j] = r;
+                if(j==1) colors[i][j] = g;
+                if(j==2) colors[i][j] = b;
+            }
+        }
+        
+        rectShader->apply(modelView, globaltx, verts, colors);
+    }
+    
     void fillQuadText(char* text, double x, double y, double r, double g, double b, double fsize, AminoFont* font) {
         fontShader->apply(modelView, globaltx, text, x, y, r, g, b, fsize, font);
     }
     void fillQuadTexture(int texid, double x, double y, double w, double h) {
-//        float x = 0;
-//        float y = 0;
         float x2 = x+w;
         float y2 = y+h;
     

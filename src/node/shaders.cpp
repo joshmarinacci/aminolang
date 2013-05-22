@@ -111,6 +111,58 @@ void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[
 }    
 
 
+/* ==== Color Shader impl === */
+
+RectShader::RectShader() {
+   static const char *fragShaderText =
+   //the precision only seems to work on mobile, not desktop
+#ifdef KLAATU
+      "precision mediump float;\n"
+#endif
+      "varying vec4 v_color;\n"
+      "void main() {\n"
+      "   gl_FragColor = v_color;\n"
+      "}\n";
+      
+   static const char *vertShaderText =
+      "uniform mat4 modelviewProjection;\n"
+      "uniform mat4 trans;\n"
+      "attribute vec4 pos;\n"
+      "attribute vec4 color;\n"
+      "varying vec4 v_color;\n"
+      "void main() {\n"
+      "   gl_Position = trans * pos * modelviewProjection;\n"
+      "   v_color = color;\n"
+      "}\n";
+
+   GLuint vert = compileVertShader(vertShaderText);
+   printf("did a compile\n");
+   GLuint frag = compileFragShader(fragShaderText);
+   prog = compileProgram(vert,frag);
+   
+   glUseProgram(prog);
+   attr_pos   = glGetAttribLocation(prog, "pos");
+   attr_color = glGetAttribLocation(prog, "color");
+   u_matrix   = glGetUniformLocation(prog, "modelviewProjection");
+   u_trans    = glGetUniformLocation(prog, "trans");
+}   
+
+void RectShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]) {
+    glUseProgram(prog);
+    glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
+    glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
+    
+
+    glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
+    glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(attr_pos);
+    glEnableVertexAttribArray(attr_color);
+    
+    glDrawArrays(GL_LINES, 0, 8);
+    
+    glDisableVertexAttribArray(attr_pos);
+    glDisableVertexAttribArray(attr_color);
+}    
 
 
 

@@ -65,6 +65,7 @@ public:
     static v8::Handle<v8::Value> real_Init(const v8::Arguments& args) {
         HandleScope scope;
         colorShader = new ColorShader();
+        rectShader = new RectShader();
         fontShader  = new FontShader();
         textureShader = new TextureShader();
         glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
@@ -141,6 +142,7 @@ public:
         Handle<ObjectTemplate> point_templ = ObjectTemplate::New();
         point_templ->SetInternalFieldCount(1);
         point_templ->Set(String::NewSymbol("fillQuadColor"),FunctionTemplate::New(GLGFX::node_fillQuadColor)->GetFunction());
+        point_templ->Set(String::NewSymbol("strokeQuadColor"),FunctionTemplate::New(GLGFX::node_strokeQuadColor)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadText"),FunctionTemplate::New(GLGFX::node_fillQuadText)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadTexture"),FunctionTemplate::New(GLGFX::node_fillQuadTexture)->GetFunction());
         point_templ->Set(String::NewSymbol("fillQuadTextureSlice"),FunctionTemplate::New(GLGFX::node_fillQuadTextureSlice)->GetFunction());

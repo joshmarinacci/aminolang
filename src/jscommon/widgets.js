@@ -15,7 +15,7 @@ function CommonPushButton() {
         var bounds = this.getBounds();
 
         gfx.fillRect(this.getBaseColor(), bounds);
-        //gfx.strokeRect("#000000",bounds);
+        gfx.strokeRect("#000000",bounds);
         
         var x = bounds.x;
         //draw the icon
@@ -73,7 +73,7 @@ function CommonToggleButton() {
         } else {
             gfx.fillRect(this.getBaseColor(), this.getBounds());
         }
-        //g.strokeRect("#000000",this.getBounds());
+        gfx.strokeRect("#000000",this.getBounds());
         gfx.drawText("#000000",this.getText(),this.getX()+5, this.getY()+20, this.getFontSize(), this.font);
     };
     
@@ -129,7 +129,7 @@ function CommonSlider() {
             h: bounds.h
         };
         gfx.fillRect("#ff0000", bds);
-        
+        gfx.strokeRect("#000000",this.getBounds());
     }
     
     var self = this;

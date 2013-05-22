@@ -12,9 +12,34 @@ function CommonPushButton() {
     };
     
     this.draw = function(gfx) {
-        gfx.fillRect(this.getBaseColor(), this.getBounds());
-        //gfx.strokeRect("#000000",this.getBounds());
-        gfx.drawText("#000000",this.getText(),this.getX()+5, this.getY()+20, this.getFontSize(), this.font);
+        var bounds = this.getBounds();
+
+        gfx.fillRect(this.getBaseColor(), bounds);
+        //gfx.strokeRect("#000000",bounds);
+        
+        var x = bounds.x;
+        //draw the icon
+        if(this.url) {
+            if(!this.iconImage && !this.iconLoading) {
+                this.iconLoading = true;
+                this.iconImage = amino.loadPngFromBuffer("/Users/josh/projects/temp/"+this.url);
+            }
+            if(this.iconImage) {
+                x += 10;
+                gfx.fillQuadTexture(this.iconImage.texid, x,0, this.iconImage.w, this.iconImage.h);
+                //x += this.iconImage.w;  image is too big right now. assume 30px
+                x += 30;
+                x += 10;
+            }
+        }
+        var w = this.font.calcStringWidth(this.getText(), this.getFontSize(), gfx);
+        x += (bounds.w-w)/2;
+
+        var y = bounds.y;
+        var h = this.font.getHeight(this.getFontSize(), gfx);
+        y = bounds.y + (bounds.h-h)/2 + h/2;
+        gfx.drawText("#000000",this.getText(), x, y, this.getFontSize(), this.font);
+        
     };
     
     this.install = function(stage) {

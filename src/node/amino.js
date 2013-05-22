@@ -845,33 +845,6 @@ core.createListView = function() {
     return comp;
 }
 
-/*
-function JSPushButton() {
-        //draw the text
-        var bnds = this.getBounds();
-        
-        var x = bnds.x;
-        //draw the icon
-        if(this.url) {
-            if(!this.iconImage && !this.iconLoading) {
-                this.iconLoading = true;
-                this.iconImage = amino.loadPngFromBuffer("/Users/josh/projects/temp/"+this.url);
-            }
-            if(this.iconImage) {
-                x += 10;
-                gfx.fillQuadTexture(this.iconImage.texid, x,0, this.iconImage.w, this.iconImage.h);
-                //x += this.iconImage.w;  image is too big right now. assume 30px
-                x += 30;
-                x += 10;
-            }
-        }
-        
-        var w = this.font.calcStringWidth(self.getText());
-        w = w*this.getFontSize()/40.0; //scale down as needed
-        gfx.fillQuadText("#000000", self.getText(), x + (bnds.w-x-w)/2, bnds.y+3, this.getFontSize(), this.font.fontid);
-        
-    };
-*/
 widgets.CommonPushButton.extend(generated.PushButton);
 core.createPushButton = function() {
     var comp = new widgets.CommonPushButton();
@@ -921,7 +894,7 @@ function JSFont(jsonpath, pngpath, w, h) {
         console.log("JSFont: fully loaded the font with id: " + self.fontid);
         
     }    
-    this.calcStringWidth = function(str) {
+    this.calcStringWidth = function(str, size) {
         var total = 0;
         for(var i=0; i<str.length; i++) {
             var ch = str.charCodeAt(i);
@@ -929,7 +902,10 @@ function JSFont(jsonpath, pngpath, w, h) {
             var w = this.json.widths[n];
             total += w;
         }
-        return total;
+        return total * size/this.json.height;
+    }
+    this.getHeight = function() {
+        return this.json.height;
     }
 }
 core.fonts = [];

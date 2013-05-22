@@ -44,7 +44,7 @@ root.add(testgroup);
 
 
 var prevButton = core.createPushButton();
-prevButton.setText("prev").setX(10).setY(10);
+prevButton.setText("prev").setX(10).setY(10).setH(40);
 root.add(prevButton);
 stage.on("PRESS",prevButton,function(e){
     testgroup.clear();

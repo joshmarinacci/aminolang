@@ -252,10 +252,13 @@ function CanvasStage(can)  {
             },
             drawText: function(c,t,x,y, size, id) {
                 //console.log("drawing with size " + size);
-                ctx.font = (size*0.75)+"pt sans-serif";
+                ctx.font = size+"px sans-serif";
                 ctx.fillStyle = c;
                 ctx.fillText(t, x, y);
-            }
+            },
+            getNative: function() {
+                return ctx;
+            },
         };
         delegate(gfx,"save",ctx);
         delegate(gfx,"restore",ctx);
@@ -313,6 +316,17 @@ window.requestAnimFrame = (function(){
 })();
 
 
+var DEFAULT_FONT = {
+    calcStringWidth: function(text, size, gfx) {
+        gfx.font = size+"px sans-serif";
+        var metrics = gfx.getNative().measureText(text);
+        return metrics.width;
+    },
+    getHeight: function(size) {
+        return (size*0.75);
+    }
+};
+
 var widgets = window['widgets'];
 widgets.CommonPushButton.extend(PushButton);
 widgets.CommonToggleButton.extend(ToggleButton);
@@ -360,6 +374,7 @@ function Engine() {
     }
     this.createPushButton = function() {
         var comp = new widgets.CommonPushButton();
+        comp.font = DEFAULT_FONT;
         comp.install(EventManager.get());
         return comp;
     }

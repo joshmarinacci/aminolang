@@ -291,7 +291,7 @@ Corex.start(function(core) {
     root.add(testgroup);
     
     var prevButton = core.createPushButton();
-    prevButton.setText("prev").setX(10).setY(10);
+    prevButton.setText("prev").setX(0).setY(0).setH(40);
     root.add(prevButton);
     stage.on(Events.Press,prevButton,function(e){
         testgroup.clear();

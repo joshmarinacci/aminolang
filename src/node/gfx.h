@@ -1,11 +1,18 @@
 #ifdef MAC
 #include <GL/glfw.h>
 #endif
+
 #ifdef KLAATU
 #include <ui/DisplayInfo.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
 #endif
+
+#ifdef LINUX
+#include <GL/glfw.h>
+#include <GL/glext.h>
+#endif
+
 
 
 class AminoFont {

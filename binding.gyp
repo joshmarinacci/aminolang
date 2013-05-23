@@ -25,6 +25,18 @@
                     "defines": [
                         "KLAATU"
                     ]
+                }],
+
+                ['OS=="linux"', {
+		    "libraries":[
+			"-lglfw",
+			"-lpng",
+			"-ljpeg",
+		    ],
+                    "defines": [
+			"GL_GLEXT_PROTOTYPES",
+                        "LINUX"
+                    ]
                 }]
             ]
 

@@ -30,10 +30,22 @@ some shapes and widgets on the screen.
 Amino on the Mac desktop
 ========================
 
-Amino on the Mac desktop use NodeJS with a native add-on to wrap OpenGL and GLFW. Generate the native node module:
+Amino on the Mac desktop use NodeJS we use GLWF and a native add-on. To build it first install Brew.
+It's the package manager for Mac that you've always wanted. Then install libpng, libjpeg, and libglfw with
+it. Finally generate the native node module:
 
 ```
 node-gyp clean configure build
+```
+
+put in the missing pure js deps
+```
+sudo npm-install wrench
+```
+
+build the pure js parts
+```
+node build desktopbuild
 ```
 
 Then run the test app with
@@ -45,7 +57,6 @@ node tests/general.js
 
 Amino on Android
 =========================
-
 
 Amino can be run with NodeJS on Android from the command line on developer
 unlocked devices running Android 4.1.x. It does not use Java/Dalvik and does not
@@ -71,15 +82,8 @@ chmod 755 node
 ```
 
 
-=======
-
-building on mac
-
-first, install brew. it's the package manager for mac that you've always wanted. Then install 
-libpng, libjpeg, and libglfw.
-
-
-building on linux
+Amino on Linux
+=========================
 
 install node.
 

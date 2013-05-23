@@ -71,6 +71,61 @@ chmod 755 node
 ```
 
 
+=======
+
+building on mac
+
+first, install brew. it's the package manager for mac that you've always wanted. Then install 
+libpng, libjpeg, and libglfw.
+
+
+building on linux
+
+install node.
+
+```
+https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+```
+
+install node-gyp
+
+```
+sudo npm install -g node-gyp
+```
+
+
+install glfw
+
+```
+sudo apt-get install libglfw2 libglfw-dev ﻿libpng12-dev libjpeg-dev
+```
+
+Note that on virtual box there is a bug which upgrading vbox doesn't fix. This prevents windows from opening. To fix it
+we need GLFW version 2.7.5 or greater. Unfortunately Ubuntu still ships with a more than a year old GLFW, so I had to
+remove the default and build/install GLFW from source. Once that is done it should work.
+
+Install git and check out the code.  build it with node-gyp
+
+```
+node-gyp clean configure build
+```
+
+put in the missing pure js deps
+```
+sudo npm-install wrench
+```
+
+build the pure js parts
+```
+node build desktopbuild
+```
+
+run the test app
+```
+node tests/general.js
+```
+
+
 
 
 

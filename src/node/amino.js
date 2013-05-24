@@ -827,6 +827,17 @@ JSAnchorPanel = function() {
             if(node.anchorRight && !node.anchorLeft) {
                 node.setTx(this.getW() - node.right - node.getW());
             }
+            
+            //horizontal stretch
+            if(node.anchorRight && node.anchorLeft) {
+                node.setTx(node.left);
+                node.setW(this.getW()- node.left - node.right);
+            }
+            //vertical stretch
+            if(node.anchorTop && node.anchorBottom) {
+                node.setTy(node.top);
+                node.setH(this.getH() - node.top - node.bottom);
+            }
         }
     }
 }
@@ -1823,6 +1834,8 @@ var SceneParser = function() {
         "DynamicGroup":"createGroup",
         "AnchorPanel":"createAnchorPanel",
         "ImageView":"createImageView",
+        "TextField":"createTextField",
+        "TextArea":"createTextArea",
     };
     this.parentTypeMap = {
         "Group":JSGroup,

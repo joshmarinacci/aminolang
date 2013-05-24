@@ -190,12 +190,10 @@ function setupMusic() {
 }
 
 function setupEditor() {
-    var editor = core.createTextArea();
-    editor.setTx(300).setH(500).setW(500);
+    var editor = stage.find("mainEditText");
     editor.setText("foo");
     var txt = fs.readFileSync("foo.txt");
     editor.setText(txt.toString());
-    root.add(editor);
     function saveEditor() {
         console.log("saving: " + editor.getText());
         fs.writeFileSync("foo.txt",editor.getText());
@@ -204,8 +202,7 @@ function setupEditor() {
 }
 
 function setupTodos() {
-    var todos = core.createListView();
-    todos.setW(300).setH(500).setTx(800).setTy(0);
+    var todos = stage.find("todoList");
     var items = [
         {
             id:"foo1",
@@ -213,37 +210,21 @@ function setupTodos() {
                 text:"foo1"
             }
         },
-        {
-            id:"foo2",
-            data:{
-                text:"foo2"
-            }
-        },
-        {
-            id:"foo3",
-            data:{
-                text:"foo3"
-            }
-        }
     ];
     todos.listModel = items;
     todos.cellRenderer = function(gfx,info,bounds) {
-        var color = amino.ParseRGBString("#ccffff");//amino.Color(0.5,0.5,0.5);
+        var color = amino.ParseRGBString("#ccffff");
         if(info.list.selectedIndex == info.index) {
             color = new amino.Color(0.1,0.7,1.0);
         }
         gfx.fillQuadColor(color, bounds);
-        
         gfx.fillQuadText(new amino.Color(0,0,0),
             info.item.data.text,
             bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
     }
     todos.setFontSize(15);
-    root.add(todos);
-    console.log("added the todos");
     UTILS.getJSON("http://joshy.org:3001/bag/search",function(err,data){
         if(err) return;
-        console.log("got the data",data);
         todos.listModel = data;
     });
 }
@@ -252,7 +233,7 @@ setupWeather();
 setupMusic();
 setupEditor();
 setupTodos();
-
+/*
 function setupTodoView() {
     var options = URL.parse("http://joshy.org:3001/bag/search");
     var req = http.request(options, function(res) {
@@ -266,6 +247,14 @@ function setupTodoView() {
     req.end();
 }
 setupTodoView();
+*/
+
+
+//make the main view be resized when the window does
+stage.on("WINDOWSIZE", stage, function(e) {
+        console.log("resizing the anchor panel: " + e.width + " " + e.height);
+        stage.find("main").setW(e.width).setH(e.height);
+});
 
 setTimeout(function() {
     core.start();

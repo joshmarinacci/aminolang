@@ -8,13 +8,13 @@
            "type":"AnchorPanel"
           ,"id":"main"
           ,"anchorLeft":true
-          ,"w":639.0
+          ,"w":1000.0
           ,"fill":"#a0a0a0"
           ,"anchorTop":true
           ,"ty":0.0
           ,"anchorRight":false
           ,"tx":0.0
-          ,"h":479.0
+          ,"h":480.0
           ,"anchorBottom":false
             ,"children":[
                {
@@ -27,31 +27,31 @@
               ,"ty":0.0
               ,"anchorRight":false
               ,"tx":0.0
-              ,"h":100.0
+              ,"h":50.0
               ,"anchorBottom":false
               ,"left":0.0
               ,"top":0.0
-              ,"right":339.0
-              ,"bottom":379.0
+              ,"right":700.0
+              ,"bottom":430.0
                 ,"children":[
                    {
                    "type":"Label"
                   ,"id":"clockLabel"
                   ,"anchorLeft":true
                   ,"text":"clock"
-                  ,"w":277.0
+                  ,"w":300.0
                   ,"anchorTop":true
-                  ,"ty":10.0
+                  ,"ty":0.0
                   ,"fontSize":30.0
                   ,"anchorRight":false
-                  ,"tx":10.0
-                  ,"h":52.0
+                  ,"tx":0.0
+                  ,"h":50.0
                   ,"color":"#000000"
                   ,"anchorBottom":false
-                  ,"left":10.0
-                  ,"top":10.0
-                  ,"right":13.0
-                  ,"bottom":38.0
+                  ,"left":0.0
+                  ,"top":0.0
+                  ,"right":0.0
+                  ,"bottom":0.0
                   }
                 ]
               }
@@ -62,34 +62,34 @@
               ,"w":300.0
               ,"fill":"#d5aaff"
               ,"anchorTop":true
-              ,"ty":100.0
+              ,"ty":50.0
               ,"anchorRight":false
               ,"tx":0.0
-              ,"h":100.0
+              ,"h":50.0
               ,"anchorBottom":false
               ,"left":0.0
-              ,"top":100.0
-              ,"right":339.0
-              ,"bottom":279.0
+              ,"top":50.0
+              ,"right":700.0
+              ,"bottom":380.0
                 ,"children":[
                    {
                    "type":"Label"
                   ,"id":"weatherLabel"
                   ,"anchorLeft":true
-                  ,"text":"a label"
+                  ,"text":"51.11 degrees"
                   ,"w":283.0
                   ,"anchorTop":true
-                  ,"ty":20.0
+                  ,"ty":0.0
                   ,"fontSize":30.0
                   ,"anchorRight":false
-                  ,"tx":10.0
-                  ,"h":58.0
+                  ,"tx":0.0
+                  ,"h":50.0
                   ,"color":"#000000"
                   ,"anchorBottom":false
-                  ,"left":10.0
-                  ,"top":20.0
-                  ,"right":7.0
-                  ,"bottom":22.0
+                  ,"left":0.0
+                  ,"top":0.0
+                  ,"right":17.0
+                  ,"bottom":0.0
                   }
                 ]
               }
@@ -100,23 +100,23 @@
               ,"w":300.0
               ,"fill":"#8eaaff"
               ,"anchorTop":true
-              ,"ty":200.0
+              ,"ty":100.0
               ,"anchorRight":false
               ,"tx":0.0
               ,"h":100.0
               ,"anchorBottom":false
               ,"left":0.0
-              ,"top":200.0
-              ,"right":339.0
-              ,"bottom":179.0
+              ,"top":100.0
+              ,"right":700.0
+              ,"bottom":280.0
                 ,"children":[
                    {
                    "type":"ImageView"
                   ,"id":"musicArtwork"
                   ,"anchorLeft":true
-                  ,"h":50.0
+                  ,"h":44.0
                   ,"url":"Heart.png"
-                  ,"w":100.0
+                  ,"w":53.0
                   ,"anchorBottom":false
                   ,"anchorTop":true
                   ,"ty":0.0
@@ -124,8 +124,8 @@
                   ,"anchorRight":false
                   ,"left":0.0
                   ,"top":0.0
-                  ,"right":200.0
-                  ,"bottom":50.0
+                  ,"right":247.0
+                  ,"bottom":56.0
                   }
                   ,{
                    "type":"PushButton"
@@ -133,18 +133,18 @@
                   ,"anchorLeft":true
                   ,"enabled":true
                   ,"text":"more..."
-                  ,"w":75.0
+                  ,"w":96.0
                   ,"anchorTop":true
-                  ,"ty":9.0
+                  ,"ty":8.0
                   ,"fontSize":15.0
-                  ,"tx":219.0
+                  ,"tx":200.0
                   ,"anchorRight":false
-                  ,"h":23.0
+                  ,"h":21.0
                   ,"anchorBottom":false
-                  ,"left":219.0
-                  ,"top":9.0
-                  ,"right":6.0
-                  ,"bottom":68.0
+                  ,"left":200.0
+                  ,"top":8.0
+                  ,"right":4.0
+                  ,"bottom":71.0
                   }
                   ,{
                    "type":"PushButton"
@@ -229,16 +229,53 @@
               ,"id":"commandLine"
               ,"anchorLeft":true
               ,"text":"textfield"
-              ,"h":29.0
-              ,"w":640.0
+              ,"h":30.0
+              ,"w":400.0
+              ,"anchorBottom":true
+              ,"anchorTop":false
+              ,"ty":430.0
+              ,"tx":300.0
+              ,"anchorRight":true
+              ,"left":300.0
+              ,"top":430.0
+              ,"right":300.0
+              ,"bottom":20.0
+              }
+              ,{
+               "type":"TextArea"
+              ,"id":"mainEditText"
+              ,"anchorLeft":true
+              ,"text":"textarea"
+              ,"h":430.0
+              ,"w":400.0
               ,"anchorBottom":true
               ,"anchorTop":true
-              ,"ty":450.0
-              ,"anchorRight":false
-              ,"tx":0.0
-              ,"left":0.0
-              ,"top":450.0
-              ,"right":-1.0
+              ,"ty":0.0
+              ,"tx":300.0
+              ,"anchorRight":true
+              ,"left":300.0
+              ,"top":0.0
+              ,"right":300.0
+              ,"bottom":50.0
+              }
+              ,{
+               "type":"ListView"
+              ,"id":"todoList"
+              ,"anchorLeft":false
+              ,"selectedIndex":0
+              ,"h":480.0
+              ,"cellHeight":30.0
+              ,"layout":"vert"
+              ,"w":300.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"anchorRight":true
+              ,"tx":700.0
+              ,"cellWidth":30.0
+              ,"left":700.0
+              ,"top":0.0
+              ,"right":0.0
               ,"bottom":0.0
               }
             ]
@@ -250,9 +287,9 @@
           ,"w":374.0
           ,"fill":"#c6ffff"
           ,"anchorTop":true
-          ,"ty":0.0
+          ,"ty":516.0
           ,"anchorRight":false
-          ,"tx":660.0
+          ,"tx":0.0
           ,"h":354.0
           ,"anchorBottom":false
             ,"children":[

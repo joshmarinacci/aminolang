@@ -359,6 +359,7 @@ function desktopbuild(cb) {
     copyFileTo(src+"out.js",out);
     copyFileTo("build/Release/amino.node",out);
     copyFileTo("src/jscommon/widgets.js",out);
+    copyFileTo("src/jscommon/textcontrol.js",out);
     var test = "tests/";
     copyFileTo(test+"test1.json",out);
     copyFileTo(test+"test1.png",out);

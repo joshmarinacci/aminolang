@@ -2,6 +2,20 @@ console.log("loading widgets");
 
 (function(exports) {
 
+function drawCentered(gfx, color, text, size, font, bounds, choriz, cvert) {
+    var w =  font.calcStringWidth(text, size, gfx);
+    var tx = bounds.x;
+    if(choriz) {
+        tx += (bounds.w-w)/2;
+    }
+    
+    
+    var fh = font.getHeight(size, gfx);
+    var fa = font.getAscent(size, gfx);
+    var ty = bounds.y + bounds.h/2 + fa/2;
+    
+    gfx.drawText(color, text, tx, ty, size, font);
+}
 
 function CommonPushButton() {
     this.setW(150).setH(40);
@@ -32,14 +46,11 @@ function CommonPushButton() {
                 x += 10;
             }
         }
-        var w = this.font.calcStringWidth(this.getText(), this.getFontSize(), gfx);
-        x += (bounds.w-w)/2;
 
-        var y = bounds.y;
-        var h = this.font.getHeight(this.getFontSize(), gfx);
-        y = bounds.y + (bounds.h-h)/2 + h/2;
-        gfx.drawText("#000000",this.getText(), x, y, this.getFontSize(), this.font);
-        
+        drawCentered(gfx, 
+            "#000000", this.getText(), 
+            this.getFontSize(), this.font, 
+            bounds, true, true);
     };
     
     this.install = function(stage) {
@@ -74,7 +85,10 @@ function CommonToggleButton() {
             gfx.fillRect(this.getBaseColor(), this.getBounds());
         }
         gfx.strokeRect("#000000",this.getBounds());
-        gfx.drawText("#000000",this.getText(),this.getX()+5, this.getY()+20, this.getFontSize(), this.font);
+        drawCentered(gfx, 
+            "#000000", this.getText(), 
+            this.getFontSize(), this.font, 
+            this.getBounds(), true, true);
     };
     
     this.install = function(stage) {
@@ -94,8 +108,10 @@ exports.CommonToggleButton = CommonToggleButton;
 function CommonLabel() {
     this.setTextColor("#000000");
     this.draw = function(gfx) {
-        var bnds = this.getBounds();
-        gfx.drawText(this.getTextColor(), this.getText(), bnds.x+10, bnds.y+3, this.getFontSize(), this.font);
+        drawCentered(gfx, 
+            this.getTextColor(), this.getText(), 
+            this.getFontSize(), this.font, 
+            this.getBounds(), false, true);
     };
     this.getBounds = function() {
         return { x:this.x, y:this.y, w:this.w, h:this.h };

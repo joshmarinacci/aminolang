@@ -265,9 +265,11 @@ function JSStage() {
                 gfx.strokeQuadColor(ParseRGBString(color),bounds);
             },
             drawText: function(color, text, x, y, size, font) {
-                //console.log(font);
-                //console.log(size);
-                this.fillQuadText(color, text, x, y-font.json.height/2, size, font.fontid);
+                var scale = size/font.basesize;
+                this.fillQuadText(color, text, 
+                    x, 
+                    y-font.ascent*scale - 10*scale, 
+                    size, font.fontid);
             },
         };
         
@@ -913,10 +915,13 @@ function JSFont(jsonpath, pngpath, w, h) {
             var w = this.json.widths[n];
             total += w;
         }
-        return total * size/this.json.height;
+        return total * size/this.basesize;
     }
-    this.getHeight = function() {
-        return this.json.height;
+    this.getHeight = function(fs,gfx) {
+        return this.json.height * (fs/this.basesize);
+    }
+    this.getAscent = function(fs,gfx) {
+        return this.ascent * (fs/this.basesize);
     }
 }
 core.fonts = [];
@@ -928,6 +933,7 @@ core.createFont = function(jsonpath, pngpath, w, h) {
 core.DEFAULT_FONT = core.createFont(__dirname+"/test1.json",__dirname+"/test1.png",2153, 58);
 core.DEFAULT_FONT.basesize = core.DEFAULT_FONT.json.size;
 core.DEFAULT_FONT.scaledsize = 20;
+core.DEFAULT_FONT.ascent = core.DEFAULT_FONT.json.ascent;
 core.DEFAULT_FONT.scale = core.DEFAULT_FONT.scaledsize/core.DEFAULT_FONT.basesize
 //console.log("DEFAULT_FONT = ", core.DEFAULT_FONT);
 

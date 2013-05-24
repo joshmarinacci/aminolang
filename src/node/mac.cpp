@@ -52,12 +52,20 @@ public:
         event_obj->Set(String::NewSymbol("action"), Number::New(action));
         int shift = 0;
         int system = 0;
+        int control = 0;
+        int alt = 0;
         if(glfwGetKey(GLFW_KEY_LSHIFT) == 1) shift = 1;
         if(glfwGetKey(GLFW_KEY_RSHIFT) == 1) shift = 1;
         if(glfwGetKey(GLFW_KEY_LSUPER) == 1) system = 1;
         if(glfwGetKey(GLFW_KEY_RSUPER) == 1) system = 1;
+        if(glfwGetKey(GLFW_KEY_LCTRL) == 1)  control = 1;
+        if(glfwGetKey(GLFW_KEY_RCTRL) == 1)  control = 1;
+        if(glfwGetKey(GLFW_KEY_LALT) == 1)   alt = 1;
+        if(glfwGetKey(GLFW_KEY_RALT) == 1)   alt = 1;
         event_obj->Set(String::NewSymbol("shift"), Number::New(shift));
         event_obj->Set(String::NewSymbol("system"), Number::New(system));
+        event_obj->Set(String::NewSymbol("control"), Number::New(control));
+        event_obj->Set(String::NewSymbol("alt"), Number::New(alt));
         Handle<Value> event_argv[] = {event_obj};
         global_event_CB->Call(Context::GetCurrent()->Global(), 1, event_argv);
     }

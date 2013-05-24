@@ -368,8 +368,10 @@ function JSStage() {
         if(e.action == 1) {
             event.type = "KEYPRESS";
             event.keycode = e.keycode;
-            event.shift = (e.shift == 1);
-            event.system = (e.system == 1);
+            event.shift   = (e.shift == 1);
+            event.system  = (e.system == 1);
+            event.alt     = (e.alt == 1);
+            event.control = (e.control == 1);
             if(KEY_TO_CHAR_MAP[e.keycode]) {
                 var ch = KEY_TO_CHAR_MAP[e.keycode];
                 if(e.shift == 1) {

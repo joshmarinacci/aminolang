@@ -323,6 +323,14 @@ function Cursor() {
         this.advanceChar(-1);
     }
     
+    this.deleteNextChar = function() {
+        if(this.bias == this.FORWARD) {
+            this.control.styles.deleteAt(1,this.index+2);
+        } else {
+            this.control.styles.deleteAt(1,this.index+1);
+        }
+    }
+    
     this.insertChar = function(ch) {
         if(this.bias == this.BACKWARD) {
             this.control.styles.insertAt(ch,this.index);
@@ -534,12 +542,14 @@ function JSTextControl() {
         var chh = this.font.json.height* this.font.scale;
 
         //draw block cursor
+        /*
         gfx.fillQuadColor("#aadddd", {
                 x:pos.x,
                 y:pos.y,
                 w: ch.width,
                 h: chh,
         });
+        */
         
         //draw the actual text
         this.view.lines.forEach(function(line) {
@@ -567,7 +577,13 @@ function JSTextControl() {
     this.install = function(stage) {
         this.stage = stage;
         stage.on("KEYPRESS",this,function(kp) {
-            console.log(kp.keycode);
+            console.log(kp.control);
+            if(kp.control) {
+                if(self.controlHandlers[kp.keycode]) {
+                    self.controlHandlers[kp.keycode](kp);
+                    return;
+                }
+            }
             if(self.handlers[kp.keycode]) {
                 self.handlers[kp.keycode](kp);
                 return;
@@ -594,8 +610,8 @@ function JSTextControl() {
         });
     };
     
-    this.handlers = {
-        285: function(kp) { // left arrow
+    var keyHandlers = {
+        moveCursorBackOneCharacter:function(kp) {
             if(kp.shift) {
                 self.cursor.extendSelection(-1);
             } else {
@@ -606,7 +622,7 @@ function JSTextControl() {
                 }
             }
         },
-        286: function(kp) { // right arrow
+        cursorForwardCharacter: function(kp) { // right arrow
             if(kp.shift) {
                 self.cursor.extendSelection(+1);
             } else {
@@ -617,7 +633,34 @@ function JSTextControl() {
                 }
             }
         },
-        284: function(kp) { // down arrow
+        cursorLineStart:function(kp) {
+            if(self.cursor.selectionActive()) {
+                self.cursor.clearSelection();
+            }
+            //get the line number
+            var lineNum = self.view.indexToLineNum(self.cursor.index);
+            //get the line box
+            var linebox = self.view.getLine(lineNum);
+            //move cursor to start of the line
+            self.cursor.index = linebox.start;
+            //set the bias
+            self.cursor.bias = self.cursor.BACKWARD;
+        },
+        cursorLineEnd:function(kp) {
+            if(self.cursor.selectionActive()) {
+                self.cursor.clearSelection();
+            }
+            //get the line number
+            var lineNum = self.view.indexToLineNum(self.cursor.index);
+            //get the line box
+            var linebox = self.view.getLine(lineNum);
+            //move cursor to start of the line
+            console.log('end of line = ' + (linebox.end-1));
+            self.cursor.index = linebox.end-1;
+            //set the bias
+            self.cursor.bias = self.cursor.FORWARD;
+        },
+        cursorNextLine: function(kp) {
             if(kp.shift) {
             } else {
                 if(self.cursor.selectionActive()) {
@@ -627,7 +670,7 @@ function JSTextControl() {
                 }
             }
         },
-        283: function(kp) { // up arrow
+        cursorPrevLine: function(kp) {
             if(kp.shift) {
             } else {
                 if(self.cursor.selectionActive()) {
@@ -637,7 +680,7 @@ function JSTextControl() {
                 }
             }
         },
-        295: function(kp) { //delete/backspace key
+        cursorDeletePrevChar: function(kp) {
             if(self.cursor.index - 1 < 0) return;
             if(self.cursor.selectionActive()) {
                 self.cursor.deleteSelection();
@@ -646,6 +689,23 @@ function JSTextControl() {
                 self.cursor.deleteChar();
             }
         },
+        cursorDeleteNextChar: function(kp) {
+//            if(self.cursor.index - 1 < 0) return;
+            if(self.cursor.selectionActive()) {
+                self.cursor.deleteSelection();
+                self.cursor.clearSelection();
+            } else {
+                self.cursor.deleteNextChar();
+            }
+        },
+    };
+    
+    this.handlers = {
+        283: keyHandlers.cursorPrevLine, //up arrow
+        284: keyHandlers.cursorNextLine, //down arrow
+        285: keyHandlers.moveCursorBackOneCharacter, // left arrow
+        286: keyHandlers.cursorForwardCharacter, // right arrow
+        295: keyHandlers.cursorDeletePrevChar, // backspace key
         294: function(kb) { // enter/return key
             if(!kb.target.wrapping) {
                 kb.target.stage.fireEvent({
@@ -657,6 +717,15 @@ function JSTextControl() {
             self.cursor.insertNewline();
         },
     }
+    this.controlHandlers = {
+        80: keyHandlers.cursorPrevLine, // ctl-P prev line
+        78: keyHandlers.cursorNextLine, // ctl-N next line
+        66: keyHandlers.moveCursorBackOneCharacter, // ctl-B backward
+        70: keyHandlers.cursorForwardCharacter, // ctl-F forward 
+        68: keyHandlers.cursorDeleteNextChar, // ctl-D delete next char
+        65: keyHandlers.cursorLineStart, //ctl-A start of line action
+        69: keyHandlers.cursorLineEnd, //ctl-E end of line action
+    };
     
     this.setNewlineText = function(text) {
         this.model.setText(text);

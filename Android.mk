@@ -15,7 +15,6 @@ include $(BUILD_PREBUILT)
 #reset to do the real build of our module
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= \
-    src/node/shaders.cpp \
     src/node/klaatu.cpp \
     
 LOCAL_MODULE:= aminolang
@@ -27,24 +26,17 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/node/src \
 	external/node/deps/uv/include \
 	external/node/deps/v8/include \
-	external/jpeg \
-	external/libpng \
-	external/zlib \
 	frameworks/base/include/surfaceflinger
-LOCAL_STATIC_LIBRARIES := libcutils libc 
-#libpng libz
 
 LOCAL_CFLAGS = -DKLAATU
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
 LOCAL_STATIC_LIBRARIES := libcutils libc 
-#libpng libz
 TARGET_CUSTOM_DEBUG_CFLAGS := ­O0 -g
 LOCAL_SHARED_LIBRARIES := \
     libEGL libGLESv2 libui libgui \
     libutils libstlport libinput \
     libmedia libbinder libcutils \
     libv8 \
- #   libjpeg \
 
 #include $(BUILD_EXECUTABLE)
 #building a shared lib because this is for a NodeJS addon

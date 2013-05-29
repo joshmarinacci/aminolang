@@ -15,6 +15,8 @@ using namespace node;
 using android::sp;
 
 
+
+
 static GLfloat* modelView;
 static EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
 static EGLSurface mEglSurface = EGL_NO_SURFACE;

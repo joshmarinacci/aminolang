@@ -10,14 +10,24 @@
 
 Shader::Shader() {
     printf("creating a shader\n");
+//    printf("=== about to create a memory leak\n");
+//    void* leak = malloc(5*1000*1000);
+//    printf("=== allocated 5MB of memory\n");
 }
 
 int Shader::compileVertShader(const char* text) {
+//    printf("=== compile vert shader about to create a memory leak\n");
+//    void* leak = malloc(5*1000*1000);
+//    printf("=== allocated 5MB of memory\n");
     GLint stat;
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+    printf("vert shader = %d\n",vertShader);
     glShaderSource(vertShader, 1, (const char **) &text, NULL);
+    printf("set the source\n");
     glCompileShader(vertShader);
+    printf("compiled\n");
     glGetShaderiv(vertShader, GL_COMPILE_STATUS, &stat);
+    printf("getting the status\n");
     if (!stat) {
         printf("Error: vertex shader did not compile!\n");
         //exit(1);
@@ -26,6 +36,9 @@ int Shader::compileVertShader(const char* text) {
 }
 
 int Shader::compileFragShader(const char* text) {
+//    printf("=== compile frag shader about to create a memory leak\n");
+//    void* leak = malloc(5*1000*1000);
+//    printf("=== allocated 5MB of memory\n");
     GLint stat;
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragShader, 1, (const char **) &text, NULL);
@@ -53,6 +66,11 @@ int Shader::compileProgram(int vertShader, int fragShader) {
         printf("Error: linking:\n%s\n", log);
         //exit(1);
     }
+    
+//        printf("=== about to create a memory leak\n");
+//        void* leak = malloc(5*1000*1000);
+//        printf("=== allocated 5MB of memory\n");
+    
     return program;
 }
 

@@ -131,6 +131,7 @@ void event_process(void)
                     sprintf(pstr, " %03d %03d.%04d\n", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
                     //printf("handling touchpoint %03d\n",point_data[jj].x);
                 }
+                
                 pstr += strlen(pstr);
                 point_data[jj].seen = 0;
             }

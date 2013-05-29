@@ -376,6 +376,8 @@ function androidtest(cb) {
     //src files
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"out.js",out);
+    copyFileTo("src/jscommon/widgets.js",out);
+    copyFileTo("src/jscommon/textcontrol.js",out);
     //native addon
     copyFileTo("aminonative.node",out);
     //prebuilts

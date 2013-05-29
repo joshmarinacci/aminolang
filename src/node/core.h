@@ -124,7 +124,9 @@ public:
             double dy = bnds->Get(String::New("y"))->NumberValue();
             double dw = bnds->Get(String::New("w"))->NumberValue();
             double dh = bnds->Get(String::New("h"))->NumberValue();
+            printf("filling with quad color on C++ side\n");
             self->fillQuadColor(r,g,b,new Bounds(dx,dy,dw,dh));
+            printf("done with color\n");
         }
 
         return scope.Close(Undefined());

@@ -2,23 +2,10 @@
 #include <math.h>
 #include <time.h>
 
-#include <media/mediaplayer.h>
-#include <binder/ProcessState.h>
 
 #include "core.h"
-#include "klaatu_events.h"
-
-extern "C" {
-    #include "jpeglib.h"
-    #include "setjmp.h"
-    #include "image.h"
-    #include <uv.h>
-}
-
 
 using android::sp;
-using android::ProcessState;
-using android::MediaPlayer;
 
 static EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
 static EGLSurface mEglSurface = EGL_NO_SURFACE;
@@ -31,77 +18,11 @@ static int audioCount = 0;
 static double elapsedTime;
 static int elapsedCount;
 
-class MyListener : public android::MediaPlayerListener {
-public:
-    android::sp<android::MediaPlayer> mp;
-    MyListener(android::sp<android::MediaPlayer> arg_mp) {
-        mp = arg_mp;
-    }
-    // Notify messages defined in include/media/mediaplayer.h
-    virtual void notify(int msg, int ext1, int ext2, const android::Parcel *obj) {
-        printf("audio count = %d\n",audioCount);
-	switch (msg) {
-	case android::MEDIA_PLAYBACK_COMPLETE:
-	    printf("Playback complete\n");
-	    mp->disconnect();
-	    //audioCount--;
-	    //exit(0);
-	    break;
-
-	case android::MEDIA_ERROR:
-	    printf("Received Media Error %d %d\n", ext1, ext2);
-	    exit(0);
-
-	case android::MEDIA_INFO:
-	    printf("Received media info %d %d\n", ext1, ext2);
-	    break;
-
-	default:
-	    printf("Not handling MediaPlayerListener message %d %d %d\n", msg, ext1, ext2);
-	    break;
-	}
-    }
-};
-
-
-static android::sp<android::MediaPlayer> mp;
-void test_audio() {
-    printf("testing the audio subsystem\n");
-    char* file = "/data/node/01_789.mp3";
-    int fd = ::open(file, O_RDONLY);
-    if (fd < 0) {
-        perror("Unable to open file!");
-        exit(1);
-        
-    }
-    struct stat stat_buf;
-    int ret = ::fstat(fd, &stat_buf);
-    if (ret < 0) {
-        perror("Unable to stat file");
-        exit(1);
-    }
-    printf("Setting up file %s, size %lld bytes\n", file, stat_buf.st_size);
-    printf("preparing a media player\n");
-    mp = new android::MediaPlayer();
-    mp->reset();
-    mp->setListener(new MyListener(mp));
-    mp->setAudioStreamType(AUDIO_STREAM_MUSIC);
-    mp->setDataSource(fd,   0, stat_buf.st_size);
-    printf("closing the FD\n");
-    close(fd);
-    printf("preparing the FD\n");
-    mp->prepare();
-    printf("starting the FD\n");
-    mp->start();    
-}
-
 void klaatu_init_graphics(int *width, int *height)
 {
   
     android::DisplayInfo display_info;
 
-
-// initial part shamelessly stolen from klaatu-api
   static EGLint sDefaultContextAttribs[] = {
     EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
   static EGLint sDefaultConfigAttribs[] = {
@@ -110,12 +31,11 @@ void klaatu_init_graphics(int *width, int *height)
     EGL_DEPTH_SIZE, 16, EGL_STENCIL_SIZE, 8, EGL_NONE };
 
 
-    mSession = new android::SurfaceComposerClient();
+  mSession = new android::SurfaceComposerClient();
   int status = mSession->getDisplayInfo(0, &display_info);
   *width = display_info.w;
   *height = display_info.h;
-  
-  printf("doing surface\n");
+  printf("width and height = %d %d\n",*width, *height);
   mControl = mSession->createSurface(0,
       *width, *height, android::PIXEL_FORMAT_RGB_888, 0);
   printf("done with surface s\n");
@@ -123,8 +43,10 @@ void klaatu_init_graphics(int *width, int *height)
   android::SurfaceComposerClient::openGlobalTransaction();
   mControl->setLayer(0x40000000);
   android::SurfaceComposerClient::closeGlobalTransaction();
+  
   mAndroidSurface = mControl->getSurface();
   EGLNativeWindowType eglWindow = mAndroidSurface.get();
+  
   mEglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
   ASSERT_NE(EGL_NO_DISPLAY, mEglDisplay);
@@ -135,63 +57,23 @@ void klaatu_init_graphics(int *width, int *height)
 
   EGLint numConfigs = 0;
   EGLConfig  mGlConfig;
+  
   EXPECT_TRUE(eglChooseConfig(mEglDisplay, sDefaultConfigAttribs, &mGlConfig, 1, &numConfigs));
   printf("numConfigs %d\n", numConfigs);
+  
   mEglSurface = eglCreateWindowSurface(mEglDisplay, mGlConfig, eglWindow, NULL);
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
   ASSERT_NE(EGL_NO_SURFACE, mEglSurface);
+  
   mEglContext = eglCreateContext(mEglDisplay, mGlConfig, EGL_NO_CONTEXT, sDefaultContextAttribs);
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
   ASSERT_NE(EGL_NO_CONTEXT, mEglContext);
+  
+  
   EXPECT_TRUE(eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext));
   ASSERT_EQ(EGL_SUCCESS, eglGetError());
   
 }
-
-EventSingleton* eventSingleton;
-class EVDispatcher : public EventSingleton {
-public:
-    bool down;
-    Local<Function> cb;
-    EVDispatcher() {
-        down = false;
-    }
-    virtual void touchStart(float rx, float ry, unsigned int tap_count=0) { 
-        if(down) {
-            //printf("touch moving\n");
-            Local<Object> event = Object::New();
-            event->Set(String::NewSymbol("x"), Number::New(rx));
-            event->Set(String::NewSymbol("y"), Number::New(ry));
-            event->Set(String::NewSymbol("type"), String::New("drag"));
-            Handle<Value> argv[] = {event};
-            cb->Call(Context::GetCurrent()->Global(), 1, argv);
-            
-        } else {
-            down = true;
-            //printf("touch starting\n");
-            Local<Object> event = Object::New();
-            event->Set(String::NewSymbol("x"), Number::New(rx));
-            event->Set(String::NewSymbol("y"), Number::New(ry));
-            event->Set(String::NewSymbol("type"), String::New("press"));
-            Handle<Value> argv[] = {event};
-            cb->Call(Context::GetCurrent()->Global(), 1, argv);
-        }
-    }
-    virtual void touchMove(float rx, float ry, unsigned int tap_count=0) { 
-        //printf("touch moving\n");
-    }
-    virtual void touchEnd(float rx, float ry, unsigned int tap_count=0) { 
-        //printf("touch ending\n");
-        Local<Object> event = Object::New();
-        event->Set(String::NewSymbol("x"), Number::New(rx));
-        event->Set(String::NewSymbol("y"), Number::New(ry));
-        event->Set(String::NewSymbol("type"), String::New("release"));
-        Handle<Value> argv[] = {event};
-        cb->Call(Context::GetCurrent()->Global(), 1, argv);
-        down = false;
-    }
-};
-
 
 static int winWidth;
 static int winHeight;
@@ -200,18 +82,9 @@ public:
     virtual void start() {
         printf("started the KlaatuCore\n");
     }
-    
-    
-    static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
-        HandleScope scope;
-        return scope.Close(Undefined());
-    }
-    
-
     static v8::Handle<v8::Value> real_Init(const v8::Arguments& args) {
         HandleScope scope;
         printf("doing real Klaatu init\n");
-
         EGLint egl_major, egl_minor;
         const char *s;
         printf("about to init screen\n");
@@ -219,104 +92,50 @@ public:
         if (!mEglDisplay) {
             printf("Error: eglGetDisplay() failed\n");
         }
-        s = eglQueryString(mEglDisplay, EGL_VERSION);
-        printf("EGL_VERSION = %s\n", s);
-        s = eglQueryString(mEglDisplay, EGL_VENDOR);
-        printf("EGL_VENDOR = %s\n", s);
-        s = eglQueryString(mEglDisplay, EGL_EXTENSIONS);
-        printf("EGL_EXTENSIONS = %s\n", s);
-        s = eglQueryString(mEglDisplay, EGL_CLIENT_APIS);
-        printf("EGL_CLIENT_APIS = %s\n", s);
-        printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
-        printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
-        printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
-        printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-        printf(" window size = %d %d\n",winWidth,winHeight);
-        
-        
-        
         glClearColor(1.0, 1.0, 1.0, 1.0);
-    
         colorShader = new ColorShader();
-        fontShader  = new FontShader();
-        textureShader = new TextureShader();
-        
-        
-        eventSingleton = new EVDispatcher();
-        enable_touch(winWidth,winHeight);
-
-        //have to start the threadpool first or we will get no sound
-        ProcessState::self()->startThreadPool();
-
-        
-        //test_audio();
-        //Handle<Value> start_argv[] = {};
-        //startCB->Call(Context::GetCurrent()->Global(), 0, start_argv);
-
         modelView = new GLfloat[16];
-        
-        printf("about to test a PNG image\n");
-        pngfile_to_bytes("/data/phonetest/font2.png");
-        
+        printf("=== about to create a memory leak\n");
+        void* leak2 = malloc(5000);
+        printf("=== allocated 10k of memory\n");
         printf("finishing up with init\n");
         
+        
+        printf("doing a quick test draw\n");
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16], proj[16];
+        printf("loading identity\n");
+        make_identity_matrix(idmat);
+        printf("loading pixel perfect\n");
+        loadPixelPerfect(proj, winWidth, winHeight, 500, 100, -1000);
+        printf("doing mul matrix\n");
+        mul_matrix(modelView, proj, idmat);
+        printf("creating a new instance\n");
+        
+        Handle<Value> obj = GLGFX::NewInstance(args);
+        GLGFX* gfx = node::ObjectWrap::Unwrap<GLGFX>(obj->ToObject());        
+        gfx->scale(1,-1);
+        gfx->translate(-winWidth/2,-winHeight/2);
+        
+        printf("about to swap buffers\n");
+        
+        eglSwapBuffers(mEglDisplay, mEglSurface);
+        printf("swapped the buffers. returning to node side\n");
         return scope.Close(Undefined());
     }
     
     static v8::Handle<v8::Value> real_Repaint(const v8::Arguments& args) {
-        double startTime = now_ms();
+        printf("inside real_Repaint\n");
         HandleScope scope;
-        Local<Function> drawCB = Local<Function>::Cast(args[0]);        
-        Local<Function> eventCB = Local<Function>::Cast(args[1]);
-        if(event_indication) {
-            ((EVDispatcher*)eventSingleton)->cb = eventCB;
-            event_process();
-        }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16], proj[16];
-        make_identity_matrix(idmat);
-        //loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
-        loadPixelPerfect(proj, winWidth, winHeight, 500, 100, -1000);
-        mul_matrix(modelView, proj, idmat);
-        
-        
-        
-        //create a wrapper template for gfx
-        Handle<Value> obj = GLGFX::NewInstance(args);
-        GLGFX* gfx = node::ObjectWrap::Unwrap<GLGFX>(obj->ToObject());        
-        //for the nexus 7
-        //gfx->translate(400,640);
-        //gfx->scale(1,-1);
-        //gfx->rotate(90);
-        
-        //for the galaxy nexus
-        gfx->scale(1,-1);
-        gfx->translate(-winWidth/2,-winHeight/2);
-        
-        Handle<Value> argv[] = { obj };
-                
-        drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
-
-        double endTime = now_ms();
-        elapsedTime += endTime-startTime;
-        elapsedCount++;
-        if(elapsedCount >= 10) {
-            printf("ctime = %f\n", elapsedTime/elapsedCount);
-            elapsedCount = 0;
-            elapsedTime = 0;
-        }
-        eglSwapBuffers(mEglDisplay, mEglSurface);
         return scope.Close(Undefined());
     }
     
     static void Init() {
         elapsedTime = 0;
         elapsedCount = 0;
-        
         Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
         tpl->SetClassName(String::NewSymbol("Core"));
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("real_OpenWindow"),FunctionTemplate::New(real_OpenWindow)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Init"),FunctionTemplate::New(real_Init)->GetFunction());
         tpl->PrototypeTemplate()->Set(String::NewSymbol("real_Repaint"),FunctionTemplate::New(real_Repaint)->GetFunction());
         constructor = Persistent<Function>::New(tpl->GetFunction());
@@ -335,7 +154,6 @@ public:
       HandleScope scope;
       KlaatuCore* obj = new KlaatuCore();
       obj->start();
-      //obj->real_OpenWindow(args);
       obj->Wrap(args.This());
       return args.This();
     }
@@ -343,337 +161,15 @@ public:
     
 };
 
-
-
-
-
-
-
-
 Handle<Value> CreateObject(const Arguments& args) {
     HandleScope scope;
     return scope.Close(KlaatuCore::NewInstance(args));
 }
 
-//a simple test that opens a 400x400 window
-//and draws a grey rect on a black background
-Handle<Value> TestNative(const Arguments& args) {
-    printf("in TestNative\n");
-    
-    HandleScope scope;
-    printf("the core is starting\n");
-    int winWidth = 300, winHeight = 300;
-    EGLint egl_major, egl_minor;
-    const char *s;
-    klaatu_init_graphics( &winWidth, &winHeight);
-    if (!mEglDisplay) {
-        printf("Error: eglGetDisplay() failed\n");
-    }
-    s = eglQueryString(mEglDisplay, EGL_VERSION);
-    printf("EGL_VERSION = %s\n", s);
-    s = eglQueryString(mEglDisplay, EGL_VENDOR);
-    printf("EGL_VENDOR = %s\n", s);
-    s = eglQueryString(mEglDisplay, EGL_EXTENSIONS);
-    printf("EGL_EXTENSIONS = %s\n", s);
-    s = eglQueryString(mEglDisplay, EGL_CLIENT_APIS);
-    printf("EGL_CLIENT_APIS = %s\n", s);
-    printf("GL_RENDERER   = %s\n", (char *) glGetString(GL_RENDERER));
-    printf("GL_VERSION    = %s\n", (char *) glGetString(GL_VERSION));
-    printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
-    printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
-    printf(" window size = %d %d\n",winWidth,winHeight);
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    colorShader = new ColorShader();
-    modelView = new GLfloat[16];
-    for (;;) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        GLfloat mat[16];
-        loadOrthoMatrix(modelView, 0, 720, 1280, 0, 0, 100);
-        
-        GLGFX* glgfx = new GLGFX();
-        glgfx->fillQuadColor(1,1,1, new Bounds(0,0,50,50));
-        delete glgfx;
-        
-        eglSwapBuffers(mEglDisplay, mEglSurface);
-    } 
-    return scope.Close(Undefined());
-}
-
-Handle<Value> LoadTexture(const Arguments& args) {
-    HandleScope scope;
-    Local<Value> arg(args[0]);
-    if(Buffer::HasInstance(args[0])) {
-        Handle<Object> other = args[0]->ToObject();
-        size_t length = Buffer::Length(other);
-        uint8_t* data = (uint8_t*) Buffer::Data(other);
-        int w = (int)(args[1]->ToNumber()->NumberValue());
-        int h = (int)(args[2]->ToNumber()->NumberValue());
-        printf("LoadTexture with image size %d x %d\n",w,h);
-        /*
-        for(int j=0; j<h; j++) {
-            for(int i=0; i<w; i++) {
-                printf("%d ",data[j*w+i]);
-            }
-            printf("\n");
-        }
-        */
-        GLuint texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        printf("got back texture id: %d\n",texture);
-        Local<Number> num = Number::New(texture);
-        return scope.Close(num);
-    }
-    return scope.Close(Undefined());
-}
-
-
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;	/* "public" fields */
-
-  jmp_buf setjmp_buffer;	/* for return to caller */
-};
-
-typedef struct my_error_mgr * my_error_ptr;
-METHODDEF(void)
-my_error_exit (j_common_ptr cinfo)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-  /* Always display the message. */
-  /* We could postpone this until after returning, if we chose. */
-  (*cinfo->err->output_message) (cinfo);
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
-}
-
-
-GLuint blah_load_jpeg(char* filename) {
-//    char * filename = "/data/phonetest/photos/photo1.jpg";
-    printf("loading a jpeg\n");
-    
-    struct jpeg_decompress_struct cinfo;
-    struct my_error_mgr jerr;
-    FILE * infile;		/* source file */
-    JSAMPARRAY buffer;		/* Output row buffer */
-    int row_stride;		/* physical row width in output buffer */
-    printf("opening\n");
-    if ((infile = fopen(filename, "rb")) == NULL) {
-        fprintf(stderr, "can't open %s\n", filename);
-        return 0;
-    }
-    printf("opened\n");
-    cinfo.err = jpeg_std_error(&jerr.pub);
-    //jerr.pub.error_exit = my_error_exit;
-    
-    /* Establish the setjmp return context for my_error_exit to use. */
-    /*
-    if (setjmp(jerr.setjmp_buffer)) {
-        jpeg_destroy_decompress(&cinfo);
-        fclose(infile);
-        return;
-    }
-    */
-    
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, infile);
-    (void) jpeg_read_header(&cinfo, TRUE);
-    (void) jpeg_start_decompress(&cinfo);
-    
-    row_stride = cinfo.output_width * cinfo.output_components;
-    printf("row stride = %d\n",row_stride);
-    buffer = (*cinfo.mem->alloc_sarray)
-        ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
-        
-    int w = cinfo.output_width;
-    int h = cinfo.output_height;
-    
-    int count = 0;
-    int datalen = cinfo.output_height * row_stride;
-    printf("data len = %d\n",datalen);
-    char *data;
-    data=new char[datalen];
-
-    while (cinfo.output_scanline < cinfo.output_height) {
-        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
-        memcpy(data + count*row_stride, buffer[0], row_stride);
-        count++;
-    }
-    printf("read in %d scan lines\n",count);
-    printf("read in %d bytes\n",count*row_stride);
-    printf("finishing the decompression\n");
-    
-    printf("loading a texture of size = %d x %d\n",w,h);
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    printf("got back texture id: %d\n",texture);
-    
-    delete [] data;
-    (void) jpeg_finish_decompress(&cinfo);
-    printf("destroying\n");
-    jpeg_destroy_decompress(&cinfo);
-    printf("closing\n");
-    //fclose(infile);
-    return texture;
-}
-
-Handle<Value> LoadJpegFromFile(const Arguments& args) {
-    HandleScope scope;
-    v8::String::Utf8Value param1(args[0]->ToString());
-    std::string text = std::string(*param1);    
-    char * file = new char [text.length()+1];
-    std::strcpy (file, text.c_str());
-    printf("LoadJpegFromBuffer %s\n",file);
-    GLuint texture = blah_load_jpeg(file);
-    printf("got back texture id: %d\n",texture);
-    Local<Number> num = Number::New(texture);
-    return scope.Close(num);
-}
-
-Handle<Value> LoadPngFromFile(const Arguments& args) {
-    HandleScope scope;
-    v8::String::Utf8Value param1(args[0]->ToString());
-    std::string text = std::string(*param1);    
-    char * file = new char [text.length()+1];
-    std::strcpy (file, text.c_str());
-    printf("LoadPngFromFile %s\n",file);
-    pngfile_to_bytes(file);
-    GLuint texture;
-    texture = 3;
-    /*
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    printf("got back texture id: %d\n",texture);
-    free(data);
-    */
-    printf("got back texture id: %d\n",texture);
-    Local<Number> num = Number::New(texture);
-    return scope.Close(num);
-}
-
-class AminoMediaPlayer : public node::ObjectWrap {
-public:
-    static v8::Persistent<v8::Function> constructor;
-    static void Init() {
-        // Prepare constructor template
-        Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-        tpl->SetClassName(String::NewSymbol("MediaPlayer"));
-        tpl->InstanceTemplate()->SetInternalFieldCount(1);
-        // Prototype
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_start"), FunctionTemplate::New(node_start)->GetFunction());
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_stop"), FunctionTemplate::New(node_stop)->GetFunction());
-        tpl->PrototypeTemplate()->Set(String::NewSymbol("cpp_pause"), FunctionTemplate::New(node_pause)->GetFunction());
-        constructor = Persistent<Function>::New(tpl->GetFunction());
-    }
-    //call the real constructor
-    static Handle<Value> New(const Arguments& args) {
-        HandleScope scope;
-        v8::String::Utf8Value param1(args[0]->ToString());
-        std::string text = std::string(*param1);    
-        char * file = new char [text.length()+1];
-        std::strcpy (file, text.c_str());
-        
-    
-        printf("creating a  media player for %s\n",file);
-        int fd = ::open(file, O_RDONLY);
-        if (fd < 0) {
-            perror("Unable to open file!");
-            exit(1);
-        }
-        
-        struct stat stat_buf;
-        int ret = ::fstat(fd, &stat_buf);
-        if (ret < 0) {
-            perror("Unable to stat file");
-            exit(1);
-        }
-        
-        printf("Setting up file %s, size %lld bytes\n", file, stat_buf.st_size);
-        printf("preparing a media player\n");
-        MediaPlayer *mp = new MediaPlayer();
-        mp->reset();
-        mp->setListener(new MyListener(mp));
-        mp->setAudioStreamType(AUDIO_STREAM_MUSIC);
-        mp->setDataSource(fd,   0, stat_buf.st_size);
-        printf("closing the FD\n");
-        close(fd);
-        printf("preparing the FD\n");
-        mp->prepare();
-        printf("starting the FD\n");
-        AminoMediaPlayer* obj = new AminoMediaPlayer(mp);
-        obj->Wrap(args.This());
-        return args.This();
-    }
-    //util method to call the node constructor
-    static Handle<v8::Value> NewInstance(const v8::Arguments& args) {
-        HandleScope scope;
-        const unsigned argc = 1;
-        Handle<Value> argv[argc] = { args[0] };
-        Local<Object> instance = constructor->NewInstance(argc, argv);
-        return scope.Close(instance);
-    }
-    
-    MediaPlayer* mp;
-    AminoMediaPlayer(MediaPlayer* mp) {
-        this->mp = mp;
-    }
-    static Handle<v8::Value> node_start(const v8::Arguments& args) {
-        HandleScope scope;
-        AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
-        self->mp->start();
-        return scope.Close(Undefined());
-    };
-    static Handle<v8::Value> node_stop(const v8::Arguments& args) {
-        HandleScope scope;
-        AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
-        self->mp->pause();
-        self->mp->seekTo(0);
-        return scope.Close(Undefined());
-    };
-    static Handle<v8::Value> node_pause(const v8::Arguments& args) {
-        HandleScope scope;
-        AminoMediaPlayer* self = ObjectWrap::Unwrap<AminoMediaPlayer>(args.This());
-        self->mp->pause();
-        return scope.Close(Undefined());
-    };
-};
-Persistent<Function> AminoMediaPlayer::constructor;
-
-Handle<Value> CreateMediaPlayer(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(AminoMediaPlayer::NewInstance(args));
-}
-
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     KlaatuCore::Init();
     GLGFX::Init();
-    AminoMediaPlayer::Init();
-    exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
-    exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
-    exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromFile)->GetFunction());
-    exports->Set(String::NewSymbol("loadPngFromBuffer"),FunctionTemplate::New(LoadPngFromFile)->GetFunction());
-    exports->Set(String::NewSymbol("createMediaPlayer"),FunctionTemplate::New(CreateMediaPlayer)->GetFunction());
 }
 
 

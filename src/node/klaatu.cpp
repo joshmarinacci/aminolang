@@ -256,7 +256,6 @@ public:
     }
     
     static v8::Handle<v8::Value> real_Repaint(const v8::Arguments& args) {
-        double startTime = now_ms();
         HandleScope scope;
         Local<Function> drawCB = Local<Function>::Cast(args[0]);        
         Local<Function> eventCB = Local<Function>::Cast(args[1]);
@@ -264,14 +263,16 @@ public:
             ((EVDispatcher*)eventSingleton)->cb = eventCB;
             event_process();
         }
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //do the drawing
+        glClearColor(1,1,1,1);
+        glClear( GL_COLOR_BUFFER_BIT );
         GLfloat ortho[16], rot[16], trans[16], temp1[16], idmat[16], proj[16];
         make_identity_matrix(idmat);
         //loadOrthoMatrix(ortho, 0, winWidth, winHeight, 0, 0, 100);
         loadPixelPerfect(proj, winWidth, winHeight, 500, 100, -1000);
         mul_matrix(modelView, proj, idmat);
         
-        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);        
         //create a wrapper template for gfx
         Handle<Value> obj = GLGFX::NewInstance(args);
         GLGFX* gfx = node::ObjectWrap::Unwrap<GLGFX>(obj->ToObject());        
@@ -288,14 +289,6 @@ public:
                 
         drawCB->Call(Context::GetCurrent()->Global(), 1, argv);
 
-        double endTime = now_ms();
-        elapsedTime += endTime-startTime;
-        elapsedCount++;
-        if(elapsedCount >= 10) {
-            //printf("ctime = %f\n", elapsedTime/elapsedCount);
-            elapsedCount = 0;
-            elapsedTime = 0;
-        }
         eglSwapBuffers(mEglDisplay, mEglSurface);
         return scope.Close(Undefined());
     }

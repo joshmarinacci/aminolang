@@ -33,8 +33,6 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/libpng \
 	external/zlib \
 	frameworks/base/include/surfaceflinger
-LOCAL_STATIC_LIBRARIES := libcutils libc
-# libpng libz
 
 LOCAL_CFLAGS = -DKLAATU
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true

@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "image.h"
-#include <png.h>
-#include <jpeglib.h>
+
+extern "C" {
+    #include <jpeglib.h>
+    #include <png.h>    
+}
 
 void abort_(const char * s, ...)
 {

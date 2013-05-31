@@ -53,7 +53,6 @@ var generated;
 var widgets;
 var textcontrol;
 var amino;
-var PNG;
 
 var OS = "KLAATU";
 if(process.platform == "darwin") {
@@ -65,11 +64,10 @@ if(OS == "MAC") {
     widgets = require('./widgets.js');
     textcontrol = require('./textcontrol.js');
 } else {
-    console.log("about to load amino");
     amino = require('/data/phonetest/aminonative');
-    console.log("loaded up here");
     generated = require('/data/phonetest/out.js');
-    PNG = require('/data/phonetest/png-node.js');
+    widgets = require('./widgets.js');
+    textcontrol = require('./textcontrol.js');
 }
 
 
@@ -244,14 +242,13 @@ function JSStage() {
         
         var wgfx = {
             fillQuadColor: function(c,b) {
-                //console.log("filling with color");
                 gfx.fillQuadColor(ParseRGBString(c),b);
             },
             fillQuadText: function(color, str, x, y, size, fontid) {
-                //console.log("fillQuadText: ",color,str,x,y,size,fontid);
                 if(!str) str = "ERROR";
                 if(!size) size = 20;
                 if(fontid == undefined) fontid = -1;
+                //console.log("fillQuadText: ",color,str,x,y,size,fontid);
                 gfx.fillQuadText(ParseRGBString(color),str,x,y,size,fontid);
             },
             fillQuadTexture: function() {
@@ -507,28 +504,6 @@ function JSStage() {
         }
         return null;
     }
-    
-    this.loadTexture = function(path, w, h, cb) {
-        if(!core.started) {
-            throw "Can't load a texture before core is started";
-        }
-        if(path.toLowerCase().endsWith(".jpg"))  {
-            console.log("doing a jpeg");
-            this.loadLocalJPG(path,w,h,cb);
-            return;
-        } 
-        PNG.decode(path, function(pixels) {
-            var texid = amino.loadTexture(pixels,w, h);
-            cb(texid);
-        });
-    }
-    this.loadLocalJPG = function(path, w, h, cb) {
-        var buf = fs.readFileSync(path);
-        decodeImage(w,h,buf,function(err,img) {
-            var texid = amino.loadTexture(img.buffer,w,h);
-            cb(texid);
-        });
-    };
     
     this.loadRemoteTexture = function(path, w, h, cb) {
         var options = url.parse(path);
@@ -896,7 +871,6 @@ function JSFont(jsonpath, pngpath, w, h) {
     this.loaded = false;
     //load png
     this.loadImage = function() {
-        
         console.log("JSFont: loading image: " + pngpath);
         var fontImage = amino.loadPngFromBuffer(pngpath);
         self.fontid = amino.createNativeFont(

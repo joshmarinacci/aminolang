@@ -7,13 +7,7 @@
 
 #include "core.h"
 #include "klaatu_events.h"
-
-extern "C" {
-    #include "jpeglib.h"
-    #include "setjmp.h"
-    #include "image.h"
-    #include <uv.h>
-}
+#include "image.h"
 
 
 using android::sp;
@@ -239,6 +233,7 @@ public:
     
         colorShader = new ColorShader();
         fontShader  = new FontShader();
+        rectShader  = new RectShader();
         textureShader = new TextureShader();
         
         
@@ -254,9 +249,6 @@ public:
         //startCB->Call(Context::GetCurrent()->Global(), 0, start_argv);
 
         modelView = new GLfloat[16];
-        
-        printf("about to test a PNG image\n");
-        pngfile_to_bytes("/data/phonetest/font2.png");
         
         printf("finishing up with init\n");
         
@@ -280,7 +272,6 @@ public:
         mul_matrix(modelView, proj, idmat);
         
         
-        
         //create a wrapper template for gfx
         Handle<Value> obj = GLGFX::NewInstance(args);
         GLGFX* gfx = node::ObjectWrap::Unwrap<GLGFX>(obj->ToObject());        
@@ -301,7 +292,7 @@ public:
         elapsedTime += endTime-startTime;
         elapsedCount++;
         if(elapsedCount >= 10) {
-            printf("ctime = %f\n", elapsedTime/elapsedCount);
+            //printf("ctime = %f\n", elapsedTime/elapsedCount);
             elapsedCount = 0;
             elapsedTime = 0;
         }
@@ -409,14 +400,6 @@ Handle<Value> LoadTexture(const Arguments& args) {
         int w = (int)(args[1]->ToNumber()->NumberValue());
         int h = (int)(args[2]->ToNumber()->NumberValue());
         printf("LoadTexture with image size %d x %d\n",w,h);
-        /*
-        for(int j=0; j<h; j++) {
-            for(int i=0; i<w; i++) {
-                printf("%d ",data[j*w+i]);
-            }
-            printf("\n");
-        }
-        */
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -432,116 +415,31 @@ Handle<Value> LoadTexture(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
-
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;	/* "public" fields */
-
-  jmp_buf setjmp_buffer;	/* for return to caller */
-};
-
-typedef struct my_error_mgr * my_error_ptr;
-METHODDEF(void)
-my_error_exit (j_common_ptr cinfo)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-  /* Always display the message. */
-  /* We could postpone this until after returning, if we chose. */
-  (*cinfo->err->output_message) (cinfo);
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
-}
-
-
-GLuint blah_load_jpeg(char* filename) {
-//    char * filename = "/data/phonetest/photos/photo1.jpg";
-    printf("loading a jpeg\n");
-    
-    struct jpeg_decompress_struct cinfo;
-    struct my_error_mgr jerr;
-    FILE * infile;		/* source file */
-    JSAMPARRAY buffer;		/* Output row buffer */
-    int row_stride;		/* physical row width in output buffer */
-    printf("opening\n");
-    if ((infile = fopen(filename, "rb")) == NULL) {
-        fprintf(stderr, "can't open %s\n", filename);
-        return 0;
-    }
-    printf("opened\n");
-    cinfo.err = jpeg_std_error(&jerr.pub);
-    //jerr.pub.error_exit = my_error_exit;
-    
-    /* Establish the setjmp return context for my_error_exit to use. */
-    /*
-    if (setjmp(jerr.setjmp_buffer)) {
-        jpeg_destroy_decompress(&cinfo);
-        fclose(infile);
-        return;
-    }
-    */
-    
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, infile);
-    (void) jpeg_read_header(&cinfo, TRUE);
-    (void) jpeg_start_decompress(&cinfo);
-    
-    row_stride = cinfo.output_width * cinfo.output_components;
-    printf("row stride = %d\n",row_stride);
-    buffer = (*cinfo.mem->alloc_sarray)
-        ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
-        
-    int w = cinfo.output_width;
-    int h = cinfo.output_height;
-    
-    int count = 0;
-    int datalen = cinfo.output_height * row_stride;
-    printf("data len = %d\n",datalen);
-    char *data;
-    data=new char[datalen];
-
-    while (cinfo.output_scanline < cinfo.output_height) {
-        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
-        memcpy(data + count*row_stride, buffer[0], row_stride);
-        count++;
-    }
-    printf("read in %d scan lines\n",count);
-    printf("read in %d bytes\n",count*row_stride);
-    printf("finishing the decompression\n");
-    
-    printf("loading a texture of size = %d x %d\n",w,h);
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    printf("got back texture id: %d\n",texture);
-    
-    delete [] data;
-    (void) jpeg_finish_decompress(&cinfo);
-    printf("destroying\n");
-    jpeg_destroy_decompress(&cinfo);
-    printf("closing\n");
-    //fclose(infile);
-    return texture;
-}
-
 Handle<Value> LoadJpegFromFile(const Arguments& args) {
     HandleScope scope;
     v8::String::Utf8Value param1(args[0]->ToString());
     std::string text = std::string(*param1);    
     char * file = new char [text.length()+1];
     std::strcpy (file, text.c_str());
-    printf("LoadJpegFromBuffer %s\n",file);
-    GLuint texture = blah_load_jpeg(file);
+    printf("LoadJpegFromFile %s\n",file);
+    Image* image = jpegfile_to_bytes(file);
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     printf("got back texture id: %d\n",texture);
-    Local<Number> num = Number::New(texture);
-    return scope.Close(num);
+    free(image->data);
+    
+    Local<Object> obj = Object::New();
+    obj->Set(String::NewSymbol("texid"), Number::New(texture));
+    obj->Set(String::NewSymbol("w"),     Number::New(image->w));
+    obj->Set(String::NewSymbol("h"),     Number::New(image->h));
+    return scope.Close(obj);
 }
 
 Handle<Value> LoadPngFromFile(const Arguments& args) {
@@ -551,25 +449,32 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
     char * file = new char [text.length()+1];
     std::strcpy (file, text.c_str());
     printf("LoadPngFromFile %s\n",file);
-    pngfile_to_bytes(file);
+    Image* image = pngfile_to_bytes(file);
+    if(image == 0) {
+        printf("error loading\n");
+        return scope.Close(Undefined());
+    }
+        
     GLuint texture;
-    texture = 3;
-    /*
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     printf("got back texture id: %d\n",texture);
-    free(data);
-    */
-    printf("got back texture id: %d\n",texture);
-    Local<Number> num = Number::New(texture);
-    return scope.Close(num);
+    free(image->data);
+    
+    Local<Object> obj = Object::New();
+    obj->Set(String::NewSymbol("texid"), Number::New(texture));
+    obj->Set(String::NewSymbol("w"),     Number::New(image->w));
+    obj->Set(String::NewSymbol("h"),     Number::New(image->h));
+    return scope.Close(obj);
 }
+
+
 
 class AminoMediaPlayer : public node::ObjectWrap {
 public:
@@ -664,19 +569,66 @@ Handle<Value> CreateMediaPlayer(const Arguments& args) {
     return scope.Close(AminoMediaPlayer::NewInstance(args));
 }
 
+Handle<Value> CreateNativeFont(const Arguments& args) {
+    printf("-------\n");
+    HandleScope scope;
+    printf("creating a native font from the font data\n");
+    AminoFont* font = new AminoFont();
+    fontmap[0] = font;
+    
+    printf("num fonts loaded = %d\n",fontmap.size());
+    int texid = args[0]->ToNumber()->NumberValue();
+    printf("texture id = %d\n",texid);
+    font->texid = texid;
+    font->minchar = args[1]->ToNumber()->NumberValue();
+    printf("min char = %d\n",font->minchar);
+    font->maxchar = args[2]->ToNumber()->NumberValue();
+    printf("max char = %d\n",font->maxchar);
+    
+    Handle<Array> included = Handle<Array>::Cast(args[3]);
+    printf("length = %d\n",included->Length());
+    printf("included 0 = %f\n",included->Get(0)->ToNumber()->NumberValue());
+    font->includedLength = included->Length();
+    font->included = new float[included->Length()];
+    for(int i=0; i<included->Length(); i++) {
+        font->included[i] = included->Get(i)->ToNumber()->NumberValue();
+    }
+    
+    Handle<Array> widths = Handle<Array>::Cast(args[4]);
+    printf("widths 0 = %f\n",widths->Get(0)->ToNumber()->NumberValue());
+    font->widthsLength = widths->Length();
+    font->widths = new float[included->Length()];
+    for(int i=0; i<widths->Length(); i++) {
+        font->widths[i] = widths->Get(i)->ToNumber()->NumberValue();
+    }
+
+    Handle<Array> offsets = Handle<Array>::Cast(args[5]);
+    printf("offsets 0 = %f\n",offsets->Get(0)->ToNumber()->NumberValue());
+    font->offsetsLength = offsets->Length();
+    font->offsets = new float[offsets->Length()];
+    for(int i=0; i<offsets->Length(); i++) {
+        font->offsets[i] = offsets->Get(i)->ToNumber()->NumberValue();
+    }
+    
+    
+    
+    printf("-------\n");
+    Local<Number> num = Number::New(0);
+    return scope.Close(num);
+}
+
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     KlaatuCore::Init();
     GLGFX::Init();
     AminoMediaPlayer::Init();
-    exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());
+    exports->Set(String::NewSymbol("testNative"),FunctionTemplate::New(TestNative)->GetFunction());  
     exports->Set(String::NewSymbol("loadTexture"),FunctionTemplate::New(LoadTexture)->GetFunction());
     exports->Set(String::NewSymbol("loadJpegFromBuffer"),FunctionTemplate::New(LoadJpegFromFile)->GetFunction());
     exports->Set(String::NewSymbol("loadPngFromBuffer"),FunctionTemplate::New(LoadPngFromFile)->GetFunction());
     exports->Set(String::NewSymbol("createMediaPlayer"),FunctionTemplate::New(CreateMediaPlayer)->GetFunction());
+    exports->Set(String::NewSymbol("createNativeFont"),FunctionTemplate::New(CreateNativeFont)->GetFunction());
 }
-
-
 
 NODE_MODULE(aminonative, InitAll)
 

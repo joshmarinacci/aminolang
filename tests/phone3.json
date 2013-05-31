@@ -83,7 +83,7 @@
           ,"id":"settings"
           ,"anchorLeft":true
           ,"w":324.0
-          ,"fill":"#ffe3f8"
+          ,"fill":"#00ff00"
           ,"anchorTop":true
           ,"ty":0.0
           ,"anchorRight":false
@@ -103,6 +103,7 @@
               ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":5.0
+              ,"top":5.0
               ,"tx":5.0
               ,"anchorRight":false
               }
@@ -118,7 +119,9 @@
               ,"anchorBottom":false
               ,"anchorTop":true
               ,"ty":5.0
+              ,"top":5.0
               ,"tx":181.0
+              ,"right":50
               ,"anchorRight":true
               }
               ,{
@@ -129,8 +132,10 @@
               ,"w":297.0
               ,"anchorTop":true
               ,"ty":51.0
+              ,"top":51.0
               ,"fontSize":12.5
               ,"anchorRight":true
+              ,"right":50
               ,"tx":4.0
               ,"h":29.0
               ,"color":"#000000"
@@ -145,8 +150,10 @@
               ,"minValue":"0.0"
               ,"anchorTop":true
               ,"ty":89.0
+              ,"top":89
               ,"anchorRight":true
               ,"tx":70.0
+              ,"right":94.0
               ,"h":24.0
               ,"value":50.0
               ,"anchorBottom":false
@@ -160,6 +167,7 @@
               ,"w":55.0
               ,"anchorTop":true
               ,"ty":89.0
+              ,"top":89.0
               ,"fontSize":12.5
               ,"anchorRight":false
               ,"tx":3.0

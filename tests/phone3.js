@@ -6,13 +6,14 @@ var amino;
 var apppath = "tests/";
 
 if(process.platform == "darwin") {
-    amino = require('../src/node/amino.js');
+    //amino = require('../src/node/amino.js');
+    amino = require('../build/desktop/amino.js');
 } else {
     amino = require('./amino.js');
     apppath = "/data/phonetest/";
 }
 var core = amino.getCore();
-var XML = require('xml2js');
+//var XML = require('xml2js');
 if(process.platform == "darwin") {
     core.setDevice("mac");
 } else {
@@ -156,11 +157,13 @@ function getWeather(cb) {
             });
             res.on("end", function() {
                 //console.log("done. data = " + str);
+                /*
                 XML.parseString(str, function(err, result) {
                     var temp = result.rss.channel[0].item[0]["yweather:condition"][0].$.temp;
                     //console.log(temp);
                     cb(temp);
                 });
+                */
             });
     }).end();
 }
@@ -311,6 +314,7 @@ function initContactsList() {
     list.cellHeight = 50;
     list.cellRenderer = function(gfx, item, bounds) {
         gfx.fillQuadColor(new amino.Color(1,1,1),bounds);
+        gfx.strokeRect("#000000",bounds);
         gfx.fillQuadText( new amino.Color(0,0,0),item.first + " " + item.last, bounds.x+10, bounds.y, list.getFontSize(), list.font.fontid);
     };
     
@@ -381,6 +385,7 @@ function initTodoList() {
             var insets = { left: 10, right: 10, top: 10, bottom: 10 };
             fill9slice(gfx,skinid, sb, insets, bounds);
         }
+        gfx.strokeRect("#000000",bounds);
         gfx.fillQuadText( new amino.Color(0,0,0),item.title, bounds.x+10, bounds.y, list.getFontSize(), list.font.fontid);
     };
     stage.on("SELECT",list,function(e) {
@@ -437,6 +442,7 @@ function initPhotos() {
     list.listModel = photos;
     list.cellRenderer = function(gfx, item, bounds) {
         gfx.fillQuadColor(new amino.Color(1,0,0.8),bounds);
+        gfx.strokeRect("#000000",bounds);
         if(item.texid) {
             gfx.fillQuadTexture(item.texid, bounds.x, bounds.y, 150, 150);
         }

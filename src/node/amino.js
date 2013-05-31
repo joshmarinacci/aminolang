@@ -286,7 +286,6 @@ function JSStage() {
         self.processAnims();
         if(core.SCALE2X) wgfx.scale(2,2);
         self.draw_helper(wgfx,self.root);
-        
         //repaintTimer.end();
     }
     
@@ -1072,6 +1071,13 @@ var SceneParser = function() {
                 continue;
             }
             out[prop] = obj[prop];
+        }
+        //fill in missing props
+        if(!obj.left) {
+            out.left = obj.tx;
+        }
+        if(!obj.top) {
+            out.top = obj.ty;
         }
     }
     

@@ -7,6 +7,8 @@ var UTILS = require("./Utils.js");
 var core = amino.getCore();
 var URL = require('url');
 var http = require('http');
+var googleapis = require('googleapis');
+var OAuth2Client = googleapis.OAuth2Client;
 core.setDevice("mac");
 
 var stage = core.createStage();
@@ -234,11 +236,94 @@ function setupTodos() {
     });
     */
 }
+
+var settings = {};
+var CLIENT_ID = "767399125691.apps.googleusercontent.com";
+var CLIENT_SECRET = "PYphM5OVQI7HE9PYwZfFRI6l";
+var REDIRECT_URL = "urn:ietf:wg:oauth:2.0:oob";
+function setupCalendar() {
+    
+    nav.createTransition("showCalendarSetupPopup",stage.find("calendarWidget"),stage.find("gcalSetup"),"popup");
+    console.log("exits = " + fs.existsSync("settings.json"));
+    if(fs.existsSync("settings.json")) {
+        console.log("it exists. loading it");
+        settings = JSON.parse(fs.readFileSync("settings.json").toString());
+    }
+    stage.on("ACTION",stage.find("calendarSetupButton"), function() {
+        nav.push("showCalendarSetupPopup");
+    });
+    
+    stage.on("ACTION",stage.find("openBrowserButton"), setupGcal);
+    stage.on("ACTION",stage.find("verifyButton"), finishGcalAuth);
+    if(settings.credentials) {
+        console.log('skipping auth. already have credentials');
+        googleapis.discover('calendar','v3')
+        .execute(function(err,client) {
+                console.log("directly getting the calendar list");
+            oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+            oauth2Client.credentials = settings.credentials;
+            getCalendarList(client,oauth2Client);
+        });
+    }
+}
+
+function getCalendarList(client, authClient) {
+    client
+        .calendar.calendarList.list({})
+        .withAuthClient(authClient)
+        .execute(function(err,list) {
+            console.log(err,list);
+        });
+}
+
+var oauth2Client = null;
+var gclient = null;
+
+function finishGcalAuth() {
+    var code =  stage.find("codeField").getText();
+    console.log("pasted code = ",code);
+    oauth2Client.getToken(code, function(err, tokens) {
+        oauth2Client.credentials = tokens;
+        settings.credentials = tokens;
+        console.log("got the token finally: " + tokens);
+        console.log("now settings = ",settings);
+        fs.writeFileSync("settings.json",JSON.stringify(settings));
+        getCalendarList(gclient,oauth2Client);
+        nav.pop();
+    });
+}
+function getAccessToken(oauth2Client) {
+  var url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: 'https://www.googleapis.com/auth/calendar.readonly'
+  });
+  console.log('Visit the url: ', url);
+  UTILS.openBrowser(url);
+}
+
+function setupGcal() {
+    console.log("settings = ",settings);
+    googleapis
+        .discover('calendar','v3')
+        .execute(function(err,client) {
+          console.log("now we can make oauth connections for calendar info");
+          oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
+            if(settings.credentials) {
+                oauth2Client.credentials = settings.credentials;
+                getCalendarList(client,oauth2Client);
+            } else {
+                gclient = client;
+                getAccessToken(oauth2Client);
+            }
+        });
+}
+
 setupClock();
 setupWeather();
 setupMusic();
 setupEditor();
 setupTodos();
+setupCalendar();
 /*
 function setupTodoView() {
     var options = URL.parse("http://joshy.org:3001/bag/search");

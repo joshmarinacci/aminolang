@@ -1,5 +1,7 @@
 console.log("loading text control");
 
+var child_process = require('child_process');
+
 (function(exports) {
 
 // currently text model just uses a string of characters, but it
@@ -384,10 +386,30 @@ function Cursor() {
         this.control.model.broadcast();
     }
     this.pasteSelection = function() {
-        var model = this.control.model;
-        model.text = model.text.substring(0,this.index) + this.clipboard + model.text.substring(this.index);
-        this.index = this.index + this.clipboard.length;
-        this.control.model.broadcast();
+        var paste = child_process.spawn('pbpaste');
+        console.log("spawning a process");
+        var txt = "";
+        var self = this;
+        paste.stdout.on('data', function(data) {
+                console.log("got data: " + data);
+                txt += data;
+        });
+        paste.stdout.on('close', function() {
+            console.log("done with the paste text: " + txt);
+            var model = self.control.model;
+            self.clipboard = txt;
+            model.text = model.text.substring(0,self.index) + self.clipboard + model.text.substring(self.index);
+            self.index = self.index + self.clipboard.length;
+            self.control.model.broadcast();
+        });
+            /*
+        UTILS.getClipboard(function(str) {
+            console.log("got the clipboard: " + str);
+            var model = this.control.model;
+            model.text = model.text.substring(0,this.index) + this.clipboard + model.text.substring(this.index);
+            this.index = this.index + this.clipboard.length;
+            this.control.model.broadcast();
+        });*/
     }
     this.copySelection = function() {
         var model = this.control.model;

@@ -176,6 +176,9 @@ function JSStage() {
         this.width = w;
         this.height = h;
     }
+    this.getW = function() {
+        return this.width;
+    }
     this.listeners = {};
     this.on = function(name, target, fn) {
         name = name.toLowerCase();

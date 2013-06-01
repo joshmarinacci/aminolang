@@ -11,22 +11,36 @@ function NavigationManager(stage) {
             dst:dst,
             type:type
         };
+        if(type == "popup") {
+            dst.setVisible(false);
+        }
     }
     this.navstack = [];
     
     this.push = function(name) {
         var trans = this.transitions[name];
-        console.log("got the transition " + trans.type);
+        try {
         if(trans.type == "popup") {
             trans.dst.setVisible(true);
-            var w = trans.src.getTx() + trans.src.getW();
-            trans.dst.setTx(w+10);
+            var x2 = trans.src.getTx() + trans.src.getW() + 10;
+            var pw = trans.dst.getW();
             trans.dst.setTy(10);
+            if(x2 > stage.getW() - pw) {
+                console.log("doing on the left");
+                x2 = trans.src.getTx() - pw - 10;
+                trans.dst.setTx(x2);
+            } else {
+                console.log("doing on the right");
+                trans.dst.setTx(x2);
+            }
         } else {
             stage.addAnim(amino.anim(trans.src, "tx", 0, -stage.width, 250));
             stage.addAnim(amino.anim(trans.dst, "tx", stage.width,  0, 250)
                 .before(function(){ trans.dst.setVisible(true);})
                 );
+        }
+        } catch (e) {
+            console.log(e);
         }
         this.navstack.push(trans);
     }

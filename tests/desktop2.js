@@ -2,6 +2,7 @@ var https = require('https');
 var fs = require('fs');
 var amino = require('../build/desktop/amino.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
+var NAV = require('./desktop/navmanager.js');
 var UTILS = require("./Utils.js");
 var core = amino.getCore();
 var URL = require('url');
@@ -10,6 +11,7 @@ core.setDevice("mac");
 
 var stage = core.createStage();
 
+var nav = new NAV.NavigationManager(stage);
 
 var filedata = fs.readFileSync('tests/desktop2.json');
 var jsonfile = JSON.parse(filedata);
@@ -159,9 +161,8 @@ function setupMusic() {
     setAlbum(lib.albums[0]);
     
     var popup = stage.find("musicPopup");
-    popup.setTx(0);
-    popup.setTy(0);
-    popup.setVisible(false);
+    var widget = stage.find("musicWidget");
+    nav.createTransition("showMusicPopup",widget,popup,"popup");
     
     var albumList = stage.find("albumList");
     albumList.listModel = lib.albums;
@@ -182,17 +183,20 @@ function setupMusic() {
         setAlbum(lib.albums[n]);
     });
     stage.on("ACTION",stage.find("musicOpenButton"), function() {
-            popup.setVisible(true);
+            nav.push("showMusicPopup");
     });
     stage.on("ACTION",stage.find("musicCloseButton"), function() {
-            popup.setVisible(false);
+            nav.pop();
     });
 }
 
 function setupEditor() {
     var editor = stage.find("mainEditText");
     editor.setText("foo");
-    var txt = fs.readFileSync("foo.txt");
+    var txt = "empty";
+    if(fs.existsSync("foo.txt")) {
+        txt = fs.readFileSync("foo.txt");
+    }
     editor.setText(txt.toString());
     function saveEditor() {
         console.log("saving: " + editor.getText());
@@ -223,10 +227,12 @@ function setupTodos() {
             bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
     }
     todos.setFontSize(15);
+    /*
     UTILS.getJSON("http://joshy.org:3001/bag/search",function(err,data){
         if(err) return;
         todos.listModel = data;
     });
+    */
 }
 setupClock();
 setupWeather();
@@ -251,10 +257,7 @@ setupTodoView();
 
 
 //make the main view be resized when the window does
-stage.on("WINDOWSIZE", stage, function(e) {
-        console.log("resizing the anchor panel: " + e.width + " " + e.height);
-        stage.find("main").setW(e.width).setH(e.height);
-});
+nav.register(stage.find("main"));
 
 setTimeout(function() {
     core.start();

@@ -95,7 +95,7 @@
               }
               ,{
                "type":"AnchorPanel"
-              ,"id":"id877829"
+              ,"id":"musicWidget"
               ,"anchorLeft":true
               ,"w":300.0
               ,"fill":"#8eaaff"
@@ -263,16 +263,16 @@
               ,"id":"todoList"
               ,"anchorLeft":false
               ,"selectedIndex":0
-              ,"h":480.0
               ,"cellHeight":30.0
-              ,"layout":"vert"
               ,"w":300.0
-              ,"anchorBottom":true
               ,"anchorTop":true
               ,"ty":0.0
               ,"anchorRight":true
               ,"tx":700.0
               ,"cellWidth":30.0
+              ,"h":480.0
+              ,"layout":"vert"
+              ,"anchorBottom":true
               ,"left":700.0
               ,"top":0.0
               ,"right":0.0

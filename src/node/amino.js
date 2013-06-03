@@ -357,7 +357,6 @@ function JSStage() {
         self.repeatTimeout = setTimeout(self.repeatKey, 20);
     }
     this.processRawKeyEvent = function(e) {
-        console.log("key event:",e);
         if(this.repeatTimeout) {
             clearTimeout(this.repeatTimeout);
             this.repeatTimeout = null;
@@ -919,7 +918,7 @@ core.DEFAULT_FONT.scale = core.DEFAULT_FONT.scaledsize/core.DEFAULT_FONT.basesiz
 
 
 function JSTextArea() {
-    textcontrol.JSTextControl();
+    textcontrol.JSTextControl.call(this);
     this.wrapping = true;
     this.view.wrapping = this.wrapping;
     this.view.layout();
@@ -935,7 +934,7 @@ core.createTextArea = function() {
 }
 
 function JSTextField() {
-    textcontrol.JSTextControl();
+    textcontrol.JSTextControl.call(this);
     this.wrapping = false;
     this.view.wrapping = this.wrapping;
     this.view.layout();

@@ -376,8 +376,8 @@
            "type":"AnchorPanel"
           ,"id":"gcalSetup"
           ,"anchorLeft":true
-          ,"fill":"#a0a0a0"
           ,"w":353.0
+          ,"fill":"#a0a0a0"
           ,"anchorTop":true
           ,"ty":514.0
           ,"anchorRight":false
@@ -392,8 +392,8 @@
               ,"text":"press this button to open the browser"
               ,"w":273.0
               ,"anchorTop":true
-              ,"fontSize":15.0
               ,"ty":11.0
+              ,"fontSize":15.0
               ,"anchorRight":false
               ,"tx":15.0
               ,"h":28.0
@@ -411,8 +411,8 @@
               ,"text":"then paste the key into here."
               ,"w":272.0
               ,"anchorTop":true
-              ,"fontSize":15.0
               ,"ty":86.0
+              ,"fontSize":15.0
               ,"anchorRight":false
               ,"tx":18.0
               ,"h":30.0
@@ -433,8 +433,8 @@
               ,"anchorTop":true
               ,"ty":47.0
               ,"fontSize":20.0
-              ,"anchorRight":false
               ,"tx":95.0
+              ,"anchorRight":false
               ,"h":31.0
               ,"anchorBottom":false
               ,"left":95.0
@@ -469,14 +469,50 @@
               ,"anchorTop":true
               ,"ty":176.0
               ,"fontSize":20.0
-              ,"anchorRight":false
               ,"tx":110.0
+              ,"anchorRight":false
               ,"h":30.0
               ,"anchorBottom":false
               ,"left":110.0
               ,"top":176.0
               ,"right":103.0
               ,"bottom":149.0
+              }
+            ]
+          }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"commandlinePopup"
+          ,"anchorLeft":true
+          ,"h":274.0
+          ,"w":219.0
+          ,"fill":"#a0a0a0"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@68360655"
+          ,"ty":518.0
+          ,"anchorRight":false
+          ,"tx":833.0
+            ,"children":[
+               {
+               "type":"ListView"
+              ,"id":"searchResults"
+              ,"anchorLeft":true
+              ,"selectedIndex":0
+              ,"h":273.0
+              ,"cellHeight":30.0
+              ,"layout":"vert"
+              ,"w":218.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"cellWidth":30.0
+              ,"left":0.0
+              ,"top":0.0
+              ,"right":1.0
+              ,"bottom":1.0
               }
             ]
           }

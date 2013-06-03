@@ -472,6 +472,7 @@ function JSTextControl() {
     this.cursor = new Cursor();
     this.cursor.control = this;
     this.model = new TextModel();
+    this.model.listen(this);
     this.view = new TextView();
     this.view.control = this;
     this.styles = new StyleModel();
@@ -480,6 +481,13 @@ function JSTextControl() {
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;
+    this.notify = function() {
+        console.log("doing nothing");
+    }
+    
+    this.getText = function() {
+        return this.model.getText();
+    }
     
     this.wrapping = true;
     this.setWrapping = function(wrapping) {
@@ -597,9 +605,8 @@ function JSTextControl() {
     
     var self = this;
     this.install = function(stage) {
-        this.stage = stage;
+        self.stage = stage;
         stage.on("KEYPRESS",this,function(kp) {
-            console.log(kp.control);
             if(kp.control) {
                 if(self.controlHandlers[kp.keycode]) {
                     self.controlHandlers[kp.keycode](kp);
@@ -630,6 +637,15 @@ function JSTextControl() {
                 return;
             }
         });
+        var s2 = this;
+        this.stage = stage;
+        self.notify = function(sender) {
+            s2.stage.fireEvent({
+                type:"CHANGED",
+                target:this
+            });            
+        }
+        
     };
     
     var keyHandlers = {

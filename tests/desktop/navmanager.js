@@ -3,7 +3,10 @@ function NavigationManager(stage,core) {
     
     //install a group to hold popups
     this.holder = core.createGroup();
-    var scrim = core.createRect().setW(200).setH(200).setFill("#00ff00");
+    var scrim = core.createRect()
+        .setW(stage.getW())
+        .setH(stage.getH())
+        .setFill("#00ff00");
     scrim.draw = function() {}
     scrim.setVisible(true);
     var self = this;

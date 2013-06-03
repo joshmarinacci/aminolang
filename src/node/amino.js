@@ -175,9 +175,13 @@ function JSStage() {
     this.setSize = function(w,h) {
         this.width = w;
         this.height = h;
+        this.fireEvent({type:"WINDOWSIZE",width:this.width, height:this.height, target: this});
     }
     this.getW = function() {
         return this.width;
+    }
+    this.getH = function() {
+        return this.height;
     }
     this.listeners = {};
     this.on = function(name, target, fn) {
@@ -314,6 +318,9 @@ function JSStage() {
     this.processEvents = function(e) {
         var x = e.x;
         var y = e.y;
+        if(e.type == "exit") {
+            process.exit(0);
+        }
         if(e.type == "key") {
             self.processRawKeyEvent(e);
             return;

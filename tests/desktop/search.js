@@ -19,6 +19,7 @@ function setupContacts(nav,stage) {
     var cl = stage.find("commandLine");
     console.log("command line = ");
     console.log(cl);
+    cl.setText("");
     
     var popup = stage.find("commandlinePopup");
     popup.setVisible(false);

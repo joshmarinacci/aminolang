@@ -34,6 +34,7 @@ function TextModel() {
         this.broadcast();
     }
     this.deleteAt = function(count, index) {
+        console.log("delete at: " + index + " " + count);
         if(index - count < 0) return false;
         this.text = this.text.substring(0,index-1) + this.text.substring(index);
         this.broadcast();
@@ -297,8 +298,8 @@ function RunBox() {
 }
 
 function Cursor() {
-    this.FORWARD = 0;
-    this.BACKWARD = 1;
+    this.FORWARD = 1;
+    this.BACKWARD = -1;
     this.index = 0;
     this.control = null;
     this.clipboard = "";
@@ -421,6 +422,7 @@ function Cursor() {
     this.advanceLine = function(offset) {
         var lineNum = this.view.indexToLineNum(this.index);
         var oldline = this.view.getLine(lineNum);
+        if(!oldline) return;
         
         //how many chars into the oldline are we
         var inset = this.index - oldline.start;
@@ -567,7 +569,7 @@ function JSTextControl() {
         var pos = this.view.indexToXY(this.cursor.index);
         
         var chx = 0;
-        if(this.cursor.bias == this.cursor.FORWARD)  { chx = ch.width; }
+        if(this.cursor.bias == this.cursor.FORWARD && ch.width)  { chx = ch.width; }
         if(this.cursor.bias == this.cursor.BACKWARD) { }
         var chh = this.font.json.height* this.font.scale;
 
@@ -581,11 +583,14 @@ function JSTextControl() {
         });
         */
         
+        
         //draw the actual text
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
+                var txt = run.model.text.substring(run.start,run.end);
+                if(txt.length < 1) return;
                 gfx.fillQuadText(run.color, 
-                    run.model.text.substring(run.start,run.end), 
+                    txt, 
                     run.x, line.y,
                     font.scaledsize, font.fontid
                     );
@@ -719,7 +724,8 @@ function JSTextControl() {
             }
         },
         cursorDeletePrevChar: function(kp) {
-            if(self.cursor.index - 1 < 0) return;
+            console.log("deleting previous char. index = " + self.cursor.index);
+            if(self.cursor.index - 1 < -1) return;
             if(self.cursor.selectionActive()) {
                 self.cursor.deleteSelection();
                 self.cursor.clearSelection();

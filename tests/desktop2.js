@@ -15,13 +15,13 @@ core.setDevice("mac");
 
 var stage = core.createStage();
 
-var nav = new NAV.NavigationManager(stage);
 
 var filedata = fs.readFileSync('tests/desktop2.json');
 var jsonfile = JSON.parse(filedata);
 var root = new amino.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
 stage.setSize(300+500+300,520);
+var nav = new NAV.NavigationManager(stage,core);
 
 
 

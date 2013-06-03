@@ -254,8 +254,8 @@ function JSStage() {
                 //console.log("fillQuadText: ",color,str,x,y,size,fontid);
                 gfx.fillQuadText(ParseRGBString(color),str,x,y,size,fontid);
             },
-            fillQuadTexture: function() {
-                gfx.fillQuadTexture(arguments);
+            fillQuadTexture: function(texid, x, y, w, h) {
+                gfx.fillQuadTexture(texid,x,y,w,h);
             },
             fillQuadTextureSlice: gfx.fillQuadTextureSlice,
             //enableClip:gfx.enableClip,

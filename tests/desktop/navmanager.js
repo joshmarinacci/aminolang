@@ -1,5 +1,26 @@
-function NavigationManager(stage) {
+function NavigationManager(stage,core) {
     this.panels = [];
+    
+    //install a group to hold popups
+    this.holder = core.createGroup();
+    var scrim = core.createRect().setW(200).setH(200).setFill("#00ff00");
+    scrim.draw = function() {}
+    scrim.setVisible(true);
+    var self = this;
+    stage.on("PRESS",scrim,function() {
+        for(var k in self.transitions) {
+            var trans = self.transitions[k];
+            if(trans.type == "popup") {
+                if(trans.dst.getVisible()) {
+                    trans.dst.setVisible(false);
+                }
+            }
+        }
+        scrim.setVisible(false);
+    });
+    this.holder.add(scrim);
+    stage.getRoot().add(this.holder);
+    
     this.register = function(panel) {
         this.panels.push(panel);
     }
@@ -13,6 +34,8 @@ function NavigationManager(stage) {
         };
         if(type == "popup") {
             dst.setVisible(false);
+            dst.getParent().remove(dst);
+            this.holder.add(dst);
         }
     }
     this.navstack = [];
@@ -21,6 +44,7 @@ function NavigationManager(stage) {
         var trans = this.transitions[name];
         try {
         if(trans.type == "popup") {
+            scrim.setVisible(true);
             trans.dst.setVisible(true);
             var x2 = trans.src.getTx() + trans.src.getW() + 10;
             var pw = trans.dst.getW();
@@ -66,6 +90,7 @@ function NavigationManager(stage) {
                 panel.setTy(30);
             }
         }
+        scrim.setW(e.width).setH(e.height);
     });
 }
 

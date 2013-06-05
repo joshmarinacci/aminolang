@@ -334,54 +334,6 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
 }
 
 
-Handle<Value> CreateNativeFont(const Arguments& args) {
-    printf("-------\n");
-    HandleScope scope;
-    printf("creating a native font from the font data\n");
-    AminoFont* font = new AminoFont();
-    fontmap[0] = font;
-    
-    printf("num fonts loaded = %d\n",fontmap.size());
-    int texid = args[0]->ToNumber()->NumberValue();
-    printf("texture id = %d\n",texid);
-    font->texid = texid;
-    font->minchar = args[1]->ToNumber()->NumberValue();
-    printf("min char = %d\n",font->minchar);
-    font->maxchar = args[2]->ToNumber()->NumberValue();
-    printf("max char = %d\n",font->maxchar);
-    
-    Handle<Array> included = Handle<Array>::Cast(args[3]);
-    printf("length = %d\n",included->Length());
-    printf("included 0 = %f\n",included->Get(0)->ToNumber()->NumberValue());
-    font->includedLength = included->Length();
-    font->included = new float[included->Length()];
-    for(int i=0; i<included->Length(); i++) {
-        font->included[i] = included->Get(i)->ToNumber()->NumberValue();
-    }
-    
-    Handle<Array> widths = Handle<Array>::Cast(args[4]);
-    printf("widths 0 = %f\n",widths->Get(0)->ToNumber()->NumberValue());
-    font->widthsLength = widths->Length();
-    font->widths = new float[included->Length()];
-    for(int i=0; i<widths->Length(); i++) {
-        font->widths[i] = widths->Get(i)->ToNumber()->NumberValue();
-    }
-
-    Handle<Array> offsets = Handle<Array>::Cast(args[5]);
-    printf("offsets 0 = %f\n",offsets->Get(0)->ToNumber()->NumberValue());
-    font->offsetsLength = offsets->Length();
-    font->offsets = new float[offsets->Length()];
-    for(int i=0; i<offsets->Length(); i++) {
-        font->offsets[i] = offsets->Get(i)->ToNumber()->NumberValue();
-    }
-    
-    
-    
-    printf("-------\n");
-    Local<Number> num = Number::New(0);
-    return scope.Close(num);
-}
-
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     MacCore::Init();
     exports->Set(String::NewSymbol("createCore"),FunctionTemplate::New(CreateObject)->GetFunction());

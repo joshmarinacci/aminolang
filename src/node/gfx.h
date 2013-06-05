@@ -21,6 +21,10 @@ public:
     int texid;
     int minchar;
     int maxchar;
+    int imagewidth;
+    int imageheight;
+    int colcount;
+    int rowcount;
     
     int includedLength;
     float * included;
@@ -28,6 +32,8 @@ public:
     float * widths;
     int offsetsLength;
     float * offsets;
+    int yoffsetsLength;
+    float * yoffsets;
     void setData(char* data, int w, int h) {
         GLuint texture;
         glGenTextures(1, &texture);

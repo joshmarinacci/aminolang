@@ -388,6 +388,7 @@ function androidtest(cb) {
     copyFileTo("tests/skin.png",out);
     copyFileTo("tests/phone3.js",out);
     copyFileTo("tests/phone3.json",out);
+    copyFileTo("tests/segfault.js",out);
     copyFileTo("tests/test1.json",out);
     copyFileTo("tests/test1.png",out);
     

@@ -271,10 +271,12 @@ function JSStage() {
             },
             drawText: function(color, text, x, y, size, font) {
                 var scale = size/font.basesize;
+                
                 this.fillQuadText(color, text, 
                     x, 
                     y-font.ascent*scale - 10*scale, 
                     size, font.fontid);
+                    
             },
         };
         
@@ -880,14 +882,7 @@ function JSFont(jsonpath, pngpath, w, h) {
     this.loadImage = function() {
         console.log("JSFont: loading image: " + pngpath);
         var fontImage = amino.loadPngFromBuffer(pngpath);
-        self.fontid = amino.createNativeFont(
-            fontImage.texid,
-            self.json.minchar,
-            self.json.maxchar,
-            self.json.included,
-            self.json.widths,
-            self.json.offsets
-            );
+        self.fontid = amino.createNativeFont(fontImage.texid,self.json);
         self.loaded = true;
         console.log("JSFont: fully loaded the font with id: " + self.fontid);
         
@@ -915,7 +910,7 @@ core.createFont = function(jsonpath, pngpath, w, h) {
     core.fonts.push(font);
     return font;
 }
-core.DEFAULT_FONT = core.createFont(__dirname+"/test1.json",__dirname+"/test1.png",2153, 58);
+core.DEFAULT_FONT = core.createFont(__dirname+"/test1.json",__dirname+"/test1.png",1024, 288);
 core.DEFAULT_FONT.basesize = core.DEFAULT_FONT.json.size;
 core.DEFAULT_FONT.scaledsize = 20;
 core.DEFAULT_FONT.ascent = core.DEFAULT_FONT.json.ascent;

@@ -213,6 +213,7 @@ public:
         if (!mEglDisplay) {
             printf("Error: eglGetDisplay() failed\n");
         }
+        
         s = eglQueryString(mEglDisplay, EGL_VERSION);
         printf("EGL_VERSION = %s\n", s);
         s = eglQueryString(mEglDisplay, EGL_VENDOR);
@@ -226,7 +227,6 @@ public:
         printf("GL_VENDOR     = %s\n", (char *) glGetString(GL_VENDOR));
         printf("GL_EXTENSIONS = %s\n", (char *) glGetString(GL_EXTENSIONS));
         printf(" window size = %d %d\n",winWidth,winHeight);
-        
         
         
         glClearColor(1.0, 1.0, 1.0, 1.0);

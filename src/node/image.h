@@ -2,6 +2,7 @@ typedef struct ImageStruct {
     char* data;
     int w;
     int h;
+    bool hasAlpha;
 } Image;
 
 typedef Image image_struct;

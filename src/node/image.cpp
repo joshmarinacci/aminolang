@@ -109,6 +109,11 @@ Image * pngfile_to_bytes(char* file_name) {
     Image* img = (Image*)malloc(sizeof(Image));
     img->w = width;
     img->h = height;
+    img->hasAlpha = (color_type == PNG_COLOR_TYPE_RGBA);
+    int bytes_per_pixel = 3;
+    if(img->hasAlpha) {
+        bytes_per_pixel = 4;
+    }
 
     unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
     printf("rowbytes = %d\n",row_bytes);
@@ -132,6 +137,7 @@ Image * pngfile_to_bytes(char* file_name) {
         printf("pixel: %d  %x %x %x %x\n",i, img->data[n], img->data[n+1], img->data[n+2], img->data[n+3]);
     }
     */
+    
     
     return img;
 }

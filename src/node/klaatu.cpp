@@ -435,6 +435,16 @@ Handle<Value> LoadJpegFromFile(const Arguments& args) {
     return scope.Close(obj);
 }
 
+static void dump_image(Image* image) {
+    printf("image size = %d x %d\n",image->w, image->h);
+    int row_bytes = image->w * 4;
+    for(int i=0; i<image->h; i++) {
+        int n = row_bytes*i + 50*4; 
+        //printf("pixel: %d  %x %x %x %x\n",i, image->data[n], image->data[n+1], image->data[n+2], image->data[n+3]);
+    }
+    printf("done\n");
+}
+
 Handle<Value> LoadPngFromFile(const Arguments& args) {
     HandleScope scope;
     v8::String::Utf8Value param1(args[0]->ToString());
@@ -447,12 +457,18 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
         printf("error loading\n");
         return scope.Close(Undefined());
     }
+    
+    dump_image(image);
         
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+    if(image->hasAlpha) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->data);
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
+    }
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

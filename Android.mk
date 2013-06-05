@@ -1,6 +1,6 @@
 LOCAL_PATH:= $(call my-dir)
 
-#define a prebuilt shared lib for v8
+########### prebuilt shared lib for v8
 include $(CLEAR_VARS)
 LOCAL_MODULE          := libv8.so
 LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
@@ -11,6 +11,15 @@ LOCAL_SRC_FILES       := prebuilt/libv8.so
 include $(BUILD_PREBUILT)
 
 
+############## node itself ################
+include $(CLEAR_VARS)
+LOCAL_MODULE := node.so
+LOCAL_MODULE_TAGS     := optional
+LOCAL_SRC_FILES       := prebuilt/node
+LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
+include $(BUILD_PREBUILT)
+
+############## the add on #################
 
 #reset to do the real build of our module
 include $(CLEAR_VARS)

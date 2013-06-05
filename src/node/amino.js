@@ -239,7 +239,6 @@ function JSStage() {
     //var repaintTimer = new SpeedTimer("Stage.draw");
     this.draw = function(gfx)  {
         //repaintTimer.start(); 
-        
         var wgfx = {
             fillQuadColor: function(c,b) {
                 gfx.fillQuadColor(ParseRGBString(c),b);
@@ -1017,6 +1016,7 @@ function JSImageView() {
         this.url = url;
         this.loaded = false;
         this.loading = false;
+        return this;
     }
     var self = this;
     this.loadImage = function() {
@@ -1032,6 +1032,8 @@ function JSImageView() {
         console.log("image = ", this.image);
         this.loaded = true;
     }
+    this.sw = 100;
+    this.sh = 100;
     this.draw = function(gfx) {
         if(this.loaded && this.image) {
             if(this.sw && this.sh) {

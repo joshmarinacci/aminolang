@@ -469,6 +469,15 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
     } else {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->w, image->h, 0, GL_RGB, GL_UNSIGNED_BYTE, image->data);
     }
+    int errnum = glGetError();
+    printf("error = %d  no err = %d\n",errnum, GL_NO_ERROR);
+    
+    int value;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
+    printf("max tex size = %d\n",value);
+    if(image->w > value || image->h > value) {
+        printf("WARNING. texture may be bigger than max texture size\n");
+    }
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

@@ -126,21 +126,13 @@ Image * pngfile_to_bytes(char* file_name) {
     fclose(fp);
     
     printf("returning with data\n");
-    
+    /*
     for(i=0; i<img->h; i++) {
         int n = row_bytes*i + 50*4; 
         printf("pixel: %d  %x %x %x %x\n",i, img->data[n], img->data[n+1], img->data[n+2], img->data[n+3]);
     }
-//    free(outData);
+    */
     
     return img;
 }
 
-/*
-int main(int argc, char ** args) {
-    printf("in main\n");
-    pngfile_to_bytes("/Users/josh/projects/aminolang/tests/small.png");
-    jpegfile_to_bytes("/Users/josh/projects/aminolang/tests/photos/photo1.jpg");
-    return 0;
-}
-*/

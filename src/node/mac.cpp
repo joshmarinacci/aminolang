@@ -9,6 +9,7 @@ static int old_x;
 static int old_y;
 static int old_but;
 static int old_height, old_width, new_width, new_height;
+static bool win_closed;
 class MacCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
@@ -24,6 +25,10 @@ public:
         new_width = width;
         new_height = height;
     }
+    static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
+        win_closed = true;
+        return GL_TRUE;
+    }
     static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
         HandleScope scope;
         old_width = 360;
@@ -33,7 +38,9 @@ public:
             old_height = args[1]->ToNumber()->NumberValue();
         }
         int ret = glfwOpenWindow(old_width, old_height, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
+        win_closed = false;
         glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
+        glfwSetWindowCloseCallback(GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION);
         if(!ret) {
             printf("error. quitting\n");
             glfwTerminate();
@@ -82,6 +89,13 @@ public:
     
     static void processWindowEvents(Local<Function> eventCB) {
         //printf("new = %d %d old = %d %d\n",new_width,new_height,old_width,old_height);
+        if(win_closed) {
+            Local<Object> obj = Object::New();
+            obj->Set(String::NewSymbol("type"), String::New("exit"));
+            Handle<Value> event_args[] = {obj};
+            eventCB->Call(Context::GetCurrent()->Global(), 1, event_args);
+            return;
+        }
         if(new_width == old_width && new_height == old_height) return;
         
         old_width = new_width;

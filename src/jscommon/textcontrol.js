@@ -1,5 +1,7 @@
 console.log("loading text control");
 
+var child_process = require('child_process');
+
 (function(exports) {
 
 // currently text model just uses a string of characters, but it
@@ -32,6 +34,7 @@ function TextModel() {
         this.broadcast();
     }
     this.deleteAt = function(count, index) {
+        console.log("delete at: " + index + " " + count);
         if(index - count < 0) return false;
         this.text = this.text.substring(0,index-1) + this.text.substring(index);
         this.broadcast();
@@ -295,8 +298,8 @@ function RunBox() {
 }
 
 function Cursor() {
-    this.FORWARD = 0;
-    this.BACKWARD = 1;
+    this.FORWARD = 1;
+    this.BACKWARD = -1;
     this.index = 0;
     this.control = null;
     this.clipboard = "";
@@ -384,10 +387,30 @@ function Cursor() {
         this.control.model.broadcast();
     }
     this.pasteSelection = function() {
-        var model = this.control.model;
-        model.text = model.text.substring(0,this.index) + this.clipboard + model.text.substring(this.index);
-        this.index = this.index + this.clipboard.length;
-        this.control.model.broadcast();
+        var paste = child_process.spawn('pbpaste');
+        console.log("spawning a process");
+        var txt = "";
+        var self = this;
+        paste.stdout.on('data', function(data) {
+                console.log("got data: " + data);
+                txt += data;
+        });
+        paste.stdout.on('close', function() {
+            console.log("done with the paste text: " + txt);
+            var model = self.control.model;
+            self.clipboard = txt;
+            model.text = model.text.substring(0,self.index) + self.clipboard + model.text.substring(self.index);
+            self.index = self.index + self.clipboard.length;
+            self.control.model.broadcast();
+        });
+            /*
+        UTILS.getClipboard(function(str) {
+            console.log("got the clipboard: " + str);
+            var model = this.control.model;
+            model.text = model.text.substring(0,this.index) + this.clipboard + model.text.substring(this.index);
+            this.index = this.index + this.clipboard.length;
+            this.control.model.broadcast();
+        });*/
     }
     this.copySelection = function() {
         var model = this.control.model;
@@ -399,6 +422,7 @@ function Cursor() {
     this.advanceLine = function(offset) {
         var lineNum = this.view.indexToLineNum(this.index);
         var oldline = this.view.getLine(lineNum);
+        if(!oldline) return;
         
         //how many chars into the oldline are we
         var inset = this.index - oldline.start;
@@ -450,6 +474,7 @@ function JSTextControl() {
     this.cursor = new Cursor();
     this.cursor.control = this;
     this.model = new TextModel();
+    this.model.listen(this);
     this.view = new TextView();
     this.view.control = this;
     this.styles = new StyleModel();
@@ -458,6 +483,13 @@ function JSTextControl() {
     this.styles.model = this.model;
     this.cursor.view = this.view;
     this.cursor.model = this.model;
+    this.notify = function() {
+        console.log("doing nothing");
+    }
+    
+    this.getText = function() {
+        return this.model.getText();
+    }
     
     this.wrapping = true;
     this.setWrapping = function(wrapping) {
@@ -537,7 +569,7 @@ function JSTextControl() {
         var pos = this.view.indexToXY(this.cursor.index);
         
         var chx = 0;
-        if(this.cursor.bias == this.cursor.FORWARD)  { chx = ch.width; }
+        if(this.cursor.bias == this.cursor.FORWARD && ch.width)  { chx = ch.width; }
         if(this.cursor.bias == this.cursor.BACKWARD) { }
         var chh = this.font.json.height* this.font.scale;
 
@@ -551,11 +583,14 @@ function JSTextControl() {
         });
         */
         
+        
         //draw the actual text
         this.view.lines.forEach(function(line) {
             line.runs.forEach(function(run) {
+                var txt = run.model.text.substring(run.start,run.end);
+                if(txt.length < 1) return;
                 gfx.fillQuadText(run.color, 
-                    run.model.text.substring(run.start,run.end), 
+                    txt, 
                     run.x, line.y,
                     font.scaledsize, font.fontid
                     );
@@ -575,9 +610,8 @@ function JSTextControl() {
     
     var self = this;
     this.install = function(stage) {
-        this.stage = stage;
+        self.stage = stage;
         stage.on("KEYPRESS",this,function(kp) {
-            console.log(kp.control);
             if(kp.control) {
                 if(self.controlHandlers[kp.keycode]) {
                     self.controlHandlers[kp.keycode](kp);
@@ -608,6 +642,15 @@ function JSTextControl() {
                 return;
             }
         });
+        var s2 = this;
+        this.stage = stage;
+        self.notify = function(sender) {
+            s2.stage.fireEvent({
+                type:"CHANGED",
+                target:this
+            });            
+        }
+        
     };
     
     var keyHandlers = {
@@ -681,7 +724,8 @@ function JSTextControl() {
             }
         },
         cursorDeletePrevChar: function(kp) {
-            if(self.cursor.index - 1 < 0) return;
+            console.log("deleting previous char. index = " + self.cursor.index);
+            if(self.cursor.index - 1 < -1) return;
             if(self.cursor.selectionActive()) {
                 self.cursor.deleteSelection();
                 self.cursor.clearSelection();

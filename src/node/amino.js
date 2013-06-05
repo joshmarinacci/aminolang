@@ -175,6 +175,13 @@ function JSStage() {
     this.setSize = function(w,h) {
         this.width = w;
         this.height = h;
+        this.fireEvent({type:"WINDOWSIZE",width:this.width, height:this.height, target: this});
+    }
+    this.getW = function() {
+        return this.width;
+    }
+    this.getH = function() {
+        return this.height;
     }
     this.listeners = {};
     this.on = function(name, target, fn) {
@@ -250,8 +257,8 @@ function JSStage() {
                 //console.log("fillQuadText: ",color,str,x,y,size,fontid);
                 gfx.fillQuadText(ParseRGBString(color),str,x,y,size,fontid);
             },
-            fillQuadTexture: function() {
-                gfx.fillQuadTexture(arguments);
+            fillQuadTexture: function(texid, x, y, w, h) {
+                gfx.fillQuadTexture(texid,x,y,w,h);
             },
             fillQuadTextureSlice: gfx.fillQuadTextureSlice,
             //enableClip:gfx.enableClip,
@@ -310,6 +317,9 @@ function JSStage() {
     this.processEvents = function(e) {
         var x = e.x;
         var y = e.y;
+        if(e.type == "exit") {
+            process.exit(0);
+        }
         if(e.type == "key") {
             self.processRawKeyEvent(e);
             return;
@@ -353,7 +363,6 @@ function JSStage() {
         self.repeatTimeout = setTimeout(self.repeatKey, 20);
     }
     this.processRawKeyEvent = function(e) {
-        console.log("key event:",e);
         if(this.repeatTimeout) {
             clearTimeout(this.repeatTimeout);
             this.repeatTimeout = null;
@@ -915,7 +924,7 @@ core.DEFAULT_FONT.scale = core.DEFAULT_FONT.scaledsize/core.DEFAULT_FONT.basesiz
 
 
 function JSTextArea() {
-    textcontrol.JSTextControl();
+    textcontrol.JSTextControl.call(this);
     this.wrapping = true;
     this.view.wrapping = this.wrapping;
     this.view.layout();
@@ -931,7 +940,7 @@ core.createTextArea = function() {
 }
 
 function JSTextField() {
-    textcontrol.JSTextControl();
+    textcontrol.JSTextControl.call(this);
     this.wrapping = false;
     this.view.wrapping = this.wrapping;
     this.view.layout();

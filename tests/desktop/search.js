@@ -44,9 +44,10 @@ function setupContacts(nav,stage,core) {
         return results;
     }
     function showResults(res, filter) {
+        console.log("command line x = " + cl.getTx() + " " + cl.getTy());
         popup.setVisible(true);
-        popup.setTx(10);
-        popup.setTy(10);
+        popup.setTx(cl.getTx());
+        popup.setTy(cl.getTy()-popup.getH());
         var view = stage.find("searchResults");
         view.listModel = res;
         view.cellRenderer = function(gfx,info,bounds) {
@@ -190,7 +191,6 @@ function setupContacts(nav,stage,core) {
     var currentAction = null;
     function applyAction(text) {
         if(currentAction) {
-            console.log("applying",text, " to action",currentAction);
             if(currentAction.finish) {
                 currentAction.finish(text);
             }
@@ -198,12 +198,10 @@ function setupContacts(nav,stage,core) {
     }
     
     function evaluateAction(text) {
-        console.log("evaluating",text);
         for(var i in actions) {
             var act = actions[i];
             if(text.match(act.regex)) {
                 currentAction = actions[i];
-                console.log("evaluating action: " + act.name);
                 if(act.complete) {
                     act.complete(text);
                 }
@@ -215,13 +213,24 @@ function setupContacts(nav,stage,core) {
     }
     
     stage.on("KEYPRESS",cl,function(kp) {
-            console.log("pressed: ",kp.keycode);
-            //pressed the enter key
+        console.log("pressed: ",kp.keycode);
+        
+        //esc key
+        if(kp.keycode == 257) {
+            if(popup.getVisible()) {
+                hideResults();
+            } else {
+                clearCommandLine();
+            }
+            return;
+        }
+        
+        //return key
         if(kp.keycode == 294) {
             applyAction(cl.getText());
-        } else {
-            evaluateAction(cl.getText());
+            return;
         }
+        evaluateAction(cl.getText());
     });
 
 }

@@ -181,7 +181,7 @@ setupEditor();
 setupTodos();
 setupCalendar();
 
-Search.setupContacts(nav,stage);
+Search.setupContacts(nav,stage,core);
 /*
 function setupTodoView() {
     var options = URL.parse("http://joshy.org:3001/bag/search");

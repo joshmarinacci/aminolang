@@ -1,4 +1,7 @@
-function setupContacts(nav,stage) {
+var fs = require('fs');
+var child_process = require('child_process');
+
+function setupContacts(nav,stage,core) {
     var contents = [
         {
             type:'contact',
@@ -40,7 +43,7 @@ function setupContacts(nav,stage) {
         }
         return results;
     }
-    function showResults(res) {
+    function showResults(res, filter) {
         popup.setVisible(true);
         popup.setTx(10);
         popup.setTy(10);
@@ -50,8 +53,17 @@ function setupContacts(nav,stage) {
             var color = "#ccffff";
             if(info.list.selectedIndex == info.index) { color = "#44aaff"; }
             gfx.fillQuadColor(color, bounds);
+            
+            var txt = info.item.firstname + " " + info.item.lastname;
+            if(filter) {
+                txt = "";
+                if(filter.first) txt += info.item.firstname + " ";
+                if(filter.last)  txt += info.item.lastname  + " ";
+                if(filter.phone) txt += info.item.phone     + " ";
+                if(filter.email) txt += info.item.email     + " ";
+            }
             gfx.fillQuadText("#000000", 
-                info.item.firstname + " " + info.item.lastname,
+                txt,
                 bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
         }
         view.setFontSize(15);
@@ -68,6 +80,44 @@ function setupContacts(nav,stage) {
     });
     */
     
+    function clearCommandLine() {
+        cl.setText("");
+    }
+    
+    function showCallScreen(person) {
+        var group = core.createGroup();
+        var rect = core.createRect().setW(600).setH(300).setFill("#00ff00");
+        group.add(rect);
+        var label = core.createLabel().setText(person.phone).setFontSize(60)
+            .setTx(100).setTy(200);
+        group.add(label);
+        group.setTx(100).setTy(100);
+        stage.getRoot().add(group);
+        stage.on("PRESS",rect,function() {
+                stage.getRoot().remove(group);
+        });
+    }
+    
+    function createNewEmail(person) {
+        console.log("emailing:",person);
+        var script = 'tell application "Mail"\n'
+            +' make new outgoing message with properties {visible:true}\n'
+            +' tell result\n'
+            +'  make new to recipient with properties {address:"'+person.email+'"}\n'
+           // +'  make new attachment with properties {file name:"cake.jpg"}\n'
+            +' end tell\n'
+            +'end tell\n'
+        ;
+        fs.writeFileSync("blah.as",script);
+        var as = child_process.spawn('osascript',['blah.as']);
+        as.stdout.on('data', function(data) {
+                console.log("stdout "+data);
+        });
+        as.stderr.on('data', function(data) {
+                console.log("stderr "+data);
+        });
+    }
+    
     var actions = [
         {
             regex: /^s*call\s+/i,
@@ -75,30 +125,76 @@ function setupContacts(nav,stage) {
             complete: function(text) {
                 var name = text.match(/^s*call\s+(.*)$/i);
                 if(name) {
-                    console.log("auto completing with the text:",name[1]);
                     var results = searchContacts(name[1]);
-                    console.log(results);
                     if(results.length > 0) {
-                        showResults(results);
+                        showResults(results, { first:true, last:true, phone:true });
                     } else {
                         hideResults();
                     }
                 }
+            },
+            finish: function(text) {
+                var name = text.match(/^s*call\s+(.*)$/i);
+                if(name) {
+                    var results = searchContacts(name[1]);
+                    if(results.length > 0) {
+                        showCallScreen(results[0]);
+                    }
+                    clearCommandLine();
+                    hideResults();
+                }
             }
         },
+        
         {
             regex: /^s*todo\s+/i,
             name:"todo",
+            finish: function(text) {
+                var desc = text.match(/^s*todo\s+(.*)$/);
+                if(desc) {
+                    console.log('adding a new todo item:',desc[1]);
+                    clearCommandLine();
+                }
+            }
         },
+        
         {
             regex: /^s*e?mail\s+/i,
-            name:"mail"
+            name:"mail",
+            complete: function(text) {
+                var name = text.match(/^s*mail\s+(.*)$/i);
+                if(name) {
+                    var results = searchContacts(name[1]);
+                    if(results.length > 0) {
+                        showResults(results, { first:true, last:true, email:true});
+                    } else {
+                        hideResults();
+                    }
+                }
+            },
+            finish:function(text) {
+                var name = text.match(/^s*mail\s+(.*)$/i);
+                if(name) {
+                    var results = searchContacts(name[1]);
+                    if(results.length > 0) {
+                        createNewEmail(results[0]);
+                    }
+                    clearCommandLine();
+                    hideResults();
+                }
+            }
         }
+        
     ];
     
     var currentAction = null;
     function applyAction(text) {
-        console.log("applying",text, " to action",currentAction);
+        if(currentAction) {
+            console.log("applying",text, " to action",currentAction);
+            if(currentAction.finish) {
+                currentAction.finish(text);
+            }
+        }
     }
     
     function evaluateAction(text) {

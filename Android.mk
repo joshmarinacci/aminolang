@@ -1,34 +1,16 @@
 LOCAL_PATH:= $(call my-dir)
 
-########### prebuilt shared lib for v8
+
 include $(CLEAR_VARS)
-LOCAL_MODULE          := libv8.so
-LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
-#LOCAL_MODULE_PATH     := $(TARGET_OUT)/foo
-LOCAL_MODULE_TAGS     := optional
-#LOCAL_SHARED_LIBRARIES := libssl.so libcrypto.so
-LOCAL_SRC_FILES       := prebuilt/libv8.so
-include $(BUILD_PREBUILT)
 
-
-############## node itself ################
-include $(CLEAR_VARS)
-LOCAL_MODULE := node.so
-LOCAL_MODULE_TAGS     := optional
-LOCAL_SRC_FILES       := prebuilt/node
-LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
-include $(BUILD_PREBUILT)
-
-############## the add on #################
-
-#reset to do the real build of our module
-include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= \
-    src/node/shaders.cpp \
     src/node/klaatu.cpp \
+    src/node/shaders.cpp \
     src/node/klaatu_events.cpp \
-    src/node/image.cpp \
-    
+    src/node/image.cpp 
+
+
+
 LOCAL_MODULE:= aminolang
 LOCAL_MODULE_TAGS := optional
 LOCAL_C_INCLUDES := frameworks/base/services \
@@ -43,18 +25,19 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/zlib \
 	frameworks/base/include/surfaceflinger
 
-LOCAL_CFLAGS = -DKLAATU
+LOCAL_CFLAGS = -DKLAATU -DBUILDING_NODE_EXTENSION
 LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
-LOCAL_STATIC_LIBRARIES := libcutils libc libpng libz
+LOCAL_STATIC_LIBRARIES := libpng
 TARGET_CUSTOM_DEBUG_CFLAGS := ­O0 -g
 LOCAL_SHARED_LIBRARIES := \
     libEGL libGLESv2 libui libgui \
     libutils libstlport libinput \
-    libv8 \
     libjpeg \
-    libmedia libbinder libcutils
+    libv8 \
+    libmedia libbinder libcutils \
+    libz
 
-#include $(BUILD_EXECUTABLE)
+
 #building a shared lib because this is for a NodeJS addon
 include $(BUILD_SHARED_LIBRARY)
 

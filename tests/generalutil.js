@@ -2,18 +2,17 @@ if(typeof exports == 'undefined') {
     var exports = this['generalutil'] = {};
 }
 
-console.log("in the general util!");
 function doGeneralUtil() {
     console.log("doing the general util");
 }
 
 function shapes(c,core,stage) {
-    console.log("inside general util");
     var rect = core.createRect();
     rect.setX(100).setY(100).setW(50).setH(25).setFill("#00ff00");
     c.add(rect);
     
-    stage.on("PRESS", rect, function() { 
+    stage.on("PRESS", rect, function() {
+        console.log("rect is pressed", rect.getFill());
         if(rect.getFill() == '#0000ff') {
             rect.setFill("#ff0000");
         } else {
@@ -34,15 +33,18 @@ function shapes(c,core,stage) {
     //coordinate space's movement (ie: setting the x and y)
     //drag works even if you drag quickly and go outside the target, thus it
     //preserves the drag target through the entire gesture
+    
     stage.on("DRAG", r2, function(e) {
-        e.target.setTx(e.target.getTx() + e.delta.getX());
-        e.target.setTy(e.target.getTy() + e.delta.getY());
+        e.target.setTx(e.target.getTx() + e.dx);
+        e.target.setTy(e.target.getTy() + e.dy);
     });
+    
     
     
     var r3 = core.createRect();
     r3.setX(60).setY(100).setW(50).setH(50).setFill("#ff00ff");//.setOpacity(0.5);
     c.add(r3);
+    
 }
 
 function comps(c,core,stage) {
@@ -70,14 +72,14 @@ function comps(c,core,stage) {
     c.add(slider);
     
     
-    /*
+    
     
     var textbox = core.createTextField();
     textbox.setTx(200).setTy(230).setW(150).setH(30);
     textbox.setText("foo");
     c.add(textbox);
     
-    */
+    
     
     var listview = core.createListView();
     listview.setW(200).setH(200).setTx(380).setTy(30);
@@ -100,14 +102,14 @@ function events(c, core,stage) {
     
     var b4 = core.createPushButton().setText("rotate").setTx(0).setTy(0).setW(100).setH(30);
     
-    var g4 = core.createTransform().setTx(10).setTy(150).setRotate(45);
-    g4.setChild(b4);
+    var g4 = core.createGroup().setTx(10).setTy(150).setRotateZ(45);
+    g4.add(b4);
     c.add(g4);
     
     
     var b5 = core.createPushButton().setText("scale").setTx(0).setTy(0).setW(100).setH(30);
-    var g5 = core.createTransform().setTx(120).setTy(150).setScalex(2).setScaley(2);
-    g5.setChild(b5);
+    var g5 = core.createGroup().setTx(120).setTy(150).setScalex(2).setScaley(2);
+    g5.add(b5);
     c.add(g5);
     
     

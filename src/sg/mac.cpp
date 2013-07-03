@@ -79,64 +79,6 @@ static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
 }
 
-/*
-int main(int argc, char**argv) {
-    printf("running my app\n");
-    
-    
-    if(!glfwInit()) {
-        printf("error. quitting\n");
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    
-    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 0, GLFW_WINDOW)) {
-        printf("error. quitting\n");
-        glfwTerminate();
-        exit(EXIT_FAILURE);        
-    }
-    
-    
-    
-    
-    //create globals
-    colorShader = new ColorShader();
-    textureShader = new TextureShader();
-    
-    
-    modelView = new GLfloat[16];
-    loadOrthoMatrix(modelView, 0, width, height, 0, 0, 100);
-    globaltx = new GLfloat[16];
-    make_identity_matrix(globaltx);
-    
-    
-    glViewport(0,0,width, height);
-    //set up our data
-    rects.push_back(new Rect());
-    rects.push_back(new Rect());
-    rects.push_back(new Rect());
-
-    anims.push_back(new Anim(rects[0],0, -100,700,  1000, FOREVER, true));
-    anims.push_back(new Anim(rects[1],1,    0,100,   333, 3, true));
-    anims.push_back(new Anim(rects[2],0,    0,300,  5000, FOREVER, false));
-    
-    float t = 0;
-    for(int i=0; i<60*5; i++) {
-        glClearColor(1,1,1,1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        for(int j=0; j<anims.size(); j++) {
-            anims[j]->update();
-        }
-        for(int j=0; j<rects.size(); j++) {
-            rects[j]->draw();
-        }
-        
-        glfwSwapBuffers();
-    }
-    
-    return 0;
-}
-*/
 
 Handle<Value> init(const Arguments& args) {
 	matrixStack = std::stack<void*>();
@@ -173,9 +115,7 @@ Handle<Value> createWindow(const Arguments& args) {
     fontShader = new FontShader();
     modelView = new GLfloat[16];
 
-	printf("created globaltx %d\n",globaltx);
     globaltx = new GLfloat[16];
-	printf("created globaltx %d\n",globaltx);
     make_identity_matrix(globaltx);
     
 
@@ -197,16 +137,13 @@ Handle<Value> setWindowSize(const Arguments& args) {
 
 
 void render() {
-	printf("inside render\n");
 	
 
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
-    printf("done with updates\n");
     updates.clear();
     
-    printf("doing screen sizing\n");
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
     //make_scale_matrix(1,1,1,scaleM);
@@ -236,15 +173,11 @@ void render() {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    printf("animating\n");
     for(int j=0; j<anims.size(); j++) {
         anims[j]->update();
     }
-    printf("drawing\n");
     AminoNode* root = rects[rootHandle];
-    printf("got root\n");
     root->draw();
-    printf("swapping screen\n");
     
     glfwSwapBuffers();
 }

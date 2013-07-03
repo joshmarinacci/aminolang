@@ -457,13 +457,16 @@ function SGGroup() {
         target.parent = null;
     }
     this.clear = function() {
+        for(var i in this.children) {
+            this.children[i].setVisible(false);
+        }
         this.children = [];
     }
             
     
     this.init = function() {
         this.handle = sgtest.createGroup();
-        var props = { tx:0, ty:0, scalex:1, scaley:1, rotatez:0};
+        var props = { tx:0, ty:0, scalex:1, scaley:1, rotateX:0, rotateY:0, rotateZ:0, visible:1};
         this.delegateProps(props,this.handle);
         this.live = true;
     }
@@ -594,7 +597,7 @@ function SGLabel() {
     this.live = false;
     this.init = function() {    
         this.handle = sgtest.createText();
-        var props = { tx:0, ty:0, x:0, y:0, r: 0, g: 0, b:0, scalex: 1, scaley:1, rotatez: 0, text:"silly text", fontSize:15};
+        var props = { tx:0, ty:0, x:0, y:0, r: 0, g: 0, b:0, scalex: 1, scaley:1, rotatez: 0, text:"silly text", fontSize:15, visible:1};
         this.delegateProps(props,this.handle);
         
         this.setTextColor = function(textcolor) {

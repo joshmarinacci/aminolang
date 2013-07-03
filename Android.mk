@@ -4,10 +4,11 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
-    src/node/klaatu.cpp \
-    src/node/shaders.cpp \
-    src/node/klaatu_events.cpp \
-    src/node/image.cpp 
+    src/sg/image.cpp \
+    src/sg/shaders.cpp \
+    src/sg/base.cpp \
+    src/sg/klaatu_events.cpp \
+    src/sg/klaatu.cpp
 
 
 

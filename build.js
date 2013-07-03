@@ -372,32 +372,25 @@ function androidtest(cb) {
     //copy font2.png and other resources
     var out = outdir+"/"+"devicephone/";
     jb.mkdir(out);
-    var src = "src/node/";
+    var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
-    copyFileTo(src+"out.js",out);
+    copyFileTo(src+"Bacon.js",out);
     copyFileTo("src/jscommon/widgets.js",out);
     copyFileTo("src/jscommon/textcontrol.js",out);
+    //resource files
+    copyFileTo("resources/font.json",out);
+    copyFileTo("resources/font.png",out);
+    
     //native addon
     copyFileTo("aminonative.node",out);
     //prebuilts
     copyFileTo("prebuilt/libv8.so",out);
     copyFileTo("prebuilt/node",out);
-    //support resources
-    copyFileTo("tests/font2.png",out);
-    copyFileTo("tests/skin.png",out);
-    copyFileTo("tests/phone3.js",out);
-    copyFileTo("tests/phone3.json",out);
-    copyFileTo("tests/segfault.js",out);
-    copyFileTo("tests/test1.json",out);
-    copyFileTo("tests/test1.png",out);
     
-    //photos used by the phone demo
-    var photosdir = out+"/photos";
-    jb.mkdir(photosdir);
-    copyFileTo("tests/photos/photo1.jpg",photosdir);
-    copyFileTo("tests/photos/photo2.jpg",photosdir);
-    copyFileTo("tests/photos/photo3.jpg",photosdir);
+    //various demos and tests
+    copyFileTo("tests/runit.sh",out);
+    copyFileTo("tests/phonecards.js",out);
     
     
     var dirs = fs.readdirSync(out);
@@ -405,9 +398,8 @@ function androidtest(cb) {
     doExec("adb push " + out + " /data/phonetest");
     var modout = out + "/node_modules";
     jb.mkdir(modout);
-    //copyFileTo("node_modules/xml2js/lib/xml2js.js",modout);
-    //copyFileTo("node_modules/xml2js/node_Modules/sax/lib/sax.js",modout);
     doExec("adb push " + modout + " /data/phonetest/node_modules");
+    
     
 }
 

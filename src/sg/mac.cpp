@@ -293,5 +293,5 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("createNativeFont"), FunctionTemplate::New(createNativeFont)->GetFunction());
 }
 
-NODE_MODULE(sgtest, InitAll)
+NODE_MODULE(aminonative, InitAll)
 

@@ -1,7 +1,7 @@
 var fs = require('fs');
 var bacon = require('./Bacon');
 //var sgtest = require("./build/Release/sgtest.node");
-var sgtest = require("./sgtest.node");
+var sgtest = require("./aminonative.node");
 var textcontrol = require('./textcontrol.js');
 
 var mouseState = {

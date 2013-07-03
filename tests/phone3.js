@@ -2,34 +2,22 @@ var fs = require('fs');
 var url = require('url');
 var http = require('http');
 console.log(process.platform);
-var amino;
 var apppath = "tests/";
 
+var amino;
+
 if(process.platform == "darwin") {
-    //amino = require('../src/node/amino.js');
-    amino = require('../build/desktop/amino.js');
+    amino = require('./amino.js');
 } else {
     amino = require('./amino.js');
     apppath = "/data/phonetest/";
 }
-var core = amino.getCore();
-//var XML = require('xml2js');
-if(process.platform == "darwin") {
-    core.setDevice("mac");
-} else {
-    core.setDevice("galaxynexus");
-}
+amino.startApp(function(core,stage) {
 
-
-
-var stage = core.createStage();
-
-var root = core.createRect().setW(300).setH(300);
-stage.setRoot(root);
-
-core.start();
-
-
+    var filedata = fs.readFileSync('phone3.json');
+    var jsonfile = JSON.parse(filedata);
+    var root = new amino.SceneParser().parse(core,jsonfile);
+    stage.setRoot(root);
 
 
 function NavigationManager() {
@@ -49,18 +37,16 @@ function NavigationManager() {
     this.navstack = [];
     this.push = function(name) {
         var trans = this.transitions[name];
-        stage.addAnim(amino.anim(trans.src, "tx", 0, -stage.width, 250));
-        stage.addAnim(amino.anim(trans.dst, "tx", stage.width,  0, 250)
-            .before(function(){ trans.dst.setVisible(true);})
-            );
+        core.createPropAnim(trans.src, "tx", 0, -stage.width, 250, 1, false);
+        core.createPropAnim(trans.dst, "tx", stage.width,  0, 250, 1, false)
+            .before(function(){ trans.dst.setVisible(true);});
         this.navstack.push(trans);
     }
     this.pop = function() {
         var trans = this.navstack.pop();
-        stage.addAnim(amino.anim(trans.src, "tx", -400, 0, 250));
-        stage.addAnim(amino.anim(trans.dst, "tx", 0,  400, 250)
-            .after(function() { trans.dst.setVisible(false); })
-            );
+        core.createPropAnim(trans.src, "tx", -400, 0, 250, 1, false);
+        core.createPropAnim(trans.dst, "tx", 0,  400, 250, 1, false)
+            .after(function() { trans.dst.setVisible(false); });
     }
     var self = this;
     stage.on("WINDOWSIZE", stage, function(e) {
@@ -99,22 +85,22 @@ function SwipeRecognizer(stage,cb) {
         if(!started) {
             started = true;
             startTime = time;
-            startX = e.point.x;
-            startY = e.point.y;
+            startX = e.x;
+            startY = e.y;
         }
-        var dx = e.point.x - startX;
-        var dy = e.point.y - startY;
+        var dx = e.x - startX;
+        var dy = e.y - startY;
         var dt = time-startTime;
-        //console.log("pressed it", " x/y ", e.point.x , e.point.y, "  dx/dy  ", dx, dy, "  dt", dt);
+        //console.log("pressed it", " x/y ", e.x , e.y, "  dx/dy  ", dx, dy, "  dt", dt);
         clearTimeout(lastTimeout);
         lastTimeout = setTimeout(function() {
-            //console.log("later");
+            console.log("later");
             if( startY < 75 && dy > 150 && dt < 500) {
-                //console.log("down swipe");
+                console.log("down swipe");
                 cb({type:"down"});
             }
             if( startY > 500 && dy < -125 && dt < 300) {
-                //console.log("up swipe");
+                console.log("up swipe");
                 cb({type:"up"});
             }
             reset();
@@ -169,20 +155,20 @@ function getWeather(cb) {
 }
 
 function animIn(trns, soff, eoff) {
-    stage.addAnim(amino.anim(trns,"scalex",0.5,1.0,200));
-    stage.addAnim(amino.anim(trns,"scaley",0.5,1.0,200));
-    stage.addAnim(amino.anim(trns,"tx",stage.width/4+soff,0+eoff,200));
-    stage.addAnim(amino.anim(trns,"ty",stage.height/4,30,200));
+    core.createPropAnim(trns,"scalex",0.5,1.0,200,1,false);
+    core.createPropAnim(trns,"scaley",0.5,1.0,200,1,false);
+    core.createPropAnim(trns,"tx",stage.width/4+soff,0+eoff,200,1,false);
+    core.createPropAnim(trns,"ty",stage.height/4,30,200,1,false);
 }
 
 function animOut(trns, soff, eoff) {
     var cs = trns.getScalex();
     var cx = trns.getTx();
     var cy = trns.getTy();
-    stage.addAnim(amino.anim(trns,"scalex",cs,0.5,200));
-    stage.addAnim(amino.anim(trns,"scaley",cs,0.5,200));
-    stage.addAnim(amino.anim(trns,"tx",cx,stage.width/4+eoff,200));
-    stage.addAnim(amino.anim(trns,"ty",cy,stage.height/4,200));
+    core.createPropAnim(trns,"scalex",cs,0.5,200,1,false);
+    core.createPropAnim(trns,"scaley",cs,0.5,200,1,false);
+    core.createPropAnim(trns,"tx",cx,stage.width/4+eoff,200,1,false);
+    core.createPropAnim(trns,"ty",cy,stage.height/4,200,1,false);
 }
 
 var sr;
@@ -192,23 +178,25 @@ function initApps() {
     apps.push(stage.find("todoapp"));
     apps.push(stage.find("contactsapp"));
     apps.push(stage.find("photosapp"));
+    
     for(var i in apps) {
         var app = apps[i];
         app.setW(stage.width);
         app.setH(stage.height-30);
         app.setTx(0);
         app.setTy(0);
-//        app.setVisible(false);
+        //        app.setVisible(false);
         
-        var tr = core.createTransform();
+        var tr = core.createGroup();
         app.setTy(0);
         var p = app.getParent();
         p.remove(app);
-        tr.setChild(app);
+        tr.add(app);
         tr.setTy(30);
         p.add(tr);
         trans.push(tr);
     }
+    
     
     var current = 0;
     function update() {
@@ -250,10 +238,10 @@ function initApps() {
             var settings = stage.find("settings");
             if(settingsOpen) {
                 settingsOpen = false;
-                stage.addAnim(amino.anim(settings,"ty",0,-settings.getH(),200));
+                var anim = core.createPropAnim(settings,"ty",0,-settings.getH(),200, 1, false);
             } else {
                 settingsOpen = true;
-                stage.addAnim(amino.anim(settings,"ty",-settings.getH(),0,200));
+                var anim = core.createPropAnim(settings,"ty",-settings.getH(),0,200, 1, false);
             }
         }
         if(s.type == "up") {
@@ -431,8 +419,8 @@ function initPhotos() {
         console.log("selected photo item" + e.index);
         selectedIndex = e.index;
         nav.push("showPhotoDetails");
-//        var title = stage.find("todoDetailsTitle");
-//        title.setText(list.listModel[selectedIndex].title);
+            var title = stage.find("todoDetailsTitle");
+            title.setText(list.listModel[selectedIndex].title);
     });
     stage.on("PRESS",stage.find("photoDetailsBackButton"),function() {
         nav.pop();
@@ -448,7 +436,7 @@ function initPhotos() {
         }
     };
 }
-initPhotos();
+//initPhotos();
 
 /*
 setInterval(function() {
@@ -477,22 +465,6 @@ function initStatusBar() {
 }
 initStatusBar();
 
-function postInit() {
-    /*
-    stage.loadTexture(apppath+"skin.png",512,512,function(texid) {
-        skinid = texid;
-    });
-    */
-    /*
-    photos.forEach(function(p) {
-        console.log("photo = " + p.path);
-        p.texid = core.loadJpegFromBuffer(p.path);
-    });
-    */
-}
 
-setTimeout(function() {
-    core.start();
-    postInit();
-},3000);
+});
 

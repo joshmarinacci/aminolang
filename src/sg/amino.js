@@ -184,6 +184,17 @@ function setupBacon(core) {
                     }
                 );
             }
+            core.fireEvent({
+                    type: "drag",
+                    type:"drag",
+                    pressed:mouseState.pressed,
+                    x:mouseState.x,
+                    y:mouseState.y,
+                    dx:e.dx,
+                    dy:e.dy,
+                    point:pt,
+                    source:core,
+            });
         });
         
     //mouse releases

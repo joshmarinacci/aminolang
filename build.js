@@ -390,16 +390,13 @@ function androidtest(cb) {
     //various demos and tests
     copyFileTo("tests/runit.sh",out);
     copyFileTo("tests/phonecards.js",out);
+    copyFileTo("tests/phone3.js",out);
+    copyFileTo("tests/phone3.json",out);
     
     
     var dirs = fs.readdirSync(out);
     console.log(dirs);
     doExec("adb push " + out + " /data/phonetest");
-    var modout = out + "/node_modules";
-    jb.mkdir(modout);
-    doExec("adb push " + modout + " /data/phonetest/node_modules");
-    
-    
 }
 
 

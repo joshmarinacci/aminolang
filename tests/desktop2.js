@@ -1,24 +1,23 @@
 var https = require('https');
 var fs = require('fs');
-var amino = require('../build/desktop/amino.js');
+var Core = require('../build/desktop/amino.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
 var NAV = require('./desktop/navmanager.js');
 var MusicPlayer = require('./desktop/musicplayer.js');
 var Search = require('./desktop/search.js');
 var UTILS = require("./Utils.js");
-var core = amino.getCore();
 var URL = require('url');
 var http = require('http');
 var googleapis = require('googleapis');
 var OAuth2Client = googleapis.OAuth2Client;
-core.setDevice("mac");
 
-var stage = core.createStage();
+
+Core.startApp(function(core,stage) {
 
 
 var filedata = fs.readFileSync('tests/desktop2.json');
 var jsonfile = JSON.parse(filedata);
-var root = new amino.SceneParser().parse(core,jsonfile);
+var root = new Core.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
 stage.setSize(300+500+300,520);
 var nav = new NAV.NavigationManager(stage,core);
@@ -84,7 +83,7 @@ function setupTodos() {
             info.item.data.text,
             bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
     }
-    todos.setFontSize(15);
+    //todos.setFontSize(15);
     /*
     UTILS.getJSON("http://joshy.org:3001/bag/search",function(err,data){
         if(err) return;
@@ -174,13 +173,13 @@ function setupGcal() {
         });
 }
 
-MusicPlayer.setup(nav,stage);
 setupClock();
-setupWeather();
-setupEditor();
-setupTodos();
-setupCalendar();
+//setupWeather();
+//setupEditor();
+//setupTodos();
+//setupCalendar();
 
+MusicPlayer.setup(nav,stage,core);
 Search.setupContacts(nav,stage,core);
 /*
 function setupTodoView() {
@@ -198,11 +197,11 @@ function setupTodoView() {
 setupTodoView();
 */
 
+    stage.find("gcalSetup").setVisible(false);
 
 //make the main view be resized when the window does
-nav.register(stage.find("main"));
+    nav.register(stage.find("main"));
+    core.requestFocus(stage.find("commandLine"));
 
-setTimeout(function() {
-    core.start();
-},1000);
+});
 

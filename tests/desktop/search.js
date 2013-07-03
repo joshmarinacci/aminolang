@@ -20,8 +20,6 @@ function setupContacts(nav,stage,core) {
     ]
     
     var cl = stage.find("commandLine");
-    console.log("command line = ");
-    console.log(cl);
     cl.setText("");
     
     var popup = stage.find("commandlinePopup");
@@ -44,10 +42,18 @@ function setupContacts(nav,stage,core) {
         return results;
     }
     function showResults(res, filter) {
-        console.log("command line x = " + cl.getTx() + " " + cl.getTy());
-        popup.setVisible(true);
-        popup.setTx(cl.getTx());
-        popup.setTy(cl.getTy()-popup.getH());
+    	    if(!popup.getVisible()) {
+            popup.setVisible(true);
+            popup.setTx(cl.getTx());
+            var y = cl.getTy()-popup.getH()
+            popup.setTy(y);
+            //core.createPropAnim(popup,"ty",y+200,y,200, 1, false);
+            core.createPropAnim(popup,"rotateY",90,0, 150, 1, false)
+                .setInterpolator(Core.Interpolators.CubicInOut)
+                ;
+            core.set
+        }
+
         var view = stage.find("searchResults");
         view.listModel = res;
         view.cellRenderer = function(gfx,info,bounds) {
@@ -67,7 +73,21 @@ function setupContacts(nav,stage,core) {
                 txt,
                 bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
         }
-        view.setFontSize(15);
+        view.setTextCellRenderer(function(cell,i,item) {
+            cell.setBackgroundFill("#bbddbb");
+            if(item) {
+                var txt = item.firstname + " " + item.lastname;
+                if(filter) {
+                    txt = "";
+                    if(filter.first) txt += item.firstname + " ";
+                    if(filter.last)  txt += item.lastname  + " ";
+                    if(filter.phone) txt += item.phone     + " ";
+                    if(filter.email) txt += item.email     + " ";
+                }
+                cell.setText(txt);
+            }
+        });
+        //view.setFontSize(15);
     }
     function hideResults() {
         popup.setVisible(false);
@@ -94,7 +114,7 @@ function setupContacts(nav,stage,core) {
         group.add(label);
         group.setTx(100).setTy(100);
         stage.getRoot().add(group);
-        stage.on("PRESS",rect,function() {
+        stage.on("press",rect,function() {
                 stage.getRoot().remove(group);
         });
     }
@@ -213,8 +233,6 @@ function setupContacts(nav,stage,core) {
     }
     
     stage.on("KEYPRESS",cl,function(kp) {
-        console.log("pressed: ",kp.keycode);
-        
         //esc key
         if(kp.keycode == 257) {
             if(popup.getVisible()) {

@@ -107,7 +107,7 @@ var lib = {
 }
         
 var BASE = "/Volumes/PieHole/Mp3Archive/iTunes/";
-function setup(nav,stage) {        
+function setup(nav,stage,core) {        
     var currentAlbum = lib.albums[0];
     var currentTrack = 0;
     
@@ -185,7 +185,7 @@ function setup(nav,stage) {
         currentTrack = 0;
         var url = currentAlbum.artwork;
         console.log(url);
-        artwork.setUrl(url);
+        artwork.setSrc(url);
         title.setText(currentAlbum.tracks[currentTrack].title);
     }
     setAlbum(lib.albums[0]);
@@ -196,20 +196,14 @@ function setup(nav,stage) {
     
     var albumList = stage.find("albumList");
     albumList.listModel = lib.albums;
-    albumList.cellRenderer = function(gfx, info, bounds) {
-        var color = "#ccffff";
-        if(info.list.selectedIndex == info.index) {
-            color = "#33aaff";
+    albumList.setTextCellRenderer(function(cell,i,item) {
+        cell.setBackgroundFill("#bbddbb");
+        if(item) {
+            cell.setText(item.name);
         }
-        gfx.fillQuadColor(color, bounds);
-        
-        gfx.fillQuadText("#000000",
-            info.item.name,
-            bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
-    };
+    });
     stage.on("SELECT",albumList, function(e) {
         var n = e.index;
-        console.log("selected index: " + n);
         setAlbum(lib.albums[n]);
     });
     stage.on("ACTION",stage.find("musicOpenButton"), function() {

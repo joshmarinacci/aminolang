@@ -8,7 +8,7 @@ function NavigationManager(stage,core) {
         .setH(stage.getH())
         .setFill("#00ff00");
     scrim.draw = function() {}
-    scrim.setVisible(true);
+    scrim.setVisible(false);
     var self = this;
     stage.on("PRESS",scrim,function() {
         for(var k in self.transitions) {
@@ -53,13 +53,9 @@ function NavigationManager(stage,core) {
             var pw = trans.dst.getW();
             trans.dst.setTy(10);
             if(x2 > stage.getW() - pw) {
-                console.log("doing on the left");
                 x2 = trans.src.getTx() - pw - 10;
-                trans.dst.setTx(x2);
-            } else {
-                console.log("doing on the right");
-                trans.dst.setTx(x2);
             }
+            core.createPropAnim(trans.dst,"tx",0,x2, 300, 1, false);
         } else {
             stage.addAnim(amino.anim(trans.src, "tx", 0, -stage.width, 250));
             stage.addAnim(amino.anim(trans.dst, "tx", stage.width,  0, 250)
@@ -74,7 +70,9 @@ function NavigationManager(stage,core) {
     this.pop = function() {
         var trans = this.navstack.pop();
         if(trans.type == "popup") {
-            trans.dst.setVisible(false);
+            core.createPropAnim(trans.dst,"tx",trans.dst.getTx(),0, 300, 1, false)
+                .after(function() { trans.dst.setVisible(false); })
+            ;
         } else {
             stage.addAnim(amino.anim(trans.src, "tx", -400, 0, 250));
             stage.addAnim(amino.anim(trans.dst, "tx", 0,  400, 250)

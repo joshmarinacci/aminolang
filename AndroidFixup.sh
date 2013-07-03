@@ -37,11 +37,10 @@ else
 fi
 
 mkdir -p $ANDROID_PRODUCT_OUT/data/phonetest
-cp src/node/amino.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp src/sg/amino.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp src/sg/Bacon.js $ANDROID_PRODUCT_OUT/data/phonetest
 cp src/jscommon/*.js $ANDROID_PRODUCT_OUT/data/phonetest
-cp tests/test1.* $ANDROID_PRODUCT_OUT/data/phonetest
-cp tests/skin.png $ANDROID_PRODUCT_OUT/data/phonetest
-cp tests/segfault.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp resources/*.* $ANDROID_PRODUCT_OUT/data/phonetest
 cp tests/phone3.* $ANDROID_PRODUCT_OUT/data/phonetest
 
 #the following makes the  make system run everytime you build android. If you comment it out 

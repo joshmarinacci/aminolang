@@ -384,8 +384,8 @@ function androidtest(cb) {
     //native addon
     copyFileTo("aminonative.node",out);
     //prebuilts
-    copyFileTo("prebuilt/libv8.so",out);
-    copyFileTo("prebuilt/node",out);
+    copyFileTo("prebuilt/binaries/libv8.so",out);
+    copyFileTo("prebuilt/binaries/node",out);
     
     //various demos and tests
     copyFileTo("tests/runit.sh",out);

@@ -11,7 +11,7 @@ var sgtest;
 if(OS == "MAC") {
     sgtest = require('./aminonative.node');
 } else {
-    amino = require('./aminonative.node');
+    sgtest = require('./aminonative.node');
 }
 
 var textcontrol = require('./textcontrol.js');

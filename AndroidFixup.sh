@@ -5,7 +5,7 @@ set -x
 OUTFILE=$1
 MY_DIR=`dirname $1`
 
-HOST_DIR=$ANDROID_HOST_OUT
+
 
 
 cat > $OUTFILE <<EOF
@@ -24,19 +24,25 @@ cd $MY_DIR;
 echo "APO=$ANDROID_PRODUCT_OUT"
 echo "NUM_PROCS=$NUM_PROCS"
 echo "me=$0"
+echo "outfile=$OUTFILE"
+echo "my_dir=$MY_DIR"
+echo "cwd="`pwd`
 
-cd ${ANDROID_PRODUCT_OUT}/system/lib
-if [ -f libaminolang.so ]; then
-    ln -sf aminonative.node libaminolang.so
-#echo "linking node addon name to lib"
+
+if [ -f ${ANDROID_PRODUCT_OUT}/system/lib/libaminolang.so ]; then
+    ln -sf libaminolang.so ${ANDROID_PRODUCT_OUT}/system/lib/aminonative.node 
+    echo "linking node addon name to lib"
+else
+    echo "no libaminolang.so to link node addon to"
 fi
 
 mkdir -p $ANDROID_PRODUCT_OUT/data/phonetest
-cp $MY_DIR/src/node/amino.js $ANDROID_PRODUCT_OUT/data/phonetest
-cp $MY_DIR/src/jscommon/*.js $ANDROID_PRODUCT_OUT/data/phonetest
-cp $MY_DIR/tests/test1.* $ANDROID_PRODUCT_OUT/data/phonetest
-cp $MY_DIR/tests/skin.png $ANDROID_PRODUCT_OUT/data/phonetest
-cp $MY_DIR/tests/segfault.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp src/node/amino.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp src/jscommon/*.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp tests/test1.* $ANDROID_PRODUCT_OUT/data/phonetest
+cp tests/skin.png $ANDROID_PRODUCT_OUT/data/phonetest
+cp tests/segfault.js $ANDROID_PRODUCT_OUT/data/phonetest
+cp tests/phone3.* $ANDROID_PRODUCT_OUT/data/phonetest
 
 #the following makes the  make system run everytime you build android. If you comment it out 
 # you either need to touch the AndroidFixup.sh or 

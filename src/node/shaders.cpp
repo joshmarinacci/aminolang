@@ -210,7 +210,6 @@ FontShader::FontShader() {
       "void main() {\n"
       "   vec4 texel = texture2D(tex, uv);\n"
 //      "   if(texel.r > 0.9) { discard; }\n"
-//      "   gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
       "    gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
       "}\n";
       
@@ -302,24 +301,22 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16],
     glUniform1i(attr_tex, 0);
     
     int len = strlen(text);
-    int iw = 2153;
-    int ih = 58;
     float scale = fsize/40.0;
     float charx = 0;
+    float rowheight = font->imageheight/font->rowcount;
     for(int i=0; i<len; i++) {
         int ch = text[i];
         int n = ch - font->minchar;
         
-        float tx = font->offsets[n]/iw;
-        float ty = 0;
-        float tw = font->widths[n]/iw;
-        float th = 1;
+        float tx = font->offsets[n] /font->imagewidth;
+        float ty = font->yoffsets[n]/font->imageheight;
+        float tw = font->widths[n]  /font->imagewidth;
+        float th = rowheight        /font->imageheight;
     
         float x = charx + offX;
         float y = 0 + offY;
         float w = font->widths[n]*scale;
-        float h = ih*scale;
-        
+        float h = rowheight*scale;
         drawLetter(
             tx,ty,tx+tw,ty+th,
             x,y,x+w,y+h,

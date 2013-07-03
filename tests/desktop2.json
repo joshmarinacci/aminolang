@@ -95,7 +95,7 @@
               }
               ,{
                "type":"AnchorPanel"
-              ,"id":"id877829"
+              ,"id":"musicWidget"
               ,"anchorLeft":true
               ,"w":300.0
               ,"fill":"#8eaaff"
@@ -229,8 +229,8 @@
               ,"id":"commandLine"
               ,"anchorLeft":true
               ,"text":"textfield"
-              ,"h":30.0
-              ,"w":400.0
+              ,"h":32.0
+              ,"w":396.0
               ,"anchorBottom":true
               ,"anchorTop":false
               ,"ty":430.0
@@ -238,16 +238,16 @@
               ,"anchorRight":true
               ,"left":300.0
               ,"top":430.0
-              ,"right":300.0
-              ,"bottom":20.0
+              ,"right":304.0
+              ,"bottom":18.0
               }
               ,{
                "type":"TextArea"
               ,"id":"mainEditText"
               ,"anchorLeft":true
               ,"text":"textarea"
-              ,"h":430.0
-              ,"w":400.0
+              ,"h":429.0
+              ,"w":397.0
               ,"anchorBottom":true
               ,"anchorTop":true
               ,"ty":0.0
@@ -255,28 +255,66 @@
               ,"anchorRight":true
               ,"left":300.0
               ,"top":0.0
-              ,"right":300.0
-              ,"bottom":50.0
+              ,"right":303.0
+              ,"bottom":51.0
               }
               ,{
                "type":"ListView"
               ,"id":"todoList"
               ,"anchorLeft":false
               ,"selectedIndex":0
-              ,"h":480.0
               ,"cellHeight":30.0
-              ,"layout":"vert"
               ,"w":300.0
-              ,"anchorBottom":true
               ,"anchorTop":true
               ,"ty":0.0
-              ,"anchorRight":true
               ,"tx":700.0
+              ,"anchorRight":true
               ,"cellWidth":30.0
+              ,"h":179.0
+              ,"layout":"vert"
+              ,"anchorBottom":false
               ,"left":700.0
               ,"top":0.0
               ,"right":0.0
-              ,"bottom":0.0
+              ,"bottom":301.0
+              }
+              ,{
+               "type":"AnchorPanel"
+              ,"id":"calendarWidget"
+              ,"anchorLeft":false
+              ,"w":300.0
+              ,"fill":"#a0a0a0"
+              ,"anchorTop":true
+              ,"ty":180.0
+              ,"anchorRight":true
+              ,"tx":700.0
+              ,"h":156.0
+              ,"anchorBottom":false
+              ,"left":700.0
+              ,"top":180.0
+              ,"right":0.0
+              ,"bottom":144.0
+                ,"children":[
+                   {
+                   "type":"PushButton"
+                  ,"id":"calendarSetupButton"
+                  ,"anchorLeft":true
+                  ,"enabled":true
+                  ,"text":"setup"
+                  ,"w":54.0
+                  ,"anchorTop":true
+                  ,"ty":121.0
+                  ,"fontSize":12.0
+                  ,"tx":5.0
+                  ,"anchorRight":false
+                  ,"h":29.0
+                  ,"anchorBottom":false
+                  ,"left":5.0
+                  ,"top":121.0
+                  ,"right":241.0
+                  ,"bottom":6.0
+                  }
+                ]
               }
             ]
           }
@@ -329,6 +367,150 @@
               ,"anchorBottom":true
               ,"left":233.0
               ,"top":323.0
+              ,"right":1.0
+              ,"bottom":1.0
+              }
+            ]
+          }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"gcalSetup"
+          ,"anchorLeft":true
+          ,"w":353.0
+          ,"fill":"#a0a0a0"
+          ,"anchorTop":true
+          ,"ty":514.0
+          ,"anchorRight":false
+          ,"tx":439.0
+          ,"h":355.0
+          ,"anchorBottom":false
+            ,"children":[
+               {
+               "type":"Label"
+              ,"id":"id999372"
+              ,"anchorLeft":true
+              ,"text":"press this button to open the browser"
+              ,"w":273.0
+              ,"anchorTop":true
+              ,"ty":11.0
+              ,"fontSize":15.0
+              ,"anchorRight":false
+              ,"tx":15.0
+              ,"h":28.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
+              ,"left":15.0
+              ,"top":11.0
+              ,"right":65.0
+              ,"bottom":316.0
+              }
+              ,{
+               "type":"Label"
+              ,"id":"id303578"
+              ,"anchorLeft":true
+              ,"text":"then paste the key into here."
+              ,"w":272.0
+              ,"anchorTop":true
+              ,"ty":86.0
+              ,"fontSize":15.0
+              ,"anchorRight":false
+              ,"tx":18.0
+              ,"h":30.0
+              ,"color":"#000000"
+              ,"anchorBottom":false
+              ,"left":18.0
+              ,"top":86.0
+              ,"right":63.0
+              ,"bottom":239.0
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"openBrowserButton"
+              ,"anchorLeft":true
+              ,"enabled":true
+              ,"text":"open browser"
+              ,"w":175.0
+              ,"anchorTop":true
+              ,"ty":47.0
+              ,"fontSize":20.0
+              ,"tx":95.0
+              ,"anchorRight":false
+              ,"h":31.0
+              ,"anchorBottom":false
+              ,"left":95.0
+              ,"top":47.0
+              ,"right":83.0
+              ,"bottom":277.0
+              }
+              ,{
+               "type":"TextField"
+              ,"id":"codeField"
+              ,"anchorLeft":true
+              ,"text":"key goes here"
+              ,"h":29.0
+              ,"w":316.0
+              ,"anchorBottom":false
+              ,"anchorTop":true
+              ,"ty":130.0
+              ,"tx":18.0
+              ,"anchorRight":false
+              ,"left":18.0
+              ,"top":130.0
+              ,"right":19.0
+              ,"bottom":196.0
+              }
+              ,{
+               "type":"PushButton"
+              ,"id":"verifyButton"
+              ,"anchorLeft":true
+              ,"enabled":true
+              ,"text":"verify"
+              ,"w":140.0
+              ,"anchorTop":true
+              ,"ty":176.0
+              ,"fontSize":20.0
+              ,"tx":110.0
+              ,"anchorRight":false
+              ,"h":30.0
+              ,"anchorBottom":false
+              ,"left":110.0
+              ,"top":176.0
+              ,"right":103.0
+              ,"bottom":149.0
+              }
+            ]
+          }
+          ,{
+           "type":"AnchorPanel"
+          ,"id":"commandlinePopup"
+          ,"anchorLeft":true
+          ,"h":274.0
+          ,"w":219.0
+          ,"fill":"#a0a0a0"
+          ,"anchorBottom":false
+          ,"anchorTop":true
+          ,"self":"com.joshondesign.treegui.modes.aminolang.Defs$AnchorPanel@68360655"
+          ,"ty":518.0
+          ,"anchorRight":false
+          ,"tx":833.0
+            ,"children":[
+               {
+               "type":"ListView"
+              ,"id":"searchResults"
+              ,"anchorLeft":true
+              ,"selectedIndex":0
+              ,"h":273.0
+              ,"cellHeight":30.0
+              ,"layout":"vert"
+              ,"w":218.0
+              ,"anchorBottom":true
+              ,"anchorTop":true
+              ,"ty":0.0
+              ,"anchorRight":true
+              ,"tx":0.0
+              ,"cellWidth":30.0
+              ,"left":0.0
+              ,"top":0.0
               ,"right":1.0
               ,"bottom":1.0
               }

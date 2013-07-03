@@ -9,6 +9,7 @@ static int old_x;
 static int old_y;
 static int old_but;
 static int old_height, old_width, new_width, new_height;
+static bool win_closed;
 class MacCore : public NodeCore , public node::ObjectWrap{
 public:
     virtual void start() {
@@ -24,6 +25,10 @@ public:
         new_width = width;
         new_height = height;
     }
+    static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
+        win_closed = true;
+        return GL_TRUE;
+    }
     static v8::Handle<v8::Value> real_OpenWindow(const v8::Arguments& args) {
         HandleScope scope;
         old_width = 360;
@@ -33,7 +38,9 @@ public:
             old_height = args[1]->ToNumber()->NumberValue();
         }
         int ret = glfwOpenWindow(old_width, old_height, 8, 8, 8, 0, 24, 0, GLFW_WINDOW);
+        win_closed = false;
         glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
+        glfwSetWindowCloseCallback(GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION);
         if(!ret) {
             printf("error. quitting\n");
             glfwTerminate();
@@ -82,6 +89,13 @@ public:
     
     static void processWindowEvents(Local<Function> eventCB) {
         //printf("new = %d %d old = %d %d\n",new_width,new_height,old_width,old_height);
+        if(win_closed) {
+            Local<Object> obj = Object::New();
+            obj->Set(String::NewSymbol("type"), String::New("exit"));
+            Handle<Value> event_args[] = {obj};
+            eventCB->Call(Context::GetCurrent()->Global(), 1, event_args);
+            return;
+        }
         if(new_width == old_width && new_height == old_height) return;
         
         old_width = new_width;
@@ -319,54 +333,6 @@ Handle<Value> LoadPngFromFile(const Arguments& args) {
     return scope.Close(obj);
 }
 
-
-Handle<Value> CreateNativeFont(const Arguments& args) {
-    printf("-------\n");
-    HandleScope scope;
-    printf("creating a native font from the font data\n");
-    AminoFont* font = new AminoFont();
-    fontmap[0] = font;
-    
-    printf("num fonts loaded = %d\n",fontmap.size());
-    int texid = args[0]->ToNumber()->NumberValue();
-    printf("texture id = %d\n",texid);
-    font->texid = texid;
-    font->minchar = args[1]->ToNumber()->NumberValue();
-    printf("min char = %d\n",font->minchar);
-    font->maxchar = args[2]->ToNumber()->NumberValue();
-    printf("max char = %d\n",font->maxchar);
-    
-    Handle<Array> included = Handle<Array>::Cast(args[3]);
-    printf("length = %d\n",included->Length());
-    printf("included 0 = %f\n",included->Get(0)->ToNumber()->NumberValue());
-    font->includedLength = included->Length();
-    font->included = new float[included->Length()];
-    for(int i=0; i<included->Length(); i++) {
-        font->included[i] = included->Get(i)->ToNumber()->NumberValue();
-    }
-    
-    Handle<Array> widths = Handle<Array>::Cast(args[4]);
-    printf("widths 0 = %f\n",widths->Get(0)->ToNumber()->NumberValue());
-    font->widthsLength = widths->Length();
-    font->widths = new float[included->Length()];
-    for(int i=0; i<widths->Length(); i++) {
-        font->widths[i] = widths->Get(i)->ToNumber()->NumberValue();
-    }
-
-    Handle<Array> offsets = Handle<Array>::Cast(args[5]);
-    printf("offsets 0 = %f\n",offsets->Get(0)->ToNumber()->NumberValue());
-    font->offsetsLength = offsets->Length();
-    font->offsets = new float[offsets->Length()];
-    for(int i=0; i<offsets->Length(); i++) {
-        font->offsets[i] = offsets->Get(i)->ToNumber()->NumberValue();
-    }
-    
-    
-    
-    printf("-------\n");
-    Local<Number> num = Number::New(0);
-    return scope.Close(num);
-}
 
 void InitAll(Handle<Object> exports, Handle<Object> module) {
     MacCore::Init();

@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "image.h"
-#include <png.h>
-#include <jpeglib.h>
+
+extern "C" {
+    #include <jpeglib.h>
+    #include <png.h>    
+}
 
 void abort_(const char * s, ...)
 {
@@ -106,6 +109,11 @@ Image * pngfile_to_bytes(char* file_name) {
     Image* img = (Image*)malloc(sizeof(Image));
     img->w = width;
     img->h = height;
+    img->hasAlpha = (color_type == PNG_COLOR_TYPE_RGBA);
+    int bytes_per_pixel = 3;
+    if(img->hasAlpha) {
+        bytes_per_pixel = 4;
+    }
 
     unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
     printf("rowbytes = %d\n",row_bytes);
@@ -123,19 +131,14 @@ Image * pngfile_to_bytes(char* file_name) {
     fclose(fp);
     
     printf("returning with data\n");
+    /*
+    for(i=0; i<img->h; i++) {
+        int n = row_bytes*i + 50*4; 
+        printf("pixel: %d  %x %x %x %x\n",i, img->data[n], img->data[n+1], img->data[n+2], img->data[n+3]);
+    }
+    */
     
-//    for(i=0; i<width*height; i++) {
-//        printf("pixel: %d  %x %x %x\n",i, outData[i*4],outData[i*4+1], (unsigned)outData[i*4+2]);
-//    }
-//    free(outData);
     
     return img;
 }
 
-
-int main(int argc, char ** args) {
-    printf("in main\n");
-    pngfile_to_bytes("/Users/josh/projects/aminolang/tests/small.png");
-    jpegfile_to_bytes("/Users/josh/projects/aminolang/tests/photos/photo1.jpg");
-    return 0;
-}

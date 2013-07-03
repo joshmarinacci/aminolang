@@ -510,3 +510,47 @@ private:
 };
 Persistent<Function> NodeCore::constructor;
 
+
+static float* toFloatArray(Local<Object> obj, char* name) {
+    Handle<Array>  oarray = Handle<Array>::Cast(obj->Get(String::New(name)));
+    float* carray = new float[oarray->Length()];
+    for(int i=0; i<oarray->Length(); i++) {
+        carray[i] = oarray->Get(i)->ToNumber()->NumberValue();
+    }
+    return carray;
+}
+
+static Handle<Value> CreateNativeFont(const Arguments& args) {
+    printf("-------\n");
+    HandleScope scope;
+    printf("creating a native font from the font data\n");
+    AminoFont* font = new AminoFont();
+    fontmap[0] = font;
+    
+    printf("num fonts loaded = %d\n",fontmap.size());
+    int texid = args[0]->ToNumber()->NumberValue();
+    printf("texture id = %d\n",texid);
+    font->texid = texid;
+    
+    Local<Object> json = Local<Object>::Cast(args[1]);
+    font->minchar     = json->Get(String::New("minchar"))->ToNumber()->NumberValue();
+    font->maxchar     = json->Get(String::New("maxchar"))->ToNumber()->NumberValue();
+    font->imagewidth  = json->Get(String::New("imagewidth"))->ToNumber()->NumberValue();
+    font->imageheight = json->Get(String::New("imageheight"))->ToNumber()->NumberValue();
+    font->rowcount    = json->Get(String::New("rowcount"))->ToNumber()->NumberValue();
+    font->colcount    = json->Get(String::New("colcount"))->ToNumber()->NumberValue();
+    printf("min/max char = %d %d\n",font->minchar, font->maxchar);
+    printf("image size = %d %d\n",font->imagewidth,font->imageheight);
+    printf("col/row count %d %d\n",font->colcount,font->rowcount);
+    
+    font->included = toFloatArray(json,"included");
+    font->widths   = toFloatArray(json,"widths");
+    font->offsets  = toFloatArray(json,"offsets");
+    font->yoffsets = toFloatArray(json,"yoffsets");
+    
+    printf("-------\n");
+    Local<Number> num = Number::New(0);
+    return scope.Close(num);
+}
+
+

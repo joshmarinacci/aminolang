@@ -1,7 +1,19 @@
 var fs = require('fs');
 var bacon = require('./Bacon');
 //var sgtest = require("./build/Release/sgtest.node");
-var sgtest = require("./aminonative.node");
+
+var OS = "KLAATU";
+if(process.platform == "darwin") {
+    OS = "MAC";
+}
+
+var sgtest;
+if(OS == "MAC") {
+    sgtest = require('./aminonative.node');
+} else {
+    amino = require('./aminonative.node');
+}
+
 var textcontrol = require('./textcontrol.js');
 
 var mouseState = {
@@ -1251,7 +1263,7 @@ function Core() {
     
     this.createStage = function(w,h) {
         sgtest.createWindow(w,h);
-        this.defaultFont = new JSFont("font.json","font.png");
+        this.defaultFont = new JSFont(__dirname+"/font.json",__dirname+"/font.png");
         this.stage = new SGStage(this);
         return this.stage;
     }

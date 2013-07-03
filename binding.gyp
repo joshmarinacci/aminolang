@@ -1,10 +1,15 @@
 {
     "targets": [
         {
-            "target_name":"amino",
-            "sources":["src/node/mac.cpp","src/node/shaders.cpp","src/node/image.cpp"],
+            "target_name":"aminonative",
+            "sources":[
+                "src/sg/base.cc",
+                "src/sg/mac.cpp",
+                "src/sg/shaders.cpp",
+                "src/sg/image.cpp"
+            ],
             "include_dirs": [
-                    "src/node/",
+                    "src/sg/",
             ],
             
             'conditions': [
@@ -28,13 +33,13 @@
                 }],
 
                 ['OS=="linux"', {
-		    "libraries":[
-			"-lglfw",
-			"-lpng",
-			"-ljpeg",
-		    ],
+                    "libraries":[
+                        "-lglfw",
+                        "-lpng",
+                        "-ljpeg",
+                    ],
                     "defines": [
-			"GL_GLEXT_PROTOTYPES",
+                        "GL_GLEXT_PROTOTYPES",
                         "LINUX"
                     ]
                 }]

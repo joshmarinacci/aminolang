@@ -353,16 +353,15 @@ function desktopbuild(cb) {
     jb.mkdir(out);
     console.log("copying files to " + out);
     
-    var src = "src/node/";
+    var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
-    copyFileTo(src+"out.js",out);
-    copyFileTo("build/Release/amino.node",out);
+    copyFileTo(src+"Bacon.js",out);
+    copyFileTo("build/Release/aminonative.node",out);
     copyFileTo("src/jscommon/widgets.js",out);
     copyFileTo("src/jscommon/textcontrol.js",out);
-    var test = "tests/";
-    copyFileTo(test+"test1.json",out);
-    copyFileTo(test+"test1.png",out);
+    copyFileTo("resources/font.png",out);
+    copyFileTo("resources/font.json",out);
 }
 
 

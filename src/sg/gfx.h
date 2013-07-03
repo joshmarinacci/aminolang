@@ -3,6 +3,15 @@
 
 #ifdef MAC
 #include <GL/glfw.h>
+#include <sys/time.h>
+
+//return the current time in msec
+static double getTime(void) {
+    timeval time;
+    gettimeofday(&time, NULL);
+    long millis = (time.tv_sec * 1000) + (time.tv_usec / 1000);    
+}
+
 #endif
 
 #ifdef KLAATU
@@ -10,6 +19,7 @@
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
 
+//return the current time in msec
 static double getTime(void) {
     struct timespec res;
     clock_gettime(CLOCK_REALTIME, &res);

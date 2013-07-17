@@ -28,15 +28,17 @@ echo "outfile=$OUTFILE"
 echo "my_dir=$MY_DIR"
 echo "cwd="`pwd`
 
-
+mkdir -p $ANDROID_PRODUCT_OUT/data/phonetest
 if [ -f ${ANDROID_PRODUCT_OUT}/system/lib/libaminolang.so ]; then
-    ln -sf libaminolang.so ${ANDROID_PRODUCT_OUT}/system/lib/aminonative.node 
-    echo "linking node addon name to lib"
+    # given how node imports addons, we CANNOT use a soft link here. sad but true.
+    #ln -sf ../system/lib/libaminolang.so ${ANDROID_PRODUCT_OUT}/data/phonetest/aminonative.node 
+    cp ${ANDROID_PRODUCT_OUT}/system/lib/libaminolang.so  ${ANDROID_PRODUCT_OUT}/data/phonetest/aminonative.node 
+    echo "copying libaminolang.so to /data/phonetest/aminonative.node so node can load it as an addon"
 else
     echo "no libaminolang.so to link node addon to"
 fi
 
-mkdir -p $ANDROID_PRODUCT_OUT/data/phonetest
+
 cp src/sg/amino.js $ANDROID_PRODUCT_OUT/data/phonetest
 cp src/sg/Bacon.js $ANDROID_PRODUCT_OUT/data/phonetest
 cp src/jscommon/*.js $ANDROID_PRODUCT_OUT/data/phonetest

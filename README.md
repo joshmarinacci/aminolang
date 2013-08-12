@@ -136,7 +136,9 @@ Usage
 
 Amino is very much in flux. It recently received a new much lower level backend
 which only provides groups, rectangles, images, and text nodes. More will come later
-but you can do a lot with just these.  Here is a simple example:
+but you can do a lot with just these. Amino provides a few simple widgets which
+are composed of the primitive nodes. Here is a simple example using Group,
+Rect, and a PushButton.
 
 ```
 var Core = require('./amino.js'); //change to wherever you end up putting amino
@@ -177,10 +179,14 @@ Core.startApp(function(core,stage) {
         anim.setInterpolator(Core.Interpolators.CubicInOut);
     });
     
-       
     
 });
 ```
+
+Notice that you can chain setters to make your code simpler. All properties
+have reasonable defaults so you don't need to set them all. In the code
+above the `setTx(0)` on the rect is unecessary since the default for tx is
+already zero.
 
 
 

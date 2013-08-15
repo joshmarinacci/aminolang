@@ -244,6 +244,37 @@ function jscanvasgen(cb) {
     if(cb) cb();
 }
 
+function p(s) {
+    console.log(s);
+}
+
+function docgen(cb) {
+    var parsersjs = fs.readFileSync('src/aminolang/docparser.js','utf8');
+    parseit(parsersjs);
+    console.log("doc parser = ", DocParser);
+    var source = fs.readFileSync('src/sg/test.js') + "";
+    //console.log(u.inspect(Calc.matchAll('6*(4+3)', 'expr'),false,20));
+    var struct = DocParser.matchAll(source,"top");
+    console.log('parsed the code');
+    console.log(u.inspect(struct,false,20));
+    
+    p("<html><body><div id='container'>");
+    for(var cname in struct) {
+        var clazz = struct[cname];
+        p("<h3>"+clazz.id+"</h3>");
+        p("<dl>");
+        clazz.props.forEach(function(prop) {
+            p("  <dt>"+prop.name+"</dt><dd>"+prop.desc+"</dd>");
+        });
+        p("</dl>");
+        p("<dl>");
+        clazz.funcs.forEach(function(func) {
+            p("  <dt>"+func.name+"</dt><dd>"+func.desc+"</dd>");
+        });
+        p("</dl>");
+    }
+    p("</div></body></html>");
+}
 
 
 function cppgen(cb) {
@@ -431,6 +462,8 @@ tasks = {
     
     desktopbuild:   new Task(desktopbuild,    [],                      "Node Desktop"),
     androidtest:    new Task(androidtest,    [],                      "Device Phone"),
+    
+    docgen:         new Task(docgen, [],   "Generate API Docs"),
 }
 
 if(!command) {

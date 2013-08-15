@@ -1,3 +1,6 @@
+/**
+ * @module Amino
+ */
 var fs = require('fs');
 var bacon = require('./Bacon');
 //var sgtest = require("./build/Release/sgtest.node");
@@ -344,6 +347,7 @@ Function.prototype.extend = function(superclass, proto) {
 	*/
 };
 
+/** SGNode class. Base of all nodes */
 function SGNode() {
 	this.live = false;
 	
@@ -414,7 +418,7 @@ function SGTestNode() {
 }
 SGTestNode.extend(SGNode);
 
-
+/** SGRect class. A simple rectangle with a fill color. No border. */
 function SGRect() {
 	SGNode(this);
     this.init = function() {
@@ -445,7 +449,11 @@ function SGRect() {
 }
 SGRect.extend(SGNode);
 
+/**
+ * A Group class
+ */
 function SGGroup() {
+    
     this.live = false;
     this.children = [];
     this.add = function(node) {
@@ -486,7 +494,7 @@ SGGroup.extend(SGNode);
 
 
 
-
+/** Base of all UI controls like buttons and labels */
 function SGWidget() {
     this.contains = function(x,y) {
         if(x >=  this.getX()  && x <= this.getX() + this.getW()) {
@@ -530,6 +538,8 @@ SGWidget.extend(SGNode);
 
 
 
+/** AnchorPanel is a container which lays out it's children using anchor constraints like
+top and left */
 function SGAnchorPanel() {
     this.live = false;
     this.children = [];
@@ -604,6 +614,7 @@ function SGAnchorPanel() {
 SGAnchorPanel.extend(SGWidget);
 
 
+/** A basic label */
 function SGLabel() {
     this.live = false;
     this.init = function() {    
@@ -630,7 +641,7 @@ function SGLabel() {
 SGLabel.extend(SGWidget);
 
 
-
+/** A simple push button */
 function SGButton() {
     this.live = false;
     this.children = [];
@@ -697,11 +708,12 @@ function SGButton() {
 }
 SGButton.extend(SGWidget);
 
+/** A toggle button. It's like a push button but can be 'selected'. */
 function SGToggleButton() {
 }
 SGToggleButton.extend(SGButton);
 
-
+/** A slider to choose a value between the max and min */
 function SGSlider() {
 	this.mirrorProp = function(handle, name, value) {
 		var old = this["set"+camelize(name)];
@@ -749,6 +761,7 @@ function SGSlider() {
 }
 SGSlider.extend(SGWidget);
 
+/** A spinner to indicate progress of some activity */
 function SGSpinner() {
 	this.active = false;
 	this.init = function(core) {
@@ -801,6 +814,7 @@ function SGSpinner() {
 }
 SGSpinner.extend(SGWidget);
 
+/** A list view. Very complex */
 function SGListView() {
     this.listModel = [];
     for(var i=0; i<30; i++) {
@@ -927,7 +941,7 @@ function SGListView() {
 }
 SGListView.extend(SGWidget);
 
-
+/** ImageView: a widget to show an image. Can scale it. */
 function SGImageView() {
     this.init = function(core) {
         this.handle = sgtest.createRect();
@@ -1035,18 +1049,23 @@ function SGTextControl() {
     }
 }
 SGTextControl.extend(SGWidget);
+
+/** A simple one line text field */
 function SGTextField() {
     SGTextControl.call(this);
     this.setWrapping(false);
 }
 SGTextField.extend(SGTextControl);
 
+/** A complex text component supporting multiple lines and styles */
 function SGTextArea() {
     SGTextControl.call(this);
     this.setWrapping(true);
 }
 SGTextArea.extend(SGTextControl);
 
+/** The basic window class. It maps to a real window on a desktop or the full
+screen on a mobile device. */
 function SGStage(core) {
 	this.core = core;
 	this.setSize = function(width,height) {
@@ -1086,7 +1105,7 @@ function SGStage(core) {
     
 }
 
-
+/** A font */
 function JSFont(jsonfile, imagefile) {
     //create the default font
     var jsontext = fs.readFileSync(jsonfile);
@@ -1113,6 +1132,7 @@ function JSFont(jsonfile, imagefile) {
     }
 }
 
+/** An animation */
 function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     this.node = node;
     this.prop = prop;
@@ -1148,18 +1168,26 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     }
 }
 
+/** The core of Amino. Only one will exist at runtime. Always access through
+the callback 
+* @class
+*/
 function Core() {
 
+    /** create a test node */
 	this.createTestNode = function() {
 		var node = new SGTestNode();
 		node.init();
 		return node;
 	}
+	
+	/** Create a rect */
     this.createRect = function() {
         var node = new SGRect();
         node.init();
         return node;
     };
+    /** create a label */
     this.createLabel = function() {
         var node = new SGLabel();
         node.font = this.font;

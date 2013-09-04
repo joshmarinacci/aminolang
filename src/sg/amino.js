@@ -677,18 +677,6 @@ function SGNode() {
     }
 }
 
-function SGTestNode() {
-	SGNode(this);
-	this.init = function() {
-		this.handle = sgtest.createRect();
-		this.live = true;
-		this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, visible:1 },this.handle);
-		//rect props
-		this.delegateProps({  x: 0, y: 0, w: 100, h: 100 },this.handle);
-	}
-}
-SGTestNode.extend(SGNode);
-
 /** SGRect class. A simple rectangle with a fill color. No border. */
 function SGRect() {
 	SGNode(this);
@@ -912,126 +900,6 @@ function SGLabel() {
 SGLabel.extend(SGWidget);
 
 
-/** A simple push button */
-function SGButton() {
-    this.live = false;
-    this.children = [];
-    this.init = function(core) {
-        this.handle = sgtest.createGroup();
-        this.rectHandle = sgtest.createRect();
-        this.textHandle = sgtest.createText();
-        sgtest.addNodeToGroup(this.rectHandle,this.handle);
-        sgtest.addNodeToGroup(this.textHandle,this.handle);
-        this.live = true;
-        this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, rotatez:0 },this.handle);
-        this.delegateProps({x:0,y:0,w:100,h:30,r:0.4,g:0.8,b:0.3},this.rectHandle);
-        this.delegateProps({text:"sometext",fontSize:15},this.textHandle);
-        
-        // whenever width or height is changed, reposition the text
-        var oldsetw = this.setW;
-        this.setW = function(w) {
-            oldsetw.apply(this,[w]);
-            var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
-            this.setProp(this.textHandle,'tx',(w-textw)/2);
-            return this;
-        };
-        var oldseth = this.setH;
-        this.setH = function(h) {
-            oldseth.apply(this,[h]);
-            var texth = this.font.getHeight(this.getFontSize());
-            this.setProp(this.textHandle,'ty',(h-texth)/2);
-            return this;
-        }
-        
-        this.setBaseColor = function(color) {
-            color = ParseRGBString(color);
-            this.setProp(this.rectHandle,'r',color.r);
-            this.setProp(this.rectHandle,'g',color.g);
-            this.setProp(this.rectHandle,'b',color.b);
-            return this;
-        }
-        this.setTextColor = function(textcolor) {
-            var color = ParseRGBString(textcolor);
-            this.setProp(this.textHandle,'r',color.r);
-            this.setProp(this.textHandle,'g',color.g);
-            this.setProp(this.textHandle,'b',color.b);
-            return this;
-        }
-        
-        // set up events
-        var self = this;
-        core.on("press",this,function(e) {
-            self.setBaseColor("#aaee88");
-        });
-        core.on("release",this,function(e) {
-            self.setBaseColor("#77cc55");
-        });
-        core.on("click",this,function(e) {
-            core.fireEvent({type:'action',source:self});
-        });
-        
-        self.setBaseColor("#77cc55");
-        self.setTextColor("#ffffff");
-        
-        // done
-        this.createLocalProps({enabled:true});
-    }
-}
-SGButton.extend(SGWidget);
-
-/** A toggle button. It's like a push button but can be 'selected'. */
-function SGToggleButton() {
-}
-SGToggleButton.extend(SGButton);
-
-/** A slider to choose a value between the max and min */
-function SGSlider() {
-	this.mirrorProp = function(handle, name, value) {
-		var old = this["set"+camelize(name)];
-		this["set"+camelize(name)] = function(v) {
-			old.apply(this,[v]);
-			this.setProp(handle,name,v);
-			return this;
-		}
-	}
-	
-	this.pointToValue = function(x) {
-		return x/this.getW()*100;
-	}
-	this.init = function(core) {
-        this.handle = sgtest.createGroup();
-        this.bgHandle = sgtest.createRect();
-        this.thumbHandle = sgtest.createRect();
-        sgtest.addNodeToGroup(this.bgHandle,this.handle);
-        sgtest.addNodeToGroup(this.thumbHandle,this.handle);
-        this.live = true;
-        
-        //transform props
-        this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, rotatez:0 },this.handle);
-        this.delegateProps({ x:0, y:0, w:100, h:30, r:1, g:0, b:0.3},this.bgHandle);
-        this.setProp(this.thumbHandle,'w',50);
-        this.mirrorProp(this.thumbHandle,'h',50);
-        this.setValue = function(v) {
-        	this.value = v;
-        	var fract = v/100;
-        	var pxv = fract*this.getW();
-        	this.setProp(this.thumbHandle,'w',pxv);
-        	return this;
-        }
-        this.getValue = function(v) {
-        	return this.value;
-        }
-        
-        core.on("drag", this, function(e) {
-            var r = e.target;
-            r.setValue(r.pointToValue(e.point.x));
-            core.fireEvent({type:'change',source:r, value:r.getValue()});
-        });
-	}
-
-}
-SGSlider.extend(SGWidget);
-
 /** A spinner to indicate progress of some activity */
 function SGSpinner() {
 	this.active = false;
@@ -1086,6 +954,7 @@ function SGSpinner() {
 SGSpinner.extend(SGWidget);
 
 /** A list view. Very complex */
+/*
 function SGListView() {
     this.listModel = [];
     for(var i=0; i<30; i++) {
@@ -1211,6 +1080,7 @@ function SGListView() {
 	}
 }
 SGListView.extend(SGWidget);
+*/
 
 /** ImageView: a widget to show an image. Can scale it. */
 function SGImageView() {
@@ -1237,7 +1107,7 @@ function SGImageView() {
     }
 }
 SGImageView.extend(SGWidget);
-
+/*
 function SGTextControl() {
     textcontrol.JSTextControl.call(this);
     var oldlayout = this.view.layout;
@@ -1319,21 +1189,26 @@ function SGTextControl() {
         return false;
     }
 }
+*/
 //SGTextControl.extend(SGWidget);
 
 /** A simple one line text field */
+/*
 function SGTextField() {
     SGTextControl.call(this);
     this.setWrapping(false);
 }
 //SGTextField.extend(SGTextControl);
+*/
 
 /** A complex text component supporting multiple lines and styles */
+/*
 function SGTextArea() {
     SGTextControl.call(this);
     this.setWrapping(true);
 }
 //SGTextArea.extend(SGTextControl);
+*/
 
 /** The basic window class. It maps to a real window on a desktop or the full
 screen on a mobile device. */

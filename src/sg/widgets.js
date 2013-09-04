@@ -1,5 +1,6 @@
 var amino = require('./amino.js');
 
+/** A simple push button */
 exports.Button = amino.ComposeObject({
     type: "Button",
     extend: amino.ProtoWidget,
@@ -54,7 +55,7 @@ exports.Button = amino.ComposeObject({
     }
 });
 
-
+/** A slider to choose a value between the max and min */
 exports.Slider = amino.ComposeObject({
     type: 'Slider',
     extend: amino.ProtoWidget,

@@ -6,7 +6,7 @@ function ParseRGBString(Fill) {
         if(Fill.substring(0,1) == "#") {
             Fill = Fill.substring(1);
         }
-        //pull out the components
+        //pull out the comps
         var r = parseInt(Fill.substring(0,2),16);
         var g = parseInt(Fill.substring(2,4),16);
         var b = parseInt(Fill.substring(4,6),16);
@@ -25,56 +25,74 @@ function camelize(s) {
 amino.startApp(function(core, stage) {
 function delgate(obj, name, comp) {
     obj.comps[name] = new comp.proto();
-    comp.promote.forEach(function(propname) {
-        obj["set"+camelize(propname)] = function(value) {
-            //delegate to the nested component
-            //console.log('delegating ' + propname + ' to ',obj.comps[name]);
-            obj.comps[name]["set"+camelize(propname)](value);
-            return obj;
-        };
-        obj["get"+camelize(propname)] = function() {
-            //console.log('delegating ' + propname + ' to ',obj.comps[name]);
-            return obj.comps[name]["get"+camelize(propname)]();
-        };
-    });
+    if(comp.promote) {
+        comp.promote.forEach(function(propname) {
+            obj["set"+camelize(propname)] = function(value) {
+                //delegate to the nested component
+                //console.log('delegating ' + propname + ' to ',obj.comps[name]);
+                this.comps[name]["set"+camelize(propname)](value);
+                return this;
+            };
+            obj["get"+camelize(propname)] = function() {
+                //console.log('delegating ' + propname + ' to ',obj.comps[name]);
+                return this.comps[name]["get"+camelize(propname)]();
+            };
+        });
+    }
 }
+
+function delegateProp(obj, name, prop) {
+    obj.props[name] = prop.value;
+    obj["set"+camelize(name)] = function(value) {
+        this.props[name] = value;
+        return this;
+    };
+    obj["get"+camelize(name)] = function() {
+        return this.props[name];
+    };
+    if(prop.set) {
+        obj["set"+camelize(name)] = prop.set;
+    }
+}
+
+function generalizeProp(obj, name, prop) {
+    obj["set"+camelize(name)] = function(value) {
+        obj.set(name,value);
+        return this;
+    };
+}
+
 
 function Compose(proto) {
     return function() {
-        this.props = {};
-        this.comps = {};
         var obj = this;
         
-        if(proto.components) {
-            console.log("building sub components");
-            for(var name in proto.components) {
-                delgate(obj,name,proto.components[name]);
+        if(proto.extend) {
+            var sup = new proto.extend();
+            for(var name in sup) {
+                obj[name] = sup[name];
+            }
+        } else {
+            obj.props = {};
+            obj.comps = {};
+        }
+        
+        if(proto.comps) {
+            for(var name in proto.comps) {
+                delgate(obj,name,proto.comps[name]);
             };
         }
         if(proto.props) {
-            proto.props.forEach(function(prop) {
-                obj.props[prop.name] = prop.value;
-                obj["set"+camelize(prop.name)] = function(value) {
-                    this.props[prop.name] = value;
-                    return this;
-                };
-                obj["get"+camelize(prop.name)] = function() {
-                    return this.props[prop.name];
-                };
-                if(prop.set) {
-                    obj["set"+camelize(prop.name)] = prop.set;
-                }
-            });
+            for(var name in proto.props) {
+                delegateProp(obj, name, proto.props[name]);
+            }
         }
         
         if(proto.set) {
             obj.set = proto.set;
-            proto.props.forEach(function(prop) {
-                obj["set"+camelize(prop.name)] = function(value) {
-                    obj.set(prop.name,value);
-                    return this;
-                };
-            });
+            for(var name in proto.props) {
+                generalizeProp(obj, name, proto.props[name]);
+            }
         }
         if(proto.get) {
             obj.get = proto.get;
@@ -92,33 +110,40 @@ function Compose(proto) {
     }
 }
 
-var rect = core.createRect();
-rect.setX(30);
-rect.setY(100);
-rect.setW(20);
-rect.setH(20);
-rect.setFill("#ff0000");
 
 var ProtoRect = Compose({
-    props: [
-        { name:'tx', value:0 },
-        { name:'ty', value:0 },
-        { name:'x',  value:0 },
-        { name:'y',  value:0 },
-        { name:'w',  value:300 },
-        { name:'h',  value:100 },
-        { name:'r',  value:0 },
-        { name:'g',  value:1 },
-        { name:'b',  value:0 },
-        { name: 'visible', value: 1 },
-    ],
+    type: "Rect",
+    props: {
+        tx: { value: 0 },
+        ty: { value: 0 },
+        visible: { value: 1 },
+        x: { value: 0 },
+        y: { value: 0 },
+        w: { value: 300 },
+        h: { value: 100 },
+        r: { value: 0},
+        g: { value: 1},
+        b: { value: 0},
+        fill: {
+            value: '#ff0000', 
+        }
+    },
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
-            amino.sgtest.updateProperty(this.handle, amino.propsHash[name], value);
-            //console.log('updated the property ' + name);
+            if(amino.propsHash[name]) {
+                amino.sgtest.updateProperty(this.handle, amino.propsHash[name], value);
+            }
+        }
+        
+        if(name == 'fill') {
+            var color = ParseRGBString(value);
+            this.setR(color.r);
+            this.setG(color.g);
+            this.setB(color.b);
+            return this;
         }
     },
     /*
@@ -149,11 +174,12 @@ var ProtoRect = Compose({
 });
 
 var ProtoGroup = Compose({
-    props: [
-        { name: 'tx', value:0 },
-        { name: 'ty', value:0 },
-        { name: 'visible', value: 1 },
-    ],
+    type: "Group",
+    props: {
+        tx: { value: 0 },
+        ty: { value: 0 },
+        visible: { value: 1 },
+    },
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
@@ -164,12 +190,10 @@ var ProtoGroup = Compose({
         }
     },
     init: function() {
-        console.log("initting a new group");
         this.handle = amino.sgtest.createGroup();
         this.children = [];
         this.live = true;
         this.add = function(node) {
-            console.log('adding a child to a group');
             if(!node) abort("can't add a null child to a group");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
             if(!node.handle) abort("the child doesn't have a handle");
@@ -205,13 +229,13 @@ var ProtoGroup = Compose({
 
 
 var ProtoText = Compose({
-    props: [
-        { name: 'tx', value:0 },
-        { name: 'ty', value:0 },
-        { name: 'visible', value: 1 },
-        { name: 'text', value: 'silly text' },
-        { name: 'fontSize', value: 20 },
-    ],    
+    props: {
+        tx: { value: 0 },
+        ty: { value: 0 },
+        visible: { value: 1 },
+        text: { value: 'silly text' },
+        fontSize: { value: 20 },
+    },
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
@@ -237,6 +261,7 @@ group.setTx(0);
 stage.setRoot(group);
 /*
 var rect = new ProtoRect();
+rect.setFill("#ff00ff");
 console.log(' w = ' + rect.getW());
 rect.setW(50);
 console.log(' w = ' + rect.getW());
@@ -247,62 +272,90 @@ label.setTx(0).setTy(50);
 group.add(label);
 */
 
-
-var ProtoButton = Compose({
-    components: {
+Widget = Compose({
+    type: "widget",
+    comps: {
         base: {
             proto: ProtoGroup,
             promote: ["tx","ty","visible"],
         },
+    },
+    props: {
+        id: { value: "no id" },
+        left: { value: 0 },
+        right: { value: 0 },
+        top: { value: 0 },
+        bottom: { value: 0 },
+        anchorLeft: { value: true },
+        anchorRight: { value: false },
+        anchorTop: { value: true },
+        anchorBottom: { value: false },
+        parent: { value: null },
+    },
+    init: function() {
+        //console.log("init of the widget");
+        //console.log(this.props);
+        //console.log(this.comps);
+        this.handle = this.comps.base.handle;
+        this.font = core.defaultFont;
+        this.contains = function(x,y) {
+            if(x >=  0  && x <= this.getW()) {
+                if(y >= 0 && y <= this.getH()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+});
+
+var ProtoButton = Compose({
+    type: "Button",
+    extend: Widget,
+    comps: {
         background: {
             proto: ProtoRect,
-            promote: ['w','h'],
+            promote: ['w','h','fill'],
         },
         label: {
             proto: ProtoText,
             promote: ['text','fontSize'],
         },
     },
-    props: [
-        { name:'id', value:'noid' },
-        
+    props: {
         //override w to center the label
-        { name:'w',  value:100, set: function(w) {
-            this.comps.background.setW(w);
-            var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
-            this.comps.label.setTx((w-textw)/2);
-            return this;
-        }},
+        w: {
+            value: 100,
+            set: function(w) {
+                this.comps.background.setW(w);
+                var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
+                this.comps.label.setTx((w-textw)/2);
+                return this;
+            }
+        },
         //override h to center the label
-        { name:'h',  value:100, set: function(h) {
-            this.comps.background.setH(h);
-            var texth = this.font.getHeight(this.getFontSize());
-            this.comps.label.setTy((h-texth)/2);
-            return this;
-        }},
-    ],
+        h: {
+            value:100, 
+            set: function(h) {
+                this.comps.background.setH(h);
+                var texth = this.font.getHeight(this.getFontSize());
+                this.comps.label.setTy((h-texth)/2);
+                return this;
+            }
+        },
+    },
     init: function() {
-        this.handle = this.comps.base.handle;
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.label);
-        this.font = core.defaultFont;
-        this.contains = this.comps.background.contains;
         this.type = 'button';
         
-        this.setBaseColor = function(color) {
-            color = ParseRGBString(color);
-            this.comps.background.setR(color.r);
-            this.comps.background.setG(color.g);
-            this.comps.background.setB(color.b);
-            return this;
-        }
-        
         var self = this;
+        this.setFill("#77cc55");
         core.on('press', this, function(e) {
-            self.setBaseColor("#aaee88");
+            self.setFill("#aaee88");
         });
         core.on("release",this,function(e) {
-            self.setBaseColor("#77cc55");
+            self.setFill("#77cc55");
         });
         core.on("click",this,function(e) {
             core.fireEvent({type:'action',source:self});
@@ -322,8 +375,63 @@ button
 group.add(button);
 
 core.on('action',button, function(e) {
-        console.log("the button " + e.source.getId() + " fired an action");
+    console.log("the button " + e.source.getId() + " fired an action");
 });
+
+
+
+var ProtoSlider = Compose({
+    type: 'Slider',
+    extend: Widget,
+    comps: {
+        background: {
+            proto: ProtoRect,
+            promote: ['w','h','fill'],
+        },
+        thumb: {
+            proto: ProtoRect,
+        },
+    },
+    props: {
+        min: { value: 0 },
+        max: { value: 100 },
+        value: {
+            value:"0", 
+            set: function(value) {
+                this.props.value = value;
+                var thumbval = (value/100)*this.getW();
+                this.comps.thumb.setTx(thumbval);
+                return this;
+            }
+        }
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.thumb);
+        this.comps.background.setFill("#77cc55");
+        this.comps.thumb.setW(30);
+        this.comps.thumb.setH(30);
+        this.comps.thumb.setFill("#00ff00");
+        
+        this.pointToValue = function(x) {
+            return x/this.getW()*100;
+        }
+        
+        var self = this;
+        core.on('drag', this, function(e) {
+            self.setValue(self.pointToValue(e.point.x));
+        });
+    }
+});
+
+
+var slider = new ProtoSlider();
+slider
+    .setW(200).setH(30)
+    .setTx(100).setTy(300)
+    .setValue(33);
+
+group.add(slider);
 
 
 });

@@ -330,6 +330,8 @@ var propsHash = {
     "y":22,
 }
 
+exports.propsHash = propsHash;
+
 function camelize(s) {
 	return s.substring(0,1).toUpperCase() + s.substring(1);
 }
@@ -1324,7 +1326,7 @@ function Core() {
         if(root.children) {
             for(var i=root.children.length-1; i>=0; i--) {
                 var node = root.children[i];
-                    var tx = x - node.getTx();
+                var tx = x - node.getTx();
                 var ty = y - node.getTy();
                 var found = this.findNodeAtXY_helper(node,tx,ty);
                 if(found) {
@@ -1403,6 +1405,7 @@ function startApp(cb) {
     Core._core.start();
 }
 
+exports.sgtest = sgtest;
 exports.startApp = startApp;
 exports.Interpolators = {
     CubicIn:propsHash["lerpcubicin"],

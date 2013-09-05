@@ -580,6 +580,55 @@ exports.ProtoText = exports.ComposeObject({
     }
 });
 
+/** ImageView: a widget to show an image. Can scale it. */
+exports.ProtoImageView = exports.ComposeObject({
+    props: {
+        tx: { value: 0   },
+        ty: { value: 0   },
+        x:  { value: 0   },
+        y:  { value: 0   },
+        r:  { value: 0   },
+        g:  { value: 0   },
+        b:  { value: 1   },
+        w:  { value: 100 },
+        h:  { value: 100 },
+        visible: { value:1 },
+        src: { 
+            value: null ,
+        },
+    },
+    //replaces all setters
+    set: function(name, value) {
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            sgtest.updateProperty(this.handle, propsHash[name], value);
+            console.log('updated the property ' + name + " with the handle " + this.handle);
+        }
+        if(name == 'src') {
+            console.log('set the source to ' + this.props.src);
+            var src = this.props.src;
+            if(src.toLowerCase().endsWith(".png")) {
+                this.image = sgtest.loadPngToTexture(src);
+            } else {
+                this.image = sgtest.loadJpegToTexture(src);
+            }
+            console.log("loaded an image");
+            if(this.image) {
+                console.log('setting a texture prop: ', this.image);
+                sgtest.updateProperty(this.handle, propsHash["texid"], this.image.texid);
+                console.log("done with texture prop");
+            }
+            
+        }
+    },
+    init: function() {
+        this.live = true;
+        this.handle = sgtest.createRect();
+        console.log('created a rect', this.handle); 
+    }
+});
+
 
 /** Base of all UI controls like buttons and labels */
 exports.ProtoWidget = exports.ComposeObject({
@@ -697,35 +746,7 @@ function SGAnchorPanel() {
 SGAnchorPanel.extend(SGWidget);
 */
 
-/** A basic label */
-/*
-function SGLabel() {
-    this.live = false;
-    this.init = function() {    
-        this.handle = sgtest.createText();
-        var props = { tx:0, ty:0, x:0, y:0, r: 0, g: 0, b:0, scalex: 1, scaley:1, rotatez: 0, text:"silly text", fontSize:15, visible:1};
-        this.delegateProps(props,this.handle);
-        
-        this.setTextColor = function(textcolor) {
-            var color = ParseRGBString(textcolor);
-            this.setProp(this.handle,'r',color.r);
-            this.setProp(this.handle,'g',color.g);
-            this.setProp(this.handle,'b',color.b);
-            return this;
-        }
-        this.setColor = this.setTextColor;
-        this.live = true;
-	    this.createLocalProps({
-    		w:0,
-    		h:0,
-    		});
-        
-    }
-}
-SGLabel.extend(SGWidget);
-*/
 
-/** A spinner to indicate progress of some activity */
 /*
 function SGSpinner() {
 	this.active = false;
@@ -908,33 +929,6 @@ function SGListView() {
 SGListView.extend(SGWidget);
 */
 
-/** ImageView: a widget to show an image. Can scale it. */
-/*
-function SGImageView() {
-    this.init = function(core) {
-        this.handle = sgtest.createRect();
-        this.live = true;
-        var props = { tx:0, ty:0, x:0, y:0, w:100, h:100, r: 0, g: 1, b:0, scalex: 1, scaley:1, rotateX:0, rotateZ: 0, rotateY: 0};
-        this.delegateProps(props,this.handle);
-    }
-    this.setSrc = function(src) {
-        this.src = src;
-        console.log("loading the image: " + src);
-        if(this.src.toLowerCase().endsWith(".png")) {
-            this.image = sgtest.loadPngToTexture(this.src);
-        } else {
-            this.image = sgtest.loadJpegToTexture(this.src);
-            console.log("loaded an image");
-        }
-        if(this.image) {
-        console.log('setting a texture prop');
-            this.setProp(this.handle,"texid",this.image.texid);
-            console.log("done with texture prop");
-        }
-    }
-}
-SGImageView.extend(SGWidget);
-*/
 /*
 function SGTextControl() {
     textcontrol.JSTextControl.call(this);

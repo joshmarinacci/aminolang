@@ -19,6 +19,7 @@ exports.Button = amino.ComposeObject({
         w: {
             value: 100,
             set: function(w) {
+                this.props.w = w;
                 this.comps.background.setW(w);
                 var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
                 this.comps.label.setTx((w-textw)/2);
@@ -29,6 +30,8 @@ exports.Button = amino.ComposeObject({
         h: {
             value:100, 
             set: function(h) {
+                this.props.h = h;
+                console.log("button height set to: " + h);
                 this.comps.background.setH(h);
                 var texth = this.font.getHeight(this.getFontSize());
                 this.comps.label.setTy((h-texth)/2);
@@ -99,4 +102,77 @@ exports.Slider = amino.ComposeObject({
         });
     }
 });
+
+/** A spinner to indicate progress of some activity */
+exports.ProgressSpinner = amino.ComposeObject({
+    type: 'ProgressSpinner',
+    extend: amino.ProtoWidget,
+    comps: {
+        part1: {
+            proto: amino.ProtoRect,
+        },
+        part2: {
+            proto: amino.ProtoRect,
+        }
+    },
+    props: {
+        size: {
+            value: 50,
+            set: function(w) {
+                this.comps.part1.setW(w).setH(w);
+                this.comps.part2.setW(w).setH(w);
+                return this;
+            }
+        },
+        active: {
+            value:false,
+            set: function(active) {
+                this.props.active = active;
+                if(this.props.active) {
+                    //start animations;
+                    this.setVisible(1);
+                    this.a1 = amino.getCore().createPropAnim(this.comps.part1, "tx", 0, 100, 1000, -1, false);
+                } else {
+                    //stop animations
+                    this.setVisible(0);
+                    //this.a1.stop();
+                }
+                return this;
+            }
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.part1);
+        this.comps.base.add(this.comps.part2);
+        this.contains = function() { return false; }
+        this.setVisible(0);
+    }
+});
+
+/** A basic label. can set a width and do left,center,right alignment. */
+exports.Label = amino.ComposeObject({
+    type:"Label",
+    extend: amino.ProtoWidget,
+    comps: {
+        text: {
+            proto: amino.ProtoText,
+            promote: ['text','fontSize'],
+        }
+    },
+    props: {
+        w: {
+            value: 50,
+            set: function(w) {
+                var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
+                this.comps.text.setTx((w-textw)/2);
+                return this;
+            }
+        }
+    },
+    init: function() {
+        this.comps.base.add(this.comps.text);
+        this.contains = function() { return false; }
+    }
+});
+
 

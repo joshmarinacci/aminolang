@@ -645,9 +645,9 @@ exports.ProtoWidget = exports.ComposeObject({
         right: { value: 0 },
         top: { value: 0 },
         bottom: { value: 0 },
-        anchorLeft: { value: true },
+        anchorLeft: { value: false },
         anchorRight: { value: false },
-        anchorTop: { value: true },
+        anchorTop: { value: false },
         anchorBottom: { value: false },
         parent: { value: null },
     },
@@ -671,81 +671,6 @@ exports.ProtoWidget = exports.ComposeObject({
 
 /** AnchorPanel is a container which lays out it's children using anchor constraints like
 top and left */
-/*
-function SGAnchorPanel() {
-    this.live = false;
-    this.children = [];
-    this.isParent = function() { return true; }
-    this.getChildCount = function() {
-    	return this.children.length;
-    }
-    this.getChild = function(i) {
-    	return this.children[i];
-    }
-    this.add = function(node) {
-    	if(!node) abort("can't add a null child to an anchor panel");
-        if(!this.live) abort("error. trying to add child to a group that isn't live yet");
-        this.children.push(node);
-        node.parent = this;
-        sgtest.addNodeToGroup(node.handle,this.handle);
-        this.redoLayout();
-    }
-    this.propertyUpdated = function(name,value) {
-        this.redoLayout();
-    }
-    this.redoLayout = function() {
-        for(var i in this.children) {
-            var node = this.children[i];
-            //top aligned
-            if(node.anchorTop && !node.anchorBottom) {
-                node.setTy(node.top);
-            }
-            //bottom aligned
-            if(node.anchorBottom && !node.anchorTop) {
-                node.setTy(this.getH() - node.bottom - node.getH());
-            }
-            //left aligned
-            if(node.anchorLeft && !node.anchorRight) {
-                node.setTx(node.left);
-            }
-            //right aligned
-            if(node.anchorRight && !node.anchorLeft) {
-                node.setTx(this.getW() - node.right - node.getW());
-            }
-            
-            //horizontal stretch
-            if(node.anchorRight && node.anchorLeft) {
-                node.setTx(node.left);
-                node.setW(this.getW()- node.left - node.right);
-            }
-            //vertical stretch
-            if(node.anchorTop && node.anchorBottom) {
-                node.setTy(node.top);
-                node.setH(this.getH() - node.top - node.bottom);
-            }
-        }
-    }
-    this.init = function() {
-        this.handle = sgtest.createGroup();
-        this.bgHandle = sgtest.createRect();
-        sgtest.addNodeToGroup(this.bgHandle,this.handle);
-        var props = { tx:0, ty:0, scalex:1, scaley:1, rotateZ:0 };
-        this.delegateProps(props,this.handle);
-        this.delegateProps({x:0,y:0,w:100,h:100},this.bgHandle);
-        
-        this.setFill = function(fill) {
-            var color = ParseRGBString(fill);
-            this.setProp(this.bgHandle,'r',color.r);
-            this.setProp(this.bgHandle,'g',color.g);
-            this.setProp(this.bgHandle,'b',color.b);
-        	return this;
-        }
-        this.live = true;
-    }
-}
-SGAnchorPanel.extend(SGWidget);
-*/
-
 
 /*
 function SGSpinner() {

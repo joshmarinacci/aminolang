@@ -175,4 +175,73 @@ exports.Label = amino.ComposeObject({
     }
 });
 
+/** AnchorPanel is a container which lays out it's children using anchor
+constraints like top and left */
+
+exports.AnchorPanel = amino.ComposeObject({
+    type:"AnchorPanel",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h'],
+        }
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.contains = function() { return false; }
+        this.children = [];
+        this.isParent = function() { return true; }
+        this.add = function(node) {
+            if(!node) abort("can't add a null child to an anchor panel");
+            if(!this.live) abort("error. trying to add child to a group that isn't live yet");
+            this.children.push(node);
+            node.parent = this;
+            this.comps.base.add(node);
+            //sgtest.addNodeToGroup(node.handle,this.handle);
+            this.redoLayout();
+        }
+        this.live = true;
+        
+        this.redoLayout = function() {
+            for(var i in this.children) {
+                var node = this.children[i];
+                //top aligned
+                if(node.getAnchorTop() && !node.getAnchorBottom()) {
+                    node.setTy(node.getTop());
+                }
+                
+                //bottom aligned
+                if(!node.getAnchorTop() && node.getAnchorBottom()) {
+                    node.setTy(this.getH() - node.getBottom() - node.getH());
+                }
+                
+                //vertical stretch
+                if(node.getAnchorTop()  && node.getAnchorBottom()) {
+                    node.setTy(node.getTop());
+                    node.setH(this.getH() - node.getTop() - node.getBottom());
+                }
+                
+                //left aligned
+                if(node.getAnchorLeft() && !node.getAnchorRight()) {
+                    node.setTx(node.getLeft());
+                }
+                
+                //right aligned
+                if(!node.getAnchorLeft() && node.getAnchorRight()) {
+                    node.setTx(this.getW() - node.getRight() - node.getW());
+                }
+                
+                //horizontal stretch
+                if(node.getAnchorRight() && node.getAnchorLeft()) {
+                    node.setTx(node.getLeft());
+                    node.setW(this.getW()- node.getLeft() - node.getRight());
+                }
+                
+            }
+        }
+        
+        
+    }
+});
 

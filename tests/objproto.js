@@ -51,4 +51,31 @@ amino.startApp(function(core, stage) {
     image.setTx(50).setTy(50);
     image.setSrc("images/beatles_01.jpg");
     group.add(image);
+    
+    
+    var panel = new widgets.AnchorPanel();
+    panel.setTx(300).setTy(20).setW(300).setH(300);
+    group.add(panel);
+    
+    //left anchored
+    panel.add(new widgets.Button()
+        .setW(120).setH(30)
+        .setAnchorLeft(true));
+    
+    //right anchored
+    panel.add(new widgets.Button()
+        .setW(120).setH(30)
+        .setTy(50)
+        .setAnchorRight(true));
+    
+    //left and right anchored, making it stretch
+    panel.add(new widgets.Button()
+        .setW(120).setH(30)
+        .setTy(100)
+        .setAnchorRight(true).setAnchorLeft(true));
+    
+    //bottom left anchored, then moved up by 10 px
+    panel.add(new widgets.Button()
+        .setW(120).setH(30)
+        .setAnchorBottom(true).setBottom(10));
 });

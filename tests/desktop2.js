@@ -1,6 +1,7 @@
 var https = require('https');
 var fs = require('fs');
-var Core = require('../build/desktop/amino.js');
+var amino = require('../build/desktop/amino.js');
+var widgets = require('../build/desktop/widgets.js');
 var weather = require("./forecastio.js").getAPI("9141895e44f34f36f8211b87336c6a11");
 var NAV = require('./desktop/navmanager.js');
 var MusicPlayer = require('./desktop/musicplayer.js');
@@ -12,20 +13,20 @@ var googleapis = require('googleapis');
 var OAuth2Client = googleapis.OAuth2Client;
 
 
-Core.startApp(function(core,stage) {
-
+amino.startApp(function(core,stage) {
 
 var filedata = fs.readFileSync('tests/desktop2.json');
 var jsonfile = JSON.parse(filedata);
-var root = new Core.SceneParser().parse(core,jsonfile);
+var root = new widgets.SceneParser().parse(core,jsonfile);
 stage.setRoot(root);
-stage.setSize(300+500+300,520);
-var nav = new NAV.NavigationManager(stage,core);
+//stage.setSize(300+500+300,520);
+//var nav = new NAV.NavigationManager(stage,core);
 
 
-
+/*
 function setupClock() {
     var text = stage.find("clockLabel");
+    console.log("text = ",text);
     text.setText("12:00");
     setInterval(function() {
         var timestamp = new Date();
@@ -84,14 +85,7 @@ function setupTodos() {
             bounds.x+5, bounds.y, info.list.getFontSize(), info.list.font.fontid);
     }
     //todos.setFontSize(15);
-    /*
-    UTILS.getJSON("http://joshy.org:3001/bag/search",function(err,data){
-        if(err) return;
-        todos.listModel = data;
-    });
-    */
 }
-
 var settings = {};
 var CLIENT_ID = "767399125691.apps.googleusercontent.com";
 var CLIENT_SECRET = "PYphM5OVQI7HE9PYwZfFRI6l";
@@ -172,36 +166,21 @@ function setupGcal() {
             }
         });
 }
-
-setupClock();
+*/
+//setupClock();
 //setupWeather();
 //setupEditor();
 //setupTodos();
 //setupCalendar();
 
-MusicPlayer.setup(nav,stage,core);
-Search.setupContacts(nav,stage,core);
-/*
-function setupTodoView() {
-    var options = URL.parse("http://joshy.org:3001/bag/search");
-    var req = http.request(options, function(res) {
-        var content = "";
-        res.on("data", function(d) { content += d; });
-        res.on("end", function(d) {
-                var json = JSON.parse(content);
-                console.log("got it",json);
-        });
-    });
-    req.end();
-}
-setupTodoView();
-*/
+//MusicPlayer.setup(nav,stage,core);
+//Search.setupContacts(nav,stage,core);
 
-    stage.find("gcalSetup").setVisible(false);
+//stage.find("gcalSetup").setVisible(false);
 
 //make the main view be resized when the window does
-    nav.register(stage.find("main"));
-    core.requestFocus(stage.find("commandLine"));
+//    nav.register(stage.find("main"));
+//    core.requestFocus(stage.find("commandLine"));
 
 });
 

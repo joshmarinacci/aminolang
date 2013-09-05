@@ -1,9 +1,12 @@
+var amino = require('../../build/desktop/amino.js');
+var widgets = require('../../build/desktop/widgets.js');
+
 function NavigationManager(stage,core) {
     this.panels = [];
     
     //install a group to hold popups
-    this.holder = core.createGroup();
-    var scrim = core.createRect()
+    this.holder = new amino.ProtoGroup();
+    var scrim = new amino.ProtoRect()
         .setW(stage.getW())
         .setH(stage.getH())
         .setFill("#00ff00");

@@ -1,5 +1,9 @@
 var amino = require('./amino.js');
 
+function camelize(s) {
+	return s.substring(0,1).toUpperCase() + s.substring(1);
+}
+
 /** A simple push button */
 exports.Button = amino.ComposeObject({
     type: "Button",
@@ -167,6 +171,13 @@ exports.Label = amino.ComposeObject({
                 this.comps.text.setTx((w-textw)/2);
                 return this;
             }
+        },
+        h: {
+            value: 30,
+            set: function(h) {
+                console.log("WARNING: not really setting the height on the label");
+                return this;
+            }
         }
     },
     init: function() {
@@ -206,6 +217,10 @@ exports.AnchorPanel = amino.ComposeObject({
         this.redoLayout = function() {
             for(var i in this.children) {
                 var node = this.children[i];
+                if(node.getAnchorTop == undefined) {
+                    console.log("WARNING Node without getAnchorTop. Is it not a widget?");
+                    continue;
+                }
                 //top aligned
                 if(node.getAnchorTop() && !node.getAnchorBottom()) {
                     node.setTy(node.getTop());
@@ -245,3 +260,98 @@ exports.AnchorPanel = amino.ComposeObject({
     }
 });
 
+
+var SceneParser = function() {
+    
+    this.parseChildren = function(core, val, obj) {
+        for(var i=0; i<obj.children.length; i++) {
+            var ch = obj.children[i];
+            var chv = this.parse(core, ch);
+            if(chv) val.add(chv);
+        }
+    }
+    
+    this.fillProps = function(out, obj) {
+        for(var prop in obj) {
+           	var setter = "set"+camelize(prop);
+            if(prop == "type") continue;
+            if(prop == "self") continue;
+            if(prop == "children") continue;
+            if(prop == "fill") {
+                if(out[setter]) {
+                    out["set"+camelize(prop)](obj[prop]);
+                } else {
+                    console.log("WARNING. Setter not found: " + setter + " for type " + obj.type);
+                }
+                continue;
+            }
+            if(!out[setter]) {
+                console.log("warning. no setter: " + setter);
+            } else {
+            	   out[setter](obj[prop]);
+            }
+        }
+        //fill in missing props
+        if(!obj.left) {
+            out.left = obj.tx;
+        }
+        if(!obj.top) {
+            out.top = obj.ty;
+        }
+        	//console.log(out.type + " " + out.id);
+    }
+    
+    this.findNode = function(id, node) {
+        if(node.id && node.id == id) return node;
+        if(node.isparent && node.isparent()) {
+            for(var i=0; i<node.getChildCount(); i++) {
+                var ret = this.findNode(id,node.getChild(i));
+                if(ret != null) return ret;
+            }
+        }
+        return null;
+    }
+    
+    this.typeMap = {
+        "Group":amino.ProtoGroup,
+        "Rect": amino.ProtoRect,
+        "PushButton": exports.Button,
+        "ToggleButton":"createToggleButton",
+        "Label":exports.Label,
+        "Slider":exports.Slider,
+        "ListView":exports.AnchorPanel,//"createListView",
+        "Document":amino.ProtoGroup,
+        "DynamicGroup":amino.ProtoGroup,
+        "AnchorPanel":exports.AnchorPanel,
+        "ImageView":exports.ImageView,
+        "TextField":exports.Label, //"createTextField",
+        "TextArea":exports.Label, //"createTextArea",
+    };
+    this.parentTypeMap = {
+        "Group":amino.ProtoGroup,
+        "Document":amino.ProtoGroup,
+        "DynamicGroup":amino.ProtoGroup,
+        "AnchorPanel":exports.AnchorPanel,
+    };
+    
+    this.parse = function(core, obj) {
+	   	var type = this.typeMap[obj.type];
+        if(type) {
+            console.log("doing type ", obj.type);
+            var out = type();
+            out.type = obj.type;
+            
+            if(this.parentTypeMap[obj.type]) {
+                this.fillProps(out,obj);
+                this.parseChildren(core, out,obj);
+            } else {
+                this.fillProps(out,obj);
+            }
+            
+            return out;
+        }
+        console.log("warning. no object for type " + obj.type);
+    }
+}
+
+exports.SceneParser = SceneParser;

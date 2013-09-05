@@ -17,7 +17,7 @@ if(OS == "MAC") {
     sgtest = require('./aminonative.node');
 }
 
-var textcontrol = require('./textcontrol.js');
+//var textcontrol = require('./textcontrol.js');
 
 var mouseState = {
     pressed:false,
@@ -304,6 +304,93 @@ function setupBacon(core) {
         });
 }
 
+
+exports.ComposeObject = function(proto) {
+    function delgate(obj, name, comp) {
+        obj.comps[name] = new comp.proto();
+        if(comp.promote) {
+            comp.promote.forEach(function(propname) {
+                obj["set"+camelize(propname)] = function(value) {
+                    //delegate to the nested component
+                    //console.log('delegating ' + propname + ' to ',obj.comps[name]);
+                    this.comps[name]["set"+camelize(propname)](value);
+                    return this;
+                };
+                obj["get"+camelize(propname)] = function() {
+                    //console.log('delegating ' + propname + ' to ',obj.comps[name]);
+                    return this.comps[name]["get"+camelize(propname)]();
+                };
+            });
+        }
+    }
+    
+    function delegateProp(obj, name, prop) {
+        obj.props[name] = prop.value;
+        obj["set"+camelize(name)] = function(value) {
+            this.props[name] = value;
+            return this;
+        };
+        obj["get"+camelize(name)] = function() {
+            return this.props[name];
+        };
+        if(prop.set) {
+            obj["set"+camelize(name)] = prop.set;
+        }
+    }
+    
+    function generalizeProp(obj, name, prop) {
+        obj["set"+camelize(name)] = function(value) {
+            obj.set(name,value);
+            return this;
+        };
+    }
+    return function() {
+        var obj = this;
+        
+        if(proto.extend) {
+            var sup = new proto.extend();
+            for(var name in sup) {
+                obj[name] = sup[name];
+            }
+        } else {
+            obj.props = {};
+            obj.comps = {};
+        }
+        
+        if(proto.comps) {
+            for(var name in proto.comps) {
+                delgate(obj,name,proto.comps[name]);
+            };
+        }
+        if(proto.props) {
+            for(var name in proto.props) {
+                delegateProp(obj, name, proto.props[name]);
+            }
+        }
+        
+        if(proto.set) {
+            obj.set = proto.set;
+            for(var name in proto.props) {
+                generalizeProp(obj, name, proto.props[name]);
+            }
+        }
+        if(proto.get) {
+            obj.get = proto.get;
+            proto.props.forEach(function(prop) {
+                obj["get"+camelize(prop.name)] = function() {
+                    return obj.get(prop.name);
+                };
+            });
+        }
+        if(proto.init) {
+            obj.init = proto.init;
+            obj.init();
+        }
+        return this;
+    }
+}
+
+
 var propsHash = {
     "tx":23,
     "ty":1,
@@ -330,6 +417,8 @@ var propsHash = {
     "y":22,
 }
 
+exports.propsHash = propsHash;
+
 function camelize(s) {
 	return s.substring(0,1).toUpperCase() + s.substring(1);
 }
@@ -347,421 +436,243 @@ Function.prototype.extend = function(superclass, proto) {
 	*/
 };
 
-/** SGNode class. Base of all nodes */
-function SGNode() {
-	this.live = false;
-	
-	this.createProp = function(name,handle) {
-		this["set"+camelize(name)] = function(v) {
-			this[name] = v;
-			if(this.live) {
-			    if(!propsHash[name]) {
-			        console.log("WARNING: no prop key for " + name + " " + this.id);
-			    }
-				sgtest.updateProperty(handle, propsHash[name],v);
-				if(this.propertyUpdated) {
-				    this.propertyUpdated(name,v);
-				}
-			}
-			return this;
-		};
-		this["get"+camelize(name)] = function() {
-			return this[name];
-		};
-	}
-	
-	this.setProp = function(handle, name, value) {
-		if(handle == null)  console.log("WARNING can't set prop " + name + ", the handle is null");
-		sgtest.updateProperty(handle, propsHash[name],value);
-	}
 
-    
-	this.delegateProps = function(props, handle) {
-		for(var name in props) {
-			this[name] = props[name]; //set the initial value
-			this.createProp(name,handle);
-			sgtest.updateProperty(handle, propsHash[name], props[name]);
-		}
-	}
-	
-	this.id = "noid";
-	this.setId = function(id) {
-		this.id = id;
-		return this;
-	}
-	this.getId = function() {
-	    return this.id;
-	}
-	this.getParent = function() {
-	    return this.parent;
-	}
-	this.visible = true;
-    this.setVisible = function(visible) {
-        this.visible = visible;
-        this.setProp(this.handle,'visible',visible?1:0);            
-        return this;
-    }	
-    this.getVisible = function() {
-        return this.visible;
-    }
-}
-
-function SGTestNode() {
-	SGNode(this);
-	this.init = function() {
-		this.handle = sgtest.createRect();
-		this.live = true;
-		this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, visible:1 },this.handle);
-		//rect props
-		this.delegateProps({  x: 0, y: 0, w: 100, h: 100 },this.handle);
-	}
-}
-SGTestNode.extend(SGNode);
-
-/** SGRect class. A simple rectangle with a fill color. No border. */
-function SGRect() {
-	SGNode(this);
-    this.init = function() {
-        this.handle = sgtest.createRect();
-        console.log("==== handle = " + this.handle);
-        this.live = true;
-        var props = { tx:0, ty:0, x:0, y:0, w:100, h:100, r: 0, g: 1, b:0, scalex: 1, scaley:1, rotateZ: 0, rotateX:0, rotateY: 0, visible:1 };
-        this.delegateProps(props,this.handle);
-        this.setFill = function(color) {
-            color = ParseRGBString(color);
-            this.setProp(this.handle,'r',color.r);
-            this.setProp(this.handle,'g',color.g);
-            this.setProp(this.handle,'b',color.b);
-            return this;
+exports.ProtoRect = exports.ComposeObject({
+    type: "Rect",
+    props: {
+        tx: { value: 0 },
+        ty: { value: 0 },
+        visible: { value: 1 },
+        x: { value: 0 },
+        y: { value: 0 },
+        w: { value: 300 },
+        h: { value: 100 },
+        r: { value: 0},
+        g: { value: 1},
+        b: { value: 0},
+        fill: {
+            value: '#ff0000', 
         }
-        this.getFill = function() {
-            return this.color;
-        }
-    }
-    this.contains = function(x,y) {
-        if(x >=  this.getX()  && x <= this.getX() + this.getW()) {
-            if(y >= this.getY() && y <= this.getY() + this.getH()) {
-                return true;
+    },
+    //replaces all setters
+    set: function(name, value) {
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            if(propsHash[name]) {
+                sgtest.updateProperty(this.handle, propsHash[name], value);
             }
         }
-        return false;
-    }
-}
-SGRect.extend(SGNode);
-
-/**
- * A Group class
- */
-function SGGroup() {
-    
-    this.live = false;
-    this.children = [];
-    this.add = function(node) {
-    	if(!node) abort("can't add a null child to a group");
-        if(!this.live) abort("error. trying to add child to a group that isn't live yet");
-        this.children.push(node);
-        node.parent = this;
-        sgtest.addNodeToGroup(node.handle,this.handle);
-    }
-    this.isParent = function() { return true; }
-    this.getChildCount = function() {
-    	return this.children.length;
-    }
-    this.getChild = function(i) {
-    	return this.children[i];
-    }
-    this.remove = function(target) {
-        var n = this.children.indexOf(target);
-        this.children.splice(n,1);
-        target.parent = null;
-    }
-    this.clear = function() {
-        for(var i in this.children) {
-            this.children[i].setVisible(false);
+        
+        if(name == 'fill') {
+            var color = ParseRGBString(value);
+            this.setR(color.r);
+            this.setG(color.g);
+            this.setB(color.b);
+            return this;
         }
-        this.children = [];
-    }
-            
-    
-    this.init = function() {
-        this.handle = sgtest.createGroup();
-        var props = { tx:0, ty:0, scalex:1, scaley:1, rotateX:0, rotateY:0, rotateZ:0, visible:1};
-        this.delegateProps(props,this.handle);
+    },
+    /*
+    //replaces all getters
+    get: function(name) {
+        return this.props[name];
+    },
+    */
+    init: function() {
+        this.handle = sgtest.createRect();
         this.live = true;
+        //invoke all setters once to push default values to the native side
+        for(var propname in this.props) {
+            this.set(propname, this.props[propname]);
+        }
+        this.type = "rect";
+        var rect = this;
+        this.contains = function(x,y) {
+            if(x >=  rect.getX()  && x <= rect.getX() + rect.getW()) {
+                if(y >= rect.getY() && y <= rect.getY() + rect.getH()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
     }
-}
-SGGroup.extend(SGNode);
+});
 
+exports.ProtoGroup = exports.ComposeObject({
+    type: "Group",
+    props: {
+        tx: { value: 0 },
+        ty: { value: 0 },
+        visible: { value: 1 },
+    },
+    //replaces all setters
+    set: function(name, value) {
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            sgtest.updateProperty(this.handle, propsHash[name], value);
+        }
+    },
+    init: function() {
+        this.handle = sgtest.createGroup();
+        this.children = [];
+        this.live = true;
+        this.add = function(node) {
+            if(!node) abort("can't add a null child to a group");
+            if(!this.live) abort("error. trying to add child to a group that isn't live yet");
+            if(!node.handle) abort("the child doesn't have a handle");
+            this.children.push(node);
+            node.parent = this;
+            sgtest.addNodeToGroup(node.handle,this.handle);
+        }
+        this.isParent = function() { return true; }
+        this.getChildCount = function() {
+            return this.children.length;
+        }
+        this.getChild = function(i) {
+            return this.children[i];
+        }
+        this.remove = function(target) {
+            var n = this.children.indexOf(target);
+            this.children.splice(n,1);
+            target.parent = null;
+        }
+        this.clear = function() {
+            for(var i in this.children) {
+                this.children[i].setVisible(false);
+            }
+            this.children = [];
+        }
+        //invoke all setters once to push default values to the native side
+        for(var propname in this.props) {
+            this.set(propname, this.props[propname]);
+        }
+        this.type = "group";
+    }
+});
+
+exports.ProtoText = exports.ComposeObject({
+    props: {
+        tx: { value: 0 },
+        ty: { value: 0 },
+        visible: { value: 1 },
+        text: { value: 'silly text' },
+        fontSize: { value: 20 },
+    },
+    //replaces all setters
+    set: function(name, value) {
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            sgtest.updateProperty(this.handle, propsHash[name], value);
+            //console.log('updated the property ' + name);
+        }
+    },
+    init: function() {
+        this.live = true;
+        this.handle = sgtest.createText();
+        //invoke all setters once to push default values to the native side
+        for(var propname in this.props) {
+            this.set(propname, this.props[propname]);
+        }
+        this.type = "text";
+    }
+});
+
+/** ImageView: a widget to show an image. Can scale it. */
+exports.ProtoImageView = exports.ComposeObject({
+    props: {
+        tx: { value: 0   },
+        ty: { value: 0   },
+        x:  { value: 0   },
+        y:  { value: 0   },
+        r:  { value: 0   },
+        g:  { value: 0   },
+        b:  { value: 1   },
+        w:  { value: 100 },
+        h:  { value: 100 },
+        visible: { value:1 },
+        src: { 
+            value: null ,
+        },
+    },
+    //replaces all setters
+    set: function(name, value) {
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            sgtest.updateProperty(this.handle, propsHash[name], value);
+            console.log('updated the property ' + name + " with the handle " + this.handle);
+        }
+        if(name == 'src') {
+            console.log('set the source to ' + this.props.src);
+            var src = this.props.src;
+            if(src.toLowerCase().endsWith(".png")) {
+                this.image = sgtest.loadPngToTexture(src);
+            } else {
+                this.image = sgtest.loadJpegToTexture(src);
+            }
+            console.log("loaded an image");
+            if(this.image) {
+                console.log('setting a texture prop: ', this.image);
+                sgtest.updateProperty(this.handle, propsHash["texid"], this.image.texid);
+                console.log("done with texture prop");
+            }
+            
+        }
+    },
+    init: function() {
+        this.live = true;
+        this.handle = sgtest.createRect();
+        console.log('created a rect', this.handle); 
+    }
+});
 
 
 /** Base of all UI controls like buttons and labels */
-function SGWidget() {
-    this.contains = function(x,y) {
-        if(x >=  this.getX()  && x <= this.getX() + this.getW()) {
-            if(y >= this.getY() && y <= this.getY() + this.getH()) {
-                return true;
+exports.ProtoWidget = exports.ComposeObject({
+    type: "widget",
+    comps: {
+        base: {
+            proto: exports.ProtoGroup,
+            promote: ["tx","ty","visible"],
+        },
+    },
+    props: {
+        id: { value: "no id" },
+        left: { value: 0 },
+        right: { value: 0 },
+        top: { value: 0 },
+        bottom: { value: 0 },
+        anchorLeft: { value: false },
+        anchorRight: { value: false },
+        anchorTop: { value: false },
+        anchorBottom: { value: false },
+        parent: { value: null },
+    },
+    init: function() {
+        //console.log("init of the widget");
+        //console.log(this.props);
+        //console.log(this.comps);
+        this.handle = this.comps.base.handle;
+        this.font = Core._core.defaultFont;
+        this.contains = function(x,y) {
+            if(x >=  0  && x <= this.getW()) {
+                if(y >= 0 && y <= this.getH()) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
     }
-    this.propertyUpdated = function() {
-    }
-    this.createLocalProp = function(name,value) {
-    	this["set"+camelize(name)]= function(v) {
-    		this[name] = v;
-    		this.propertyUpdated(name,v);
-    		return this;
-    	}
-		this["get"+camelize(name)] = function() {
-			return this[name];
-		};
-		this["set"+camelize(name)](value);
-    }
-    this.createLocalProps = function(props) {
-		for(var name in props) {
-			this.createLocalProp(name,props[name]);
-		}
-    }
-    
-    this.createLocalProps({
-    	anchorLeft:true,
-    	anchorRight:false,
-    	anchorTop:true,
-    	anchorBottom:false,
-    	left:0,
-		right:0,
-		top:0,
-		bottom:0,
-    });
-}
-SGWidget.extend(SGNode);
-
+});
 
 
 /** AnchorPanel is a container which lays out it's children using anchor constraints like
 top and left */
-function SGAnchorPanel() {
-    this.live = false;
-    this.children = [];
-    this.isParent = function() { return true; }
-    this.getChildCount = function() {
-    	return this.children.length;
-    }
-    this.getChild = function(i) {
-    	return this.children[i];
-    }
-    this.add = function(node) {
-    	if(!node) abort("can't add a null child to an anchor panel");
-        if(!this.live) abort("error. trying to add child to a group that isn't live yet");
-        this.children.push(node);
-        node.parent = this;
-        sgtest.addNodeToGroup(node.handle,this.handle);
-        this.redoLayout();
-    }
-    this.propertyUpdated = function(name,value) {
-        this.redoLayout();
-    }
-    this.redoLayout = function() {
-        for(var i in this.children) {
-            var node = this.children[i];
-            //top aligned
-            if(node.anchorTop && !node.anchorBottom) {
-                node.setTy(node.top);
-            }
-            //bottom aligned
-            if(node.anchorBottom && !node.anchorTop) {
-                node.setTy(this.getH() - node.bottom - node.getH());
-            }
-            //left aligned
-            if(node.anchorLeft && !node.anchorRight) {
-                node.setTx(node.left);
-            }
-            //right aligned
-            if(node.anchorRight && !node.anchorLeft) {
-                node.setTx(this.getW() - node.right - node.getW());
-            }
-            
-            //horizontal stretch
-            if(node.anchorRight && node.anchorLeft) {
-                node.setTx(node.left);
-                node.setW(this.getW()- node.left - node.right);
-            }
-            //vertical stretch
-            if(node.anchorTop && node.anchorBottom) {
-                node.setTy(node.top);
-                node.setH(this.getH() - node.top - node.bottom);
-            }
-        }
-    }
-    this.init = function() {
-        this.handle = sgtest.createGroup();
-        this.bgHandle = sgtest.createRect();
-        sgtest.addNodeToGroup(this.bgHandle,this.handle);
-        var props = { tx:0, ty:0, scalex:1, scaley:1, rotateZ:0 };
-        this.delegateProps(props,this.handle);
-        this.delegateProps({x:0,y:0,w:100,h:100},this.bgHandle);
-        
-        this.setFill = function(fill) {
-            var color = ParseRGBString(fill);
-            this.setProp(this.bgHandle,'r',color.r);
-            this.setProp(this.bgHandle,'g',color.g);
-            this.setProp(this.bgHandle,'b',color.b);
-        	return this;
-        }
-        this.live = true;
-    }
-}
-SGAnchorPanel.extend(SGWidget);
 
-
-/** A basic label */
-function SGLabel() {
-    this.live = false;
-    this.init = function() {    
-        this.handle = sgtest.createText();
-        var props = { tx:0, ty:0, x:0, y:0, r: 0, g: 0, b:0, scalex: 1, scaley:1, rotatez: 0, text:"silly text", fontSize:15, visible:1};
-        this.delegateProps(props,this.handle);
-        
-        this.setTextColor = function(textcolor) {
-            var color = ParseRGBString(textcolor);
-            this.setProp(this.handle,'r',color.r);
-            this.setProp(this.handle,'g',color.g);
-            this.setProp(this.handle,'b',color.b);
-            return this;
-        }
-        this.setColor = this.setTextColor;
-        this.live = true;
-	    this.createLocalProps({
-    		w:0,
-    		h:0,
-    		});
-        
-    }
-}
-SGLabel.extend(SGWidget);
-
-
-/** A simple push button */
-function SGButton() {
-    this.live = false;
-    this.children = [];
-    this.init = function(core) {
-        this.handle = sgtest.createGroup();
-        this.rectHandle = sgtest.createRect();
-        this.textHandle = sgtest.createText();
-        sgtest.addNodeToGroup(this.rectHandle,this.handle);
-        sgtest.addNodeToGroup(this.textHandle,this.handle);
-        this.live = true;
-        this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, rotatez:0 },this.handle);
-        this.delegateProps({x:0,y:0,w:100,h:30,r:0.4,g:0.8,b:0.3},this.rectHandle);
-        this.delegateProps({text:"sometext",fontSize:15},this.textHandle);
-        
-        // whenever width or height is changed, reposition the text
-        var oldsetw = this.setW;
-        this.setW = function(w) {
-            oldsetw.apply(this,[w]);
-            var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
-            this.setProp(this.textHandle,'tx',(w-textw)/2);
-            return this;
-        };
-        var oldseth = this.setH;
-        this.setH = function(h) {
-            oldseth.apply(this,[h]);
-            var texth = this.font.getHeight(this.getFontSize());
-            this.setProp(this.textHandle,'ty',(h-texth)/2);
-            return this;
-        }
-        
-        this.setBaseColor = function(color) {
-            color = ParseRGBString(color);
-            this.setProp(this.rectHandle,'r',color.r);
-            this.setProp(this.rectHandle,'g',color.g);
-            this.setProp(this.rectHandle,'b',color.b);
-            return this;
-        }
-        this.setTextColor = function(textcolor) {
-            var color = ParseRGBString(textcolor);
-            this.setProp(this.textHandle,'r',color.r);
-            this.setProp(this.textHandle,'g',color.g);
-            this.setProp(this.textHandle,'b',color.b);
-            return this;
-        }
-        
-        // set up events
-        var self = this;
-        core.on("press",this,function(e) {
-            self.setBaseColor("#aaee88");
-        });
-        core.on("release",this,function(e) {
-            self.setBaseColor("#77cc55");
-        });
-        core.on("click",this,function(e) {
-            core.fireEvent({type:'action',source:self});
-        });
-        
-        self.setBaseColor("#77cc55");
-        self.setTextColor("#ffffff");
-        
-        // done
-        this.createLocalProps({enabled:true});
-    }
-}
-SGButton.extend(SGWidget);
-
-/** A toggle button. It's like a push button but can be 'selected'. */
-function SGToggleButton() {
-}
-SGToggleButton.extend(SGButton);
-
-/** A slider to choose a value between the max and min */
-function SGSlider() {
-	this.mirrorProp = function(handle, name, value) {
-		var old = this["set"+camelize(name)];
-		this["set"+camelize(name)] = function(v) {
-			old.apply(this,[v]);
-			this.setProp(handle,name,v);
-			return this;
-		}
-	}
-	
-	this.pointToValue = function(x) {
-		return x/this.getW()*100;
-	}
-	this.init = function(core) {
-        this.handle = sgtest.createGroup();
-        this.bgHandle = sgtest.createRect();
-        this.thumbHandle = sgtest.createRect();
-        sgtest.addNodeToGroup(this.bgHandle,this.handle);
-        sgtest.addNodeToGroup(this.thumbHandle,this.handle);
-        this.live = true;
-        
-        //transform props
-        this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, rotatez:0 },this.handle);
-        this.delegateProps({ x:0, y:0, w:100, h:30, r:1, g:0, b:0.3},this.bgHandle);
-        this.setProp(this.thumbHandle,'w',50);
-        this.mirrorProp(this.thumbHandle,'h',50);
-        this.setValue = function(v) {
-        	this.value = v;
-        	var fract = v/100;
-        	var pxv = fract*this.getW();
-        	this.setProp(this.thumbHandle,'w',pxv);
-        	return this;
-        }
-        this.getValue = function(v) {
-        	return this.value;
-        }
-        
-        core.on("drag", this, function(e) {
-            var r = e.target;
-            r.setValue(r.pointToValue(e.point.x));
-            core.fireEvent({type:'change',source:r, value:r.getValue()});
-        });
-	}
-
-}
-SGSlider.extend(SGWidget);
-
-/** A spinner to indicate progress of some activity */
+/*
 function SGSpinner() {
 	this.active = false;
 	this.init = function(core) {
@@ -813,8 +724,9 @@ function SGSpinner() {
     this.contains = function() { return false; }
 }
 SGSpinner.extend(SGWidget);
-
+*/
 /** A list view. Very complex */
+/*
 function SGListView() {
     this.listModel = [];
     for(var i=0; i<30; i++) {
@@ -940,33 +852,9 @@ function SGListView() {
 	}
 }
 SGListView.extend(SGWidget);
+*/
 
-/** ImageView: a widget to show an image. Can scale it. */
-function SGImageView() {
-    this.init = function(core) {
-        this.handle = sgtest.createRect();
-        this.live = true;
-        var props = { tx:0, ty:0, x:0, y:0, w:100, h:100, r: 0, g: 1, b:0, scalex: 1, scaley:1, rotateX:0, rotateZ: 0, rotateY: 0};
-        this.delegateProps(props,this.handle);
-    }
-    this.setSrc = function(src) {
-        this.src = src;
-        console.log("loading the image: " + src);
-        if(this.src.toLowerCase().endsWith(".png")) {
-            this.image = sgtest.loadPngToTexture(this.src);
-        } else {
-            this.image = sgtest.loadJpegToTexture(this.src);
-            console.log("loaded an image");
-        }
-        if(this.image) {
-        console.log('setting a texture prop');
-            this.setProp(this.handle,"texid",this.image.texid);
-            console.log("done with texture prop");
-        }
-    }
-}
-SGImageView.extend(SGWidget);
-
+/*
 function SGTextControl() {
     textcontrol.JSTextControl.call(this);
     var oldlayout = this.view.layout;
@@ -1048,21 +936,26 @@ function SGTextControl() {
         return false;
     }
 }
-SGTextControl.extend(SGWidget);
+*/
+//SGTextControl.extend(SGWidget);
 
 /** A simple one line text field */
+/*
 function SGTextField() {
     SGTextControl.call(this);
     this.setWrapping(false);
 }
-SGTextField.extend(SGTextControl);
+//SGTextField.extend(SGTextControl);
+*/
 
 /** A complex text component supporting multiple lines and styles */
+/*
 function SGTextArea() {
     SGTextControl.call(this);
     this.setWrapping(true);
 }
-SGTextArea.extend(SGTextControl);
+//SGTextArea.extend(SGTextControl);
+*/
 
 /** The basic window class. It maps to a real window on a desktop or the full
 screen on a mobile device. */
@@ -1173,84 +1066,6 @@ the callback
 * @class
 */
 function Core() {
-
-    /** create a test node */
-	this.createTestNode = function() {
-		var node = new SGTestNode();
-		node.init();
-		return node;
-	}
-	
-	/** Create a rect */
-    this.createRect = function() {
-        var node = new SGRect();
-        node.init();
-        return node;
-    };
-    /** create a label */
-    this.createLabel = function() {
-        var node = new SGLabel();
-        node.font = this.font;
-        node.init();
-        return node;
-    }
-    this.createGroup = function() {
-        var node = new SGGroup();
-        node.init();
-        return node;
-    }
-    
-    this.createPushButton = function() {
-        var node = new SGButton();
-        node.font = this.defaultFont;
-        node.init(this);
-        return node;
-    }
-    this.createToggleButton = function() {
-        var node = new SGToggleButton();
-        node.font = this.defaultFont;
-        node.init(this);
-        return node;
-    }
-    this.createSlider = function() {
-    	var node = new SGSlider();
-    	node.init(this);
-    	return node;
-    }
-    this.createSpinner = function() {
-    	var node = new SGSpinner();
-    	node.init(this);
-    	return node;
-    }
-    this.createAnchorPanel = function() {
-    	var node = new SGAnchorPanel();
-		node.init(this);
-		return node;
-    }
-    this.createListView = function() {
-    	var node = new SGListView();
-    	node.init(this);
-    	return node;
-    }
-    this.createImageView = function() {
-        var node = new SGImageView();
-        node.init(this);
-        return node;
-    }
-    
-    this.createTextField = function() {
-        var node = new SGTextField();
-        node.font = this.defaultFont;
-        node.init(this);
-        return node;
-    }
-    this.createTextArea = function() {
-        var node = new SGTextArea();
-        node.font = this.defaultFont;
-        node.init(this);
-        return node;
-    }
-    
     this.anims = [];
     this.createPropAnim = function(node, prop, start, end, dur, count, autoreverse) {
         var anim = new SGAnim(node,prop,start,end,dur,count,autoreverse);
@@ -1324,7 +1139,7 @@ function Core() {
         if(root.children) {
             for(var i=root.children.length-1; i>=0; i--) {
                 var node = root.children[i];
-                    var tx = x - node.getTx();
+                var tx = x - node.getTx();
                 var ty = y - node.getTy();
                 var found = this.findNodeAtXY_helper(node,tx,ty);
                 if(found) {
@@ -1403,6 +1218,10 @@ function startApp(cb) {
     Core._core.start();
 }
 
+exports.sgtest = sgtest;
+exports.getCore = function() {
+    return Core._core;
+}
 exports.startApp = startApp;
 exports.Interpolators = {
     CubicIn:propsHash["lerpcubicin"],

@@ -1,4 +1,0 @@
-package com.joshondesign.aminogen.generated;
-public class out { 
-    ${test}
-}

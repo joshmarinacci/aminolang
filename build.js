@@ -413,8 +413,8 @@ function desktopbuild(cb) {
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"Bacon.js",out);
     copyFileTo("build/Release/aminonative.node",out);
-    copyFileTo("src/jscommon/widgets.js",out);
-    copyFileTo("src/jscommon/textcontrol.js",out);
+    copyFileTo(src+"widgets.js",out);
+    //copyFileTo("src/jscommon/textcontrol.js",out);
     copyFileTo("resources/font.png",out);
     copyFileTo("resources/font.json",out);
 }

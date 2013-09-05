@@ -1,15 +1,18 @@
-var Core = require('./amino.js'); //change to wherever you end up putting amino
+//var amino = require('./amino.js'); //change to wherever you end up putting amino
+//var widgets = require('./widgets.js');
+var amino = require('../build/desktop/amino.js');
+var widgets = require('../build/desktop/widgets.js');
 
 //stage will be created for us already
-Core.startApp(function(core,stage) {
+amino.startApp(function(core,stage) {
         
     //always use a group for your scene root
-    var group = core.createGroup();
+    var group = new amino.ProtoGroup();
     core.setRoot(group);
     
     
     //button
-    var button = core.createPushButton();
+    var button = new widgets.Button();
     button.setText("Activate!");
     button.setFontSize(40);
     button.setTx(0);
@@ -18,7 +21,7 @@ Core.startApp(function(core,stage) {
     button.setH(80);
     group.add(button);
 
-    var rect = core.createRect()
+    var rect = new amino.ProtoRect()
         .setW(200)
         .setH(80)
         .setTx(0)
@@ -33,9 +36,8 @@ Core.startApp(function(core,stage) {
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
         var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
         //optional
-        anim.setInterpolator(Core.Interpolators.CubicInOut);
+        anim.setInterpolator(amino.Interpolators.CubicInOut);
     });
-    
        
     
 });

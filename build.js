@@ -68,7 +68,7 @@ function Task(fn, dep, name) {
     this.name = name;
     this.did = false;
     this.runthis = function(cb) {
-        p("["+this.name+"]" + " running");
+        //p("["+this.name+"]" + " running");
         var self = this;
         this.fn(function() {
             self.did = true;
@@ -251,28 +251,52 @@ function p(s) {
 function docgen(cb) {
     var parsersjs = fs.readFileSync('src/aminolang/docparser.js','utf8');
     parseit(parsersjs);
-    console.log("doc parser = ", DocParser);
+    //console.log("doc parser = ", DocParser);
     var source = fs.readFileSync('src/sg/test.js') + "";
     //console.log(u.inspect(Calc.matchAll('6*(4+3)', 'expr'),false,20));
     var struct = DocParser.matchAll(source,"top");
-    console.log('parsed the code');
-    console.log(u.inspect(struct,false,20));
+    //console.log('parsed the code');
+    //console.log(u.inspect(struct,false,20));
     
-    p("<html><body><div id='container'>");
+    p("<html>")
+    p("<head>");
+    p("<title>Amino Documentation</title>");
+    p('<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">');
+    p("</head>");
+
+    p("<body>")
+    p("<div class='container'>");
+    p("<div class='row'><div class='col-lg-12'><h1>Amino Documentation</h1></div></div>");
+
+    p("<div class='row'>");
+    
+    p("<div class='col-lg-3'><div class='list-group'>");
     for(var cname in struct) {
         var clazz = struct[cname];
-        p("<h3>"+clazz.id+"</h3>");
-        p("<dl>");
+        p("<a href='#"+cname+"' class='list-group-item'>"+cname+"</a>");
+    }
+    p("</div></div>");
+    
+    p("<div class='col-lg-9'>");
+    for(var cname in struct) {
+        var clazz = struct[cname];
+        p("<h3 id='"+clazz.id+"'>"+clazz.id+"</h3>");
+        p("<p class='lead'>"+clazz.desc+"</p>");
+        
+        p("<dl class='dl-horizontal panel panel-primary'>");
+        p("<div class='panel-heading'><h3 class='panel-title'>Properties</h3></div>");
         clazz.props.forEach(function(prop) {
             p("  <dt>"+prop.name+"</dt><dd>"+prop.desc+"</dd>");
         });
         p("</dl>");
-        p("<dl>");
+        p("<dl class='dl-horizontal panel panel-primary'>");
+        p("<div class='panel-heading'><h3 class='panel-title'>Functions</h3></div>");
         clazz.funcs.forEach(function(func) {
             p("  <dt>"+func.name+"</dt><dd>"+func.desc+"</dd>");
         });
         p("</dl>");
     }
+    p("</div></div>");
     p("</div></body></html>");
 }
 

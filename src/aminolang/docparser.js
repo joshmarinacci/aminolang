@@ -1,5 +1,4 @@
 var u = require('util');
-console.log("in the parsing part");
 
 var classes = {};
 var clazz = {};

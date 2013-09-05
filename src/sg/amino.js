@@ -1,6 +1,3 @@
-/**
- * @module Amino
- */
 var fs = require('fs');
 var bacon = require('./Bacon');
 //var sgtest = require("./build/Release/sgtest.node");
@@ -437,6 +434,10 @@ Function.prototype.extend = function(superclass, proto) {
 };
 
 
+/**
+@class ProtoRect
+@desc the basic primitive rectangle
+*/
 exports.ProtoRect = exports.ComposeObject({
     type: "Rect",
     props: {
@@ -580,7 +581,10 @@ exports.ProtoText = exports.ComposeObject({
     }
 });
 
-/** ImageView: a widget to show an image. Can scale it. */
+/** 
+@ImageView
+@desc a widget to show an image. Can scale it. 
+*/
 exports.ProtoImageView = exports.ComposeObject({
     props: {
         tx: { value: 0   },
@@ -630,7 +634,6 @@ exports.ProtoImageView = exports.ComposeObject({
 });
 
 
-/** Base of all UI controls like buttons and labels */
 exports.ProtoWidget = exports.ComposeObject({
     type: "widget",
     comps: {
@@ -669,8 +672,6 @@ exports.ProtoWidget = exports.ComposeObject({
 });
 
 
-/** AnchorPanel is a container which lays out it's children using anchor constraints like
-top and left */
 
 /*
 function SGSpinner() {
@@ -725,7 +726,6 @@ function SGSpinner() {
 }
 SGSpinner.extend(SGWidget);
 */
-/** A list view. Very complex */
 /*
 function SGListView() {
     this.listModel = [];
@@ -939,7 +939,6 @@ function SGTextControl() {
 */
 //SGTextControl.extend(SGWidget);
 
-/** A simple one line text field */
 /*
 function SGTextField() {
     SGTextControl.call(this);
@@ -948,7 +947,6 @@ function SGTextField() {
 //SGTextField.extend(SGTextControl);
 */
 
-/** A complex text component supporting multiple lines and styles */
 /*
 function SGTextArea() {
     SGTextControl.call(this);
@@ -957,8 +955,6 @@ function SGTextArea() {
 //SGTextArea.extend(SGTextControl);
 */
 
-/** The basic window class. It maps to a real window on a desktop or the full
-screen on a mobile device. */
 function SGStage(core) {
 	this.core = core;
 	this.setSize = function(width,height) {
@@ -998,7 +994,6 @@ function SGStage(core) {
     
 }
 
-/** A font */
 function JSFont(jsonfile, imagefile) {
     //create the default font
     var jsontext = fs.readFileSync(jsonfile);
@@ -1025,7 +1020,6 @@ function JSFont(jsonfile, imagefile) {
     }
 }
 
-/** An animation */
 function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     this.node = node;
     this.prop = prop;
@@ -1061,9 +1055,9 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     }
 }
 
-/** The core of Amino. Only one will exist at runtime. Always access through
-the callback 
-* @class
+/** 
+@class Core
+@desc The core of Amino. Only one will exist at runtime. Always access through the callback 
 */
 function Core() {
     this.anims = [];

@@ -253,15 +253,28 @@ function docgen(cb) {
     parseit(parsersjs);
     //console.log("doc parser = ", DocParser);
     var source = fs.readFileSync('src/sg/test.js') + "";
+    //var source = fs.readFileSync('src/sg/amino.js') + "";
     //console.log(u.inspect(Calc.matchAll('6*(4+3)', 'expr'),false,20));
     var struct = DocParser.matchAll(source,"top");
-    //console.log('parsed the code');
-    //console.log(u.inspect(struct,false,20));
+    console.log('parsed the code');
+    console.log(u.inspect(struct,false,20));
+    var outdir = 'build/docs';
+    console.log("making directory " + outdir);
+    jb.mkdir(outdir);
+    copyFileTo('resources/bootstrap.min.css',outdir);
+
+
+    console.log("opening "+outdir+"/index.html for writing");
+    var stream = fs.createWriteStream(outdir+'/index.html');
+    
+    function p(s) {
+        stream.write(s+'\n');
+    }
     
     p("<html>")
     p("<head>");
     p("<title>Amino Documentation</title>");
-    p('<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">');
+    p('<link href="bootstrap.min.css" rel="stylesheet" media="screen">');
     p("</head>");
 
     p("<body>")
@@ -298,6 +311,8 @@ function docgen(cb) {
     }
     p("</div></div>");
     p("</div></body></html>");
+    stream.end();
+    console.log("done writing");
 }
 
 

@@ -12,6 +12,13 @@ if(process.platform == "darwin") {
     OS = "MAC";
 }
 
+exports.colortheme = {
+    base:    "#ccffcc",
+    neutral: "#cccccc",
+    text:    "#000000",
+    accent:  "#55ff55",
+}
+
 var sgtest;
 if(OS == "MAC") {
     sgtest = require('./aminonative.node');

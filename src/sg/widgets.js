@@ -5,8 +5,8 @@ function camelize(s) {
 }
 
 /** A simple push button */
-exports.Button = amino.ComposeObject({
-    type: "Button",
+exports.PushButton = amino.ComposeObject({
+    type: "PushButton",
     extend: amino.ProtoWidget,
     comps: {
         background: {
@@ -46,15 +46,14 @@ exports.Button = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.label);
-        this.type = 'button';
         
         var self = this;
-        this.setFill("#77cc55");
+        this.setFill(amino.colortheme.accent);
         amino.getCore().on('press', this, function(e) {
             self.setFill("#aaee88");
         });
         amino.getCore().on("release",this,function(e) {
-            self.setFill("#77cc55");
+            self.setFill(amino.colortheme.accent);
         });
         amino.getCore().on("click",this,function(e) {
             amino.getCore().fireEvent({type:'action',source:self});
@@ -91,16 +90,16 @@ exports.Slider = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.thumb);
-        this.comps.background.setFill("#77cc55");
         this.comps.thumb.setW(30);
         this.comps.thumb.setH(30);
-        this.comps.thumb.setFill("#00ff00");
         
         this.pointToValue = function(x) {
             return x/this.getW()*100;
         }
         
         var self = this;
+        this.comps.background.setFill(amino.colortheme.neutral);
+        this.comps.thumb.setFill(amino.colortheme.accent);
         amino.getCore().on('drag', this, function(e) {
             self.setValue(self.pointToValue(e.point.x));
         });
@@ -153,6 +152,8 @@ exports.ProgressSpinner = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.part1);
         this.comps.base.add(this.comps.part2);
+        this.comps.part1.setFill(amino.colortheme.text);
+        this.comps.part2.setFill(amino.colortheme.text);
         this.contains = function() { return false; }
         this.setVisible(0);
     }
@@ -200,7 +201,7 @@ exports.AnchorPanel = amino.ComposeObject({
     comps: {
         background: {
             proto: amino.ProtoRect,
-            promote: ['w','h'],
+            promote: ['w','h','fill'],
         }
     },
     init: function() {
@@ -219,6 +220,7 @@ exports.AnchorPanel = amino.ComposeObject({
         }
         this.live = true;
         
+        this.setFill(amino.colortheme.base);
         this.redoLayout = function() {
             for(var i in this.children) {
                 var node = this.children[i];
@@ -258,6 +260,50 @@ exports.AnchorPanel = amino.ComposeObject({
                     node.setW(this.getW()- node.getLeft() - node.getRight());
                 }
                 
+            }
+        }
+        
+        
+    }
+});
+
+
+exports.VerticalPanel = amino.ComposeObject({
+    type:"VerticalPanel",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        }
+    },
+    props: {
+        gap: { value: 10 },
+        padding: { value: 10 },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.contains = function() { return false; }
+        this.children = [];
+        this.isParent = function() { return true; }
+        this.add = function(node) {
+            if(!node) abort("can't add a null child to an anchor panel");
+            if(!this.live) abort("error. trying to add child to a group that isn't live yet");
+            this.children.push(node);
+            node.parent = this;
+            this.comps.base.add(node);
+            this.redoLayout();
+        }
+        this.live = true;
+        this.setFill(amino.colortheme.base);
+        this.redoLayout = function() {
+            var y = this.getPadding();
+            for(var i in this.children) {
+                var node = this.children[i];
+                node.setTx(this.getPadding());
+                node.setTy(y);
+                y += node.getH() + this.getGap();
+                node.setW(this.getW()-this.getPadding()*2);
             }
         }
         
@@ -320,7 +366,7 @@ var SceneParser = function() {
     this.typeMap = {
         "Group":amino.ProtoGroup,
         "Rect": amino.ProtoRect,
-        "PushButton": exports.Button,
+        "PushButton": exports.PushButton,
         "ToggleButton":"createToggleButton",
         "Label":exports.Label,
         "Slider":exports.Slider,

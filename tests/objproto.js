@@ -15,11 +15,11 @@ amino.startApp(function(core, stage) {
     text.setTx(0).setTy(50);
     group.add(text);
     
-    var button = new widgets.Button()
+    var button = new widgets.PushButton()
         .setId("button1")
         .setTy(200).setTx(100)
         .setW(100).setH(50)
-        .setText('button');
+        .setText("buttons");
     group.add(button);
     
     
@@ -49,24 +49,24 @@ amino.startApp(function(core, stage) {
     group.add(panel);
     
     //left anchored
-    panel.add(new widgets.Button()
+    panel.add(new widgets.PushButton()
         .setW(120).setH(30)
         .setAnchorLeft(true));
     
     //right anchored
-    panel.add(new widgets.Button()
+    panel.add(new widgets.PushButton()
         .setW(120).setH(30)
         .setTy(50)
         .setAnchorRight(true));
     
     //left and right anchored, making it stretch
-    panel.add(new widgets.Button()
+    panel.add(new widgets.PushButton()
         .setW(120).setH(30)
         .setTy(100)
         .setAnchorRight(true).setAnchorLeft(true));
     
     //bottom left anchored, then moved up by 10 px
-    panel.add(new widgets.Button()
+    panel.add(new widgets.PushButton()
         .setW(120).setH(30)
         .setAnchorBottom(true).setBottom(10));
 
@@ -80,5 +80,13 @@ amino.startApp(function(core, stage) {
         spinner.setActive(!spinner.getActive());
     });
     
+    
+    
+    var vbox = new widgets.VerticalPanel()
+        .setTx(50).setTy(400).setW(200).setH(200);
+    vbox.add(new widgets.PushButton().setText("button1").setW(100).setH(40));
+    vbox.add(new widgets.PushButton().setText("button2").setW(100).setH(40));
+    vbox.add(new widgets.PushButton().setText("button3").setW(100).setH(40));
+    group.add(vbox);
     
 });

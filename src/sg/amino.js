@@ -1,3 +1,8 @@
+/** 
+@class dummy
+@desc a dummy header to work around a doc generation bug. ignore
+*/
+
 var fs = require('fs');
 var bacon = require('./Bacon');
 //var sgtest = require("./build/Release/sgtest.node");
@@ -441,16 +446,22 @@ Function.prototype.extend = function(superclass, proto) {
 exports.ProtoRect = exports.ComposeObject({
     type: "Rect",
     props: {
+        /** @prop tx translate X */
         tx: { value: 0 },
+        /** @prop ty translate Y */
         ty: { value: 0 },
+        /** @prop visible visible or not. 1 or 0, not true or false */
         visible: { value: 1 },
         x: { value: 0 },
         y: { value: 0 },
+        /** @prop w width of the rectangle. default value = 300 */
         w: { value: 300 },
+        /** @prop h height of the rectangle. default value = 100 */
         h: { value: 100 },
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
+        /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
         fill: {
             value: '#ff0000', 
         }
@@ -488,6 +499,10 @@ exports.ProtoRect = exports.ComposeObject({
         }
         this.type = "rect";
         var rect = this;
+        
+        /** @func contains  returns true if the rect contains the x and y. 
+        x and y should be in the coordinate space of the rectangle.
+        */
         this.contains = function(x,y) {
             if(x >=  rect.getX()  && x <= rect.getX() + rect.getW()) {
                 if(y >= rect.getY() && y <= rect.getY() + rect.getH()) {
@@ -500,11 +515,18 @@ exports.ProtoRect = exports.ComposeObject({
     }
 });
 
+/**
+@class ProtoGroup
+@desc The group primitive. Use it to group other nodes together.
+*/
 exports.ProtoGroup = exports.ComposeObject({
     type: "Group",
     props: {
+        /** @prop tx translate X. @default 0 */
         tx: { value: 0 },
+        /** @prop ty translate Y. @default 0*/
         ty: { value: 0 },
+        /** @prop visible visible or not. 1 or 0, not true or false. @default 1 */
         visible: { value: 1 },
     },
     //replaces all setters
@@ -519,6 +541,7 @@ exports.ProtoGroup = exports.ComposeObject({
         this.handle = sgtest.createGroup();
         this.children = [];
         this.live = true;
+        /** @func add(child)  add a child to the group. Must be a non-null node. */
         this.add = function(node) {
             if(!node) abort("can't add a null child to a group");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
@@ -528,17 +551,22 @@ exports.ProtoGroup = exports.ComposeObject({
             sgtest.addNodeToGroup(node.handle,this.handle);
         }
         this.isParent = function() { return true; }
+        
+        /** @func getChildCount()  returns the number of child nodes inside this group */
         this.getChildCount = function() {
             return this.children.length;
         }
+        /** @func getChild(i)  returns the child at index i */
         this.getChild = function(i) {
             return this.children[i];
         }
+        /** @func remove(target)  remove the target child */
         this.remove = function(target) {
             var n = this.children.indexOf(target);
             this.children.splice(n,1);
             target.parent = null;
         }
+        /** @func clear() remove all children of this group */
         this.clear = function() {
             for(var i in this.children) {
                 this.children[i].setVisible(false);
@@ -552,6 +580,12 @@ exports.ProtoGroup = exports.ComposeObject({
         this.type = "group";
     }
 });
+
+/** 
+@class ProtoText
+@desc  The text primitive. Use it to draw a single run of text with the
+same font, size, and color.
+*/
 
 exports.ProtoText = exports.ComposeObject({
     props: {
@@ -582,7 +616,7 @@ exports.ProtoText = exports.ComposeObject({
 });
 
 /** 
-@ImageView
+@class ImageView
 @desc a widget to show an image. Can scale it. 
 */
 exports.ProtoImageView = exports.ComposeObject({

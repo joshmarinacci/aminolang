@@ -252,8 +252,8 @@ function docgen(cb) {
     var parsersjs = fs.readFileSync('src/aminolang/docparser.js','utf8');
     parseit(parsersjs);
     //console.log("doc parser = ", DocParser);
-    var source = fs.readFileSync('src/sg/test.js') + "";
-    //var source = fs.readFileSync('src/sg/amino.js') + "";
+    //var source = fs.readFileSync('src/sg/test.js') + "";
+    var source = fs.readFileSync('src/sg/amino.js') + "";
     //console.log(u.inspect(Calc.matchAll('6*(4+3)', 'expr'),false,20));
     var struct = DocParser.matchAll(source,"top");
     console.log('parsed the code');

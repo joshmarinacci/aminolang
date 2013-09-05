@@ -30,15 +30,6 @@ amino.startApp(function(core, stage) {
     group.add(slider);
     
     
-    var spinner = new widgets.ProgressSpinner();
-    spinner.setSize(50).setTx(100).setTy(50);
-//    spinner.setActive(true);
-    group.add(spinner);
-    
-    core.on('action',button, function(e) {
-        console.log("the button " + e.source.getId() + " fired an action");
-        spinner.setActive(true);
-    });
     
     var label = new widgets.Label();
     label.setTx(100).setTy(100)
@@ -49,7 +40,7 @@ amino.startApp(function(core, stage) {
     
     var image = new amino.ProtoImageView();
     image.setTx(50).setTy(50);
-    image.setSrc("images/beatles_01.jpg");
+    image.setSrc("tests/images/beatles_01.jpg");
     group.add(image);
     
     
@@ -78,4 +69,16 @@ amino.startApp(function(core, stage) {
     panel.add(new widgets.Button()
         .setW(120).setH(30)
         .setAnchorBottom(true).setBottom(10));
+
+
+    var spinner = new widgets.ProgressSpinner();
+    spinner.setSize(30).setTx(240).setTy(200);
+    spinner.setActive(false);
+    group.add(spinner);
+    core.on('action',button, function(e) {
+        console.log("the button " + e.source.getId() + " fired an action");
+        spinner.setActive(!spinner.getActive());
+    });
+    
+    
 });

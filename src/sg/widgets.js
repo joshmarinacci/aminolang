@@ -123,8 +123,11 @@ exports.ProgressSpinner = amino.ComposeObject({
         size: {
             value: 50,
             set: function(w) {
+                console.log("value set");
                 this.comps.part1.setW(w).setH(w);
                 this.comps.part2.setW(w).setH(w);
+                this.comps.part1.setX(-w/2).setY(-w/2).setTx(w/2).setTy(w/2);
+                this.comps.part2.setX(-w/2).setY(-w/2).setTx(w/2).setTy(w/2);
                 return this;
             }
         },
@@ -132,10 +135,12 @@ exports.ProgressSpinner = amino.ComposeObject({
             value:false,
             set: function(active) {
                 this.props.active = active;
+                console.log("active = " + this.props.active);
                 if(this.props.active) {
                     //start animations;
                     this.setVisible(1);
-                    this.a1 = amino.getCore().createPropAnim(this.comps.part1, "tx", 0, 100, 1000, -1, false);
+                    this.a1 = amino.getCore().createPropAnim(this.comps.part1, "rotateZ", 0,  360, 1500, -1, false);
+                    this.a2 = amino.getCore().createPropAnim(this.comps.part2, "rotateZ", 0, -360, 1500, -1, false);
                 } else {
                     //stop animations
                     this.setVisible(0);

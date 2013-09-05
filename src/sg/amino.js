@@ -733,15 +733,15 @@ function SGSpinner() {
         this.setActive = function(active) {
         	this.active = active;
         	if(active) {
-        		this.setVisible(1);
-				this.setProp(this.part1,'tx',-25);
-				this.setProp(this.part1,'ty',-25);
-				this.setProp(this.part2,'tx',-25);
-				this.setProp(this.part2,'ty',-25);
-				this.a1 = sgtest.createAnim(this.part1, propsHash["rotatez"], 0,  360, 1000, -1, false);
-				this.a2 = sgtest.createAnim(this.part2, propsHash["rotatez"], 0, -360, 1000, -1, false);
-				this.a1f =sgtest.createAnim(this.part1, propsHash["opacity"], 0, 1, 1000, 1, false);
-				this.a2f =sgtest.createAnim(this.part2, propsHash["opacity"], 0, 1, 1000, 1, false);
+        	    this.setVisible(1);
+        	    this.setProp(this.part1,'tx',-25);
+            this.setProp(this.part1,'ty',-25);
+            this.setProp(this.part2,'tx',-25);
+            this.setProp(this.part2,'ty',-25);
+            this.a1 = sgtest.createAnim(this.part1, propsHash["rotatez"], 0,  360, 1000, -1, false);
+            this.a2 = sgtest.createAnim(this.part2, propsHash["rotatez"], 0, -360, 1000, -1, false);
+            this.a1f =sgtest.createAnim(this.part1, propsHash["opacity"], 0, 1, 1000, 1, false);
+            this.a2f =sgtest.createAnim(this.part2, propsHash["opacity"], 0, 1, 1000, 1, false);
         	} else {
         		//stop animations
         		this.setVisible(0);

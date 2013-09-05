@@ -708,59 +708,6 @@ exports.ProtoWidget = exports.ComposeObject({
 
 
 /*
-function SGSpinner() {
-	this.active = false;
-	this.init = function(core) {
-        this.handle = sgtest.createGroup();
-        this.part1 = sgtest.createRect();
-        this.part2 = sgtest.createRect();
-        sgtest.addNodeToGroup(this.part1,this.handle);
-        sgtest.addNodeToGroup(this.part2,this.handle);
-        this.live = true;
-        this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, rotatez:0, visible:0 },this.handle);
-        this.setW = function(w) {
-        	this.w = w;
-        	this.setProp(this.part1,'w',w);
-        	this.setProp(this.part2,'w',w);
-        	return this;
-        }
-        this.setH = function(h) {
-        	this.h = h;
-        	this.setProp(this.part1,'h',h);
-        	this.setProp(this.part2,'h',h);
-        	return this;
-        }
-        this.setActive = function(active) {
-        	this.active = active;
-        	if(active) {
-        	    this.setVisible(1);
-        	    this.setProp(this.part1,'tx',-25);
-            this.setProp(this.part1,'ty',-25);
-            this.setProp(this.part2,'tx',-25);
-            this.setProp(this.part2,'ty',-25);
-            this.a1 = sgtest.createAnim(this.part1, propsHash["rotatez"], 0,  360, 1000, -1, false);
-            this.a2 = sgtest.createAnim(this.part2, propsHash["rotatez"], 0, -360, 1000, -1, false);
-            this.a1f =sgtest.createAnim(this.part1, propsHash["opacity"], 0, 1, 1000, 1, false);
-            this.a2f =sgtest.createAnim(this.part2, propsHash["opacity"], 0, 1, 1000, 1, false);
-        	} else {
-        		//stop animations
-        		this.setVisible(0);
-        		sgtest.stopAnim(this.a1);
-        		sgtest.stopAnim(this.a2);
-        		sgtest.stopAnim(this.a1f);
-        		sgtest.stopAnim(this.a2f);
-        	}
-	        return this;
-	    }
-	    this.getActive = function() {
-		    return this.active;
-		}
-    }
-    this.contains = function() { return false; }
-}
-SGSpinner.extend(SGWidget);
-*/
-/*
 function SGListView() {
     this.listModel = [];
     for(var i=0; i<30; i++) {

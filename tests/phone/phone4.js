@@ -59,6 +59,19 @@ switcher.switcherPanel = switcherPanel;
 
 function buildApp1(stage) {
     var panel = new widgets.AnchorPanel();
+    var lv = new widgets.ListView();
+    lv.setW(320).setH(200)
+    .setTop(20+40).setAnchorTop(true)
+    .setBottom(40+20).setAnchorBottom(true)
+    .setLeft(0).setAnchorLeft(true)
+    .setRight(0).setAnchorRight(true)
+    ;
+    lv.listModel = [];
+    for(var i=0; i<20; i++) {
+        lv.listModel.push("todo " + i);
+    }
+    panel.add(lv);
+    
     panel.add(new widgets.Label()
         .setText("Todo List").setFontSize(20));
     //list view
@@ -152,10 +165,21 @@ function buildApp6(stage) {
         .setTop(0).setLeft(10).setRight(10)
         );
     //list view
+    
+    var lv = new widgets.ListView();
+    lv.setW(320).setH(200)
+    .setTop(20+40).setAnchorTop(true)
+    .setBottom(40+20).setAnchorBottom(true)
+    .setLeft(0).setAnchorLeft(true)
+    .setRight(0).setAnchorRight(true)
+    ;
+    console.log("made it");
+    panel.add(lv);
+    
     panel.add(new widgets.PushButton()
         .setText("add event")
         .setId("addEvent")
-        .setW(100).setH(29).setTx(5)
+        .setW(100).setH(30).setTx(5)
         .setBottom(10).setAnchorBottom(true)
         .onAction(function() {  nav.push("addEvent");   })
         );

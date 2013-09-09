@@ -372,6 +372,24 @@ exports.ListView = amino.ComposeObject({
         cellWidth: { value: 32 },
         layout: { value: "vertical" },
         selectedIndex: { value:-1 },
+        w: {
+            value: 300,
+            set: function(w) {
+                this.props['w'] = w;
+                this.comps.background.setW(w);
+                this.regenerateCells();
+                return this;
+            }
+        },
+        h: {
+            value: 300,
+            set: function(h) {
+                this.props['h'] = h;
+                this.comps.background.setH(h);
+                this.regenerateCells();
+                return this;
+            }
+        },
     },
     init: function() {
         console.log("making a list view");
@@ -389,7 +407,7 @@ exports.ListView = amino.ComposeObject({
         amino.getCore().on("drag",this,function(e) {
             self.scroll -= e.dy;
             if(self.scroll < 0) self.scroll = 0;
-            var max = self.listModel.length*self.cellHeight - self.getH();
+            var max = self.listModel.length*self.getCellHeight() - self.getH();
             if(self.scroll > max) { self.scroll = max; }
             self.regenerateCells();
         });

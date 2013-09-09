@@ -453,6 +453,8 @@ Function.prototype.extend = function(superclass, proto) {
 exports.ProtoRect = exports.ComposeObject({
     type: "Rect",
     props: {
+        /** @prop id id of the rectangle. might not be unique */
+        id: { value: "no id" },
         /** @prop tx translate X */
         tx: { value: 0 },
         /** @prop ty translate Y */

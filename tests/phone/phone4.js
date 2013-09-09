@@ -74,12 +74,19 @@ switcher.add(buildApp1(stage));
 
 function buildApp2(stage) {
     var panel = new widgets.AnchorPanel();
+    //listview of the gallery
     panel.add(new widgets.PushButton()
             .setText("snap photo")
-            .setW(160).setH(60).setTx(0).setTy(370));
+            .setW(150).setH(60)
+            .setLeft(5).setAnchorLeft(true)
+            .setBottom(5).setAnchorBottom(true)
+            );
     panel.add(new widgets.PushButton()
             .setText("gallery")
-            .setW(160).setH(60).setTx(160).setTy(370));
+            .setW(150).setH(60)
+            .setRight(5).setAnchorRight(true)
+            .setBottom(5).setAnchorBottom(true)
+            );
     nav.register(panel);
     return panel;            
 }

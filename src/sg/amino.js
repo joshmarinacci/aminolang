@@ -401,6 +401,7 @@ exports.ComposeObject = function(proto) {
             obj.init = proto.init;
             obj.init();
         }
+        obj.type = proto.type;
         return this;
     }
 }
@@ -606,6 +607,7 @@ same font, size, and color.
 */
 
 exports.ProtoText = exports.ComposeObject({
+    type:"Text",
     props: {
         tx: { value: 0 },
         ty: { value: 0 },

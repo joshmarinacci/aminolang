@@ -353,6 +353,8 @@ exports.ListViewCell = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.label);
+        this.comps.label.setTx(5);
+        this.comps.label.setTy(8);
         this.setText("foo");
     },
 });
@@ -413,16 +415,24 @@ exports.ListView = amino.ComposeObject({
         });
         
         this.cells = [];
-        this.generateCell = function() {
+        this.cg = function() {
             var cell = new exports.ListViewCell();
             cell.comps.label.setFontSize(15);
             return cell;
+        }
+        this.generateCell = function() {
+            return this.cg();
         };
+        this.setCellGenerator = function(cg) {
+            this.cg = cg;
+            //nuke all of the old cells
+            this.cells = [];
+        }
         
         this.textCellRenderer = null;
         this.setTextCellRenderer = function(textCellRenderer) {
             this.textCellRenderer = textCellRenderer;
-            this.regenerateCells();
+            ///this.regenerateCells();
             return this;
         }
         this.fillCellValues = function(cell,i, item) {

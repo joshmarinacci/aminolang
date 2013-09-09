@@ -1,5 +1,5 @@
-var amino = require('../build/desktop/amino.js');
-var widgets = require('../build/desktop/widgets.js');
+var amino = require('../../build/desktop/amino.js');
+var widgets = require('../../build/desktop/widgets.js');
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
@@ -50,8 +50,11 @@ root.setTy(20);
 switcherPanel.add(root);
 
 
+var Switcher = require('./switcher.js').Switcher;
 var switcher = new Switcher();
+switcher.core = core;
 switcher.root = root;
+switcher.switcherPanel = switcherPanel;
 
 
 function buildApp1(stage) {
@@ -206,108 +209,6 @@ switcherPanel.add(new widgets.PushButton().setText(">")
     .setBottom(0).setAnchorBottom(true)
     .onAction(switcher.slideNext)
     );
-
-function Switcher() {
-    var current = 0;
-    this.apps = [];
-    this.root = null;
-    this.add = function(app) {
-        this.root.add(app);
-        this.apps.push(app);
-        core.on("drag",app,this.dragHandler);
-        core.on("release",app,this.releaseHandler);
-    }
-    this.slide = function(i,rect) {
-        var dur = 200;
-        var anim;
-        if(self.zoomedin) {
-            var xoff = (i-current)*switcherPanel.getW();
-            anim = core.createPropAnim(rect, "tx", rect.getTx(), xoff, dur, 1, false);
-        } else {
-            var xoff = (i-current)*switcherPanel.getW()*1.2;
-            anim = core.createPropAnim(rect, "tx", rect.getTx(), switcherPanel.getW()/4+xoff/2, dur, 1, false);
-        }
-        anim.setInterpolator(amino.Interpolators.CubicInOut);
-    }
-    
-    this.zoomit = function(i,rect) {
-        var dur = 300;
-        var xoff = (i-current)*switcherPanel.getW()*1.2;
-        if(self.zoomedin) {
-            //zoom out
-            var anims = [];
-            anims[0] = core.createPropAnim(rect,"scalex",1,0.5, dur, 1, false);
-            anims[1] = core.createPropAnim(rect,"scaley",1,0.5, dur, 1, false);
-            anims[2] = core.createPropAnim(rect,"tx",0+xoff, switcherPanel.getW()/4 + xoff/2, dur, 1, false);
-            anims[3] = core.createPropAnim(rect,"ty",0,40, dur, 1, false);
-            anims.forEach(function(a) {
-                a.setInterpolator(amino.Interpolators.CubicInOut);
-            });
-        } else {
-            //zoom in
-            var anims = [];
-            anims[0] =  core.createPropAnim(rect,"scalex",0.5,1, dur, 1, false);
-            anims[1] = core.createPropAnim(rect,"scaley",0.5,1, dur, 1, false);
-            anims[2] = core.createPropAnim(rect,"tx",switcherPanel.getW()/4+xoff/2,0+xoff, dur, 1, false);
-            anims[3] = core.createPropAnim(rect,"ty",40,0, dur, 1, false);
-            anims.forEach(function(a) {
-                a.setInterpolator(amino.Interpolators.CubicInOut);
-            });
-        }
-    }
-    
-    var self = this;
-    this.dragHandler = function(e) {
-        self.apps.forEach(function(v) {
-            v.setTx(v.getTx()+e.dx);
-        });
-    }
-
-    this.releaseHandler = function(e) {
-        var n = self.apps.indexOf(e.target);
-        var xoff = (n-current)*switcherPanel.getW()*1.2;
-        var targetX = switcherPanel.getW()/4 + xoff/2;
-        var actualX = e.target.getTx();
-        if(actualX < targetX-switcherPanel.getW()/3) {
-            self.slideNext();
-            return;
-        }
-        if(actualX > targetX+switcherPanel.getW()/3) {
-            self.slidePrev();
-            return;
-        }
-        
-        for(var i in self.apps) {
-            self.slide(i,self.apps[i]);
-        }
-    }
-    
-    
-    this.slideNext = function() {
-        current = current+1;
-        if(current > self.apps.length-1) current = self.apps.length-1;
-        for(var i in self.apps) {
-            self.slide(i,self.apps[i]);
-        }
-    }
-    
-    this.slidePrev = function() {
-        current = current-1;
-        if(current < 0) current = 0;
-        for(var i in self.apps) {
-            self.slide(i,self.apps[i]);
-        }
-    }
-    
-    this.zoomedin = true;
-
-    this.zoomAll = function() {
-        for(var i in self.apps) {
-            self.zoomit(i,self.apps[i]);
-        }
-        self.zoomedin = !self.zoomedin;
-    }
-}
 
 
 function NavigationManager() {

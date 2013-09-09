@@ -1,6 +1,9 @@
-var Core = require('./amino.js');
-Core.startApp(function(core,stage) {
-    var group = core.createGroup();
+var amino = require('../build/desktop/amino.js');
+var widgets = require('../build/desktop/widgets.js');
+//var amino = require('./amino.js');
+amino.startApp(function(core,stage) {
+    var group = new amino.ProtoGroup();
+//    var group = core.createGroup();
     core.setRoot(group);
     
     
@@ -50,7 +53,7 @@ Core.startApp(function(core,stage) {
         }
     }
     for(var i=0; i<4; i++) {
-        var rect = core.createRect();
+        var rect = new amino.ProtoRect();
         rect.setW(cw).setH(ch).setTy(200);
         rect.setTx((i-current)*cw);
         rect.setId("rect_"+i);
@@ -64,11 +67,11 @@ Core.startApp(function(core,stage) {
     views[2].setFill("#ff00ff");
     
     
-    var prevbutton = core.createPushButton().setText("prev").setFontSize(40)
+    var prevbutton = new widgets.PushButton().setText("prev").setFontSize(40)
         .setW(200).setH(100).setTx(0).setTy(0).setId("prev");
-    var button = core.createPushButton().setText("zoom").setFontSize(40)
+    var button = new widgets.PushButton().setText("zoom").setFontSize(40)
         .setW(200).setH(100).setTx(230).setTy(0).setId("zoom");
-    var nextbutton = core.createPushButton().setText("next").setFontSize(40)
+    var nextbutton = new widgets.PushButton().setText("next").setFontSize(40)
         .setW(200).setH(100).setTx(460).setTy(0).setId("next");
         
     var zoomedin = true;
@@ -83,7 +86,7 @@ Core.startApp(function(core,stage) {
             anims[2] = core.createPropAnim(rect,"tx",0+xoff, cw/4 + xoff/2, dur, 1, false);
             anims[3] = core.createPropAnim(rect,"ty",200,400, dur, 1, false);
             anims.forEach(function(a) {
-                a.setInterpolator(Core.Interpolators.CubicInOut);
+                a.setInterpolator(amino.Interpolators.CubicInOut);
             });
         } else {
             //zoom in
@@ -93,7 +96,7 @@ Core.startApp(function(core,stage) {
             anims[2] = core.createPropAnim(rect,"tx",cw/4+xoff/2,0+xoff, dur, 1, false);
             anims[3] = core.createPropAnim(rect,"ty",400,200, dur, 1, false);
             anims.forEach(function(a) {
-                a.setInterpolator(Core.Interpolators.CubicInOut);
+                a.setInterpolator(amino.Interpolators.CubicInOut);
             });
         }
     }
@@ -107,7 +110,7 @@ Core.startApp(function(core,stage) {
             var xoff = (i-current)*cw*1.2;
             anim = core.createPropAnim(rect, "tx", rect.getTx(), cw/4+xoff/2, dur, 1, false);
         }
-        anim.setInterpolator(Core.Interpolators.CubicInOut);
+        anim.setInterpolator(amino.Interpolators.CubicInOut);
     }
     core.on("action",button,function() {
         for(var i in views) {

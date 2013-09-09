@@ -1,5 +1,7 @@
 var amino = require('../../build/desktop/amino.js');
 var widgets = require('../../build/desktop/widgets.js');
+var data = require('./fakedata.js');
+var Switcher = require('./switcher.js').Switcher;
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
@@ -50,7 +52,6 @@ root.setTy(20);
 switcherPanel.add(root);
 
 
-var Switcher = require('./switcher.js').Switcher;
 var switcher = new Switcher();
 switcher.core = core;
 switcher.root = root;
@@ -66,11 +67,12 @@ function buildApp1(stage) {
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
     ;
-    lv.listModel = [];
-    for(var i=0; i<20; i++) {
-        lv.listModel.push("todo " + i);
-    }
+    lv.listModel = data.people;
+    lv.setTextCellRenderer(function(cell,i,item) {
+        cell.setText(item.first + " " + item.last);
+    });
     panel.add(lv);
+    
     
     panel.add(new widgets.Label()
         .setText("Todo List").setFontSize(20));
@@ -82,7 +84,7 @@ function buildApp1(stage) {
             );
     nav.register(panel);
     return panel;
-};
+    };
 switcher.add(buildApp1(stage));
 
 function buildApp2(stage) {
@@ -102,11 +104,73 @@ function buildApp2(stage) {
             );
     nav.register(panel);
     return panel;            
-}
+    }
 switcher.add(buildApp2(stage));
+
+
+var EmailListViewCell = amino.ComposeObject({
+    type: "EmailListViewCell",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        },
+        from: {
+            proto: amino.ProtoText,
+        },
+        subject: {
+            proto: amino.ProtoText,
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.from);
+        this.comps.base.add(this.comps.subject);
+        
+        this.comps.from.setText("from");
+        this.comps.from.setTx(5);
+        this.comps.from.setTy(5);
+        this.comps.from.setFontSize(16);
+
+        this.comps.subject.setText("subject");
+        this.comps.subject.setTx(5);
+        this.comps.subject.setTy(25);
+        this.comps.subject.setFontSize(12);
+    },
+});
+
 
 function buildApp3(stage) {
     var panel = new widgets.AnchorPanel();
+    
+    var lv = new widgets.ListView();
+    lv.setCellGenerator(function() {
+        var cell = new EmailListViewCell();
+        return cell;
+    });
+    lv.setTextCellRenderer(function(cell,i,item) {
+        cell.comps.from.setText(item.from);
+        cell.comps.subject.setText(item.subject);
+        if(i%2 == 0) {
+            cell.setFill("#ffffff");
+        } else {
+            cell.setFill("#eeeeee");
+        }
+    });
+    lv.setCellHeight(40);
+    lv.setW(320).setH(200)
+    .setTop(20+40).setAnchorTop(true)
+    .setBottom(40).setAnchorBottom(true)
+    .setLeft(0).setAnchorLeft(true)
+    .setRight(0).setAnchorRight(true)
+    ;
+    lv.listModel = data.emails;
+    //console.log(data.emails);
+    
+    
+    panel.add(lv);
+    
     panel.add(new widgets.PushButton()
             .setText("reply")
             .setW(90).setH(40).setTx(94).setTy(390));

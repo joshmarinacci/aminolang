@@ -1,16 +1,12 @@
 var Faker = require('Faker');
 
-var randomName = Faker.Name.findName();
-
-console.log(randomName);
-
 var accounts = [
     { name:"Personal mail", id: "personal", type:"GMail" }
 ]
 
 var people = [];
 
-for(var i=0; i<10; i++) {
+for(var i=0; i<30; i++) {
     people.push({
         id: Faker.Helpers.randomNumber(1000),
         first: Faker.Name.firstName(),
@@ -34,7 +30,6 @@ for(var i=0; i<10; i++) {
     });
 }
 
-console.log(JSON.stringify(people,null,"  "));
 
 
 var music = {
@@ -70,7 +65,6 @@ for(var i=0; i<30; i++) {
 }
 
 
-console.log(music);
 //console.log(Faker.Helpers.createCard());
 
 
@@ -86,7 +80,6 @@ for(var i=0; i<30; i++) {
         body:Faker.Lorem.paragraphs(3),
     });
 }
-console.log(emails);
 
 
 var photos = [];
@@ -98,7 +91,6 @@ for(var i=0; i<100; i++) {
         height: 150,
     });
 }
-console.log(photos);
 
 var events = [];
 for(var i=0; i<3; i++) {
@@ -123,7 +115,6 @@ for(var i=0; i<3; i++) {
         ],
     });
 }
-console.log(events);
 
 var newssources = [];
 
@@ -136,7 +127,6 @@ for(var i=0; i<10; i++) {
         domain:domain,
     });
 }
-console.log(newssources);
 
 var newsitems = [];
 for(var i=0; i<20; i++) {
@@ -150,21 +140,16 @@ for(var i=0; i<20; i++) {
         archived: (Faker.Helpers.randomNumber(100) < 40), //40% are archived
     });
 }
-console.log(newsitems);
 
 
 var longreads = [];
 for(var i=0; i<20; i++) {
     longreads.push(Faker.Helpers.randomize(newsitems));
 }
-console.log(longreads);
 
 
 var data = {
     accounts: accounts,
-    people: people,
-    music: music,
-    emails: emails,
     photos: photos,
     events: events,
     newssources: newssources,
@@ -172,6 +157,7 @@ var data = {
     longreads: longreads,
 }
 
-console.log(data);
 
-
+exports.people = people;
+exports.music = music;
+exports.emails = emails;

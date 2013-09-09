@@ -56,8 +56,14 @@ exports.PushButton = amino.ComposeObject({
             self.setFill(amino.colortheme.accent);
         });
         amino.getCore().on("click",this,function(e) {
-            amino.getCore().fireEvent({type:'action',source:self});
+            var event = {type:'action',source:self};
+            amino.getCore().fireEvent(event);
+            if(self.actioncb) self.actioncb(event);
         });
+        this.onAction = function(cb) {
+            this.actioncb = cb;
+            return this;
+        }
     }
 });
 
@@ -203,6 +209,26 @@ exports.AnchorPanel = amino.ComposeObject({
             proto: amino.ProtoRect,
             promote: ['w','h','fill'],
         }
+    },
+    props: {
+        w: {
+            value: 300,
+            set: function(w) {
+                this.props['w'] = w;
+                this.comps.background.setW(w);
+                this.redoLayout();
+                return this;
+            }
+        },
+        h: {
+            value: 300,
+            set: function(h) {
+                this.props['h'] = h;
+                this.comps.background.setH(h);
+                this.redoLayout();
+                return this;
+            }
+        },
     },
     init: function() {
         this.comps.base.add(this.comps.background);

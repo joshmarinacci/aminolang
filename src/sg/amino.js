@@ -541,9 +541,12 @@ exports.ProtoGroup = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
+        if(name == 'visible') {
+            this.props[name] = (value?1:0);
+        }
         //mirror the property to the native side
         if(this.live) {
-            sgtest.updateProperty(this.handle, propsHash[name], value);
+            sgtest.updateProperty(this.handle, propsHash[name], this.props[name]);
         }
     },
     init: function() {
@@ -552,9 +555,9 @@ exports.ProtoGroup = exports.ComposeObject({
         this.live = true;
         /** @func add(child)  add a child to the group. Must be a non-null node. */
         this.add = function(node) {
-            if(!node) abort("can't add a null child to a group");
+            if(node == undefined) abort("can't add a null child to a group");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
-            if(!node.handle) abort("the child doesn't have a handle");
+            if(node.handle == undefined) abort("the child doesn't have a handle");
             this.children.push(node);
             node.parent = this;
             sgtest.addNodeToGroup(node.handle,this.handle);

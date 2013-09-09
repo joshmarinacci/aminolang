@@ -337,6 +337,118 @@ exports.VerticalPanel = amino.ComposeObject({
     }
 });
 
+exports.ListViewCell = amino.ComposeObject({
+    type: "ListViewCell",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        },
+        label: {
+            proto: amino.ProtoText,
+            promote: ['text','fontSize'],
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.label);
+        this.setText("foo");
+    },
+});
+
+
+exports.ListView = amino.ComposeObject({
+    type:"ListView",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        }
+    },
+    props: {
+        cellHeight: { value: 32 },
+        cellWidth: { value: 32 },
+        layout: { value: "vertical" },
+        selectedIndex: { value:-1 },
+    },
+    init: function() {
+        console.log("making a list view");
+        this.comps.base.add(this.comps.background);
+        this.setFill("#ffccff");
+        
+        this.listModel = [];
+        for(var i=0; i<30; i++) {
+            this.listModel.push(i+" foo");
+        }
+        this.scroll = 0;
+        
+        
+        var self = this;
+        amino.getCore().on("drag",this,function(e) {
+            self.scroll -= e.dy;
+            if(self.scroll < 0) self.scroll = 0;
+            var max = self.listModel.length*self.cellHeight - self.getH();
+            if(self.scroll > max) { self.scroll = max; }
+            self.regenerateCells();
+        });
+        
+        this.cells = [];
+        this.generateCell = function() {
+            var cell = new exports.ListViewCell();
+            cell.comps.label.setFontSize(15);
+            return cell;
+        };
+        
+        this.textCellRenderer = null;
+        this.setTextCellRenderer = function(textCellRenderer) {
+            this.textCellRenderer = textCellRenderer;
+            this.regenerateCells();
+            return this;
+        }
+        this.fillCellValues = function(cell,i, item) {
+            if(this.textCellRenderer) {
+                this.textCellRenderer(cell,i,item);
+                return;
+            }
+            cell.setText(item);
+            if(i%2 == 0) {
+                cell.setFill(amino.colortheme.listview.cell.fillEven);
+            } else {
+                cell.setFill(amino.colortheme.listview.cell.fillOdd);
+            }
+        }
+        
+        this.regenerateCells = function() {
+            var ch = this.getCellHeight();
+            var start= Math.min(this.listModel.length, Math.floor(this.scroll/ch));
+            var end = Math.min(this.listModel.length, Math.floor((this.getH()+this.scroll)/ch));
+            var remainder = this.scroll - Math.floor(this.scroll/ch)*ch;
+            var self = this;
+            this.cells.forEach(function(cell) {
+                cell.setVisible(false);
+            });
+    
+            var i = start;
+            for(var n=0; n<end-start; n++) {
+                if(!this.cells[n]) {
+                    this.cells[n] = this.generateCell();
+                    this.comps.base.add(this.cells[n]);
+                }
+                var cell = this.cells[n];
+                cell.setVisible(true);
+                cell.setTy(n*ch - remainder);
+                cell.setW(this.getW());
+                cell.setH(this.getCellHeight());
+                this.fillCellValues(cell,i,this.listModel[i]);
+                i++;
+            }
+        }
+        
+        this.regenerateCells();
+    },
+});
 
 var SceneParser = function() {
     
@@ -430,5 +542,8 @@ var SceneParser = function() {
         console.log("warning. no object for type " + obj.type);
     }
 }
+
+
+
 
 exports.SceneParser = SceneParser;

@@ -17,6 +17,12 @@ exports.colortheme = {
     neutral: "#cccccc",
     text:    "#000000",
     accent:  "#55ff55",
+    listview: {
+        cell: {
+            fillEven: "#ffffff",
+            fillOdd:  "#eeeeee",
+        }
+    }
 }
 
 var sgtest;

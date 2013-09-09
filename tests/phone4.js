@@ -6,101 +6,6 @@ amino.startApp(function(core, stage) {
     stage.setSize(320,480);
 
 
-function NavigationManager() {
-    this.panels = [];
-    this.register = function(panel) {
-        this.panels.push(panel);
-    }
-    this.transitions = {};
-    this.createTransition = function(name,src,dst,type) {
-        this.transitions[name] = {
-            name:name,
-            src:src,
-            dst:dst,
-            type:type
-        };
-    }
-    this.navstack = [];
-    this.push = function(name) {
-        var trans = this.transitions[name];
-        
-        core.createPropAnim(trans.src, "tx", 0, -stage.width, 250, 1, false);
-        core.createPropAnim(trans.dst, "tx", stage.width,  0, 250, 1, false);
-        this.navstack.push(trans);
-        trans.dst.setVisible(true);
-    }
-    this.pop = function() {
-        var trans = this.navstack.pop();
-        core.createPropAnim(trans.src, "tx", -400, 0, 250, 1, false);
-        core.createPropAnim(trans.dst, "tx", 0,  400, 250, 1, false)
-            .after(function() { trans.dst.setVisible(false); });
-    }
-    this.insets = {
-        top: 20,
-        bottom: 30,
-        left: 0,
-        right: 0,
-    };
-    this.setSize = function(w,h) {
-        for(var i in self.panels) {
-            var panel = self.panels[i];
-            panel.setW(w-this.insets.left-this.insets.right)
-            .setH(h-this.insets.top-this.insets.bottom);
-            panel.setTy(this.insets.top);
-            panel.setTx(this.insets.left);
-        }
-    }
-    var self = this;
-    stage.on("WINDOWSIZE", stage, function(e) {
-        self.setSize(e.width,e.height);
-    });
-}
-function SwipeRecognizer(stage,cb) {
-    
-    var MAX_SWIPE_DURATION = 500;
-    var MIN_SWIPE_DISTANCE = 50;
-    
-    var started;
-    var startTime;
-    var startX;
-    var startY;
-    function reset() {
-        started = false;
-        startTime = 0;
-        startX = 0;
-        startY = 0;
-    }
-    reset();
-    
-    var lastTimeout = 0;
-    stage.on("DRAG",null,function(e) {
-        var time = Date.now();
-        if(!started) {
-            started = true;
-            startTime = time;
-            startX = e.x;
-            startY = e.y;
-        }
-        var dx = e.x - startX;
-        var dy = e.y - startY;
-        var dt = time-startTime;
-        //console.log("pressed it", " x/y ", e.x , e.y, "  dx/dy  ", dx, dy, "  dt", dt);
-        clearTimeout(lastTimeout);
-        lastTimeout = setTimeout(function() {
-            console.log("later");
-            if( startY < 75 && dy > 150 && dt < 500) {
-                console.log("down swipe");
-                cb({type:"down"});
-            }
-            if( startY > 500 && dy < -125 && dt < 300) {
-                console.log("up swipe");
-                cb({type:"up"});
-            }
-            reset();
-        },100);
-    });
-}
-
 var nav = new NavigationManager();
 nav.insets.bottom = 30+20;
 nav.insets.top = 0;
@@ -404,6 +309,101 @@ function Switcher() {
     }
 }
 
+
+function NavigationManager() {
+    this.panels = [];
+    this.register = function(panel) {
+        this.panels.push(panel);
+    }
+    this.transitions = {};
+    this.createTransition = function(name,src,dst,type) {
+        this.transitions[name] = {
+            name:name,
+            src:src,
+            dst:dst,
+            type:type
+        };
+    }
+    this.navstack = [];
+    this.push = function(name) {
+        var trans = this.transitions[name];
+        
+        core.createPropAnim(trans.src, "tx", 0, -stage.width, 250, 1, false);
+        core.createPropAnim(trans.dst, "tx", stage.width,  0, 250, 1, false);
+        this.navstack.push(trans);
+        trans.dst.setVisible(true);
+    }
+    this.pop = function() {
+        var trans = this.navstack.pop();
+        core.createPropAnim(trans.src, "tx", -400, 0, 250, 1, false);
+        core.createPropAnim(trans.dst, "tx", 0,  400, 250, 1, false)
+            .after(function() { trans.dst.setVisible(false); });
+    }
+    this.insets = {
+        top: 20,
+        bottom: 30,
+        left: 0,
+        right: 0,
+    };
+    this.setSize = function(w,h) {
+        for(var i in self.panels) {
+            var panel = self.panels[i];
+            panel.setW(w-this.insets.left-this.insets.right)
+            .setH(h-this.insets.top-this.insets.bottom);
+            panel.setTy(this.insets.top);
+            panel.setTx(this.insets.left);
+        }
+    }
+    var self = this;
+    stage.on("WINDOWSIZE", stage, function(e) {
+        self.setSize(e.width,e.height);
+    });
+}
+function SwipeRecognizer(stage,cb) {
+    
+    var MAX_SWIPE_DURATION = 500;
+    var MIN_SWIPE_DISTANCE = 50;
+    
+    var started;
+    var startTime;
+    var startX;
+    var startY;
+    function reset() {
+        started = false;
+        startTime = 0;
+        startX = 0;
+        startY = 0;
+    }
+    reset();
+    
+    var lastTimeout = 0;
+    stage.on("DRAG",null,function(e) {
+        var time = Date.now();
+        if(!started) {
+            started = true;
+            startTime = time;
+            startX = e.x;
+            startY = e.y;
+        }
+        var dx = e.x - startX;
+        var dy = e.y - startY;
+        var dt = time-startTime;
+        //console.log("pressed it", " x/y ", e.x , e.y, "  dx/dy  ", dx, dy, "  dt", dt);
+        clearTimeout(lastTimeout);
+        lastTimeout = setTimeout(function() {
+            console.log("later");
+            if( startY < 75 && dy > 150 && dt < 500) {
+                console.log("down swipe");
+                cb({type:"down"});
+            }
+            if( startY > 500 && dy < -125 && dt < 300) {
+                console.log("up swipe");
+                cb({type:"up"});
+            }
+            reset();
+        },100);
+    });
+}
 
 
 });

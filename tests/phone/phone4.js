@@ -70,6 +70,11 @@ function buildApp1(stage) {
     lv.listModel = data.people;
     lv.setTextCellRenderer(function(cell,i,item) {
         cell.setText(item.first + " " + item.last);
+        if(i%2 == 0) {
+            cell.setFill("#ffffff");
+        } else {
+            cell.setFill("#eeeeee");
+        }
     });
     panel.add(lv);
     
@@ -79,8 +84,9 @@ function buildApp1(stage) {
     //list view
     panel.add(new widgets.PushButton()
             .setText("Add")
+            .setBottom(10).setAnchorBottom(true)
+            .setLeft(10).setAnchorLeft(true)
             .setW(100).setH(30)
-            .setTy(390).setTx(6)
             );
     nav.register(panel);
     return panel;
@@ -173,12 +179,15 @@ function buildApp3(stage) {
     
     panel.add(new widgets.PushButton()
             .setText("reply")
+            .setBottom(10).setAnchorBottom(true)
             .setW(90).setH(40).setTx(94).setTy(390));
     panel.add(new widgets.PushButton()
             .setText("delete")
+            .setBottom(10).setAnchorBottom(true)
             .setW(90).setH(40).setTx(190).setTy(390));
     panel.add(new widgets.PushButton()
             .setText("compose")
+            .setBottom(10).setAnchorBottom(true)
             .setW(90).setH(40).setTx(0).setTy(390));
     //list view
     panel.add(new widgets.Label()
@@ -193,12 +202,15 @@ function buildApp4(stage) {
     var panel = new widgets.AnchorPanel();
     panel.add(new widgets.PushButton()
         .setText("Prev")
+        .setBottom(10).setAnchorBottom(true)
         .setW(100).setH(30).setTx(0).setTy(400));
     panel.add(new widgets.PushButton()
         .setText("Play")
+        .setBottom(10).setAnchorBottom(true)
         .setW(100).setH(30).setTx(105).setTy(400));
     panel.add(new widgets.PushButton()
         .setText("Next")
+        .setBottom(10).setAnchorBottom(true)
         .setW(100).setH(30).setTx(211).setTy(400));
     nav.register(panel);
     return panel;
@@ -228,8 +240,6 @@ function buildApp6(stage) {
         .setW(319).setH(40)
         .setTop(0).setLeft(10).setRight(10)
         );
-    //list view
-    
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
     .setTop(20+40).setAnchorTop(true)
@@ -237,8 +247,20 @@ function buildApp6(stage) {
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
     ;
-    console.log("made it");
     panel.add(lv);
+    lv.listModel = data.events;
+    console.log(data.events);
+    lv.setTextCellRenderer(function(cell,i,item) {
+        if(!item) return;
+        var date = new Date(item.datetime.year,
+            item.datetime.month,
+            item.datetime.day,
+            item.datetime.hour, 
+            item.datetime.minute,0);
+        cell.setText(item.title + ", " 
+            + item.datetime.hour +":"
+            + item.datetime.minute);
+    });
     
     panel.add(new widgets.PushButton()
         .setText("add event")

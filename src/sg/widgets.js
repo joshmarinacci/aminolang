@@ -1,20 +1,45 @@
+/** 
+@class dummy
+@desc a dummy header to work around a doc generation bug. ignore
+*/
+
 var amino = require('./amino.js');
 
 function camelize(s) {
 	return s.substring(0,1).toUpperCase() + s.substring(1);
 }
 
-/** A simple push button */
+/**
+@class PushButton
+@desc a simple push button. The colors are set by the global amino theme. You can listen for action events on the button
+with code like this:
+@codestart
+core.on('action',myButton,function(event) {
+    console.log("the button " + event.source + " fired an action");
+});
+@codeend
+or using the onAction function
+@codestart
+myButton.onAction(function(event) {
+    console.log("the button " + event.source + " fired an action");
+});
+@codeend
+*/
 exports.PushButton = amino.ComposeObject({
     type: "PushButton",
     extend: amino.ProtoWidget,
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop w the width of this push button */
+            /** @prop h the width of this push button */
+            /** @prop fill the fill color this push button. Should be a hex string. */
             promote: ['w','h','fill'],
         },
         label: {
             proto: amino.ProtoText,
+            /** @prop text the text label of this button. */
+            /** @prop fontSize the font size to use for this button. */
             promote: ['text','fontSize'],
         },
     },
@@ -60,6 +85,7 @@ exports.PushButton = amino.ComposeObject({
             amino.getCore().fireEvent(event);
             if(self.actioncb) self.actioncb(event);
         });
+        /** @func onAction(cb) a function to call when this button fires an action. You can also listen for the 'action' event. */
         this.onAction = function(cb) {
             this.actioncb = cb;
             return this;
@@ -67,13 +93,20 @@ exports.PushButton = amino.ComposeObject({
     }
 });
 
-/** A slider to choose a value between the max and min */
+/**
+@class Slider
+@desc A slider to choose a value. The value is restricted to be between the max and min values.
+The color of this slider is determined by the global amino theme.
+*/
 exports.Slider = amino.ComposeObject({
     type: 'Slider',
     extend: amino.ProtoWidget,
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop w the width of this slider */
+            /** @prop h the width of this slider */
+            /** @prop fill the fill color this slider. Should be a hex string. */
             promote: ['w','h','fill'],
         },
         thumb: {
@@ -81,8 +114,11 @@ exports.Slider = amino.ComposeObject({
         },
     },
     props: {
+        /** @prop min the minimum value of this slider */
         min: { value: 0 },
+        /** @prop max the maximum value of this slider */
         max: { value: 100 },
+        /** @prop value the current value of this slider */
         value: {
             value:"0", 
             set: function(value) {
@@ -112,7 +148,10 @@ exports.Slider = amino.ComposeObject({
     }
 });
 
-/** A spinner to indicate progress of some activity */
+/** 
+@class Spinner
+@desc A spinner to indicate progress of some activity 
+*/
 exports.ProgressSpinner = amino.ComposeObject({
     type: 'ProgressSpinner',
     extend: amino.ProtoWidget,
@@ -125,6 +164,7 @@ exports.ProgressSpinner = amino.ComposeObject({
         }
     },
     props: {
+        /** @prop size  the size of this slider, in pixels. */
         size: {
             value: 50,
             set: function(w) {
@@ -136,6 +176,8 @@ exports.ProgressSpinner = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop active a boolean property to turn the spinner on or off. 
+          The spinner will only be visible while it is active. */
         active: {
             value:false,
             set: function(active) {
@@ -165,13 +207,17 @@ exports.ProgressSpinner = amino.ComposeObject({
     }
 });
 
-/** A basic label. can set a width and do left,center,right alignment. */
+/** 
+@class Label
+@desc A basic label. Can set a width and do left,center,right alignment. 
+*/
 exports.Label = amino.ComposeObject({
     type:"Label",
     extend: amino.ProtoWidget,
     comps: {
         text: {
             proto: amino.ProtoText,
+            /** @prop text  the text of this label */
             promote: ['text','fontSize'],
         }
     },
@@ -198,9 +244,10 @@ exports.Label = amino.ComposeObject({
     }
 });
 
-/** AnchorPanel is a container which lays out it's children using anchor
-constraints like top and left */
-
+/**
+@class AnchorPanel
+@desc A container which lays out it's children using anchor
+constraints like right and bottom. */
 exports.AnchorPanel = amino.ComposeObject({
     type:"AnchorPanel",
     extend: amino.ProtoWidget,
@@ -235,6 +282,7 @@ exports.AnchorPanel = amino.ComposeObject({
         this.contains = function() { return false; }
         this.children = [];
         this.isParent = function() { return true; }
+        /** @func  add(node) adds a new child to this panel */
         this.add = function(node) {
             if(!node) abort("can't add a null child to an anchor panel");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
@@ -294,6 +342,11 @@ exports.AnchorPanel = amino.ComposeObject({
 });
 
 
+/**
+@class VerticalPanel
+@desc A panel which lays out it's children in a vertical box. All children will be given the width
+of the panel, minus pading.
+*/
 exports.VerticalPanel = amino.ComposeObject({
     type:"VerticalPanel",
     extend: amino.ProtoWidget,
@@ -304,7 +357,9 @@ exports.VerticalPanel = amino.ComposeObject({
         }
     },
     props: {
+        /** @prop gap the gap between widgets in the panel */
         gap: { value: 10 },
+        /** @prop padding the padding between widgets and the edges of the panel */
         padding: { value: 10 },
     },
     init: function() {
@@ -312,6 +367,7 @@ exports.VerticalPanel = amino.ComposeObject({
         this.contains = function() { return false; }
         this.children = [];
         this.isParent = function() { return true; }
+        /** @func add(node) adds a widget to this panel */
         this.add = function(node) {
             if(!node) abort("can't add a null child to an anchor panel");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
@@ -337,6 +393,11 @@ exports.VerticalPanel = amino.ComposeObject({
     }
 });
 
+/**
+@class ListViewCell
+@desc A panel which lays out it's children in a vertical box. All children will be given the width
+of the panel, minus pading.
+*/
 exports.ListViewCell = amino.ComposeObject({
     type: "ListViewCell",
     extend: amino.ProtoWidget,
@@ -347,6 +408,8 @@ exports.ListViewCell = amino.ComposeObject({
         },
         label: {
             proto: amino.ProtoText,
+            /** @prop text text of the cell */
+            /** @prop fontSize font size of the label */
             promote: ['text','fontSize'],
         },
     },
@@ -360,6 +423,11 @@ exports.ListViewCell = amino.ComposeObject({
 });
 
 
+/**
+@class ListView
+@desc Shows a list of items. Scrolls if there are too many items to fit on the screen. It can be customized
+by setting a new TextCellRenderer or a new CellGenerator.
+*/
 exports.ListView = amino.ComposeObject({
     type:"ListView",
     extend: amino.ProtoWidget,
@@ -370,10 +438,15 @@ exports.ListView = amino.ComposeObject({
         }
     },
     props: {
+        /** @prop cellHeight the height of cells. All cells have the same height. */
         cellHeight: { value: 32 },
+        /** @prop cellWidth the width of cells. Not currently used. */
         cellWidth: { value: 32 },
+        /** @prop layout the layout orientaiton of this list view. Currently only 'vertical' is supported. */
         layout: { value: "vertical" },
+        /** @prop selectedIndex not supported yet */
         selectedIndex: { value:-1 },
+        /** @prop w the width of the list view. */
         w: {
             value: 300,
             set: function(w) {
@@ -383,6 +456,7 @@ exports.ListView = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop h the width of the list view. */
         h: {
             value: 300,
             set: function(h) {
@@ -397,7 +471,7 @@ exports.ListView = amino.ComposeObject({
         console.log("making a list view");
         this.comps.base.add(this.comps.background);
         this.setFill("#ffccff");
-        
+
         this.listModel = [];
         for(var i=0; i<30; i++) {
             this.listModel.push(i+" foo");
@@ -423,6 +497,7 @@ exports.ListView = amino.ComposeObject({
         this.generateCell = function() {
             return this.cg();
         };
+        /** @func setCellGenerator(func) set a function which will return new ListCells when called. */
         this.setCellGenerator = function(cg) {
             this.cg = cg;
             //nuke all of the old cells
@@ -430,6 +505,9 @@ exports.ListView = amino.ComposeObject({
         }
         
         this.textCellRenderer = null;
+        /** @func setTextCellRenderer(func) set a function which will customize a list cell with an item.
+        The function will be called with the cell, index of the item, and the item.
+        */
         this.setTextCellRenderer = function(textCellRenderer) {
             this.textCellRenderer = textCellRenderer;
             ///this.regenerateCells();

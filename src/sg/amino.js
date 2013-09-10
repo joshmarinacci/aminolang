@@ -320,6 +320,9 @@ function setupBacon(core) {
 }
 
 
+/** 
+@func ComposeObject transform the supplied prototype object into a constructor that can then be invoked with 'new'
+*/
 exports.ComposeObject = function(proto) {
     function delgate(obj, name, comp) {
         obj.comps[name] = new comp.proto();
@@ -605,14 +608,18 @@ exports.ProtoGroup = exports.ComposeObject({
 @desc  The text primitive. Use it to draw a single run of text with the
 same font, size, and color.
 */
-
 exports.ProtoText = exports.ComposeObject({
     type:"Text",
     props: {
+        /** @prop tx translate X. @default 0 */
         tx: { value: 0 },
+        /** @prop ty translate Y. @default 0 */
         ty: { value: 0 },
+        /** @prop visible  @default true */
         visible: { value: 1 },
+        /** @prop text  the exact string to display */
         text: { value: 'silly text' },
+        /** @prop fontSize the fontsize of this text string */
         fontSize: { value: 20 },
     },
     //replaces all setters
@@ -637,20 +644,28 @@ exports.ProtoText = exports.ComposeObject({
 
 /** 
 @class ImageView
-@desc a widget to show an image. Can scale it. 
+@desc a view which shows an image loaded from a path. It will always show the full image.
 */
 exports.ProtoImageView = exports.ComposeObject({
     props: {
+        /** @prop tx translate X. @default 0 */
         tx: { value: 0   },
+        /** @prop ty translate Y. @default 0 */
         ty: { value: 0   },
+        /** @prop x x value. @default 0 */
         x:  { value: 0   },
+        /** @prop y y value. @default 0 */
         y:  { value: 0   },
         r:  { value: 0   },
         g:  { value: 0   },
         b:  { value: 1   },
+        /** @prop x width of the image view @default 100 */
         w:  { value: 100 },
+        /** @prop h height of the image view @default 100 */
         h:  { value: 100 },
+        /** @prop visible @default true */
         visible: { value:1 },
+        /** @prop src  the file to load this image from @default null */
         src: { 
             value: null ,
         },
@@ -683,11 +698,16 @@ exports.ProtoImageView = exports.ComposeObject({
     init: function() {
         this.live = true;
         this.handle = sgtest.createRect();
-        console.log('created a rect', this.handle); 
     }
 });
 
 
+/**
+@class ProtoWidget
+@desc  the base class for all widgets. Widgets are a kind of node used for UI controls. All widgets
+have a size (width/height), can be hidden (visible = false), an ID, and left/right/top/bottom properties
+to be used by layout panels. 
+*/
 exports.ProtoWidget = exports.ComposeObject({
     type: "widget",
     comps: {
@@ -697,23 +717,40 @@ exports.ProtoWidget = exports.ComposeObject({
         },
     },
     props: {
+        /** @prop id  The id of the widget. It is set to the string 'no id' by default. You should set it to some unique value. Can be used
+        later to search for the node. similar to the HTML DOM form of 'id'.*/
         id: { value: "no id" },
+        /** @prop left The distance from the left edge of this widget to it's parent container. Only applies when put inside
+        of an anchor panel and when the anchorLeft property is set to true. @default = 0 */
         left: { value: 0 },
+        /** @prop right The distance from the right edge of this widget to it's parent container. Only applies when put inside
+        of an anchor panel and when the anchorRight property is set to true. @default = 0 */
         right: { value: 0 },
+        /** @prop top The distance from the top edge of this widget to it's parent container. Only applies when put inside
+        of an anchor panel and when the anchorTop property is set to true. @default = 0 */
         top: { value: 0 },
+        /** @prop bottom The distance from the bottom edge of this widget to it's parent container. Only applies when put inside
+        of an anchor panel and when the anchorBottom property is set to true. @default = 0 */
         bottom: { value: 0 },
+        /** @prop anchorLeft Determines if this widget should be left anchored by its parent. Only applies when put inside
+        of an anchor panel. @default = false */
         anchorLeft: { value: false },
+        /** @prop anchorRight Determines if this widget should be right anchored by its parent. Only applies when put inside
+        of an anchor panel. @default = false */
         anchorRight: { value: false },
+        /** @prop anchorTop Determines if this widget should be top anchored by its parent. Only applies when put inside
+        of an anchor panel. @default = false */
         anchorTop: { value: false },
+        /** @prop anchorBottom Determines if this widget should be bottom anchored by its parent. Only applies when put inside
+        of an anchor panel. @default = false */
         anchorBottom: { value: false },
+        /** @prop parent A reference to this widget's immediate parent container. */
         parent: { value: null },
     },
     init: function() {
-        //console.log("init of the widget");
-        //console.log(this.props);
-        //console.log(this.comps);
         this.handle = this.comps.base.handle;
         this.font = Core._core.defaultFont;
+        /** @func contains(x,y)  returns true if the bounds of this widget contain the passed in x and y. */
         this.contains = function(x,y) {
             if(x >=  0  && x <= this.getW()) {
                 if(y >= 0 && y <= this.getH()) {
@@ -828,29 +865,41 @@ function SGTextArea() {
 //SGTextArea.extend(SGTextControl);
 */
 
+/** @class Stage
+@desc A stage represents a window. On mobile devices there will only be one stage. On desktop there can be multiple. A stage
+can only be created by using the core.createStage() function. 
+*/
 function SGStage(core) {
 	this.core = core;
+	/** @func setSize(w,h) set the width and height of the stage. Has no effect on mobile. */
 	this.setSize = function(width,height) {
 	    this.width = width;
 	    this.height = height;
 	    sgtest.setWindowSize(this.width,this.height);
 	}
+	/** @func getW returns the width of this stage. */
 	this.getW = function() {
 	    return this.width;
 	}
+	/** @func getH returns the height of this stage. */
 	this.getH = function() {
 	    return this.height;
 	}
+	/** @func on(name,node,cb) sets a callback for events matching the specified name on the 
+	specified node. Use null for the node to match global events. */
 	this.on = function(name, node, cb) {
 		this.core.on(name, node, cb);
 	}
+	/** @func getRoot returns the root node of this stage. */
 	this.getRoot = function() {
 		return this.core.root;
 	}
+	/** @func set the root node of this stage. */
 	this.setRoot = function(root) {
 		this.core.setRoot(root);
 		return this;
 	}
+	/** @func find(id) searches the stage's node tree for a node with the requested ID. Returns null if no node is found. */
     this.find = function(id) {
         return this.findNodeById_helper(id,this.getRoot());
     }
@@ -867,6 +916,11 @@ function SGStage(core) {
     
 }
 
+/**
+@class Font
+@desc Represents a particular font face. The face is set to a specific style,
+but can be used at multiple sizes.
+*/
 function JSFont(jsonfile, imagefile) {
     //create the default font
     var jsontext = fs.readFileSync(jsonfile);
@@ -875,6 +929,7 @@ function JSFont(jsonfile, imagefile) {
     this.nativefont = sgtest.createNativeFont(this.image.texid,this.json);
     this.basesize = this.json.size;
     this.scale = 0.5;
+    /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
     this.calcStringWidth = function(str, size) {
         var total = 0;
         for(var i=0; i<str.length; i++) {
@@ -885,14 +940,20 @@ function JSFont(jsonfile, imagefile) {
         }
         return total * size/this.basesize;
     }
-    this.getHeight = function(fs,gfx) {
+    /** @func getHeight(size) returns the height of this font at the requested size */
+    this.getHeight = function(fs) {
         return this.json.height * (fs/this.basesize);
     }
-    this.getAscent = function(fs,gfx) {
+    /** @func getAscent(fs) returns the ascent of this font at the requested size */
+    this.getAscent = function(fs) {
         return this.ascent * (fs/this.basesize);
     }
 }
 
+/** @class Anim
+@desc  Anim animates ones property of a node. It must be created using the
+core.createAnim() function.
+*/
 function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     this.node = node;
     this.prop = prop;
@@ -908,6 +969,9 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
             propsHash[this.prop],
             this.start,this.end,this.duration,this.count,this.autoreverse);
     }
+    /** @func setIterpolator(type) Sets the interpolator to use for this animation. Valid values include: 
+      amino.Interpolators.CubicIn and amino.Interpolators.CubicInOut and amino.Interpolators.Linear
+     */
     this.setInterpolator = function(lerptype) {
         this.lerptype = lerptype;
         sgtest.updateAnimProperty(this.handle, propsHash["lerpprop"], lerptype);
@@ -922,6 +986,7 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
             this.afterCallbacks[i]();
         }
     }
+    /** @func after(cb)  Sets a callback to be called when the animation finishes. Note: an infinite animation will never finish. */
     this.after = function(cb) {
         this.afterCallbacks.push(cb);
         return this;
@@ -934,6 +999,13 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
 */
 function Core() {
     this.anims = [];
+    /** @func createPropAnim(node, propertyName, startValue, endValue, duration, count, autoreverse) 
+    creates a new property animation. Node is the node to be animated. propertyName is the string name of the property
+    to animate. This should be a numeric property like tx or scalex. start and end are the starting and ending values
+    of the animation. Duration is the length of the animation in milliseconds. 1000 = one second. Count is
+    how many times the animation should loop. Use -1 to loop forever. Autoreverse determines if the animation should
+    alternate direction on every other time. Only applies if the animatione will play more than one time.
+    */
     this.createPropAnim = function(node, prop, start, end, dur, count, autoreverse) {
         var anim = new SGAnim(node,prop,start,end,dur,count,autoreverse);
         anim.init(this);
@@ -985,6 +1057,7 @@ function Core() {
         //setTimeout(tickLoop,1);
     }
     
+    /** @func createStage(w,h)  creates a new stage. Only applies on desktop. */
     this.createStage = function(w,h) {
         sgtest.createWindow(w,h);
         this.defaultFont = new JSFont(__dirname+"/font.json",__dirname+"/font.png");
@@ -997,7 +1070,7 @@ function Core() {
         this.root = node;
     }
     this.findNodeAtXY = function(x,y) {
-    	return this.findNodeAtXY_helper(this.root,x,y);
+        	return this.findNodeAtXY_helper(this.root,x,y);
     }
     this.findNodeAtXY_helper = function(root,x,y) {
         if(!root) return null;
@@ -1091,6 +1164,7 @@ exports.getCore = function() {
 }
 exports.startApp = startApp;
 exports.Interpolators = {
+    Linear:propsHash["lerplinear"],
     CubicIn:propsHash["lerpcubicin"],
     CubicInOut:propsHash["lerpcubicinout"],
 }

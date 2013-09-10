@@ -16,7 +16,10 @@ function addFunc(name, desc) {
     clazz.funcs.push({name:name, desc: desc});
 }
 function dump() {
-    return classes;
+    var c = classes;
+    classes = {};
+    clazz = {};
+    return c;
 }
 ometa DocParser <: Parser {
     sp = (' '|'\n'|'\t')*,

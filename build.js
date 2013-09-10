@@ -256,8 +256,17 @@ function docgen(cb) {
     var source = fs.readFileSync('src/sg/amino.js') + "";
     //console.log(u.inspect(Calc.matchAll('6*(4+3)', 'expr'),false,20));
     var struct = DocParser.matchAll(source,"top");
+    console.log(u.inspect(struct2,false,20));
+    
+    var source2 = fs.readFileSync('src/sg/widgets.js') + "";
+    var struct2 = DocParser.matchAll(source2,"top");
+    
+    for(var name in struct2) {
+        struct[name] = struct2[name];
+    }
+    
     console.log('parsed the code');
-    console.log(u.inspect(struct,false,20));
+    console.log(u.inspect(struct2,false,20));
     var outdir = 'build/docs';
     console.log("making directory " + outdir);
     jb.mkdir(outdir);

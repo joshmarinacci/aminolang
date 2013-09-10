@@ -188,6 +188,90 @@ have reasonable defaults so you don't need to set them all. In the code
 above the `setTx(0)` on the rect is unecessary since the default for tx is
 already zero.
 
+Read the API docs for details on each of the widgets.
+
+### ListView
+
+Most widgets are pretty simple. Create them, set a few properties, add them to your scene.  
+`ListView` is not. You'll have to do some customization to make it useful. For example,
+assume you had an array called `people` which contains simple objects, each with `first` and 
+`last` properties. To show this array in a ListView you would set the listModel variable, 
+then set a TextCellRenderer to populate each cell of the list. ex:
+
+```
+var view = new widgets.ListView();
+view.setW(300).setH(500);
+view.listModel = people; // the array of people objects
+view.setTextCellRenderer(function(cell, index, item) {
+    cell.setText(item.first + " " + item.last);
+});
+```
+
+You can further customize the list cell by setting the background color.
+For example, to alternate colors on each line, do:
+```
+view.setTextCellRenderer(function(cell,index,item) {
+    cell.setText(item.first + " " + item.last);
+    if(i%2 == 0) {
+        cell.setFill("#ffffff");
+    } else {
+        cell.setFill("#eeeeee");
+    }
+});
+```
 
 
+If you need a more complex ListCell than the default one, you can
+create your own class and build them by setting a new cellGenerator function.
+This generator function will be called every time the view needs a new
+cell. Your function should return an instance of your custom cell class.
+
+For example, if you needed a list of emails where each cell had two text
+strings, one for the subject and one for the sender, you could do it like this:
+
+```
+var EmailListViewCell = amino.ComposeObject({
+    type: "EmailListViewCell",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        },
+        from: {
+            proto: amino.ProtoText,
+        },
+        subject: {
+            proto: amino.ProtoText,
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.from);
+        this.comps.base.add(this.comps.subject);
+        
+        this.comps.from.setText("from");
+        this.comps.from.setTx(5);
+        this.comps.from.setTy(5);
+        this.comps.from.setFontSize(16);
+
+        this.comps.subject.setText("subject");
+        this.comps.subject.setTx(5);
+        this.comps.subject.setTy(25);
+        this.comps.subject.setFontSize(12);
+    },
+});
+```
+
+Then set the generator like this:
+
+```
+view.setCellGenerator(function() {
+    return new EmailListViewCell();
+});
+view.setTextCellRenderer(function(cell,index,item) {
+    cell.comps.from.setText(item.from);
+    cell.comps.subject.setText(item.subject);
+});
+```
 

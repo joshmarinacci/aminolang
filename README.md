@@ -222,7 +222,7 @@ view.setTextCellRenderer(function(cell,index,item) {
 
 
 If you need a more complex ListCell than the default one, you can
-create your own class and build them by setting a new cellGenerator function.
+create your own class and build them by setting a new `cellGenerator` function.
 This generator function will be called every time the view needs a new
 cell. Your function should return an instance of your custom cell class.
 

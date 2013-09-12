@@ -1,4 +1,9 @@
-var Faker = require('Faker');
+var Faker;
+if(process.platform == 'darwin') {
+    Faker = require('Faker');
+} else {
+    Faker = require('./Faker.js');
+}
 
 var accounts = [
     { name:"Personal mail", id: "personal", type:"GMail" }

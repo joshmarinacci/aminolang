@@ -1,5 +1,15 @@
-var amino = require('../../build/desktop/amino.js');
-var widgets = require('../../build/desktop/widgets.js');
+var amino = null;
+var widgets = null;
+if(process.platform == 'darwin') {
+    amino = require('../../build/desktop/amino.js');
+    widgets = require('../../build/desktop/widgets.js');
+} else {
+    amino = require('./amino.js');    
+    widgets = require('./widgets.js');
+}
+
+
+
 var data = require('./fakedata.js');
 var Switcher = require('./switcher.js').Switcher;
 var fs = require('fs');

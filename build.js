@@ -469,8 +469,13 @@ function androidtest(cb) {
     //various demos and tests
     copyFileTo("tests/runit.sh",out);
     copyFileTo("tests/phonecards.js",out);
-    copyFileTo("tests/phone3.js",out);
-    copyFileTo("tests/phone3.json",out);
+    copyFileTo("tests/phone/phone4.js",out);
+    copyFileTo("tests/phone/fakedata.js",out);
+    copyFileTo("tests/phone/switcher.js",out);
+    copyFileTo("tests/phone/services.js",out);
+    copyFileTo("tests/phone/database.js",out);
+    
+    copyFileTo("node_modules/Faker/Faker.js",out);
     
     
     var dirs = fs.readdirSync(out);

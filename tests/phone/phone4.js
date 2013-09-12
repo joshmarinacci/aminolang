@@ -233,9 +233,18 @@ function buildApp5(stage) {
         .setText("707-707-7077").setFontSize(30)
         .setW(200).setH(50).setTx(65).setTy(15)
         );
-    panel.add(new widgets.PushButton()
-        .setText("1")
-        .setW(60).setH(50).setTx(25).setTy(78));
+    
+    var labels = ['1','2','3', '4','5','6',  '7','8','9', '*','0','-'];
+    for(var y=0; y<4; y++) {
+        for(var x=0; x<3; x++) {
+            var i = y*3+x;
+            panel.add(new widgets.PushButton()
+                .setText(labels[i])
+                .setW(60).setH(50)
+                .setTx(25+x*100)
+                .setTy(78+y*80));
+        }
+    }
     nav.register(panel);
     return panel;
 }

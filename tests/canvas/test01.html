@@ -1,0 +1,24 @@
+<html>
+<head>
+<script src='../../build/canvas/amino.js'></script>
+<script src='../../build/canvas/canvasbacon.js'></script>
+<script src='../../build/canvas/canvasamino.js'></script>
+<style type='text/css'>
+canvas { border: 1px solid black; }
+</style>
+</head>
+<body>
+<canvas id='mycanvas' width='500' height='300'></canvas>
+<script type='text/javascript'>
+amino.startApp("mycanvas",function(core,stage) {
+    console.log("inside the start app");
+    
+    var r = new amino.ProtoRect();
+    stage.setRoot(r);
+    
+});
+</script>
+
+
+</body>
+</html>

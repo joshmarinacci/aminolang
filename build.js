@@ -443,6 +443,19 @@ function desktopbuild(cb) {
     copyFileTo("resources/font.json",out);
 }
 
+function canvasbuild(cb) {
+    var out = outdir + "/canvas";
+    jb.mkdir(out);
+    console.log("copying files to " + out);
+    
+    var src = "src/sg/";
+    //src files
+    copyFileTo(src+"amino.js",out);
+    copyFileTo(src+"canvasamino.js",out);
+    copyFileTo(src+"canvasbacon.js",out);
+    copyFileTo(src+"widgets.js",out);
+    //copyFileTo("src/jscommon/textcontrol.js",out);
+}
 
 function androidtest(cb) {
     console.log("copying files to the device attached with ADB");
@@ -513,6 +526,7 @@ tasks = {
     langtest:       new Task(langtest,       [],                      "Test AminoLang itself"),
     
     desktopbuild:   new Task(desktopbuild,    [],                      "Node Desktop"),
+    canvasbuild:    new Task(canvasbuild,    [],                      "Canvas"),
     androidtest:    new Task(androidtest,    [],                      "Device Phone"),
     
     docgen:         new Task(docgen, [],   "Generate API Docs"),

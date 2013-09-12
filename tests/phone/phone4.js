@@ -15,7 +15,7 @@ var Switcher = require('./switcher.js').Switcher;
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
-    stage.setSize(320,480);
+    stage.setSize(500,480);
 
 
 var nav = new NavigationManager();
@@ -44,7 +44,7 @@ function buildStatusBar(stage)  {
 
 
 var switcherPanel = new widgets.AnchorPanel();
-switcherPanel.setW(320).setH(480);
+switcherPanel.setW(stage.getW()).setH(stage.getH());
 switcherPanel.setFill("#0000ff");
 stage.on("WINDOWSIZE", stage, function(e) {
     switcherPanel.setW(e.width);
@@ -317,7 +317,7 @@ function buildApp6(stage) {
 }
 switcher.add(buildApp6(stage));
 
-nav.setSize(320,480);
+nav.setSize(stage.getW(),stage.getH());
 
 switcherPanel.add(new widgets.PushButton().setText("<")
     .setW(100).setH(30)

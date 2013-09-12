@@ -1,11 +1,7 @@
+var amino = require('../build/desktop/amino.js');
+var widgets = require('../build/desktop/widgets.js');
 var fs = require('fs');
-//var amino = require('/data/node/amino.js');
-var amino = require('../src/node/amino.js');
-var core = amino.getCore();
-//set up the screen properly
-core.setDevice("mac");
-
-var stage = core.createStage();
+amino.startApp(function(core, stage) {
 
 //load up the scene file
 var filedata = fs.readFileSync('tests/phone.json');

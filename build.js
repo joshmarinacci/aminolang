@@ -454,8 +454,7 @@ function androidtest(cb) {
     //src files
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"Bacon.js",out);
-    copyFileTo("src/jscommon/widgets.js",out);
-    copyFileTo("src/jscommon/textcontrol.js",out);
+    copyFileTo(src+"widgets.js",out);
     //resource files
     copyFileTo("resources/font.json",out);
     copyFileTo("resources/font.png",out);

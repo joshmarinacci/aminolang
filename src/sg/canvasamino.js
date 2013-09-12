@@ -5,6 +5,8 @@ var amino = this['mymodule'];
 amino.sgtest = {
 }
 amino.native = {
+    list:[],
+    
     init: function() {
         console.log("canvas amino doesn't really do an init");
     },
@@ -15,18 +17,33 @@ amino.native = {
         console.log("pretending to open an window:",w,h);
     },
     createRect: function() {
-        return {
+        var rect = {
             "kind":"CanvasRect",
+            tx:0,
+            ty:0,
+            w:100,
+            h:100,
+            fill: "#ff00ff",
+            draw: function(g) {
+                g.fillStyle = this.fill;
+                g.fillRect(this.tx,this.ty,this.w,this.h);
+            }
         }
+        this.list.push(rect);
+        return rect;
     },
     updateProperty: function(handle, key, value) {
         console.log("updating the property of handle",handle,key,value);
+        handle[key] = value;
     },
     setRoot: function(root) {
         console.log("setting the root to",root);
     },
     tick: function() {
-        console.log("canvas ticking");
+        var g = this.domctx;
+        this.list.forEach(function(n) {
+            n.draw(g);
+        });
     },
     setImmediate: function(loop) {
         setTimeout(loop,1000);

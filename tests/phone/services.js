@@ -1,9 +1,35 @@
+var db = require('./database').makeDB();
 var citydoctype = "com.joshondesign.aminos.weather.city";
 var weatherdoctype = "com.joshondesign.aminos.weather.info";
+var emaildoctype = "com.joshondesign.aminos.email.message";
+
+var emailservice = {
+    desc: "Email",
+    uuid: "com.joshondesign.aminos.email.EmailService",
+    create: function() {
+        console.log("setting up the email service");
+    },
+    triggers: [
+        {
+            kind: "periodic",
+            period: "5m",
+            access:["network"],
+            call: function(db) {
+                console.log("Fetching email");
+                db.insert({doctype:emaildoctype,doc: {
+                        from: "foo@bar.com",
+                        to: "bar@foo.com",
+                        subject:"Subjects are for the weak!"+Math.floor(Math.random()*100),
+                        body: "Hah. You read the message! Foolish mortal.",
+                }});
+            },
+        }
+    ],
+};
 
 var weather = {
      desc: "Weather",
-     uuid: "com.joshondesign.aminos.WeatherService",
+     uuid: "com.joshondesign.aminos.weather.WeatherService",
      create: function() {
           console.log("i'm in the init function");
           //anything you put on the 'this' variable can be accessed later in other funds.
@@ -26,19 +52,6 @@ var weather = {
                       }
                   });
               });
-              /*
-                    db.query({doctype:"com.joshondesign.aminos.weather.city"})
-                         .forEach(function(city) {
-                              WeatherAPI.fetch(city.id, function(info) {
-                                   db.insert({
-                                        doctype:"com.joshondesign.aminos.weather.data",
-                                        cityid:city.id, 
-                                        temp:info.temp, 
-                                        units:info.units})
-                                   .on('*',log); // a global log function which is aware of the current service and time
-                              });
-                         });
-             */
           }
      },
      triggers: [
@@ -67,68 +80,8 @@ var weather = {
 var services = [];
 StartServices();
 AddService(weather);
+AddService(emailservice);
 
-var db = {
-    data: {},
-    monitors:[],
-    updates:[],
-    insert: function(def) {
-        //console.log("DB inserting doc: ",def);
-        if(def.doctype == undefined) console.log("ERROR. missing doctype");
-        if(this.data[def.doctype] == undefined) {
-            this.data[def.doctype] = [];
-        }
-        this.data[def.doctype].push(def.doc);
-        this.markUpdate(def.doctype);
-    },
-    query: function(def) {
-        //console.log("DB querying for: ",def);
-        if(def.doctype == undefined) console.log("ERROR. missing doctype");
-        if(this.data[def.doctype] == undefined) return [];
-        return this.data[def.doctype];
-    },
-    replace: function(def) {
-        //console.log("DB replacing with: ",def);
-        if(def.doctype == undefined) console.log("ERROR. missing doctype");
-        if(this.data[def.doctype] == undefined) {
-            this.data[def.doctype] = [];
-        }
-        var arr = this.data[def.doctype];
-        var found = false;
-        for(var i in arr) {
-            var doc = arr[i];
-            if(doc.id == def.doc.id) {
-                arr[i] = def.doc;
-                found = true;
-                break;
-            }
-        }
-        if(!found) {
-            arr.push(def.doc);
-        }
-        this.markUpdate({doctype:def.doctype,doc:def.doc});
-    },
-    monitor: function(def, cb) {
-        if(this.monitors[def.doctype] == undefined) {
-            this.monitors[def.doctype] = [];
-        }
-        this.monitors[def.doctype].push(cb);
-    },
-    markUpdate: function(update) {
-        this.updates.push(update);
-    },
-    processUpdates: function() {
-        var db = this;
-        db.updates.forEach(function(update) {
-            if(db.monitors[update.doctype]) {
-                db.monitors[update.doctype].forEach(function(cb) {
-                    cb(db,update.doc);
-                });
-            }
-        });
-        db.updates = [];
-    }
-};
 
 
 // now we are on the GUI side
@@ -136,8 +89,15 @@ var db = {
 
 db.monitor({doctype:weatherdoctype, action:"any"}, function(db,data) {
     console.log("weather data changed: ",data);
+    var count = db.query({doctype:weatherdoctype}).length;
+    console.log("total weather count is now: " + count);
 });
-    
+
+db.monitor({doctype:emaildoctype, action:"insert"}, function(db,data) {
+    console.log("new email doc added: ");
+    var count = db.query({doctype:emaildoctype}).length;
+    console.log("total email count is now: " + count);
+});
 
 //add a city
 var city = {
@@ -170,6 +130,7 @@ function StartServices() {
 function AddService(service) {
     //console.log(service);
     services.push(service);
+    if(service.create) service.create();
 }
 
 function processService(svc) {

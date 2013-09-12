@@ -54,7 +54,65 @@ exports.colortheme = {
     }
 }
 
+
+
+
 exports.sgtest = jrequire('sgtest');
+
+
+exports.native = {
+    init: function() {
+        exports.sgtest.init();
+    },
+    updateProperty: function(handle, name, value) {
+        exports.sgtest.updateProperty(handle, propsHash[name], value);        
+    },
+    setRoot: function(handle) {
+        exports.sgtest.setRoot(handle);
+    },
+    tick: function() {
+        exports.sgtest.tick();
+    },
+    setImmediate: function(loop) {
+        setImmediate(loop);
+    },
+    setEventCallback: function(cb) {
+        exports.sgtest.setEventCallback(cb);
+    },
+    createWindow: function(w,h) {
+        exports.sgtest.createWindow(w,h);
+    },
+    createRect: function() {
+        return exports.sgtest.createRect();
+    },
+    addNodeToGroup: function(h1,h2) {
+        exports.sgtest.addNodeToGroup(h1,h2);
+    },
+    createGroup: function() {
+        return exports.sgtest.createGroup();
+    },
+    loadPngToTexture: function(imagefile) {
+        return exports.sgtest.loadPngToTexture(imagefile);
+    },
+    loadJpegToTexture: function(imagefile) {
+        return exports.sgtest.loadJpegToTexture(imagefile);
+    },
+    createNativeFont: function(texid,json) {
+        return exports.sgtest.createNativeFont(texid,json);
+    },
+    createText: function() {
+        return exports.sgtest.createText();
+    },
+    setWindowSize: function(w,h) {
+        exports.sgtest.setWindowSize(w,h);
+    },
+    createAnim: function(handle,prop,start,end,dur,count,rev) {
+        return exports.sgtest.createAnim(handle,propsHash[prop],start,end,dur,count,rev);
+    },
+    updateAnimProperty: function(handle, prop, type) {
+        exports.sgtest.updateAnimProperty(handle, propsHash[prop], type);
+    },
+}
 
 var mouseState = {
     pressed:false,
@@ -513,8 +571,7 @@ exports.ProtoRect = exports.ComposeObject({
         //mirror the property to the native side
         if(this.live) {
             if(propsHash[name]) {
-                exports.native.updateProperty();
-                exports.sgtest.updateProperty(this.handle, propsHash[name], value);
+                exports.native.updateProperty(this.handle,name,value);
             }
         }
         
@@ -533,7 +590,7 @@ exports.ProtoRect = exports.ComposeObject({
     },
     */
     init: function() {
-        this.handle = exports.sgtest.createRect();
+        this.handle = exports.native.createRect();
         this.live = true;
         //invoke all setters once to push default values to the native side
         for(var propname in this.props) {
@@ -579,11 +636,11 @@ exports.ProtoGroup = exports.ComposeObject({
         }
         //mirror the property to the native side
         if(this.live) {
-            exports.sgtest.updateProperty(this.handle, propsHash[name], this.props[name]);
+            exports.native.updateProperty(this.handle, name, this.props[name]);
         }
     },
     init: function() {
-        this.handle = exports.sgtest.createGroup();
+        this.handle = exports.native.createGroup();
         this.children = [];
         this.live = true;
         /** @func add(child)  add a child to the group. Must be a non-null node. */
@@ -593,7 +650,7 @@ exports.ProtoGroup = exports.ComposeObject({
             if(node.handle == undefined) abort("the child doesn't have a handle");
             this.children.push(node);
             node.parent = this;
-            exports.sgtest.addNodeToGroup(node.handle,this.handle);
+            exports.native.addNodeToGroup(node.handle,this.handle);
         }
         this.isParent = function() { return true; }
         
@@ -650,13 +707,13 @@ exports.ProtoText = exports.ComposeObject({
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
-            exports.sgtest.updateProperty(this.handle, propsHash[name], value);
+            exports.native.updateProperty(this.handle, name, value);
             //console.log('updated the property ' + name);
         }
     },
     init: function() {
         this.live = true;
-        this.handle = exports.sgtest.createText();
+        this.handle = exports.native.createText();
         //invoke all setters once to push default values to the native side
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
@@ -698,21 +755,21 @@ exports.ProtoImageView = exports.ComposeObject({
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
-            exports.sgtest.updateProperty(this.handle, propsHash[name], value);
+            exports.native.updateProperty(this.handle, name, value);
             console.log('updated the property ' + name + " with the handle " + this.handle);
         }
         if(name == 'src') {
             console.log('set the source to ' + this.props.src);
             var src = this.props.src;
             if(src.toLowerCase().endsWith(".png")) {
-                this.image = exports.sgtest.loadPngToTexture(src);
+                this.image = exports.native.loadPngToTexture(src);
             } else {
-                this.image = exports.sgtest.loadJpegToTexture(src);
+                this.image = exports.native.loadJpegToTexture(src);
             }
             console.log("loaded an image");
             if(this.image) {
                 console.log('setting a texture prop: ', this.image);
-                exports.sgtest.updateProperty(this.handle, propsHash["texid"], this.image.texid);
+                exports.native.updateProperty(this.handle, "texid", this.image.texid);
                 console.log("done with texture prop");
             }
             
@@ -720,7 +777,7 @@ exports.ProtoImageView = exports.ComposeObject({
     },
     init: function() {
         this.live = true;
-        this.handle = exports.sgtest.createRect();
+        this.handle = exports.native.createRect();
     }
 });
 
@@ -898,7 +955,7 @@ function SGStage(core) {
 	this.setSize = function(width,height) {
 	    this.width = width;
 	    this.height = height;
-	    exports.sgtest.setWindowSize(this.width,this.height);
+	    exports.native.setWindowSize(this.width,this.height);
 	}
 	/** @func getW returns the width of this stage. */
 	this.getW = function() {
@@ -948,8 +1005,8 @@ function JSFont(jsonfile, imagefile) {
     //create the default font
     var jsontext = fs.readFileSync(jsonfile);
     this.json = JSON.parse(jsontext);
-    this.image = exports.sgtest.loadPngToTexture(imagefile);
-    this.nativefont = exports.sgtest.createNativeFont(this.image.texid,this.json);
+    this.image = exports.native.loadPngToTexture(imagefile);
+    this.nativefont = exports.native.createNativeFont(this.image.texid,this.json);
     this.basesize = this.json.size;
     this.scale = 0.5;
     /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
@@ -992,9 +1049,9 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     this.autoreverse = autoreverse;
     this.afterCallbacks = [];
     this.init = function(core) {
-        this.handle = exports.sgtest.createAnim(
+        this.handle = exports.native.createAnim(
             this.node.handle,
-            propsHash[this.prop],
+            this.prop,
             this.start,this.end,this.duration,this.count,this.autoreverse);
     }
     /** @func setIterpolator(type) Sets the interpolator to use for this animation. Valid values include: 
@@ -1002,7 +1059,7 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
      */
     this.setInterpolator = function(lerptype) {
         this.lerptype = lerptype;
-        exports.sgtest.updateAnimProperty(this.handle, propsHash["lerpprop"], lerptype);
+        exports.native.updateAnimProperty(this.handle, "lerpprop", lerptype);
     }
     this.finish = function() {
         var setterName = "set"+camelize(this.prop);
@@ -1058,9 +1115,9 @@ function Core() {
     
     this.init = function() {
         console.log("exports = ",exports);
-        exports.sgtest.init();
+        exports.native.init();
         setupBacon(this);
-        exports.sgtest.setEventCallback(function(e) {
+        exports.native.setEventCallback(function(e) {
             if(e.type == "mousebutton") {
                 mouseState.pressed = (e.state == 1);
             }
@@ -1076,13 +1133,13 @@ function Core() {
         }
         // use setTimeout for looping
         function tickLoop() {
-            exports.sgtest.tick();
+            exports.native.tick();
             setTimeout(tickLoop,1);
         }
         
         function immediateLoop() {
-            exports.sgtest.tick();
-            setImmediate(immediateLoop);
+            exports.native.tick();
+            exports.native.setImmediate(immediateLoop);
         }
         setTimeout(immediateLoop,1);
         //setTimeout(tickLoop,1);
@@ -1090,14 +1147,14 @@ function Core() {
     
     /** @func createStage(w,h)  creates a new stage. Only applies on desktop. */
     this.createStage = function(w,h) {
-        exports.sgtest.createWindow(w,h);
+        exports.native.createWindow(w,h);
         this.defaultFont = exports.createDefaultFont();
         this.stage = new SGStage(this);
         return this.stage;
     }
     
     this.setRoot = function(node) {
-        exports.sgtest.setRoot(node.handle);
+        exports.native.setRoot(node.handle);
         this.root = node;
     }
     this.findNodeAtXY = function(x,y) {

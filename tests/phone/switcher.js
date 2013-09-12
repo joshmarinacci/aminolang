@@ -1,5 +1,9 @@
-var amino = require('../../build/desktop/amino.js');
-
+var amino = null;
+if(process.platform == 'darwin') {
+    amino = require('../../build/desktop/amino.js');
+} else {
+    amino = require('./amino.js');    
+}
 function Switcher() {
     var current = 0;
     this.apps = [];

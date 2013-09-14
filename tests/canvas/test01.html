@@ -1,6 +1,7 @@
 <html>
 <head>
 <script src='../../build/canvas/amino.js'></script>
+<script src='../../build/canvas/widgets.js'></script>
 <script src='../../build/canvas/canvasbacon.js'></script>
 <script src='../../build/canvas/canvasamino.js'></script>
 <style type='text/css'>
@@ -13,9 +14,29 @@ canvas { border: 1px solid black; }
 amino.startApp("mycanvas",function(core,stage) {
     console.log("inside the start app");
     
+    
+    var g = new amino.ProtoGroup();
     var r = new amino.ProtoRect();
     r.setTx(100).setTy(50).setW(30).setH(50);
-    stage.setRoot(r);
+    g.add(r);
+    
+    var r2 = new amino.ProtoRect();
+    r2.setTx(0).setTy(100).setW(20).setH(20);
+    g.add(r2);
+    
+    g.setTx(100);
+    
+    
+    var t1 = new amino.ProtoText().setText("Greetings Earthling!");
+    t1.setTy(30);
+    g.add(t1);
+    
+    
+    var b1 = new widgets.PushButton().setText("Just Push It");
+    b1.setW(100).setH(30).setTx(-70).setTy(0);
+    g.add(b1);
+    
+    stage.setRoot(g);
     
 });
 </script>

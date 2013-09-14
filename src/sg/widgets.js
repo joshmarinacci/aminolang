@@ -3,7 +3,14 @@
 @desc a dummy header to work around a doc generation bug. ignore
 */
 
-var amino = require('./amino.js');
+if(typeof exports == 'undefined' || exports.inbrowser==true) {
+    var widgets = this['widgets'] = {};
+    var amino = this['mymodule'];
+} else {
+    var amino = require('./amino.js');
+    var widgets = exports;
+}
+
 
 function camelize(s) {
 	return s.substring(0,1).toUpperCase() + s.substring(1);
@@ -25,7 +32,7 @@ myButton.onAction(function(event) {
 });
 @codeend
 */
-exports.PushButton = amino.ComposeObject({
+widgets.PushButton = amino.ComposeObject({
     type: "PushButton",
     extend: amino.ProtoWidget,
     comps: {

@@ -2,7 +2,6 @@
 @class dummy
 @desc a dummy header to work around a doc generation bug. ignore
 */
-
 var deps = {
     'bacon':'./Bacon',
     'fs':'fs',
@@ -15,15 +14,13 @@ function jrequire(lib) {
 
 if(typeof exports == 'undefined'){
     var exports = this['mymodule'] = {};
+    exports.inbrowser = true;
     //inside the browser.
     jrequire = function(lib) {
         console.log("faking loading lib: " + lib);
         return this[lib];
     }
 }
-
-console.log("in amino, exports = ",exports);
-
 
 
 var fs = jrequire('fs');
@@ -522,19 +519,6 @@ function camelize(s) {
 	return s.substring(0,1).toUpperCase() + s.substring(1);
 }
 
-Function.prototype.extend = function(superclass, proto) {
-	// create our new subclass
-	this.prototype = new superclass();
-	/*
-
-	// optional subclass methods and properties
-	if (proto) {
-		for (var i in proto)
-			this.prototype[i] = proto[i];
-	}
-	*/
-};
-
 
 /**
 @class ProtoRect
@@ -1031,7 +1015,7 @@ function JSFont(jsonfile, imagefile) {
 }
 
 
-exports.createDefaultFont = function() {
+exports.native.createDefaultFont = function() {
     return new JSFont(__dirname+"/font.json",__dirname+"/font.png");
 }
 
@@ -1148,7 +1132,7 @@ function Core() {
     /** @func createStage(w,h)  creates a new stage. Only applies on desktop. */
     this.createStage = function(w,h) {
         exports.native.createWindow(w,h);
-        this.defaultFont = exports.createDefaultFont();
+        this.defaultFont = exports.native.createDefaultFont();
         this.stage = new SGStage(this);
         return this.stage;
     }

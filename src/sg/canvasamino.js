@@ -32,31 +32,83 @@ amino.native = {
         this.list.push(rect);
         return rect;
     },
+    createGroup: function() {
+        var group = {
+            kind:"CanvasGroup",
+            children:[],
+            tx:0,
+            ty:0,
+            draw: function(g) {
+                g.save();
+                g.translate(this.tx,this.ty);
+                for(var i=0; i<this.children.length; i++) {
+                    this.children[i].draw(g);
+                }
+                g.restore();
+            }
+        }
+        this.list.push(group);
+        return group;
+    },
+    createText: function() {
+        var text = {
+            kind:"CanvasText",
+            text:"foo",
+            tx:0,
+            ty:0,
+            draw: function(g) {
+                g.fillStyle = "black";
+                g.fillText(this.text,this.tx,this.ty);
+            }
+        };
+        return text;
+    },
+    addNodeToGroup: function(h1,h2) {
+        console.log(h2,h1);
+        h2.children.push(h1);
+    },
+    
+    createDefaultFont: function() {
+        return new CanvasFont(this.domctx);
+    },
+    
     updateProperty: function(handle, key, value) {
-        console.log("updating the property of handle",handle,key,value);
+        //console.log("updating the property of handle",handle,key,value);
         handle[key] = value;
     },
     setRoot: function(root) {
-        console.log("setting the root to",root);
+        this.root = root;
     },
     tick: function() {
+        var w = this.domcanvas.width;
+        var h = this.domcanvas.height;
         var g = this.domctx;
-        this.list.forEach(function(n) {
-            n.draw(g);
-        });
+        g.fillStyle = "white";
+        g.fillRect(0,0,w,h);
+        this.root.draw(g);
     },
     setImmediate: function(loop) {
         setTimeout(loop,1000);
     }
 };
 
-amino.bacon = Bacon;
-amino.createDefaultFont = function() {
-    return {};
+function CanvasFont(g) {
+    this.g = g;
+    this.calcStringWidth = function(str,size) {
+        var metrics = this.g.measureText(str);
+        console.log("metrics = ", metrics);
+        return metrics.width;
+    };
+    this.getHeight = function(fs) {
+        return this.g.measureText('M').width;
+    };
 }
+
+amino.bacon = Bacon;
 amino.startApp = function(id, cb) {
     var domcanvas = document.getElementById(id);
     console.log("dom canvas = ",domcanvas);
+    amino.native.domcanvas = domcanvas;
     amino.native.domctx = domcanvas.getContext('2d');
     Core._core = new Core();
     Core._core.init();

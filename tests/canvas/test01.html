@@ -16,27 +16,60 @@ amino.startApp("mycanvas",function(core,stage) {
     
     
     var g = new amino.ProtoGroup();
-    var r = new amino.ProtoRect();
-    r.setTx(100).setTy(50).setW(30).setH(50);
-    g.add(r);
+    g.add(new amino.ProtoRect()
+        .setTx(100).setTy(50)
+        .setW(30).setH(50));
     
-    var r2 = new amino.ProtoRect();
-    r2.setTx(0).setTy(100).setW(20).setH(20);
-    g.add(r2);
+    g.add(new amino.ProtoRect()
+        .setTx(0).setTy(100)
+        .setW(20).setH(20));
     
     g.setTx(100);
     
+    g.add(new amino.ProtoText()
+        .setText("a text node")
+        .setTy(50));
     
-    var t1 = new amino.ProtoText().setText("Greetings Earthling!");
-    t1.setTy(30);
-    g.add(t1);
+    
+    g.add(new widgets.PushButton()
+        .setText("a button")
+        .setW(100).setH(30)
+        .setTx(-70).setTy(0));
+    
+    g.add(new widgets.Label()
+        .setText("a label")
+        .setTx(50).setTy(200));
+        
+        
+    g.add(new widgets.Slider().setTy(230));
+    
+    g.add(new widgets.ProgressSpinner().setTx(200).setTy(50));
     
     
-    var b1 = new widgets.PushButton().setText("Just Push It");
-    b1.setW(100).setH(30).setTx(-70).setTy(0);
-    g.add(b1);
+    var panel = new widgets.AnchorPanel()
+        .setW(100).setH(100).setTx(200).setTy(130);
+        
+    panel.add(new widgets.PushButton().setText("foo")
+        .setW(80).setH(20)
+        .setAnchorRight(true).setRight(0));
+        
+    panel.add(new widgets.PushButton().setText("foo")
+        .setW(80).setH(20)
+        .setAnchorBottom(true).setBottom(0));
     
-    stage.setRoot(g);
+    g.add(panel);
+    
+    
+    var lv = new widgets.ListView().setW(60).setH(100).setTx(-100).setTy(50);
+    g.add(lv);
+        
+    
+    
+    var mag = new amino.ProtoGroup();
+    mag.setScalex(1).setScaley(1);
+    mag.add(g);
+    
+    stage.setRoot(mag);
     
 });
 </script>

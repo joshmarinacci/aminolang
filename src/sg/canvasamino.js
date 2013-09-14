@@ -23,11 +23,13 @@ amino.native = {
             ty:0,
             w:100,
             h:100,
-            fill: "#ff00ff",
+            r:0.5,
+            g:0.5,
+            b:0.5,
             draw: function(g) {
-                g.fillStyle = this.fill;
+                g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
                 g.fillRect(this.tx,this.ty,this.w,this.h);
-            }
+            },
         }
         this.list.push(rect);
         return rect;
@@ -38,9 +40,12 @@ amino.native = {
             children:[],
             tx:0,
             ty:0,
+            scalex:1,
+            scaley:1,
             draw: function(g) {
                 g.save();
                 g.translate(this.tx,this.ty);
+                g.scale(this.scalex,this.scaley);
                 for(var i=0; i<this.children.length; i++) {
                     this.children[i].draw(g);
                 }

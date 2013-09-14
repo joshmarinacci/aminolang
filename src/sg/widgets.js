@@ -105,7 +105,7 @@ widgets.PushButton = amino.ComposeObject({
 @desc A slider to choose a value. The value is restricted to be between the max and min values.
 The color of this slider is determined by the global amino theme.
 */
-exports.Slider = amino.ComposeObject({
+widgets.Slider = amino.ComposeObject({
     type: 'Slider',
     extend: amino.ProtoWidget,
     comps: {
@@ -139,8 +139,9 @@ exports.Slider = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.thumb);
-        this.comps.thumb.setW(30);
-        this.comps.thumb.setH(30);
+        this.setW(100).setH(20);
+        this.comps.thumb.setW(20);
+        this.comps.thumb.setH(20);
         
         this.pointToValue = function(x) {
             return x/this.getW()*100;
@@ -159,7 +160,7 @@ exports.Slider = amino.ComposeObject({
 @class Spinner
 @desc A spinner to indicate progress of some activity 
 */
-exports.ProgressSpinner = amino.ComposeObject({
+widgets.ProgressSpinner = amino.ComposeObject({
     type: 'ProgressSpinner',
     extend: amino.ProtoWidget,
     comps: {
@@ -210,6 +211,7 @@ exports.ProgressSpinner = amino.ComposeObject({
         this.comps.part1.setFill(amino.colortheme.text);
         this.comps.part2.setFill(amino.colortheme.text);
         this.contains = function() { return false; }
+        this.setSize(30);
         this.setVisible(0);
     }
 });
@@ -218,7 +220,7 @@ exports.ProgressSpinner = amino.ComposeObject({
 @class Label
 @desc A basic label. Can set a width and do left,center,right alignment. 
 */
-exports.Label = amino.ComposeObject({
+widgets.Label = amino.ComposeObject({
     type:"Label",
     extend: amino.ProtoWidget,
     comps: {
@@ -255,7 +257,7 @@ exports.Label = amino.ComposeObject({
 @class AnchorPanel
 @desc A container which lays out it's children using anchor
 constraints like right and bottom. */
-exports.AnchorPanel = amino.ComposeObject({
+widgets.AnchorPanel = amino.ComposeObject({
     type:"AnchorPanel",
     extend: amino.ProtoWidget,
     comps: {
@@ -354,7 +356,7 @@ exports.AnchorPanel = amino.ComposeObject({
 @desc A panel which lays out it's children in a vertical box. All children will be given the width
 of the panel, minus pading.
 */
-exports.VerticalPanel = amino.ComposeObject({
+widgets.VerticalPanel = amino.ComposeObject({
     type:"VerticalPanel",
     extend: amino.ProtoWidget,
     comps: {
@@ -405,7 +407,7 @@ exports.VerticalPanel = amino.ComposeObject({
 @desc A panel which lays out it's children in a vertical box. All children will be given the width
 of the panel, minus pading.
 */
-exports.ListViewCell = amino.ComposeObject({
+widgets.ListViewCell = amino.ComposeObject({
     type: "ListViewCell",
     extend: amino.ProtoWidget,
     comps: {
@@ -435,7 +437,7 @@ exports.ListViewCell = amino.ComposeObject({
 @desc Shows a list of items. Scrolls if there are too many items to fit on the screen. It can be customized
 by setting a new TextCellRenderer or a new CellGenerator.
 */
-exports.ListView = amino.ComposeObject({
+widgets.ListView = amino.ComposeObject({
     type:"ListView",
     extend: amino.ProtoWidget,
     comps: {
@@ -497,7 +499,7 @@ exports.ListView = amino.ComposeObject({
         
         this.cells = [];
         this.cg = function() {
-            var cell = new exports.ListViewCell();
+            var cell = new widgets.ListViewCell();
             cell.comps.label.setFontSize(15);
             return cell;
         }

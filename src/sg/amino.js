@@ -609,6 +609,10 @@ exports.ProtoGroup = exports.ComposeObject({
         tx: { value: 0 },
         /** @prop ty translate Y. @default 0*/
         ty: { value: 0 },
+        /** @prop scalex scale X. @default 1*/
+        scalex: { value: 1 },
+        /** @prop scaley scale Y. @default 1*/
+        scaley: { value: 1 },
         /** @prop visible visible or not. 1 or 0, not true or false. @default 1 */
         visible: { value: 1 },
     },

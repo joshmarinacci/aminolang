@@ -149,6 +149,15 @@ function ParseRGBString(Fill) {
     return Fill;
 }
 
+exports.KEY_MAP = {
+    UP_ARROW:      283,
+    DOWN_ARROW:    284,
+    RIGHT_ARROW:   286,
+    LEFT_ARROW:    285,
+    BACKSPACE:     295,
+    ENTER:         294,
+}
+
 var KEY_TO_CHAR_MAP = {};
 //lower symbols
 for(var i=32; i<=64; i++) {
@@ -387,6 +396,7 @@ function setupBacon(core) {
                 event.target = core.keyfocus;
                 repeatTimeout = setTimeout(repeatKey,300)
                 repeatEvent = event;
+                //console.log("firing",event,"at",core.keyfocus);
                 core.fireEventAtTarget(core.keyfocus,event);
             }
         });
@@ -647,6 +657,7 @@ exports.ProtoGroup = exports.ComposeObject({
             this.children.push(node);
             node.parent = this;
             exports.native.addNodeToGroup(node.handle,this.handle);
+            return this;
         }
         this.isParent = function() { return true; }
         
@@ -1041,6 +1052,12 @@ function JSFont(jsonfile, imagefile) {
     /** @func getAscent(fs) returns the ascent of this font at the requested size */
     this.getAscent = function(fs) {
         return this.ascent * (fs/this.basesize);
+    }
+    this.getCharWidth = function(ch) {
+        var code = ch.charCodeAt(0);
+        var n = code-this.json.minchar;
+        var w = this.json.widths[n];
+        return w*this.scale;
     }
 }
 

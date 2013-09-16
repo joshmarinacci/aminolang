@@ -27,6 +27,7 @@ amino.native = {
             g:0.5,
             b:0.5,
             draw: function(g) {
+                if(this.visible != 1) return;
                 g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
                 g.fillRect(this.tx,this.ty,this.w,this.h);
             },
@@ -43,6 +44,7 @@ amino.native = {
             scalex:1,
             scaley:1,
             draw: function(g) {
+                if(this.visible != 1) return;
                 g.save();
                 g.translate(this.tx,this.ty);
                 g.scale(this.scalex,this.scaley);
@@ -62,7 +64,9 @@ amino.native = {
             tx:0,
             ty:0,
             draw: function(g) {
+                if(this.visible != 1) return;
                 g.fillStyle = "black";
+                g.font = "20px sans-serif";
                 g.fillText(this.text,this.tx,this.ty);
             }
         };
@@ -93,18 +97,40 @@ amino.native = {
     },
     setImmediate: function(loop) {
         setTimeout(loop,100);
+    },
+    setWindowSize: function(w,h) {
+        //NO OP
+    },
+    getWindowSize: function() {
+        return {
+            w: this.domcanvas.width,
+            h: this.domcanvas.height
+        };
     }
 };
+
+
+amino.KEY_MAP.LEFT_ARROW   = 37; //browser right key
+amino.KEY_MAP.UP_ARROW     = 38; //backspace key
+amino.KEY_MAP.RIGHT_ARROW  = 39; //browser right key
+amino.KEY_MAP.DOWN_ARROW   = 40; //backspace key
+amino.KEY_MAP.BACKSPACE    = 8; //backspace key
+amino.KEY_MAP.ENTER        = 13; //backspace key
 
 function CanvasFont(g) {
     this.g = g;
     this.calcStringWidth = function(str,size) {
+        g.font = size+"px sans-serif";
         var metrics = this.g.measureText(str);
-        console.log("metrics = ", metrics);
         return metrics.width;
     };
-    this.getHeight = function(fs) {
+    this.getHeight = function(size) {
+        g.font = size+"px sans-serif";
         return this.g.measureText('M').width;
+    };
+    this.getCharWidth = function(ch) {
+        var metrics = this.g.measureText(ch);
+        return metrics.width;
     };
 }
 
@@ -131,7 +157,24 @@ function setupEventHandlers(dom) {
         baconbus.push({type:"mousebutton", button:0, state:0});
     });
     attachEvent(window,'keydown',function(e){
-        //self.processKeyEvent(Events.KeyPress, self.domCanvas,e);
+        if(e.metaKey) return;
+        e.preventDefault();
+        console.log(e);
+        var evt = {
+                type:"keypress",
+                keycode: e.keyCode,
+                shift:   e.shiftKey?1:0,
+                control: e.ctrlKey?1:0,
+                system:  e.metaKey?1:0,
+        };
+        baconbus.push(evt);
+    });
+    attachEvent(window,'keyup',function(e){
+        e.preventDefault();
+        baconbus.push({
+                type:"keyrelease",
+                keycode: e.keyCode,
+        });
     });
     if(window.DeviceMotionEvent) {
         console.log("motion IS supported");

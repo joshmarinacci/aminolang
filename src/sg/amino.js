@@ -49,6 +49,12 @@ exports.colortheme = {
             fillOdd:  "#eeeeee",
             fillSelected: "#88ccff",
         }
+    },
+    textfield: {
+        bg: {
+            unfocused: "#d0d0d0",
+            focused: "#f0f0f0",
+        }
     }
 }
 

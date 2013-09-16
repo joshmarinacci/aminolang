@@ -1406,11 +1406,21 @@ widgets.TextField = amino.ComposeObject({
         },
     },
     props: {
+        w: {
+            value: 100,
+            set: function(w) {
+                this.props['w'] = w;
+                this.comps.background.setW(w);
+                this.tc.setW(w);
+                return this;
+            },
+        },
         h: {
             value: 30,
             set: function(h) {
                 this.props['h'] = h;
                 this.comps.background.setH(h);
+                this.tc.setH(h);
                 return this;
             }
         },
@@ -1431,10 +1441,10 @@ widgets.TextField = amino.ComposeObject({
             amino.getCore().requestFocus(self);
         });
         amino.getCore().on("focusgain",this,function() {
-            self.setFill("#44aaff");
+            self.setFill(amino.colortheme.textfield.bg.focused);
         });
         amino.getCore().on("focusloss",this,function() {
-            self.setFill("#2266aa");
+            self.setFill(amino.colortheme.textfield.bg.unfocused);
         });
         amino.getCore().on("keypress",this,function(kp) {
             self.tc.keypressHappened(kp);
@@ -1466,7 +1476,7 @@ widgets.TextField = amino.ComposeObject({
             return this;
         }
         this.setText("a text field");
-//        this.tc.setWrapping(false);
+        this.tc.setWrapping(false);
     }
 });
 

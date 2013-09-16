@@ -734,7 +734,7 @@ function JSTextControl() {
             }
         },
         cursorDeleteNextChar: function(kp) {
-//            if(self.cursor.index - 1 < 0) return;
+            //            if(self.cursor.index - 1 < 0) return;
             if(self.cursor.selectionActive()) {
                 self.cursor.deleteSelection();
                 self.cursor.clearSelection();

@@ -810,6 +810,13 @@ exports.ProtoText = exports.ComposeObject({
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
+            if(name == 'ty') {
+                if(this.fontSize) {
+                value -= this.fontSize;
+                } else {
+                    value -= 20;
+                }
+            }
             exports.native.updateProperty(this.handle, name, value);
             //console.log('updated the property ' + name);
         }
@@ -1130,7 +1137,10 @@ function JSFont(jsonfile, imagefile) {
     //create the default font
     var jsontext = fs.readFileSync(jsonfile);
     this.json = JSON.parse(jsontext);
-    this.image = exports.native.loadPngToTexture(imagefile);
+    var self = this;
+    exports.native.loadPngToTexture(imagefile, function(image) {
+        self.image = image;
+    });
     this.nativefont = exports.native.createNativeFont(this.image.texid,this.json);
     this.basesize = this.json.size;
     this.scale = 0.5;
@@ -1337,14 +1347,14 @@ function Core() {
         return null;
     }
     this.globalToLocal = function(pt, node) {
+        var pt2 = {
+            x: (pt.x - node.getTx())/node.getScalex(),
+            y: (pt.y - node.getTy())/node.getScaley(),
+        }
     	if(node.parent) {
-    		var pt2 = {
-    			x: pt.x - node.getTx(),
-    			y: pt.y - node.getTy()
-    			}
     		return this.globalToLocal(pt2,node.parent);
     	} else {
-	    	return pt;
+	    	return pt2;
 	    }
     }
     this.listeners = {};

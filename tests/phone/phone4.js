@@ -124,13 +124,19 @@ var dock = buildDock(stage);
 
 
 switcherPanel.add(dock);
+var scrim = new amino.ProtoRect().setW(320).setH(480).setVisible(0).setOpacity(0.0).setFill("#0000ff");
+core.on('press',scrim, function() {
+    switcher.zoomAll();
+});
 switcher.onZoomIn = function() {
     var anim =  core.createPropAnim(dock,"ty",getWH()-110,getWH(), 300);
     var anim2 = core.createPropAnim(search,"ty",20,-50, 300);
+    scrim.setVisible(0);
 };
 switcher.onZoomOut = function() {
     var anim = core.createPropAnim(dock,"ty",getWH(),getWH()-110, 300);
     var anim2 = core.createPropAnim(search,"ty",-50,20, 300);
+    scrim.setVisible(1);
 };
 
 
@@ -315,6 +321,8 @@ function buildApp6(stage) {
 switcher.add(buildApp6(stage));
 
 nav.setSize(getWW(),getWH());
+
+switcherPanel.add(scrim);
 
 switcherPanel.add(new widgets.PushButton().setText("<")
     .setW(100).setH(30)

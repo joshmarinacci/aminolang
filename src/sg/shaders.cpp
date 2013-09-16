@@ -71,12 +71,13 @@ ColorShader::ColorShader() {
    static const char *vertShaderText =
       "uniform mat4 modelviewProjection;\n"
       "uniform mat4 trans;\n"
+      "uniform float opacity;\n"
       "attribute vec4 pos;\n"
       "attribute vec4 color;\n"
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_Position = modelviewProjection * trans * pos;\n"
-      "   v_color = color;\n"
+      "   v_color = vec4(color.r,color.g,color.b,opacity)\n;"
       "}\n";
 
    GLuint vert = compileVertShader(vertShaderText);
@@ -87,15 +88,19 @@ ColorShader::ColorShader() {
    glUseProgram(prog);
    attr_pos   = glGetAttribLocation(prog, "pos");
    attr_color = glGetAttribLocation(prog, "color");
+   u_opacity = glGetUniformLocation(prog, "opacity");
    u_matrix   = glGetUniformLocation(prog, "modelviewProjection");
    u_trans    = glGetUniformLocation(prog, "trans");
 }   
 
-void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]) {
+void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3], GLfloat opacity) {
     glUseProgram(prog);
     glUniformMatrix4fv(u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
+    glUniform1f(u_opacity, opacity);
     
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glVertexAttribPointer(attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
     glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);

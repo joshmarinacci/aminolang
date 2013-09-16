@@ -49,6 +49,8 @@ static const int X_PROP = 21;
 static const int Y_PROP = 22;
 static const int TX = 23;
 
+static const int OPACITY_PROP = 27;
+
 using namespace v8;
 
 static bool eventCallbackSet = false;
@@ -244,10 +246,12 @@ public:
     float r;
     float g;
     float b;
+    float opacity;
     int texid;
     Rect() {
         x = 0; y = 0; w = 100; h = 100;
         r = 0; g = 1; b = 0;
+        opacity = 1;
         type = RECT;
         texid = INVALID;
     }
@@ -334,6 +338,7 @@ public:
             if(property == W_PROP) rect->w = value;
             if(property == H_PROP) rect->h = value;
             if(property == TEXID) rect->texid = value;
+            if(property == OPACITY_PROP) rect->opacity = value;
         }
         
         if(target->type == TEXT) {

@@ -125,7 +125,7 @@ void Rect::draw() {
             texcoords[5][0] = tx;    texcoords[5][1] = ty;
             textureShader->apply(modelView, globaltx, verts, texcoords, texid);
         } else {
-            colorShader->apply(modelView, globaltx, verts, colors);
+            colorShader->apply(modelView, globaltx, verts, colors, opacity);
         }
         restore();
     }

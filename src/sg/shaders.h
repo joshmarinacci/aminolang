@@ -12,9 +12,9 @@ public:
 class ColorShader: public Shader {
 public:
     ColorShader();
-    virtual void apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3]);
+    virtual void apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat colors[][3], GLfloat opacity);
     int prog;
-    GLint u_matrix, u_trans;
+    GLint u_matrix, u_trans, u_opacity;
     GLint attr_pos;
     GLint attr_color;    
 };

@@ -690,6 +690,13 @@ exports.ProtoText = exports.ComposeObject({
         text: { value: 'silly text' },
         /** @prop fontSize the fontsize of this text string */
         fontSize: { value: 20 },
+        r: { value: 0},
+        g: { value: 1},
+        b: { value: 0},
+        /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
+        fill: {
+            value: '#000000', 
+        }
     },
     //replaces all setters
     set: function(name, value) {
@@ -698,6 +705,14 @@ exports.ProtoText = exports.ComposeObject({
         if(this.live) {
             exports.native.updateProperty(this.handle, name, value);
             //console.log('updated the property ' + name);
+        }
+        
+        if(name == 'fill') {
+            var color = ParseRGBString(value);
+            this.setR(color.r);
+            this.setG(color.g);
+            this.setB(color.b);
+            return this;
         }
     },
     init: function() {

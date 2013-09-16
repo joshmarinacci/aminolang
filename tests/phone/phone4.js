@@ -307,7 +307,7 @@ function buildLockScreen(core,stage) {
     var g = new amino.ProtoGroup();
     g.add(new amino.ProtoRect().setW(320).setH(480).setFill("#5555ff"));
     g.add(new amino.ProtoText().setText("Greetings Earthling").setTx(20).setTy(100)
-        //.setFill("#ffffff")
+        .setFill("#ffffff")
         );
     g.add(new widgets.PushButton().setText("unlock").setTx(20).setTy(400).setW(200).setH(40).onAction(function() {
         g.setVisible(false);

@@ -69,7 +69,6 @@ amino.native = {
         return text;
     },
     addNodeToGroup: function(h1,h2) {
-        console.log(h2,h1);
         h2.children.push(h1);
     },
     
@@ -93,7 +92,7 @@ amino.native = {
         this.root.draw(g);
     },
     setImmediate: function(loop) {
-        setTimeout(loop,1000);
+        setTimeout(loop,100);
     }
 };
 
@@ -109,12 +108,47 @@ function CanvasFont(g) {
     };
 }
 
+//does platform specific native event handler setup
+function attachEvent(node,name,func) {
+    if(node.addEventListener) {
+        node.addEventListener(name,func,false);
+    } else if(node.attachEvent) {
+        node.attachEvent(name,func);
+    }
+};
+function setupEventHandlers(dom) {
+    var self = this;
+    
+    attachEvent(dom,'mousedown',function(e){
+        baconbus.push({type:"mouseposition", x:e.x, y:e.y});
+        baconbus.push({type:"mousebutton", button:0, state:1});
+    });
+    attachEvent(dom,'mousemove',function(e){
+        baconbus.push({type:"mouseposition", x:e.x, y:e.y});
+    });
+    attachEvent(dom,'mouseup',function(e){
+        baconbus.push({type:"mouseposition", x:e.x, y:e.y});
+        baconbus.push({type:"mousebutton", button:0, state:0});
+    });
+    attachEvent(window,'keydown',function(e){
+        //self.processKeyEvent(Events.KeyPress, self.domCanvas,e);
+    });
+    if(window.DeviceMotionEvent) {
+        console.log("motion IS supported");
+        attachEvent(window,'devicemotion',function(e){
+            //self.processAccelEvent(Events.AccelerometerChanged, e);
+        });
+    } else {
+        console.log("motion not supported");
+    }    
+}
+
 amino.bacon = Bacon;
 amino.startApp = function(id, cb) {
     var domcanvas = document.getElementById(id);
-    console.log("dom canvas = ",domcanvas);
     amino.native.domcanvas = domcanvas;
     amino.native.domctx = domcanvas.getContext('2d');
+    setupEventHandlers(amino.native.domcanvas);
     Core._core = new Core();
     Core._core.init();
     var stage = Core._core.createStage(600,600);

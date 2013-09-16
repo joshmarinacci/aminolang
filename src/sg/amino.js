@@ -1102,7 +1102,6 @@ function Core() {
     }
     
     this.init = function() {
-        console.log("exports = ",exports);
         exports.native.init();
         setupBacon(this);
         exports.native.setEventCallback(function(e) {

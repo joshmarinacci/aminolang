@@ -67,7 +67,6 @@ widgets.PushButton = amino.ComposeObject({
             value:100, 
             set: function(h) {
                 this.props.h = h;
-                console.log("button height set to: " + h);
                 this.comps.background.setH(h);
                 var texth = this.font.getHeight(this.getFontSize());
                 this.comps.label.setTy((h-texth)/2);

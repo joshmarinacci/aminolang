@@ -5,6 +5,7 @@
 <script src='../../build/canvas/canvasbacon.js'></script>
 <script src='../../build/canvas/canvasamino.js'></script>
 <style type='text/css'>
+body { margin: 0; padding: 0; }
 canvas { border: 1px solid black; }
 </style>
 </head>
@@ -24,18 +25,16 @@ amino.startApp("mycanvas",function(core,stage) {
         .setTx(0).setTy(100)
         .setW(20).setH(20));
     
-    g.setTx(100);
+//    g.setTx(100);
     
     g.add(new amino.ProtoText()
         .setText("a text node")
         .setTy(50));
-    
-    
     g.add(new widgets.PushButton()
         .setText("a button")
         .setW(100).setH(30)
-        .setTx(-70).setTy(0));
-    
+        //.setTx(-70).setTy(0)
+        );
     g.add(new widgets.Label()
         .setText("a label")
         .setTx(50).setTy(200));
@@ -62,14 +61,16 @@ amino.startApp("mycanvas",function(core,stage) {
     
     var lv = new widgets.ListView().setW(60).setH(100).setTx(-100).setTy(50);
     g.add(lv);
-        
     
-    
+    stage.setRoot(g);
+    /*
     var mag = new amino.ProtoGroup();
     mag.setScalex(1).setScaley(1);
     mag.add(g);
     
     stage.setRoot(mag);
+    */
+    
     
 });
 </script>

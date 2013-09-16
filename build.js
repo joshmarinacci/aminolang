@@ -486,6 +486,7 @@ function androidtest(cb) {
     copyFileTo("tests/phone/switcher.js",out);
     copyFileTo("tests/phone/services.js",out);
     copyFileTo("tests/phone/database.js",out);
+    copyFileTo("tests/phone/emailapp.js",out);
     
     copyFileTo("node_modules/Faker/Faker.js",out);
     

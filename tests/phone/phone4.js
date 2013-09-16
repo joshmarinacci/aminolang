@@ -16,8 +16,20 @@ var EmailApp = require('./emailapp.js').EmailApp;
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
-    stage.setSize(320,480);
+    stage.setSize(320*2,480*2);
 
+    var superroot = new amino.ProtoGroup();
+    superroot.setScalex(2).setScaley(2);
+    stage.setRoot(superroot);
+    
+    var ww = 320;
+    function getWW() {
+        return ww;
+    }
+    var wh = 480;
+    function getWH() {
+        return wh;
+    }
 
 var nav = new NavigationManager();
 nav.insets.bottom = 30+20;
@@ -37,32 +49,39 @@ function buildStatusBar(stage)  {
     },1000);
     
     var panel = new widgets.AnchorPanel();
-    panel.setW(320).setH(20);
+    panel.setW(getWW()).setH(20);
     panel.setFill("#ff0000");
     panel.add(time);
+    stage.on("WINDOWSIZE", stage, function(e) {
+        panel.setW(getWW());
+    });
+    
     return panel;
 }
 
 function buildSearch() {
     var search = new amino.ProtoGroup();
-    search.add(new amino.ProtoRect().setW(320).setH(40).setFill("#ffffcc"));
+    var bg = new amino.ProtoRect().setW(getWW()).setH(40).setFill("#ffffcc");
+    search.add(bg);
     search.add(new amino.ProtoText().setText("search").setTx(20).setTy(10));
+    stage.on("WINDOWSIZE", stage, function(e) {
+        bg.setW(getWW());
+    });
     return search;
 }
 var search = buildSearch();
 
-var superroot = new amino.ProtoGroup();
-stage.setRoot(superroot);
 
 var switcherPanel = new widgets.AnchorPanel();
-switcherPanel.setW(stage.getW()).setH(stage.getH());
+switcherPanel.setW(getWW()).setH(getWH());
 switcherPanel.setFill("#0000ff");
-stage.on("WINDOWSIZE", stage, function(e) {
-    switcherPanel.setW(e.width);
-    switcherPanel.setH(e.height);
+stage.on("windowsize", stage, function(e) {
+    ww = e.width/2;
+    wh = e.height/2;
+    switcherPanel.setW(getWW());
+    switcherPanel.setH(getWH());
 });
 superroot.add(switcherPanel);
-//stage.setRoot(switcherPanel);
 
 
 switcherPanel.add(search);
@@ -82,7 +101,8 @@ switcher.switcherPanel = switcherPanel;
 
 function buildDock(stage) {
     var dock = new amino.ProtoGroup().setTy(480);
-    dock.add(new amino.ProtoRect().setW(320).setH(80).setFill("#ffccff"));
+    var bg = new amino.ProtoRect().setW(getWW()).setH(80).setFill("#ffccff");
+    dock.add(bg);
     for(var i=0; i<4; i++) {
         dock.add(new widgets.PushButton()
             .setText("foo")
@@ -90,10 +110,14 @@ function buildDock(stage) {
             .setTx(i*80+10).setTy(10)
             .onAction(function() {
                 switcher.add(new EmailApp(stage,nav,data));
-                nav.setSize(stage.getW(),stage.getH());
+                nav.setSize(getWW(),getWH());
             })
             );
     }
+    stage.on("WINDOWSIZE", stage, function(e) {
+        bg.setW(getWW());
+        dock.setTy(getWH());
+    });
     return dock;
 }
 var dock = buildDock(stage);
@@ -101,11 +125,11 @@ var dock = buildDock(stage);
 
 switcherPanel.add(dock);
 switcher.onZoomIn = function() {
-    var anim =  core.createPropAnim(dock,"ty",370,480, 300);
+    var anim =  core.createPropAnim(dock,"ty",getWH()-110,getWH(), 300);
     var anim2 = core.createPropAnim(search,"ty",20,-50, 300);
 };
 switcher.onZoomOut = function() {
-    var anim = core.createPropAnim(dock,"ty",480,370, 300);
+    var anim = core.createPropAnim(dock,"ty",getWH(),getWH()-110, 300);
     var anim2 = core.createPropAnim(search,"ty",-50,20, 300);
 };
 
@@ -290,7 +314,7 @@ function buildApp6(stage) {
 }
 switcher.add(buildApp6(stage));
 
-nav.setSize(stage.getW(),stage.getH());
+nav.setSize(getWW(),getWH());
 
 switcherPanel.add(new widgets.PushButton().setText("<")
     .setW(100).setH(30)
@@ -312,13 +336,17 @@ switcherPanel.add(new widgets.PushButton().setText(">")
 
 function buildLockScreen(core,stage) {
     var g = new amino.ProtoGroup();
-    g.add(new amino.ProtoRect().setW(320).setH(480).setFill("#5555ff"));
+    var bg = new amino.ProtoRect().setW(getWW()).setH(getWH()).setFill("#5555ff");
+    g.add(bg);
     g.add(new amino.ProtoText().setText("Greetings Earthling").setTx(20).setTy(100)
         .setFill("#ffffff")
         );
     g.add(new widgets.PushButton().setText("unlock").setTx(20).setTy(400).setW(200).setH(40).onAction(function() {
         g.setVisible(false);
     }));
+    stage.on("WINDOWSIZE", stage, function(e) {
+        bg.setW(getWW()).setH(getWH());
+    });
     return g;
 }
 
@@ -333,12 +361,12 @@ function generateFakeNotification() {
             .onAction(function() {
                     superroot.remove(panel);
                     panel.setVisible(false);
-                    nav.setSize(stage.getW(),stage.getH());
+                    nav.setSize(getWW(),getWH());
             })
             );
     panel.setW(320).setH(80);
-    panel.setTy(stage.getH()-80-30);
-    nav.setSize(stage.getW(),stage.getH()-80);
+    panel.setTy(getWH()-80-30);
+    nav.setSize(getWW(),getWH()-80);
     superroot.add(panel);
 }
 
@@ -363,8 +391,8 @@ function NavigationManager() {
     this.push = function(name) {
         var trans = this.transitions[name];
         
-        core.createPropAnim(trans.src, "tx", 0, -stage.width, 250);
-        core.createPropAnim(trans.dst, "tx", stage.width,  0, 250);
+        core.createPropAnim(trans.src, "tx", 0, -getWW(), 250);
+        core.createPropAnim(trans.dst, "tx", getWW(),  0, 250);
         this.navstack.push(trans);
         trans.dst.setVisible(true);
     }
@@ -391,7 +419,7 @@ function NavigationManager() {
     }
     var self = this;
     stage.on("WINDOWSIZE", stage, function(e) {
-        self.setSize(e.width,e.height);
+        self.setSize(getWW(),getWH());
     });
 }
 function SwipeRecognizer(stage,cb) {

@@ -135,6 +135,14 @@ Handle<Value> setWindowSize(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+Handle<Value> getWindowSize(const Arguments& args) {
+    HandleScope scope;
+    Local<Object> obj = Object::New();
+    obj->Set(String::NewSymbol("w"), Number::New(width));
+    obj->Set(String::NewSymbol("h"), Number::New(height));
+    return scope.Close(obj);
+}
+
 
 void render() {
 	
@@ -209,6 +217,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("init"),             FunctionTemplate::New(init)->GetFunction());
     exports->Set(String::NewSymbol("createWindow"),     FunctionTemplate::New(createWindow)->GetFunction());
     exports->Set(String::NewSymbol("setWindowSize"),    FunctionTemplate::New(setWindowSize)->GetFunction());
+    exports->Set(String::NewSymbol("getWindowSize"),    FunctionTemplate::New(getWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("createRect"),       FunctionTemplate::New(createRect)->GetFunction());
     exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
     exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());

@@ -104,6 +104,9 @@ exports.native = {
     setWindowSize: function(w,h) {
         exports.sgtest.setWindowSize(w,h);
     },
+    getWindowSize: function(w,h) {
+        return exports.sgtest.getWindowSize(w,h);
+    },
     createAnim: function(handle,prop,start,end,dur,count,rev) {
         return exports.sgtest.createAnim(handle,propsHash[prop],start,end,dur,count,rev);
     },
@@ -534,6 +537,10 @@ exports.ProtoRect = exports.ComposeObject({
         tx: { value: 0 },
         /** @prop ty translate Y */
         ty: { value: 0 },
+        /** @prop scalex scale X. @default 1*/
+        scalex: { value: 1 },
+        /** @prop scaley scale Y. @default 1*/
+        scaley: { value: 1 },
         /** @prop visible visible or not. 1 or 0, not true or false */
         visible: { value: 1 },
         x: { value: 0 },
@@ -684,6 +691,10 @@ exports.ProtoText = exports.ComposeObject({
         tx: { value: 0 },
         /** @prop ty translate Y. @default 0 */
         ty: { value: 0 },
+        /** @prop scalex scale X. @default 1*/
+        scalex: { value: 1 },
+        /** @prop scaley scale Y. @default 1*/
+        scaley: { value: 1 },
         /** @prop visible  @default true */
         visible: { value: 1 },
         /** @prop text  the exact string to display */
@@ -736,6 +747,10 @@ exports.ProtoImageView = exports.ComposeObject({
         tx: { value: 0   },
         /** @prop ty translate Y. @default 0 */
         ty: { value: 0   },
+        /** @prop scalex scale X. @default 1*/
+        scalex: { value: 1 },
+        /** @prop scaley scale Y. @default 1*/
+        scaley: { value: 1 },
         /** @prop x x value. @default 0 */
         x:  { value: 0   },
         /** @prop y y value. @default 0 */
@@ -760,21 +775,16 @@ exports.ProtoImageView = exports.ComposeObject({
         //mirror the property to the native side
         if(this.live) {
             exports.native.updateProperty(this.handle, name, value);
-            console.log('updated the property ' + name + " with the handle " + this.handle);
         }
         if(name == 'src') {
-            console.log('set the source to ' + this.props.src);
             var src = this.props.src;
             if(src.toLowerCase().endsWith(".png")) {
                 this.image = exports.native.loadPngToTexture(src);
             } else {
                 this.image = exports.native.loadJpegToTexture(src);
             }
-            console.log("loaded an image");
             if(this.image) {
-                console.log('setting a texture prop: ', this.image);
                 exports.native.updateProperty(this.handle, "texid", this.image.texid);
-                console.log("done with texture prop");
             }
             
         }
@@ -797,7 +807,7 @@ exports.ProtoWidget = exports.ComposeObject({
     comps: {
         base: {
             proto: exports.ProtoGroup,
-            promote: ["tx","ty","visible"],
+            promote: ["tx","ty","scalex","scaley","visible"],
         },
     },
     props: {
@@ -1123,7 +1133,6 @@ function Core() {
     var self = this;
     //TODO: actually clean out dead animations when they end
     this.notifyAnimEnd = function(e) {
-        //console.log("getting notification of animation ending: ", e);
         var found = -1;
         for(var i=0; i<self.anims.length; i++) {
             var anim = self.anims[i];
@@ -1147,6 +1156,13 @@ function Core() {
     
     this.root = null;
     this.start = function() {
+        //send a final window size event to make sure everything is lined up correctly
+        var size = exports.native.getWindowSize();
+        baconbus.push({
+            type:"windowsize",
+            width:size.w,
+            height:size.h,
+        });
         if(!this.root) {
             console.log("ERROR. No root set!");
             process.exit();
@@ -1183,19 +1199,22 @@ function Core() {
     this.findNodeAtXY_helper = function(root,x,y) {
         if(!root) return null;
         if(!root.getVisible()) return null;
+        
+        var tx = x-root.getTx();
+        var ty = y-root.getTy();
+        tx = tx/root.getScalex();
+        ty = ty/root.getScaley();
     
         if(root.children) {
             for(var i=root.children.length-1; i>=0; i--) {
                 var node = root.children[i];
-                var tx = x - node.getTx();
-                var ty = y - node.getTy();
                 var found = this.findNodeAtXY_helper(node,tx,ty);
                 if(found) {
                 	return found;
             	}
             }
         }
-        if(root.contains && root.contains(x,y)) {
+        if(root.contains && root.contains(tx,ty)) {
            return root;
         }
         return null;

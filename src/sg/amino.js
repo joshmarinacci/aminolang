@@ -1043,15 +1043,16 @@ exports.native.createDefaultFont = function() {
 @desc  Anim animates ones property of a node. It must be created using the
 core.createAnim() function.
 */
-function SGAnim(node, prop, start, end, dur, count, autoreverse) {
+function SGAnim(node, prop, start, end, dur) {
     this.node = node;
     this.prop = prop;
     this.start = start;
     this.end = end;
     this.duration = dur;
-    this.count = count;
-    this.autoreverse = autoreverse;
+    this.count = 1;
+    this.autoreverse = false;
     this.afterCallbacks = [];
+    this.beforeCallbacks = [];
     this.init = function(core) {
         this.handle = exports.native.createAnim(
             this.node.handle,
@@ -1064,6 +1065,17 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     this.setInterpolator = function(lerptype) {
         this.lerptype = lerptype;
         exports.native.updateAnimProperty(this.handle, "lerpprop", lerptype);
+        return this;
+    }
+    this.setCount = function(count) {
+        this.count = count;
+        exports.native.updateAnimProperty(this.handle, "count", count);
+        return this;
+    }
+    this.setAutoreverse = function(av) {
+        this.autoreverse = av;
+        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
+        return this;
     }
     this.finish = function() {
         var setterName = "set"+camelize(this.prop);
@@ -1078,6 +1090,11 @@ function SGAnim(node, prop, start, end, dur, count, autoreverse) {
     /** @func after(cb)  Sets a callback to be called when the animation finishes. Note: an infinite animation will never finish. */
     this.after = function(cb) {
         this.afterCallbacks.push(cb);
+        return this;
+    }
+    
+    this.before = function(cb) {
+        this.beforeCallbacks.push(cb);
         return this;
     }
 }
@@ -1097,8 +1114,8 @@ function Core() {
     how many times the animation should loop. Use -1 to loop forever. Autoreverse determines if the animation should
     alternate direction on every other time. Only applies if the animatione will play more than one time.
     */
-    this.createPropAnim = function(node, prop, start, end, dur, count, autoreverse) {
-        var anim = new SGAnim(node,prop,start,end,dur,count,autoreverse);
+    this.createPropAnim = function(node, prop, start, end, dur) {
+        var anim = new SGAnim(node,prop,start,end,dur);
         anim.init(this);
         this.anims.push(anim);
         return anim;

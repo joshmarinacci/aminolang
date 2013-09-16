@@ -25,10 +25,10 @@ function Switcher() {
         var anim;
         if(self.zoomedin) {
             var xoff = (i-current)*this.switcherPanel.getW();
-            anim = this.core.createPropAnim(rect, "tx", rect.getTx(), xoff, dur, 1, false);
+            anim = this.core.createPropAnim(rect, "tx", rect.getTx(), xoff, dur);
         } else {
             var xoff = (i-current)*this.switcherPanel.getW()*1.2;
-            anim = this.core.createPropAnim(rect, "tx", rect.getTx(), this.switcherPanel.getW()/4+xoff/2, dur, 1, false);
+            anim = this.core.createPropAnim(rect, "tx", rect.getTx(), this.switcherPanel.getW()/4+xoff/2, dur);
         }
         anim.setInterpolator(amino.Interpolators.CubicInOut);
     }
@@ -40,20 +40,20 @@ function Switcher() {
         if(self.zoomedin) {
             //zoom out
             var anims = [];
-            anims[0] = this.core.createPropAnim(rect,"scalex",1,0.5, dur, 1, false);
-            anims[1] = this.core.createPropAnim(rect,"scaley",1,0.5, dur, 1, false);
-            anims[2] = this.core.createPropAnim(rect,"tx",0+xoff, this.switcherPanel.getW()/4 + xoff/2, dur, 1, false);
-            anims[3] = this.core.createPropAnim(rect,"ty",0,yoff, dur, 1, false);
+            anims[0] = this.core.createPropAnim(rect,"scalex",1,0.5, dur);
+            anims[1] = this.core.createPropAnim(rect,"scaley",1,0.5, dur);
+            anims[2] = this.core.createPropAnim(rect,"tx",0+xoff, this.switcherPanel.getW()/4 + xoff/2, dur);
+            anims[3] = this.core.createPropAnim(rect,"ty",0,yoff, dur);
             anims.forEach(function(a) {
                 a.setInterpolator(amino.Interpolators.CubicInOut);
             });
         } else {
             //zoom in
             var anims = [];
-            anims[0] = this.core.createPropAnim(rect,"scalex",0.5,1, dur, 1, false);
-            anims[1] = this.core.createPropAnim(rect,"scaley",0.5,1, dur, 1, false);
-            anims[2] = this.core.createPropAnim(rect,"tx",this.switcherPanel.getW()/4+xoff/2,0+xoff, dur, 1, false);
-            anims[3] = this.core.createPropAnim(rect,"ty",yoff,0, dur, 1, false);
+            anims[0] = this.core.createPropAnim(rect,"scalex",0.5,1, dur);
+            anims[1] = this.core.createPropAnim(rect,"scaley",0.5,1, dur);
+            anims[2] = this.core.createPropAnim(rect,"tx",this.switcherPanel.getW()/4+xoff/2,0+xoff, dur);
+            anims[3] = this.core.createPropAnim(rect,"ty",yoff,0, dur);
             anims.forEach(function(a) {
                 a.setInterpolator(amino.Interpolators.CubicInOut);
             });

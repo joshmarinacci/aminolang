@@ -112,7 +112,7 @@ switcher.onZoomOut = function() {
 
 
 
-function buildApp1(stage) {
+function buildTodoList(stage,nav) {
     var panel = new widgets.AnchorPanel();
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
@@ -130,17 +130,24 @@ function buildApp1(stage) {
     
     panel.add(new widgets.Label()
         .setText("Todo List").setFontSize(20));
-    //list view
     panel.add(new widgets.PushButton()
             .setText("Add")
             .setBottom(10).setAnchorBottom(true)
             .setLeft(10).setAnchorLeft(true)
             .setW(100).setH(30)
             );
+    panel.add(new widgets.PushButton()
+            .setText("notify")
+            .setBottom(10).setAnchorBottom(true)
+            .setRight(10).setAnchorRight(true)
+            .setW(100).setH(30)
+            .onAction(function(){ generateFakeNotification(); })
+            );
+    
     nav.register(panel);
     return panel;
     };
-switcher.add(buildApp1(stage));
+switcher.add(buildTodoList(stage,nav));
 
 function buildApp2(stage) {
     var panel = new widgets.AnchorPanel();
@@ -315,6 +322,26 @@ function buildLockScreen(core,stage) {
     return g;
 }
 
+
+function generateFakeNotification() {
+    var panel = new widgets.AnchorPanel()
+        .setFill("#ffff55");
+    panel.add(new widgets.Label().setText("stuff happened"));
+    panel.add(new widgets.PushButton().setText("X")
+            .setW(30).setH(30)
+            .setAnchorRight(true).setRight(10)
+            .onAction(function() {
+                    superroot.remove(panel);
+                    panel.setVisible(false);
+                    nav.setSize(stage.getW(),stage.getH());
+            })
+            );
+    panel.setW(320).setH(80);
+    panel.setTy(stage.getH()-80-30);
+    nav.setSize(stage.getW(),stage.getH()-80);
+    superroot.add(panel);
+}
+
 var ls = buildLockScreen(core,stage);
 superroot.add(ls);
 
@@ -359,7 +386,7 @@ function NavigationManager() {
             panel.setW(w-this.insets.left-this.insets.right)
             .setH(h-this.insets.top-this.insets.bottom);
             panel.setTy(this.insets.top);
-            panel.setTx(this.insets.left);
+            //panel.setTx(this.insets.left);
         }
     }
     var self = this;

@@ -28,8 +28,56 @@ amino.native = {
             b:0.5,
             draw: function(g) {
                 if(this.visible != 1) return;
+                g.save();
+                if(this.opacity != 1.0) {
+                    g.globalAlpha = this.opacity;
+                }
                 g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
-                g.fillRect(this.tx,this.ty,this.w,this.h);
+                if(this.texid) {
+                    //console.log(" now texid = ",this.texid);
+                    g.drawImage(this.texid, this.tx, this.ty);
+                } else {
+                    g.fillRect(this.tx,this.ty,this.w,this.h);
+                }
+                g.restore();
+            },
+        }
+        this.list.push(rect);
+        return rect;
+    },
+    createPoly: function() {
+        var rect = {
+            "kind":"CanvasPoly",
+            tx:0,
+            ty:0,
+            w:100,
+            h:100,
+            r:0.5,
+            g:0.5,
+            b:0.5,
+            draw: function(g) {
+                if(this.visible != 1) return;
+                g.save();
+                g.translate(this.tx,this.ty);
+                g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
+                g.beginPath();
+                var gm = this.geometry;
+                for(var i=0; i<this.geometry.length; i+=2) {
+                    if(i == 0) {
+                        g.moveTo(gm[i],gm[i+1]);
+                    } else {
+                        g.lineTo(gm[i],gm[i+1]);
+                    }
+                }
+                if(this.closed) {
+                    g.closePath();
+                }
+                if(this.filled) {
+                    g.fill();
+                } else {
+                    g.stroke();
+                }
+                g.restore();
             },
         }
         this.list.push(rect);
@@ -80,8 +128,17 @@ amino.native = {
         return new CanvasFont(this.domctx);
     },
     
+    loadJpegToTexture: function(path,cb) {
+        var img = new Image();
+        img.onload = function() {
+            img.texid = img;
+            cb(img);
+        }
+        img.src = path;
+    },
+    
     updateProperty: function(handle, key, value) {
-        //console.log("updating the property of handle",handle,key,value);
+        console.log("updating the property of handle",handle, " key ", key, " value",value);
         handle[key] = value;
     },
     setRoot: function(root) {

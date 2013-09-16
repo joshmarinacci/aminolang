@@ -86,20 +86,19 @@ exports.native = {
     createWindow: function(w,h) {
         exports.sgtest.createWindow(w,h);
     },
-    createRect: function() {
-        return exports.sgtest.createRect();
-    },
+    createRect: function()  {          return exports.sgtest.createRect();    },
+    createGroup: function() {          return exports.sgtest.createGroup();   },
+    createPoly: function()  {          return exports.sgtest.createPoly();    },
     addNodeToGroup: function(h1,h2) {
         exports.sgtest.addNodeToGroup(h1,h2);
     },
-    createGroup: function() {
-        return exports.sgtest.createGroup();
+    loadPngToTexture: function(imagefile,cb) {
+        var img = exports.sgtest.loadPngToTexture(imagefile);
+        cb(img);
     },
-    loadPngToTexture: function(imagefile) {
-        return exports.sgtest.loadPngToTexture(imagefile);
-    },
-    loadJpegToTexture: function(imagefile) {
-        return exports.sgtest.loadJpegToTexture(imagefile);
+    loadJpegToTexture: function(imagefile, cb) {
+        var img = exports.sgtest.loadJpegToTexture(imagefile);
+        cb(img);
     },
     createNativeFont: function(texid,json) {
         return exports.sgtest.createNativeFont(texid,json);
@@ -531,6 +530,10 @@ var propsHash = {
     "rotateY":20,
     "x":21,
     "y":22,
+    "geometry":24,
+    "filled":25,
+    "closed":26,
+    "opacity":27,
 }
 
 exports.propsHash = propsHash;
@@ -568,6 +571,7 @@ exports.ProtoRect = exports.ComposeObject({
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
+        opacity: { value: 1},
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
         fill: {
             value: '#ff0000', 
@@ -619,6 +623,81 @@ exports.ProtoRect = exports.ComposeObject({
             return false;
         }
         
+    }
+});
+
+/**
+@class ProtoPoly
+@desc the basic primitive polygon composed of lines. may or may not be filled. may or may not be closed.
+*/
+exports.ProtoPoly = exports.ComposeObject({
+    type: "Poly",
+    props: {
+        /** @prop id id of the rectangle. might not be unique */
+        id: { value: "no id" },
+        /** @prop tx translate X */
+        tx: { value: 0 },
+        /** @prop ty translate Y */
+        ty: { value: 0 },
+        /** @prop scalex scale X. @default 1*/
+        scalex: { value: 1 },
+        /** @prop scaley scale Y. @default 1*/
+        scaley: { value: 1 },
+        /** @prop visible visible or not. 1 or 0, not true or false */
+        visible: { value: 1 },
+        /** @prop w width of the rectangle. default value = 300 */
+        w: { value: 300 },
+        /** @prop h height of the rectangle. default value = 100 */
+        h: { value: 100 },
+        r: { value: 0},
+        g: { value: 1},
+        b: { value: 0},
+        geometry: { value: [0,0, 50,0, 50,50]},
+        filled: { value: false },
+        closed: { value: true  },
+        /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
+        fill: {
+            value: '#ff0000', 
+        }
+    },
+    //replaces all setters
+    set: function(name, value) {
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            if(propsHash[name]) {
+                exports.native.updateProperty(this.handle,name,value);
+            }
+        }
+        
+        if(name == 'fill') {
+            var color = ParseRGBString(value);
+            this.setR(color.r);
+            this.setG(color.g);
+            this.setB(color.b);
+            return this;
+        }
+    },
+    /*
+    //replaces all getters
+    get: function(name) {
+        return this.props[name];
+    },
+    */
+    init: function() {
+        this.handle = exports.native.createPoly();
+        this.live = true;
+        //invoke all setters once to push default values to the native side
+        for(var propname in this.props) {
+            this.set(propname, this.props[propname]);
+        }
+        this.type = "rect";
+        var rect = this;
+        
+        this.contains = function(x,y) {
+            //dont calc containment for now
+            return false;
+        }
     }
 });
 
@@ -793,15 +872,26 @@ exports.ProtoImageView = exports.ComposeObject({
         if(this.live) {
             exports.native.updateProperty(this.handle, name, value);
         }
-        if(name == 'src') {
+        if(name == 'src' && value != null) {
             var src = this.props.src;
+            var self = this;
             if(src.toLowerCase().endsWith(".png")) {
-                this.image = exports.native.loadPngToTexture(src);
+                exports.native.loadPngToTexture(src, function(image) {
+                    self.image = image;
+                    if(self.image) {
+                        exports.native.updateProperty(self.handle, "texid", self.image.texid);
+                    }
+                });
             } else {
-                this.image = exports.native.loadJpegToTexture(src);
-            }
-            if(this.image) {
-                exports.native.updateProperty(this.handle, "texid", this.image.texid);
+                exports.native.loadJpegToTexture(src, function(image) {
+                    console.log('returned from loading the texture',image);
+                    self.image = image;
+                    console.log("texid = ",self.image.texid);
+                    if(self.image) {
+                        console.log("updating");
+                        exports.native.updateProperty(self.handle, "texid", self.image.texid);
+                    }
+                });
             }
             
         }
@@ -809,6 +899,10 @@ exports.ProtoImageView = exports.ComposeObject({
     init: function() {
         this.live = true;
         this.handle = exports.native.createRect();
+        //invoke all setters once to push default values to the native side
+        for(var propname in this.props) {
+            this.set(propname, this.props[propname]);
+        }
     }
 });
 

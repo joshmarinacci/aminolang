@@ -43,8 +43,14 @@ amino.startApp("mycanvas",function(core,stage) {
         title: "basic shapes",
         content: new amino.ProtoGroup()
         .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00"))
-        .add(new amino.ProtoText().setText("text").setFill("#0000ff")
-            .setTy(60))
+        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00").setOpacity(0.2).setTx(100))
+        .add(new amino.ProtoText().setText("text").setFill("#0000ff").setTx(200))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(true).setTy(100))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(false).setTx(100).setTy(100))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(true).setTy(200))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(false).setTy(200).setTx(100))
+        
+        .add(new amino.ProtoImageView().setSrc("../images/keane_01.jpg").setTx(300))
     };
     tests.push(shapes);
     
@@ -77,7 +83,7 @@ amino.startApp("mycanvas",function(core,stage) {
     text.content.add(new widgets.TextField().setW(200).setH(30).setTy(40));
     tests.push(text);
     
-    switchTest(3);
+    switchTest(0);
     
 });
 </script>

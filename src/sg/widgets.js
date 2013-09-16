@@ -495,6 +495,14 @@ widgets.ListView = amino.ComposeObject({
             if(self.scroll > max) { self.scroll = max; }
             self.regenerateCells();
         });
+        amino.getCore().on("press",this,function(e) {
+            var y = (e.y-80)+self.scroll;
+            var n = Math.floor(y/self.getCellHeight());
+            self.setSelectedIndex(n);
+            self.regenerateCells();
+            var event = {type:'select',source:self};
+            amino.getCore().fireEvent(event);
+        });
         
         this.cells = [];
         this.cg = function() {
@@ -522,16 +530,19 @@ widgets.ListView = amino.ComposeObject({
             return this;
         }
         this.fillCellValues = function(cell,i, item) {
-            if(this.textCellRenderer) {
-                this.textCellRenderer(cell,i,item);
-                return;
-            }
-            cell.setText(item);
             if(i%2 == 0) {
                 cell.setFill(amino.colortheme.listview.cell.fillEven);
             } else {
                 cell.setFill(amino.colortheme.listview.cell.fillOdd);
             }
+            if(i == this.getSelectedIndex()) {
+                cell.setFill(amino.colortheme.listview.cell.fillSelected);
+            }
+            if(this.textCellRenderer) {
+                this.textCellRenderer(cell,i,item);
+                return;
+            }
+            cell.setText(item);
         }
         
         this.regenerateCells = function() {

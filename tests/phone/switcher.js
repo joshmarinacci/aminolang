@@ -8,12 +8,18 @@ function Switcher() {
     var current = 0;
     this.apps = [];
     this.root = null;
+    this.switcherPanel = null;
+    
+    
     this.add = function(app) {
         this.root.add(app);
         this.apps.push(app);
         this.core.on("drag",app,this.dragHandler);
         this.core.on("release",app,this.releaseHandler);
     }
+    this.onZoomIn = null;
+    this.onZoomOut = null;
+    
     this.slide = function(i,rect) {
         var dur = 200;
         var anim;
@@ -29,6 +35,7 @@ function Switcher() {
     
     this.zoomit = function(i,rect) {
         var dur = 300;
+        var yoff = 80;
         var xoff = (i-current)*this.switcherPanel.getW()*1.2;
         if(self.zoomedin) {
             //zoom out
@@ -36,7 +43,7 @@ function Switcher() {
             anims[0] = this.core.createPropAnim(rect,"scalex",1,0.5, dur, 1, false);
             anims[1] = this.core.createPropAnim(rect,"scaley",1,0.5, dur, 1, false);
             anims[2] = this.core.createPropAnim(rect,"tx",0+xoff, this.switcherPanel.getW()/4 + xoff/2, dur, 1, false);
-            anims[3] = this.core.createPropAnim(rect,"ty",0,40, dur, 1, false);
+            anims[3] = this.core.createPropAnim(rect,"ty",0,yoff, dur, 1, false);
             anims.forEach(function(a) {
                 a.setInterpolator(amino.Interpolators.CubicInOut);
             });
@@ -46,7 +53,7 @@ function Switcher() {
             anims[0] = this.core.createPropAnim(rect,"scalex",0.5,1, dur, 1, false);
             anims[1] = this.core.createPropAnim(rect,"scaley",0.5,1, dur, 1, false);
             anims[2] = this.core.createPropAnim(rect,"tx",this.switcherPanel.getW()/4+xoff/2,0+xoff, dur, 1, false);
-            anims[3] = this.core.createPropAnim(rect,"ty",40,0, dur, 1, false);
+            anims[3] = this.core.createPropAnim(rect,"ty",yoff,0, dur, 1, false);
             anims.forEach(function(a) {
                 a.setInterpolator(amino.Interpolators.CubicInOut);
             });
@@ -103,7 +110,18 @@ function Switcher() {
             self.zoomit(i,self.apps[i]);
         }
         self.zoomedin = !self.zoomedin;
+        if(self.zoomedin) {
+        if(self.onZoomIn) {
+            self.onZoomIn();
+        }
+        } else {
+        if(self.onZoomOut) {
+            self.onZoomOut();
+        }
+        }
     }
+    
+    
 }
 
 exports.Switcher = Switcher;

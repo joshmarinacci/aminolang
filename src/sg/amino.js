@@ -47,6 +47,7 @@ exports.colortheme = {
         cell: {
             fillEven: "#ffffff",
             fillOdd:  "#eeeeee",
+            fillSelected: "#88ccff",
         }
     }
 }

@@ -12,10 +12,11 @@ if(process.platform == 'darwin') {
 
 var data = require('./fakedata.js');
 var Switcher = require('./switcher.js').Switcher;
+var EmailApp = require('./emailapp.js').EmailApp;
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
-    stage.setSize(500,480);
+    stage.setSize(320,480);
 
 
 var nav = new NavigationManager();
@@ -42,6 +43,16 @@ function buildStatusBar(stage)  {
     return panel;
 }
 
+function buildSearch() {
+    var search = new amino.ProtoGroup();
+    search.add(new amino.ProtoRect().setW(320).setH(40).setFill("#ffffcc"));
+    search.add(new amino.ProtoText().setText("search").setTx(20).setTy(10));
+    return search;
+}
+var search = buildSearch();
+
+var superroot = new amino.ProtoGroup();
+stage.setRoot(superroot);
 
 var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(stage.getW()).setH(stage.getH());
@@ -50,9 +61,11 @@ stage.on("WINDOWSIZE", stage, function(e) {
     switcherPanel.setW(e.width);
     switcherPanel.setH(e.height);
 });
-stage.setRoot(switcherPanel);
+superroot.add(switcherPanel);
+//stage.setRoot(switcherPanel);
 
 
+switcherPanel.add(search);
 var statusBar = buildStatusBar(stage);
 statusBar.setAnchorLeft(true).setAnchorRight(true);
 switcherPanel.add(statusBar);
@@ -67,6 +80,37 @@ switcher.core = core;
 switcher.root = root;
 switcher.switcherPanel = switcherPanel;
 
+function buildDock(stage) {
+    var dock = new amino.ProtoGroup().setTy(480);
+    dock.add(new amino.ProtoRect().setW(320).setH(80).setFill("#ffccff"));
+    for(var i=0; i<4; i++) {
+        dock.add(new widgets.PushButton()
+            .setText("foo")
+            .setW(60).setH(60)
+            .setTx(i*80+10).setTy(10)
+            .onAction(function() {
+                switcher.add(new EmailApp(stage,nav,data));
+                nav.setSize(stage.getW(),stage.getH());
+            })
+            );
+    }
+    return dock;
+}
+var dock = buildDock(stage);
+
+
+switcherPanel.add(dock);
+switcher.onZoomIn = function() {
+    var anim =  core.createPropAnim(dock,"ty",370,480, 300, 1, false);
+    var anim2 = core.createPropAnim(search,"ty",20,-50, 300, 1, false);
+};
+switcher.onZoomOut = function() {
+    var anim = core.createPropAnim(dock,"ty",480,370, 300, 1, false);
+    var anim2 = core.createPropAnim(search,"ty",-50,20, 300, 1, false);
+};
+
+
+
 
 function buildApp1(stage) {
     var panel = new widgets.AnchorPanel();
@@ -80,11 +124,6 @@ function buildApp1(stage) {
     lv.listModel = data.people;
     lv.setTextCellRenderer(function(cell,i,item) {
         cell.setText(item.first + " " + item.last);
-        if(i%2 == 0) {
-            cell.setFill("#ffffff");
-        } else {
-            cell.setFill("#eeeeee");
-        }
     });
     panel.add(lv);
     
@@ -124,89 +163,7 @@ function buildApp2(stage) {
 switcher.add(buildApp2(stage));
 
 
-var EmailListViewCell = amino.ComposeObject({
-    type: "EmailListViewCell",
-    extend: amino.ProtoWidget,
-    comps: {
-        background: {
-            proto: amino.ProtoRect,
-            promote: ['w','h','fill'],
-        },
-        from: {
-            proto: amino.ProtoText,
-        },
-        subject: {
-            proto: amino.ProtoText,
-        },
-    },
-    init: function() {
-        this.comps.base.add(this.comps.background);
-        this.comps.base.add(this.comps.from);
-        this.comps.base.add(this.comps.subject);
-        
-        this.comps.from.setText("from");
-        this.comps.from.setTx(5);
-        this.comps.from.setTy(5);
-        this.comps.from.setFontSize(16);
-
-        this.comps.subject.setText("subject");
-        this.comps.subject.setTx(5);
-        this.comps.subject.setTy(25);
-        this.comps.subject.setFontSize(12);
-    },
-});
-
-
-function buildApp3(stage) {
-    var panel = new widgets.AnchorPanel();
-    
-    var lv = new widgets.ListView();
-    lv.setCellGenerator(function() {
-        var cell = new EmailListViewCell();
-        return cell;
-    });
-    lv.setTextCellRenderer(function(cell,i,item) {
-        cell.comps.from.setText(item.from);
-        cell.comps.subject.setText(item.subject);
-        if(i%2 == 0) {
-            cell.setFill("#ffffff");
-        } else {
-            cell.setFill("#eeeeee");
-        }
-    });
-    lv.setCellHeight(40);
-    lv.setW(320).setH(200)
-    .setTop(20+40).setAnchorTop(true)
-    .setBottom(40).setAnchorBottom(true)
-    .setLeft(0).setAnchorLeft(true)
-    .setRight(0).setAnchorRight(true)
-    ;
-    lv.listModel = data.emails;
-    //console.log(data.emails);
-    
-    
-    panel.add(lv);
-    
-    panel.add(new widgets.PushButton()
-            .setText("reply")
-            .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(40).setTx(94).setTy(390));
-    panel.add(new widgets.PushButton()
-            .setText("delete")
-            .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(40).setTx(190).setTy(390));
-    panel.add(new widgets.PushButton()
-            .setText("compose")
-            .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(40).setTx(0).setTy(390));
-    //list view
-    panel.add(new widgets.Label()
-            .setText("Email").setW(297).setFontSize(20)
-            .setTy(4).setTx(4).setH(32));
-    nav.register(panel);
-    return panel;            
-}
-switcher.add(buildApp3(stage));
+switcher.add(new EmailApp(stage,nav,data));
 
 function buildApp4(stage) {
     var panel = new widgets.AnchorPanel();
@@ -261,11 +218,11 @@ function buildApp6(stage) {
         );
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
-    .setTop(20+40).setAnchorTop(true)
-    .setBottom(40+20).setAnchorBottom(true)
-    .setLeft(0).setAnchorLeft(true)
-    .setRight(0).setAnchorRight(true)
-    ;
+        .setTop(20+40).setAnchorTop(true)
+        .setBottom(40+20).setAnchorBottom(true)
+        .setLeft(0).setAnchorLeft(true)
+        .setRight(0).setAnchorRight(true)
+        ;
     panel.add(lv);
     lv.listModel = data.events;
     console.log(data.events);
@@ -346,6 +303,20 @@ switcherPanel.add(new widgets.PushButton().setText(">")
     .onAction(switcher.slideNext)
     );
 
+function buildLockScreen(core,stage) {
+    var g = new amino.ProtoGroup();
+    g.add(new amino.ProtoRect().setW(320).setH(480).setFill("#5555ff"));
+    g.add(new amino.ProtoText().setText("Greetings Earthling").setTx(20).setTy(100)
+        //.setFill("#ffffff")
+        );
+    g.add(new widgets.PushButton().setText("unlock").setTx(20).setTy(400).setW(200).setH(40).onAction(function() {
+        g.setVisible(false);
+    }));
+    return g;
+}
+
+var ls = buildLockScreen(core,stage);
+superroot.add(ls);
 
 function NavigationManager() {
     this.panels = [];

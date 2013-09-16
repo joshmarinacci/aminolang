@@ -52,7 +52,7 @@ function Switcher() {
             var anims = [];
             anims[0] = this.core.createPropAnim(rect,"scalex",0.5,1, dur);
             anims[1] = this.core.createPropAnim(rect,"scaley",0.5,1, dur);
-            anims[2] = this.core.createPropAnim(rect,"tx",this.switcherPanel.getW()/4+xoff/2,0+xoff, dur);
+            anims[2] = this.core.createPropAnim(rect,"tx",this.switcherPanel.getW()/4 + xoff/2,0+xoff, dur);
             anims[3] = this.core.createPropAnim(rect,"ty",yoff,0, dur);
             anims.forEach(function(a) {
                 a.setInterpolator(amino.Interpolators.CubicInOut);

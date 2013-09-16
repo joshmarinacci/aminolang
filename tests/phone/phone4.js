@@ -101,12 +101,12 @@ var dock = buildDock(stage);
 
 switcherPanel.add(dock);
 switcher.onZoomIn = function() {
-    var anim =  core.createPropAnim(dock,"ty",370,480, 300, 1, false);
-    var anim2 = core.createPropAnim(search,"ty",20,-50, 300, 1, false);
+    var anim =  core.createPropAnim(dock,"ty",370,480, 300);
+    var anim2 = core.createPropAnim(search,"ty",20,-50, 300);
 };
 switcher.onZoomOut = function() {
-    var anim = core.createPropAnim(dock,"ty",480,370, 300, 1, false);
-    var anim2 = core.createPropAnim(search,"ty",-50,20, 300, 1, false);
+    var anim = core.createPropAnim(dock,"ty",480,370, 300);
+    var anim2 = core.createPropAnim(search,"ty",-50,20, 300);
 };
 
 
@@ -363,15 +363,15 @@ function NavigationManager() {
     this.push = function(name) {
         var trans = this.transitions[name];
         
-        core.createPropAnim(trans.src, "tx", 0, -stage.width, 250, 1, false);
-        core.createPropAnim(trans.dst, "tx", stage.width,  0, 250, 1, false);
+        core.createPropAnim(trans.src, "tx", 0, -stage.width, 250);
+        core.createPropAnim(trans.dst, "tx", stage.width,  0, 250);
         this.navstack.push(trans);
         trans.dst.setVisible(true);
     }
     this.pop = function() {
         var trans = this.navstack.pop();
-        core.createPropAnim(trans.src, "tx", -400, 0, 250, 1, false);
-        core.createPropAnim(trans.dst, "tx", 0,  400, 250, 1, false)
+        core.createPropAnim(trans.src, "tx", -400, 0, 250);
+        core.createPropAnim(trans.dst, "tx", 0,  400, 250)
             .after(function() { trans.dst.setVisible(false); });
     }
     this.insets = {

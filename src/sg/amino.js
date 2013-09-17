@@ -248,8 +248,8 @@ function setupBacon(core) {
                 {
                     type:"press",
                     pressed:mouseState.pressed,
-                    x:mouseState.x,
-                    y:mouseState.y,
+                    x:pt.x,
+                    y:pt.y,
                     point:pt,
                     target:node,
                 }
@@ -288,8 +288,8 @@ function setupBacon(core) {
                     {
                         type:"drag",
                         pressed:mouseState.pressed,
-                        x:mouseState.x,
-                        y:mouseState.y,
+                        x:pt.x,
+                        y:pt.y,
                         dx:e.dx,
                         dy:e.dy,
 	                    point:pt,
@@ -301,8 +301,8 @@ function setupBacon(core) {
                     type: "drag",
                     type:"drag",
                     pressed:mouseState.pressed,
-                    x:mouseState.x,
-                    y:mouseState.y,
+                    x:pt.x,
+                    y:pt.y,
                     dx:e.dx,
                     dy:e.dy,
                     point:pt,
@@ -1347,14 +1347,17 @@ function Core() {
         return null;
     }
     this.globalToLocal = function(pt, node) {
-        var pt2 = {
-            x: (pt.x - node.getTx())/node.getScalex(),
-            y: (pt.y - node.getTy())/node.getScaley(),
-        }
     	if(node.parent) {
-    		return this.globalToLocal(pt2,node.parent);
+    		pt =  this.globalToLocal(pt,node.parent);
+            return {
+                x: (pt.x - node.getTx())/node.getScalex(),
+                y: (pt.y - node.getTy())/node.getScaley(),
+            }
     	} else {
-	    	return pt2;
+    	    return {
+                x: (pt.x - node.getTx())/node.getScalex(),
+                y: (pt.y - node.getTy())/node.getScaley(),
+	    	}
 	    }
     }
     this.listeners = {};

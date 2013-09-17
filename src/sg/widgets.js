@@ -175,7 +175,6 @@ widgets.ProgressSpinner = amino.ComposeObject({
         size: {
             value: 50,
             set: function(w) {
-                console.log("value set");
                 this.comps.part1.setW(w).setH(w);
                 this.comps.part2.setW(w).setH(w);
                 this.comps.part1.setX(-w/2).setY(-w/2).setTx(w/2).setTy(w/2);
@@ -189,7 +188,6 @@ widgets.ProgressSpinner = amino.ComposeObject({
             value:false,
             set: function(active) {
                 this.props.active = active;
-                console.log("active = " + this.props.active);
                 if(this.props.active) {
                     //start animations;
                     this.setVisible(1);
@@ -297,8 +295,8 @@ widgets.AnchorPanel = amino.ComposeObject({
             if(!node) abort("can't add a null child to an anchor panel");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
             this.children.push(node);
-            node.parent = this;
             this.comps.base.add(node);
+            node.parent = this;
             //sgtest.addNodeToGroup(node.handle,this.handle);
             this.redoLayout();
         }
@@ -382,8 +380,8 @@ widgets.VerticalPanel = amino.ComposeObject({
             if(!node) abort("can't add a null child to an anchor panel");
             if(!this.live) abort("error. trying to add child to a group that isn't live yet");
             this.children.push(node);
-            node.parent = this;
             this.comps.base.add(node);
+            node.parent = this;
             this.redoLayout();
         }
         this.live = true;
@@ -478,7 +476,6 @@ widgets.ListView = amino.ComposeObject({
         },
     },
     init: function() {
-        console.log("making a list view");
         this.comps.base.add(this.comps.background);
         this.setFill("#ffccff");
 

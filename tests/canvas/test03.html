@@ -1,0 +1,31 @@
+<html>
+<head>
+<script src='../../build/canvas/amino.js'></script>
+<script src='../../build/canvas/widgets.js'></script>
+<script src='../../build/canvas/canvasbacon.js'></script>
+<script src='../../build/canvas/canvasamino.js'></script>
+<style type='text/css'>
+body { margin: 0; padding: 0; }
+canvas { border: 1px solid black; }
+</style>
+</head>
+<body>
+<canvas id='mycanvas' width='500' height='350'></canvas>
+<script type='text/javascript'>
+amino.startApp("mycanvas",function(core,stage) {
+    var root = new amino.ProtoGroup().setTx(100).setScalex(1.4);
+    
+    var g2 = new amino.ProtoGroup().setScaley(2);
+    var rect = new amino.ProtoRect().setW(100).setH(100).setTx(50).setTy(50).setScalex(2);
+    g2.add(rect);
+    root.add(g2);
+    stage.setRoot(root);
+    amino.getCore().on('press',rect,function(e) {
+    console.log(e.x,e.y,e.point);
+    });
+});
+</script>
+
+
+</body>
+</html>

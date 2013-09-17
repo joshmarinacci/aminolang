@@ -29,15 +29,17 @@ amino.native = {
             draw: function(g) {
                 if(this.visible != 1) return;
                 g.save();
+                g.translate(this.tx,this.ty);
+                g.scale(this.scalex,this.scaley);
                 if(this.opacity != 1.0) {
                     g.globalAlpha = this.opacity;
                 }
                 g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
                 if(this.texid) {
                     //console.log(" now texid = ",this.texid);
-                    g.drawImage(this.texid, this.tx, this.ty);
+                    g.drawImage(this.texid, 0,0);
                 } else {
-                    g.fillRect(this.tx,this.ty,this.w,this.h);
+                    g.fillRect(0,0,this.w,this.h);
                 }
                 g.restore();
             },
@@ -59,6 +61,7 @@ amino.native = {
                 if(this.visible != 1) return;
                 g.save();
                 g.translate(this.tx,this.ty);
+                g.scale(this.scalex,this.scaley);
                 g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
                 g.beginPath();
                 var gm = this.geometry;
@@ -138,7 +141,6 @@ amino.native = {
     },
     
     updateProperty: function(handle, key, value) {
-        console.log("updating the property of handle",handle, " key ", key, " value",value);
         handle[key] = value;
     },
     setRoot: function(root) {
@@ -203,6 +205,7 @@ function setupEventHandlers(dom) {
     var self = this;
     
     attachEvent(dom,'mousedown',function(e){
+        mouseState.pressed = true;
         baconbus.push({type:"mouseposition", x:e.x, y:e.y});
         baconbus.push({type:"mousebutton", button:0, state:1});
     });
@@ -210,6 +213,7 @@ function setupEventHandlers(dom) {
         baconbus.push({type:"mouseposition", x:e.x, y:e.y});
     });
     attachEvent(dom,'mouseup',function(e){
+        mouseState.pressed = false;
         baconbus.push({type:"mouseposition", x:e.x, y:e.y});
         baconbus.push({type:"mousebutton", button:0, state:0});
     });

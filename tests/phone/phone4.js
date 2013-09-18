@@ -602,4 +602,32 @@ SoftKeyboard = amino.ComposeObject({
     },
 });
 
+/*
+var http = require('http');
+var req = http.request({
+        hostname:"stash.lv",
+        port:3001,
+        path:'/bag/unread?token=joshsecret&omit=description',
+        method:'GET',
+        //http://stash.lv:3001/bag/unread?token=joshsecret&omit=description
+        //http://stash.lv:3001/bag/search?token=joshsecret&type=todo
+        //http://stash.lv:3001/bag/search?token=joshsecret&type=bookmark
+},function(res) {
+    console.log("done with the request");
+    console.log('status = ', res.statusCode);
+    res.setEncoding('utf8');
+    var data = "";
+    res.on('data',function(chunk) {
+            data += chunk.toString();
+    });
+    res.on('end', function() {
+        var dt = JSON.parse(data);
+        dt.forEach(function(item) {
+                console.log(item.title);
+        });
+    });
+});
+req.end();
+*/
+
 });

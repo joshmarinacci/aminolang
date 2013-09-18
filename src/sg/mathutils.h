@@ -47,6 +47,22 @@ make_z_rot_matrix(GLfloat angle, GLfloat *m)
 }
 
 static void
+make_x_rot_matrix(GLfloat angle, GLfloat *m)
+{
+   float c = cos(angle * M_PI / 180.0);
+   float s = sin(angle * M_PI / 180.0);
+   int i;
+   for (i = 0; i < 16; i++)
+      m[i] = 0.0;
+   m[0] = m[5] = m[10] = m[15] = 1.0;
+
+   m[5] = c;
+   m[6] = s;
+   m[9] = -s;
+   m[10] = c;
+}
+
+static void
 print_matrix(GLfloat *m) {
     printf("matrix ");
     for(int i=0; i<16; i++) {

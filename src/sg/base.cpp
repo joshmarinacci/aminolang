@@ -38,6 +38,11 @@ void rotate(double x, double y, double z) {
     GLfloat rot[16];
     GLfloat temp[16];
     
+    
+    make_x_rot_matrix(x, rot);
+    mul_matrix(temp, globaltx, rot);
+    copy_matrix(globaltx,temp);
+
     make_y_rot_matrix(y, rot);
     mul_matrix(temp, globaltx, rot);
     copy_matrix(globaltx,temp);
@@ -132,7 +137,7 @@ void Rect::draw() {
 
 
 void Group::draw() {
-    	if(visible != 1) return;
+    if(visible != 1) return;
     save();
     translate(tx,ty);
     scale(scalex,scaley);

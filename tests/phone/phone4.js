@@ -62,11 +62,21 @@ function buildStatusBar(stage)  {
 
 function buildSearch() {
     var search = new amino.ProtoGroup();
+    var tf = new widgets.TextField().setText('search');
+    stage.on("change",tf,function(e) {
+        if(e.name=='text') {
+            console.log(e.text);
+        }
+    });
+    tf.setW(200).setH(30);
+    search.add(tf);
+    /*
     var bg = new amino.ProtoRect().setW(getWW()).setH(40).setFill("#ffffcc");
     search.add(bg);
-    search.add(new amino.ProtoText().setText("search").setTx(20).setTy(10));
+    search.add(new amino.ProtoText().setText("search").setTx(10).setTy(20));
+    */
     stage.on("WINDOWSIZE", stage, function(e) {
-        bg.setW(getWW());
+        tf.setW(getWW());
     });
     return search;
 }
@@ -126,7 +136,7 @@ var dock = buildDock(stage);
 
 
 switcherPanel.add(dock);
-var scrim = new amino.ProtoRect().setW(320).setH(480).setVisible(0).setOpacity(0.0).setFill("#0000ff");
+var scrim = new amino.ProtoRect().setW(getWW()).setH(getWH()-20-30 - 80-30).setTy(20+30).setVisible(0).setOpacity(0.0).setFill("#0000ff");
 core.on('press',scrim, function() {
     switcher.zoomAll();
 });

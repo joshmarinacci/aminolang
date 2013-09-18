@@ -810,9 +810,9 @@ exports.ProtoText = exports.ComposeObject({
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
-            if(name == 'ty') {
+            if(name == 'ty' && (typeof this.handle == 'number')) {
                 if(this.fontSize) {
-                value -= this.fontSize;
+                    value -= this.fontSize;
                 } else {
                     value -= 20;
                 }

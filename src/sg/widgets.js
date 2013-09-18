@@ -835,12 +835,14 @@ function TextView() {
             }
         }
         
+        /*
         this.lines.forEach(function(line) {
             //console.log("line");
             line.runs.forEach(function(run) {
                 console.log("   "+run.toString());
             });
         });
+        */
     }
 }
 
@@ -1288,7 +1290,6 @@ function TextControl() {
             }
         },
         cursorDeletePrevChar: function(kp) {
-            console.log("deleting previous char. index = " + self.cursor.index);
             if(self.cursor.index - 1 < -1) return;
             if(self.cursor.selectionActive()) {
                 self.cursor.deleteSelection();
@@ -1472,6 +1473,12 @@ widgets.TextField = amino.ComposeObject({
             this.tc.view.layout();
             return this;
         }
+        this.tc.model.listen({
+            notify:function() {
+                var event = {type:'change',source:self, name:'text', text:self.tc.model.getText()};
+                amino.getCore().fireEvent(event);
+            },
+        });
         this.setText("a text field");
         this.tc.setWrapping(false);
     }

@@ -18,6 +18,22 @@ function LockScreen(core,stage) {
     stage.on("WINDOWSIZE", stage, function(e) {
         g.setW(e.width/2).setH(e.height/2);
     });
+    
+    
+    //load the image, scale to fit, center it.
+    var img = new amino.ProtoImageView().setSrc("tests/photos/photo1.jpg");
+    var ww = 320;
+    var wh = 480;
+    var sc = ww/img.getW();
+    var sc2 = wh/img.getH();
+    sc = Math.max(sc,sc2);
+    img.setScalex(sc).setScaley(sc);
+    var xoff = 320-sc*img.getW();
+    img.setTx(xoff/2);
+    var yoff = 480-sc*img.getH();
+    img.setTy(yoff/2);
+    g.add(img);
+    console.log("width = ", 320*2);
 
     console.log(moment().format('MMMM Do YYYY, h:mm:ss a'));
     var timeLabel = new widgets.Label()

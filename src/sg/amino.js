@@ -885,6 +885,8 @@ exports.ProtoImageView = exports.ComposeObject({
             if(src.toLowerCase().endsWith(".png")) {
                 exports.native.loadPngToTexture(src, function(image) {
                     self.image = image;
+                    self.setW(image.w);
+                    self.setH(image.h);
                     if(self.image) {
                         exports.native.updateProperty(self.handle, "texid", self.image.texid);
                     }
@@ -892,6 +894,8 @@ exports.ProtoImageView = exports.ComposeObject({
             } else {
                 exports.native.loadJpegToTexture(src, function(image) {
                     console.log('returned from loading the texture',image);
+                    self.setW(image.w);
+                    self.setH(image.h);
                     self.image = image;
                     console.log("texid = ",self.image.texid);
                     if(self.image) {

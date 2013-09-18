@@ -224,7 +224,7 @@ widgets.Label = amino.ComposeObject({
         text: {
             proto: amino.ProtoText,
             /** @prop text  the text of this label */
-            promote: ['text','fontSize'],
+            promote: ['text','fontSize','fill'],
         }
     },
     props: {

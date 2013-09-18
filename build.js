@@ -491,6 +491,7 @@ function androidjs(cb) {
     copyFileTo("tests/phone/services.js",out);
     copyFileTo("tests/phone/database.js",out);
     copyFileTo("tests/phone/emailapp.js",out);
+    copyFileTo("tests/phone/lockscreen.js",out);
     
     copyFileTo("node_modules/Faker/Faker.js",out);
     

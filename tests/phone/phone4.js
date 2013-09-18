@@ -13,6 +13,7 @@ if(process.platform == 'darwin') {
 var data = require('./fakedata.js');
 var Switcher = require('./switcher.js').Switcher;
 var EmailApp = require('./emailapp.js').EmailApp;
+var LockScreen = require('./lockscreen.js').LockScreen;
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
@@ -76,6 +77,7 @@ var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(getWW()).setH(getWH());
 switcherPanel.setFill("#0000ff");
 stage.on("windowsize", stage, function(e) {
+    console.log('window has been resized: ' + stage.getW(), " ", e.width);
     ww = e.width/2;
     wh = e.height/2;
     switcherPanel.setW(getWW());
@@ -342,22 +344,6 @@ switcherPanel.add(new widgets.PushButton().setText(">")
     .onAction(switcher.slideNext)
     );
 
-function buildLockScreen(core,stage) {
-    var g = new amino.ProtoGroup();
-    var bg = new amino.ProtoRect().setW(getWW()).setH(getWH()).setFill("#5555ff");
-    g.add(bg);
-    g.add(new amino.ProtoText().setText("Greetings Earthling").setTx(20).setTy(100)
-        .setFill("#ffffff")
-        );
-    g.add(new widgets.PushButton().setText("unlock").setTx(20).setTy(400).setW(200).setH(40).onAction(function() {
-        g.setVisible(false);
-    }));
-    stage.on("WINDOWSIZE", stage, function(e) {
-        bg.setW(getWW()).setH(getWH());
-    });
-    return g;
-}
-
 
 function generateFakeNotification() {
     var panel = new widgets.AnchorPanel()
@@ -378,8 +364,7 @@ function generateFakeNotification() {
     superroot.add(panel);
 }
 
-var ls = buildLockScreen(core,stage);
-superroot.add(ls);
+superroot.add(new LockScreen(core,stage));
 
 function NavigationManager() {
     this.panels = [];

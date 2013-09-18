@@ -301,8 +301,8 @@ function setupBacon(core) {
                     type: "drag",
                     type:"drag",
                     pressed:mouseState.pressed,
-                    x:pt.x,
-                    y:pt.y,
+                    x:mouseState.x,
+                    y:mouseState.y,
                     dx:e.dx,
                     dy:e.dy,
                     point:pt,
@@ -1301,7 +1301,14 @@ function Core() {
         }
         
         function immediateLoop() {
+            try {
             exports.native.tick();
+            } catch (ex) {
+                console.log(ex);
+                console.log(ex.stack);
+                console.log("EXCEPTION. QUITTING!");
+                return;
+            }
             exports.native.setImmediate(immediateLoop);
         }
         setTimeout(immediateLoop,1);

@@ -248,7 +248,7 @@ function p(s) {
     console.log(s);
 }
 
-function docgen(cb) {
+function docs(cb) {
     var parsersjs = fs.readFileSync('src/aminolang/docparser.js','utf8');
     parseit(parsersjs);
     //console.log("doc parser = ", DocParser);
@@ -427,7 +427,7 @@ function jogltest(cb) {
     doExec("java -cp " + classpath.join(":") + " General", cb);
 }
 
-function desktopbuild(cb) {
+function desktop(cb) {
     var out = outdir + "/desktop";
     jb.mkdir(out);
     console.log("copying files to " + out);
@@ -443,7 +443,7 @@ function desktopbuild(cb) {
     copyFileTo("resources/font.json",out);
 }
 
-function canvasbuild(cb) {
+function canvas(cb) {
     var out = outdir + "/canvas";
     jb.mkdir(out);
     console.log("copying files to " + out);
@@ -456,12 +456,22 @@ function canvasbuild(cb) {
     copyFileTo(src+"widgets.js",out);
     //copyFileTo("src/jscommon/textcontrol.js",out);
 }
-
-function androidtest(cb) {
-    console.log("copying files to the device attached with ADB");
+function androidnative(cb) {
     //copy amino.js and out.js to build dir
     //copy font2.png and other resources
-    var out = outdir+"/"+"devicephone/";
+    var out = outdir+"/"+"android/native/devicephone/";
+    jb.mkdir(out);
+    //native addon
+    copyFileTo("aminonative.node",out);
+    //prebuilts
+    copyFileTo("prebuilt/binaries/libv8.so",out);
+    copyFileTo("prebuilt/binaries/node",out);
+    doExec("adb push " + out + " /data/phonetest");
+}
+function androidjs(cb) {
+    //copy amino.js and out.js to build dir
+    //copy font2.png and other resources
+    var out = outdir+"/"+"android/js/devicephone/";
     jb.mkdir(out);
     var src = "src/sg/";
     //src files
@@ -470,13 +480,7 @@ function androidtest(cb) {
     copyFileTo(src+"widgets.js",out);
     //resource files
     copyFileTo("resources/font.json",out);
-    copyFileTo("resources/font.png",out);
-    
-    //native addon
-    copyFileTo("aminonative.node",out);
-    //prebuilts
-    copyFileTo("prebuilt/binaries/libv8.so",out);
-    copyFileTo("prebuilt/binaries/node",out);
+    copyFileTo("resources/font.png",out);    
     
     //various demos and tests
     copyFileTo("tests/runit.sh",out);
@@ -496,6 +500,14 @@ function androidtest(cb) {
     doExec("adb push " + out + " /data/phonetest");
 }
 
+function android(cb) {
+    console.log("copying files to the device attached with ADB");
+    //copy amino.js and out.js to build dir
+    //copy font2.png and other resources
+//    var out = outdir+"/"+"devicephone/";
+//    jb.mkdir(out);
+}
+
 
 
 
@@ -509,7 +521,7 @@ function help(cb) {
 
 tasks = {
     help:        new Task(help,       [],            "Help Info"),
-  
+  /*
     java2dgen:      new Task(java2dgen,      [],                      "Generate Java2D Core"),
     java2dcompile:  new Task(java2dcompile,  ["java2dgen"],           "Compile Java2D Core"),
     java2dtest:     new Task(java2dtest,     ["java2dcompile"],       "Compile and Run Java2D tests"),
@@ -525,12 +537,14 @@ tasks = {
     cppgen:         new Task(cppgen,         [],                      "Generate C++ Core"),
     
     langtest:       new Task(langtest,       [],                      "Test AminoLang itself"),
+    */
     
-    desktopbuild:   new Task(desktopbuild,    [],                      "Node Desktop"),
-    canvasbuild:    new Task(canvasbuild,    [],                      "Canvas"),
-    androidtest:    new Task(androidtest,    [],                      "Device Phone"),
-    
-    docgen:         new Task(docgen, [],   "Generate API Docs"),
+    desktop:       new Task(desktop,        [],          "Amino for Desktop"),
+    canvas:        new Task(canvas,         [],          "Amino for HTML Canvas"),
+    androidnative: new Task(androidnative,  [],          "Amino for headless Android Device"),
+    androidjs:     new Task(androidjs,      [],          "Amino for headless Android Device"),
+    android:   new Task(android,            ["androidnative", "androidjs"],          "Amino for headless Android Device"),
+    docs:      new Task(docs,               [],          "Generate API Docs"),
 }
 
 if(!command) {

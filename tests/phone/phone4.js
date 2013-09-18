@@ -62,11 +62,16 @@ function buildStatusBar(stage)  {
 
 function buildSearch() {
     var search = new amino.ProtoGroup();
-    var tf = new widgets.TextField().setText('search');
+    var tf = new widgets.TextField().setText('');
     stage.on("change",tf,function(e) {
         if(e.name=='text') {
             console.log(e.text);
         }
+    });
+    stage.on("focusgain",tf,function() {
+        var kb = new SoftKeyboard().setW(getWW()).setH(200).setTy(getWH()-200);
+        kb.setTargetTextControl(tf);
+        superroot.add(kb);
     });
     tf.setW(200).setH(30);
     search.add(tf);
@@ -471,5 +476,127 @@ function SwipeRecognizer(stage,cb) {
     });
 }
 
+
+
+SoftKeyboard = amino.ComposeObject({
+    type:"SoftKeyboard",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        }
+    },
+    init: function() {
+        this.setFill("#888888");
+        this.comps.base.add(this.comps.background);
+        var keysvals = [
+            ['Q','W','E','R','T','Y','U','I','O','P'],
+            ['A','S','D','F','G','H','J','K','L'],
+            ['Z','X','C','V','B','N','M'],
+        ];
+        var rowoffset = [5,20,50];
+        var keyw = 30;
+        var keyh = 30;
+        var gapw = 2;
+        var gaph = 2;
+        
+        var keybgs = [];
+        for(var r=0; r<keysvals.length; r++) {
+            var row = keysvals[r];
+            var off = rowoffset[r];
+            for(var i=0; i<row.length; i++) {
+                var ch = row[i];
+                var keybg = new amino.ProtoRect().setW(keyw).setH(keyh)
+                    .setTx(i*(keyw+gapw)+off).setTy(r*(keyh+gaph))
+                    .setFill("#e0e0e0");
+                keybg.ch = ch;
+                this.comps.base.add(keybg);
+                var keytext = new amino.ProtoText()
+                    .setTx(i*(keyw+gapw)+3+off).setTy(20+r*(keyh+gaph))
+                    .setFill("#000000").setText(ch);
+                this.comps.base.add(keytext);
+                keybgs.push(keybg);
+            }
+        }
+        this.shiftOn = false;
+        var self = this;
+        amino.getCore().on('press',this,function(e) {
+            keybgs.forEach(function(key) {
+                var x = e.point.x - key.getTx();
+                var y = e.point.y - key.getTy();
+                if(key.contains(x,y)) {
+                    amino.getCore().fireEvent({
+                            type:'softkeypress',
+                            source:self,
+                            key:key.ch,
+                    });
+                    if(self.tf) {
+                        var ch = key.ch;
+                        if(self.shiftOn) {
+                            ch = ch.toUpperCase();
+                        } else {
+                            ch = ch.toLowerCase();
+                        }
+                        self.tf.insertStringAtCursor(ch);
+                    }
+                }
+            });
+        });
+        
+        this.children = [];
+        this.isParent = function() { return true; }
+        
+        this.setTargetTextControl = function(tf) {
+            this.tf = tf;
+        }
+
+        var done = new widgets.PushButton()
+            .setW(100).setH(keyh).setTx(210).setTy(160)
+            .setText('done').onAction(function() {
+                self.setVisible(false);
+                delete self.tf;
+            });
+        this.comps.base.add(done);
+        this.children.push(done);
+        
+        var bs = new widgets.PushButton()
+            .setW(70).setH(keyh).setTx(240).setTy(120)
+            .setText("<X").onAction(function() {
+                if(self.tf) {
+                    self.tf.tc.cursor.deleteChar();
+                }
+            });
+        this.comps.base.add(bs);
+        this.children.push(bs);
+        
+        
+        var space = new widgets.PushButton()
+            .setW(100).setH(keyh).setTx(100).setTy(160)
+            .setText("space").onAction(function() {
+                if(self.tf) {
+                    self.tf.insertStringAtCursor(" ");//tc.cursor.deleteChar();
+                }
+            });
+        this.comps.base.add(space);
+        this.children.push(space);
+        
+        var shift = new widgets.PushButton()
+            .setW(70).setH(keyh).setTx(5).setTy(120)
+            .setText("^").onAction(function() {
+                self.shiftOn = !self.shiftOn;
+                if(self.shiftOn) {
+                    shift.setFill("#00ffff");
+                } else {
+                    shift.setFill("#aaee88");
+                }
+            });
+        this.comps.base.add(shift);
+        this.children.push(shift);
+        
+        
+
+    },
+});
 
 });

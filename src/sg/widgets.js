@@ -1481,6 +1481,12 @@ widgets.TextField = amino.ComposeObject({
         });
         this.setText("a text field");
         this.tc.setWrapping(false);
+        
+        this.insertStringAtCursor = function(str) {
+            console.log("textfield inserting ",str);
+            this.tc.cursor.insertChar(str);
+            this.tc.cursor.advanceChar(+str.length);
+        }
     }
 });
 

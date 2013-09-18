@@ -494,6 +494,7 @@ function androidjs(cb) {
     copyFileTo("tests/phone/lockscreen.js",out);
     
     copyFileTo("node_modules/Faker/Faker.js",out);
+    copyFileTo("node_modules/moment/moment.js",out);
     
     
     var dirs = fs.readdirSync(out);

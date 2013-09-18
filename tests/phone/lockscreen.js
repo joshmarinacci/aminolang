@@ -74,7 +74,10 @@ function LockScreen(core,stage) {
         .setRight(10).setAnchorRight(true)
         .setBottom(10).setAnchorBottom(true)
         .setW(200).setH(40).onAction(function() {
-                g.setVisible(false);
+            var anim = core.createPropAnim(g,'rotateY',0,-90,300)
+                .after(function() {
+                        g.setVisible(false);
+                });
     }));
     return g;
 }

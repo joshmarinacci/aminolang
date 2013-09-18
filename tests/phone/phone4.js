@@ -147,11 +147,14 @@ core.on('press',scrim, function() {
 });
 switcher.onZoomIn = function() {
     var anim =  core.createPropAnim(dock,"ty",getWH()-110,getWH(), 300);
+    var animx = core.createPropAnim(dock,'rotateX',0,-90, 300);
     var anim2 = core.createPropAnim(search,"ty",20,-50, 300);
     scrim.setVisible(0);
 };
 switcher.onZoomOut = function() {
-    var anim = core.createPropAnim(dock,"ty",getWH(),getWH()-110, 300);
+    var anim = core.createPropAnim(dock,"ty",getWH(),getWH()
+        -110, 300);
+    var animx = core.createPropAnim(dock,'rotateX',-90,0, 400);
     var anim2 = core.createPropAnim(search,"ty",-50,20, 300);
     scrim.setVisible(1);
 };

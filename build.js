@@ -495,6 +495,7 @@ function androidjs(cb) {
     
     copyFileTo("node_modules/Faker/Faker.js",out);
     copyFileTo("node_modules/moment/moment.js",out);
+    copyFileTo("tests/photos/photo1.jpg",out);
     
     
     var dirs = fs.readdirSync(out);

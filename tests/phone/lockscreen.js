@@ -21,7 +21,11 @@ function LockScreen(core,stage) {
     
     
     //load the image, scale to fit, center it.
-    var img = new amino.ProtoImageView().setSrc("tests/photos/photo1.jpg");
+    var path = "photo1.jpg";
+    if(process.platform == 'darwin') {
+        path = "tests/photos/photo1.jpg";
+    }
+    var img = new amino.ProtoImageView().setSrc(path);
     var ww = 320;
     var wh = 480;
     var sc = ww/img.getW();

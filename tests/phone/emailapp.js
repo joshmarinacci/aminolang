@@ -30,12 +30,12 @@ var EmailListViewCell = amino.ComposeObject({
         
         this.comps.from.setText("from");
         this.comps.from.setTx(5);
-        this.comps.from.setTy(5);
+        this.comps.from.setTy(5+15);
         this.comps.from.setFontSize(16);
 
         this.comps.subject.setText("subject");
         this.comps.subject.setTx(5);
-        this.comps.subject.setTy(25);
+        this.comps.subject.setTy(25+15);
         this.comps.subject.setFontSize(12);
     },
 });
@@ -65,7 +65,7 @@ function EmailApp(stage,nav,data) {
     stage.on('select',lv,function(e) {
         console.log("selected an email");
         console.log(lv.listModel[lv.getSelectedIndex()]);
-        nav.push("composeEmail");
+//        nav.push("composeEmail");
     });
     //console.log(data.emails);
     

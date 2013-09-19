@@ -145,7 +145,7 @@ Handle<Value> getWindowSize(const Arguments& args) {
 
 
 void render() {
-	
+
 
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();

@@ -266,9 +266,9 @@ function setupBacon(core) {
     var diffstream = bus.filter(typeIs("mouseposition"))
         .diff(null,function(a,b) { 
             if(!a) {
-                return {dx:0,dy:0};
+                return {dx:0,dy:0,dtime:new Date().getTime()};
             } else {
-                return {dx:b.x-a.x,dy:b.y-a.y};
+                return {dx:b.x-a.x,dy:b.y-a.y, dtime: b.time-a.time};
             }
         });
         
@@ -276,6 +276,7 @@ function setupBacon(core) {
         .zip(diffstream,function(a,b) {
                 a.dx = b.dx;
                 a.dy = b.dy;
+                a.dtime = b.dtime;
                 return a;
         })
         .filter(mousePressed)
@@ -543,6 +544,15 @@ function camelize(s) {
 }
 
 
+
+var doshort = true;
+function shortCircuit(target,x,y) {
+    if(!target.shortCircuit) return false;
+    if(doshort && x === y) {
+        return true;
+    }
+    return false;
+}
 /**
 @class ProtoRect
 @desc the basic primitive rectangle
@@ -579,6 +589,7 @@ exports.ProtoRect = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(shortCircuit(this, this.props[name],value)) return;
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
@@ -604,10 +615,12 @@ exports.ProtoRect = exports.ComposeObject({
     init: function() {
         this.handle = exports.native.createRect();
         this.live = true;
+        this.shortCircuit = false;
         //invoke all setters once to push default values to the native side
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
         }
+        this.shortCircuit = true;
         this.type = "rect";
         var rect = this;
         
@@ -721,6 +734,7 @@ exports.ProtoGroup = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(shortCircuit(this,this.props[name],value)) return;
         this.props[name] = value;
         if(name == 'visible') {
             this.props[name] = (value?1:0);
@@ -771,6 +785,7 @@ exports.ProtoGroup = exports.ComposeObject({
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
         }
+        this.shortCircuit = true;
         this.type = "group";
     }
 });
@@ -807,6 +822,7 @@ exports.ProtoText = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(shortCircuit(this,this.props[name],value)) return;
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
@@ -836,6 +852,7 @@ exports.ProtoText = exports.ComposeObject({
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
         }
+        this.shortCircuit = true;
         this.type = "text";
     }
 });
@@ -979,107 +996,6 @@ exports.ProtoWidget = exports.ComposeObject({
 });
 
 
-
-/*
-function SGTextControl() {
-    textcontrol.JSTextControl.call(this);
-    var oldlayout = this.view.layout;
-    var self = this;
-    this.cursor.notifyChange = function() {
-        var ch  = self.view.getElementAt(self.cursor.index);
-        var pos = self.view.indexToXY(self.cursor.index);
-        var chx = 0;
-        if(self.cursor.bias == self.cursor.FORWARD && ch.width)  { chx = ch.width; }
-        if(self.cursor.bias == self.cursor.BACKWARD) { }
-        self.setProp(self.cursorHandle, 'tx',pos.x+chx);
-    }
-    this.view.layout = function() {
-        oldlayout.call(this);
-        if(!this.lines || this.lines.length < 1) return;
-        var line = this.lines[0];
-        if(!line.runs || line.runs.length < 1) return;
-        var run = line.runs[0];
-        self.setProp(self.textHandle,"text",run.model.text.substring(run.start, run.end));
-        var pos = this.indexToXY(this.control.cursor.index);
-        self.setProp(self.cursorHandle, 'tx',pos.x);
-    }
-    this.init = function(core) {
-        this.handle = sgtest.createGroup();
-        this.rectHandle = sgtest.createRect();
-        this.cursorHandle = sgtest.createRect();
-        this.textHandle = sgtest.createText();
-        sgtest.addNodeToGroup(this.rectHandle,this.handle);
-        sgtest.addNodeToGroup(this.textHandle,this.handle);
-        sgtest.addNodeToGroup(this.cursorHandle,this.handle);
-        this.live = true;
-        this.delegateProps({ tx:0, ty:0, scalex:1, scaley:1, rotatez:0, visible:1 },this.handle);
-        this.delegateProps({x:0,y:0,w:100,h:30,r:0.4,g:0.8,b:0.3},this.rectHandle);
-        this.delegateProps({text:"sometext",fontSize:20},this.textHandle);
-        this.setProp(this.cursorHandle,'x',0);
-        this.setProp(this.cursorHandle,'w',2);
-        this.setProp(this.cursorHandle,'h',30);
-        this.setProp(this.cursorHandle,'r',1);
-        this.setProp(this.cursorHandle,'g',0);
-        this.setProp(this.cursorHandle,'b',0);
-        
-        this.install(core);
-        
-        var self = this;
-        core.on("press",this,function() {
-            core.requestFocus(self);
-        });
-        core.on("focusgain",this,function() {
-            self.setBackgroundFill("#44aaff");
-        });
-        core.on("focusloss",this,function() {
-            self.setBackgroundFill("#2266aa");
-        });
-        this.setText = function(text) {
-            this.model.setText(text);
-            this.view.layout();
-            return this;
-        }
-        this.getText = function() {
-            return this.model.getText();
-        }
-        this.setBackgroundFill = function(color) {
-            color = ParseRGBString(color);
-            this.setProp(this.rectHandle,'r',color.r);
-            this.setProp(this.rectHandle,'g',color.g);
-            this.setProp(this.rectHandle,'b',color.b);
-            return this;
-        }
-        this.view.font = this.font;
-    }
-    this.draw = function() {
-    }
-    this.contains = function(x,y) {
-        if(x >=  this.getX()  && x <= this.getX() + this.getW()) {
-            if(y >= this.getY() && y <= this.getY() + this.getH()) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-*/
-//SGTextControl.extend(SGWidget);
-
-/*
-function SGTextField() {
-    SGTextControl.call(this);
-    this.setWrapping(false);
-}
-//SGTextField.extend(SGTextControl);
-*/
-
-/*
-function SGTextArea() {
-    SGTextControl.call(this);
-    this.setWrapping(true);
-}
-//SGTextArea.extend(SGTextControl);
-*/
 
 /** @class Stage
 @desc A stage represents a window. On mobile devices there will only be one stage. On desktop there can be multiple. A stage
@@ -1278,6 +1194,7 @@ function Core() {
         exports.native.init();
         setupBacon(this);
         exports.native.setEventCallback(function(e) {
+            e.time = new Date().getTime();
             if(e.type == "mousebutton") {
                 mouseState.pressed = (e.state == 1);
             }
@@ -1286,6 +1203,9 @@ function Core() {
     }
     
     this.root = null;
+    this.validate = function() {
+        this.fireEvent({ type:"validate", source:this});
+    }
     this.start = function() {
         //send a final window size event to make sure everything is lined up correctly
         var size = exports.native.getWindowSize();
@@ -1304,9 +1224,11 @@ function Core() {
             setTimeout(tickLoop,1);
         }
         
+        var self = this;
         function immediateLoop() {
             try {
-            exports.native.tick();
+                exports.native.tick();
+                self.validate();
             } catch (ex) {
                 console.log(ex);
                 console.log(ex.stack);

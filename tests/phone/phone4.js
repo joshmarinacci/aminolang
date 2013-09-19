@@ -14,6 +14,7 @@ var data = require('./fakedata.js');
 var Switcher = require('./switcher.js').Switcher;
 var EmailApp = require('./emailapp.js').EmailApp;
 var LockScreen = require('./lockscreen.js').LockScreen;
+var dialer = require('./dialer.js');
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
@@ -47,7 +48,6 @@ function buildStatusBar(stage)  {
         var date = new Date();
         var txt = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
         + "    " + months[date.getMonth()] + "/"+date.getDay() + "/" + date.getFullYear();
-        //console.log(txt);
         time.setText(txt);
     },1000);
     
@@ -55,9 +55,6 @@ function buildStatusBar(stage)  {
     panel.setW(getWW()).setH(20);
     panel.setFill("#000000");
     panel.add(time);
-    stage.on("WINDOWSIZE", stage, function(e) {
-        panel.setW(getWW());
-    });
     
     return panel;
 }
@@ -248,28 +245,7 @@ function buildApp4(stage) {
 }
 switcher.add(buildApp4(stage));
 
-function buildApp5(stage) {
-    var panel = new widgets.AnchorPanel();
-    panel.add(new widgets.Label()
-        .setText("707-707-7077").setFontSize(30)
-        .setW(200).setH(50).setTx(65).setTy(15)
-        );
-    
-    var labels = ['1','2','3', '4','5','6',  '7','8','9', '*','0','-'];
-    for(var y=0; y<4; y++) {
-        for(var x=0; x<3; x++) {
-            var i = y*3+x;
-            panel.add(new widgets.PushButton()
-                .setText(labels[i])
-                .setW(60).setH(50)
-                .setTx(25+x*100)
-                .setTy(78+y*80));
-        }
-    }
-    nav.register(panel);
-    return panel;
-}
-switcher.add(buildApp5(stage));
+switcher.add(dialer.Dialer(stage,nav,data));
 
 
 function buildApp6(stage) {

@@ -493,6 +493,8 @@ function androidjs(cb) {
     copyFileTo("tests/phone/emailapp.js",out);
     copyFileTo("tests/phone/lockscreen.js",out);
     
+    copyFileTo("tests/perf/drag1.js",out);
+    
     copyFileTo("node_modules/Faker/Faker.js",out);
     copyFileTo("node_modules/moment/moment.js",out);
     copyFileTo("tests/photos/photo1.jpg",out);

@@ -190,18 +190,20 @@ Handle<Value> getWindowSize(const Arguments& args) {
 
 static const bool DEBUG_RENDER_LOOP = false;
 void render() {
+    double start = getTime();
     if(DEBUG_RENDER_LOOP) {    printf("processing events\n"); }
     if(event_indication) {
         //((EVDispatcher*)eventSingleton)->cb = NODE_EVENT_CALLBACK;
         event_process();
     }
     
-    
+    double mid = getTime();
     if(DEBUG_RENDER_LOOP) { printf("processing updates\n"); }
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
+    double end = getTime();
 
 
     GLfloat* scaleM = new GLfloat[16];
@@ -245,6 +247,11 @@ void render() {
     root->draw();
     
     //glfwSwapBuffers();
+    double post = getTime();
+    /*
+    printf("event time = %f   update time = %f   draw time = %f   total %f\n",
+        mid-start,end-mid,post-end, post-start);
+        */
     eglSwapBuffers(mEglDisplay, mEglSurface);
 }
 

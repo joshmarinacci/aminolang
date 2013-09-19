@@ -124,6 +124,7 @@ var mouseState = {
     pressed:false,
     x:0,
     y:0,
+    pressTarget:null,
  }
 var baconbus = null;
 
@@ -281,7 +282,10 @@ function setupBacon(core) {
         })
         .filter(mousePressed)
         .onValue(function(e) {
-            var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+            var node = mouseState.pressTarget;
+            if(node == null) {
+                node = core.findNodeAtXY(mouseState.x,mouseState.y);
+            }
             if(node != null) {
 	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
                 core.fireEventAtTarget(
@@ -306,7 +310,7 @@ function setupBacon(core) {
                     y:mouseState.y,
                     dx:e.dx,
                     dy:e.dy,
-                    point:pt,
+                    point:{x:mouseState.x, y:mouseState.y},
                     source:core,
             });
         });
@@ -354,6 +358,7 @@ function setupBacon(core) {
                 );
                     
         }
+        mouseState.pressTarget = null;
         
     });
     
@@ -1190,10 +1195,12 @@ function Core() {
         }
     }
     
+    var ecount = 0;
     this.init = function() {
         exports.native.init();
         setupBacon(this);
         exports.native.setEventCallback(function(e) {
+            ecount++;
             e.time = new Date().getTime();
             if(e.type == "mousebutton") {
                 mouseState.pressed = (e.state == 1);
@@ -1205,6 +1212,8 @@ function Core() {
     this.root = null;
     this.validate = function() {
         this.fireEvent({ type:"validate", source:this});
+        //console.log("total events for this frame = " + ecount);
+        ecount = 0;
     }
     this.start = function() {
         //send a final window size event to make sure everything is lined up correctly
@@ -1227,8 +1236,10 @@ function Core() {
         var self = this;
         function immediateLoop() {
             try {
+                //console.time("tick");
                 exports.native.tick();
                 self.validate();
+                //console.timeEnd("tick");
             } catch (ex) {
                 console.log(ex);
                 console.log(ex.stack);

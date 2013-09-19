@@ -424,6 +424,8 @@ widgets.ListViewCell = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.label);
+        this.comps.label.setW(100);
+        this.comps.label.setH(32);
         this.setText("foo");
     },
 });
@@ -441,7 +443,10 @@ widgets.ListView = amino.ComposeObject({
         background: {
             proto: amino.ProtoRect,
             promote: ['w','h','fill'],
-        }
+        },
+        cellholder: {
+            proto: amino.ProtoGroup,
+        },
     },
     props: {
         /** @prop cellHeight the height of cells. All cells have the same height. */
@@ -458,7 +463,7 @@ widgets.ListView = amino.ComposeObject({
             set: function(w) {
                 this.props['w'] = w;
                 this.comps.background.setW(w);
-                this.regenerateCells();
+                this.setDirty = true;
                 return this;
             }
         },
@@ -468,13 +473,14 @@ widgets.ListView = amino.ComposeObject({
             set: function(h) {
                 this.props['h'] = h;
                 this.comps.background.setH(h);
-                this.regenerateCells();
+                this.setDirty = true;
                 return this;
             }
         },
     },
     init: function() {
         this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.cellholder);
         this.setFill("#ffccff");
 
         this.listModel = [];
@@ -484,15 +490,23 @@ widgets.ListView = amino.ComposeObject({
         this.scroll = 0;
         this.dirty = false;
         
+        this.setModel = function(model) {
+            this.listModel = model;
+            this.cells = [];
+            this.dirty = true;
+        }
+        
         var self = this;
         amino.getCore().on('validate',null,function() {
             if(self.dirty) {
+                //console.time("cells");
                 self.regenerateCells();
+                //console.timeEnd("cells");
                 self.dirty = false;
             }
         });
         amino.getCore().on("drag",this,function(e) {
-            self.scroll -= e.dy;
+            self.scroll -= e.dy/2;
             if(self.scroll < 0) self.scroll = 0;
             var max = self.listModel.length*self.getCellHeight() - self.getH();
             if(self.scroll > max) { self.scroll = max; }
@@ -519,8 +533,9 @@ widgets.ListView = amino.ComposeObject({
         /** @func setCellGenerator(func) set a function which will return new ListCells when called. */
         this.setCellGenerator = function(cg) {
             this.cg = cg;
-            //nuke all of the old cells
             this.cells = [];
+            this.dirty = true;
+            return this;
         }
         
         this.textCellRenderer = null;
@@ -529,7 +544,8 @@ widgets.ListView = amino.ComposeObject({
         */
         this.setTextCellRenderer = function(textCellRenderer) {
             this.textCellRenderer = textCellRenderer;
-            ///this.regenerateCells();
+            this.dirty = true;
+            this.cells = [];
             return this;
         }
         this.fillCellValues = function(cell,i, item) {
@@ -554,32 +570,44 @@ widgets.ListView = amino.ComposeObject({
             var end = Math.min(this.listModel.length, Math.floor((this.getH()+this.scroll)/ch));
             var remainder = this.scroll - Math.floor(this.scroll/ch)*ch;
             var self = this;
-            this.cells.forEach(function(cell) {
-                //cell.setVisible(false);
-            });
-    
+            
+            this.comps.cellholder.setTy(-this.scroll);
+            var top = this.scroll;
             var i = start;
+            var len = end-start;
+            var height = len*ch;
             for(var n=0; n<end-start; n++) {
                 if(!this.cells[n]) {
-                    this.cells[n] = this.generateCell();
-                    this.comps.base.add(this.cells[n]);
-                    this.cells[n].index = -1;
+                    var cell = this.generateCell();
+                    this.cells[n] = cell;
+                    this.comps.cellholder.add(cell);
+                    cell.index = i;
+                    cell.setTx(0);
+                    cell.setTy(n*ch);
+                    cell.dirty = true;
                 }
                 var cell = this.cells[n];
-                //cell.setVisible(true);
-                cell.setTy(n*ch - remainder);
-                if(cell.index !== i) {
+                if(cell.getTy() < top) {
+                    cell.setTy(cell.getTy()+height);
+                    cell.index = end;
+                    cell.dirty = true;
+                }
+                if(cell.getTy() > top + height) {
+                    cell.setTy(cell.getTy()-height);
+                    cell.index = start;
+                    cell.dirty = true;
+                }
+                if(cell.dirty) {
                     cell.setW(this.getW());
                     cell.setH(this.getCellHeight());
-                    this.fillCellValues(cell,i,this.listModel[i]);
-                    cell.setup = true;
-                    //cell.index = i;
+                    this.fillCellValues(cell,cell.index,this.listModel[cell.index]);
+                    cell.dirty = false;
                 }
                 i++;
             }
         }
         
-        this.regenerateCells();
+        this.dirty = true;
     },
 });
 

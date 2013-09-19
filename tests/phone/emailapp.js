@@ -60,7 +60,7 @@ function EmailApp(stage,nav,data) {
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
     ;
-    lv.listModel = data.emails;
+    lv.setModel(data.emails);
     
     stage.on('select',lv,function(e) {
         console.log("selected an email");

@@ -171,7 +171,7 @@ function buildTodoList(stage,nav) {
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
     ;
-    lv.listModel = data.people;
+    lv.setModel(data.people);
     lv.setTextCellRenderer(function(cell,i,item) {
         cell.setText(item.first + " " + item.last);
     });
@@ -281,7 +281,7 @@ function buildApp6(stage) {
         .setRight(0).setAnchorRight(true)
         ;
     panel.add(lv);
-    lv.listModel = data.events;
+    lv.setModel(data.events);
     console.log(data.events);
     lv.setTextCellRenderer(function(cell,i,item) {
         if(!item) return;

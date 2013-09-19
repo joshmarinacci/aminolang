@@ -38,9 +38,11 @@ nav.insets.top = 0;
 
 function buildStatusBar(stage)  {
     var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    var time = new amino.ProtoText();
+    
+    var time = new widgets.Label();
     time.setText("00.00:00 00/00");
     time.setFontSize(12);
+    time.setFill("#ffffff");
     setInterval(function(){
         var date = new Date();
         var txt = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
@@ -51,7 +53,7 @@ function buildStatusBar(stage)  {
     
     var panel = new widgets.AnchorPanel();
     panel.setW(getWW()).setH(20);
-    panel.setFill("#ff0000");
+    panel.setFill("#000000");
     panel.add(time);
     stage.on("WINDOWSIZE", stage, function(e) {
         panel.setW(getWW());
@@ -104,6 +106,7 @@ superroot.add(switcherPanel);
 switcherPanel.add(search);
 var statusBar = buildStatusBar(stage);
 statusBar.setAnchorLeft(true).setAnchorRight(true);
+statusBar.setAnchorTop(true);
 switcherPanel.add(statusBar);
 
 var root = new amino.ProtoGroup();
@@ -164,6 +167,7 @@ switcher.onZoomOut = function() {
 
 function buildTodoList(stage,nav) {
     var panel = new widgets.AnchorPanel();
+    panel.setFill("#ffff00");
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
     .setTop(20+40).setAnchorTop(true)
@@ -178,8 +182,11 @@ function buildTodoList(stage,nav) {
     panel.add(lv);
     
     
-    panel.add(new widgets.Label()
-        .setText("Todo List").setFontSize(20));
+    panel.add(new widgets.Label().setText("Todo List").setFontSize(20)
+        .setAnchorLeft(true).setLeft(0)
+        .setAnchorRight(true).setRight(0)
+        .setAnchorTop(true).setTop(0)
+        );
     panel.add(new widgets.PushButton()
             .setText("Add")
             .setBottom(10).setAnchorBottom(true)

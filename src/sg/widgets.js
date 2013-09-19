@@ -249,6 +249,7 @@ widgets.Label = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.text);
         this.contains = function() { return false; }
+        this.setH(20);
     }
 });
 

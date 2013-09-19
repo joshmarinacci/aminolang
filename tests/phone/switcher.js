@@ -39,6 +39,7 @@ function Switcher() {
         var xoff = (i-current)*this.switcherPanel.getW()*1.2;
         if(self.zoomedin) {
             //zoom out
+            rect.setVisible(true);
             var anims = [];
             anims[0] = this.core.createPropAnim(rect,"scalex",1,0.5, dur);
             anims[1] = this.core.createPropAnim(rect,"scaley",1,0.5, dur);
@@ -56,6 +57,11 @@ function Switcher() {
             anims[3] = this.core.createPropAnim(rect,"ty",yoff,0, dur);
             anims.forEach(function(a) {
                 a.setInterpolator(amino.Interpolators.CubicInOut);
+            });
+            anims[3].after(function() {
+                if(i != current) {
+                    rect.setVisible(false);
+                }
             });
         }
     }

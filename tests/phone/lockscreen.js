@@ -44,7 +44,7 @@ function LockScreen(core,stage) {
         .setText("12:38")
         .setTx(10)
         .setFill("#ffffff")
-        .setFontSize(80)
+        .setFontSize(40)
         .setAnchorTop(true).setTop(20);
     g.add(timeLabel);
     var dateLabel = new amino.ProtoText().setText("Tuesday Jan 18th").setTx(20).setTy(100).setFill("#ffffff").setFontSize(20);

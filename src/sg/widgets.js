@@ -58,7 +58,7 @@ widgets.PushButton = amino.ComposeObject({
                 this.props.w = w;
                 this.comps.background.setW(w);
                 var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
-                this.comps.label.setTx((w-textw)/2);
+                this.comps.label.setTx(Math.round((w-textw)/2));
                 return this;
             }
         },
@@ -69,7 +69,7 @@ widgets.PushButton = amino.ComposeObject({
                 this.props.h = h;
                 this.comps.background.setH(h);
                 var texth = this.font.getHeight(this.getFontSize());
-                this.comps.label.setTy(h/2 + texth/2);
+                this.comps.label.setTy(Math.round(h/2 + texth/2));
                 return this;
             }
         },
@@ -91,6 +91,7 @@ widgets.PushButton = amino.ComposeObject({
             amino.getCore().fireEvent(event);
             if(self.actioncb) self.actioncb(event);
         });
+        this.setFontSize(15);
         /** @func onAction(cb) a function to call when this button fires an action. You can also listen for the 'action' event. */
         this.onAction = function(cb) {
             this.actioncb = cb;
@@ -509,7 +510,7 @@ widgets.ListView = amino.ComposeObject({
             }
         });
         amino.getCore().on("drag",this,function(e) {
-            self.scroll -= e.dy/2;
+            self.scroll -= e.dy;///2;
             if(self.scroll < 0) self.scroll = 0;
             var max = self.listModel.length*self.getCellHeight() - self.getH();
             if(self.scroll > max) { self.scroll = max; }
@@ -761,7 +762,7 @@ function TextView() {
         this.layout();
     }
     this.getCharWidth = function(ch) {
-        return this.font.getCharWidth(ch);
+        return this.font.getCharWidth(ch,this.getFontSize());
     }
     this.getCharAt = function(n) {
         return this.model.text.substring(n,n+1);
@@ -809,6 +810,11 @@ function TextView() {
         return this.lines[n];
     }
     
+    this.fontSize = 10;
+    this.getFontSize = function() {
+        return this.fontSize;
+    }
+    
     this.control = null;
     this.line = null;
     this.run = null;
@@ -836,7 +842,7 @@ function TextView() {
         if(!this.font) return;
         this.lines = [];
         
-        this.lineheight = this.font.getHeight()*this.font.scale;
+        this.lineheight = this.font.getHeight(this.getFontSize())*this.font.scale;
         //this.lineheight = this.font.json.height*this.font.scale;
         
         var n = 0;
@@ -1116,6 +1122,13 @@ function TextControl() {
         this.view.font = font;
         return this;
     }
+    
+    this.setFontSize = function(fontSize) {
+        this.fontSize = fontSize;
+        this.view.fontSize = fontSize;
+        return this;
+    }
+    
     this.drawSelection = function(gfx) {
         if(this.selection != null) {
             var sel = this.selection;
@@ -1462,6 +1475,14 @@ widgets.TextField = amino.ComposeObject({
                 return this;
             }
         },
+        fontSize: {
+            value: 15,
+            set: function(fontSize) {
+                this.props['fontSize'] = fs;
+                this.tc.setFontSize(fs);
+                return this;
+            }
+        }
     },
     init: function() {
         this.tc = new TextControl();

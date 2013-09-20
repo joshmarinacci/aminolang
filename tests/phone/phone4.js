@@ -18,10 +18,9 @@ var dialer = require('./dialer.js');
 var fs = require('fs');
 
 amino.startApp(function(core, stage) {
-    stage.setSize(320*2,480*2);
+    stage.setSize(320,480);
 
     var superroot = new amino.ProtoGroup();
-    superroot.setScalex(2).setScaley(2);
     stage.setRoot(superroot);
     
     var ww = 320;
@@ -92,8 +91,8 @@ switcherPanel.setW(getWW()).setH(getWH());
 switcherPanel.setFill("#0000ff");
 stage.on("windowsize", stage, function(e) {
     console.log('window has been resized: ' + stage.getW(), " ", e.width);
-    ww = e.width/2;
-    wh = e.height/2;
+    ww = e.width;
+    wh = e.height;
     switcherPanel.setW(getWW());
     switcherPanel.setH(getWH());
 });
@@ -252,7 +251,7 @@ function buildApp6(stage) {
     var panel = new widgets.AnchorPanel();
     panel.setId("calendarpanel");
     panel.add(new widgets.Label()
-        .setText("Today: 3/3/33").setFontSize(18)
+        .setText("Today: 3/3/33").setFontSize(15)
         .setW(319).setH(40)
         .setTop(0).setLeft(10).setRight(10)
         );
@@ -299,7 +298,7 @@ function buildApp6(stage) {
     var addEventPanel = new widgets.AnchorPanel();
     addEventPanel.setFill("#ff0000");
     addEventPanel.add(new widgets.Label()
-        .setText("add a new event").setFontSize(18)
+        .setText("add a new event").setFontSize(15)
         .setW(319).setH(40).setTx(0)
         );
     addEventPanel.add(new widgets.PushButton()

@@ -831,15 +831,7 @@ exports.ProtoText = exports.ComposeObject({
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
-            if(name == 'ty' && (typeof this.handle == 'number')) {
-                if(this.fontSize) {
-                    value -= this.fontSize;
-                } else {
-                    value -= 20;
-                }
-            }
             exports.native.updateProperty(this.handle, name, value);
-            //console.log('updated the property ' + name);
         }
         
         if(name == 'fill') {
@@ -1062,11 +1054,14 @@ function JSFont(path) {
     this.native = exports.native.createNativeFont(path);
     /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
     this.calcStringWidth = function(str, size) {
-        return str.length * 20;
+        return w = exports.sgtest.getCharWidth(str,size,this.native);
     }
     /** @func getHeight(size) returns the height of this font at the requested size */
-    this.getHeight = function(fs) {
-        return 20;
+    this.getHeight = function(size) {
+        if(size == undefined) {
+            throw new Error("SIZE IS UNDEFINED");
+        }
+        return h = exports.sgtest.getFontHeight(size,this.native);
     }
     /** @func getAscent(fs) returns the ascent of this font at the requested size */
     this.getAscent = function(fs) {

@@ -113,11 +113,11 @@ void TextNode::refreshText() {
     vec2 pen = {{5,400}};
     vec4 black = {{0,0,0,1}};
     pen.x = 0;
-    pen.y = -10;
+    pen.y = 0;
     wchar_t *t2 = GetWC(text);
     vertex_buffer_delete(buffer);
     buffer = vertex_buffer_new( "vertex:3f,tex_coord:2f,color:4f" );
-    add_text(buffer,font->font,t2,&black,&pen);
+    add_text(buffer,font->fonts[fontsize],t2,&black,&pen);
 //    texture_font_delete(afont->font);
 }
 void TextNode::draw() {

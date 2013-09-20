@@ -31,7 +31,7 @@ var EmailListViewCell = amino.ComposeObject({
         this.comps.from.setText("from");
         this.comps.from.setTx(5);
         this.comps.from.setTy(5+15);
-        this.comps.from.setFontSize(16);
+        this.comps.from.setFontSize(15);
 
         this.comps.subject.setText("subject");
         this.comps.subject.setTx(5);

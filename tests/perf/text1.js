@@ -13,9 +13,14 @@ amino.startApp(function(core, stage) {
     stage.setSize(320,480);
     
     var root = new amino.ProtoGroup();
-//    root.setScalex(2).setScaley(2);
     stage.setRoot(root);
     
-    var lv = new widgets.ListView().setW(320).setH(480);
-    root.add(lv);
+    
+    var button = new widgets.PushButton()
+        .setText('ABCabc')
+        .setW(100).setH(50)
+        .setFontSize(10)
+        ;
+    root.add(button);
+    
 });

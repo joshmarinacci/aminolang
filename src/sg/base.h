@@ -561,6 +561,34 @@ typedef struct {
     float r, g, b, a; // color
 } vertex_t;
 
+inline static Handle<Value> getFontHeight(const Arguments& args) {
+    HandleScope scope;
+    int fontsize   = args[0]->ToNumber()->NumberValue();
+    int fontindex  = args[1]->ToNumber()->NumberValue();
+    AminoFont * font = fontmap[fontindex];
+    texture_font_t *tf = font->fonts[fontsize];
+    Local<Number> num = Number::New(tf->height);
+    return scope.Close(num);
+}
+inline static Handle<Value> getCharWidth(const Arguments& args) {
+    HandleScope scope;
+    v8::String::Utf8Value param1(args[0]->ToString());
+    std::string ch = std::string(*param1);    
+    int fontsize  = args[1]->ToNumber()->NumberValue();
+    int fontindex  = args[2]->ToNumber()->NumberValue();
+    
+//    printf("ch = %s font size = %d index = %d\n",ch.c_str(),fontsize,fontindex);
+    AminoFont * font = fontmap[fontindex];
+    texture_font_t *tf = font->fonts[fontsize];
+    int w = 0;
+    for(int i=0; i<ch.length(); i++) {
+        texture_glyph_t *glyph = texture_font_get_glyph(tf, ch.c_str()[i]);
+//        printf("glyph. charcode = %c, w = %d ax = %d\n",glyph->charcode,glyph->width, glyph->advance_x);
+        w += glyph->advance_x;
+    }
+    Local<Number> num = Number::New(w);
+    return scope.Close(num);
+}
 
 inline static Handle<Value> createNativeFont(const Arguments& args) {
     HandleScope scope;
@@ -572,14 +600,38 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
 
 
     size_t i;
-    afont->font = 0;
     afont->atlas = texture_atlas_new(512,512,1);
     const char * filename = "fonts/Vera.ttf";
     wchar_t *text = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     //make a single font
-    afont->font = texture_font_new(afont->atlas, filename, 20);
-    texture_font_load_glyphs(afont->font,text);
     
+    texture_font_t *font;
+    //preload some standard font sizes: 10, 12, 15, 20, 40
+    font = texture_font_new(afont->atlas, filename, 10);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[10] = font;
+    font = texture_font_new(afont->atlas, filename, 12);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[12] = font;
+    /*
+    font = texture_font_new(afont->atlas, filename, 80);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[80] = font;
+    */
+    font = texture_font_new(afont->atlas, filename, 15);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[15] = font;
+    /*
+    font = texture_font_new(afont->atlas, filename, 16);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[16] = font;
+    */
+    font = texture_font_new(afont->atlas, filename, 20);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[20] = font;
+    font = texture_font_new(afont->atlas, filename, 40);
+    texture_font_load_glyphs(font,text);
+    afont->fonts[40] = font;
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
                          "shaders/v3f-t2f-c4f.frag");
     //texture_font_delete(afont->font);

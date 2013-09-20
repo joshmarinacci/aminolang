@@ -36,11 +36,12 @@ static double getTime(void) {
 #endif
 
 
+#include <map>
 class AminoFont {
 public:
     int id;
     texture_atlas_t *atlas;
-    texture_font_t *font;
+    std::map<int,texture_font_t*> fonts;
     GLuint shader;
     
 };

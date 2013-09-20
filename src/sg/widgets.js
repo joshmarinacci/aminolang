@@ -47,7 +47,7 @@ widgets.PushButton = amino.ComposeObject({
             proto: amino.ProtoText,
             /** @prop text the text label of this button. */
             /** @prop fontSize the font size to use for this button. */
-            promote: ['text','fontSize'],
+            promote: ['text','fontSize','fontName'],
         },
     },
     props: {
@@ -57,7 +57,7 @@ widgets.PushButton = amino.ComposeObject({
             set: function(w) {
                 this.props.w = w;
                 this.comps.background.setW(w);
-                var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
+                var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize());
                 this.comps.label.setTx(Math.round((w-textw)/2));
                 return this;
             }
@@ -68,7 +68,7 @@ widgets.PushButton = amino.ComposeObject({
             set: function(h) {
                 this.props.h = h;
                 this.comps.background.setH(h);
-                var texth = this.font.getHeight(this.getFontSize());
+                var texth = this.comps.label.font.getHeight(this.getFontSize());
                 this.comps.label.setTy(Math.round(h/2 + texth/2));
                 return this;
             }

@@ -441,6 +441,9 @@ function desktop(cb) {
     //copyFileTo("src/jscommon/textcontrol.js",out);
     copyFileTo("resources/font.png",out);
     copyFileTo("resources/font.json",out);
+    jb.mkdir(out+"/fonts");
+    copyFileTo("fonts/Vera.ttf",out+"/fonts");
+    copyFileTo("fonts/fontawesome-webfont.ttf",out+"/fonts");
 }
 
 function canvas(cb) {

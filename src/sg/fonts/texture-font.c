@@ -352,7 +352,6 @@ texture_font_load_glyphs( texture_font_t * self,
     texture_glyph_t *glyph;
     ivec4 region;
     size_t missed = 0;
-    printf("loaing a glyphs\n");
     assert( self );
     assert( charcodes );
 

@@ -12,20 +12,23 @@ if(process.platform == 'darwin') {
 amino.startApp(function(core, stage) {
     stage.setSize(320,480);
     
+    console.log(core.getFont("vera"));
+    console.log(core.getFont("awesome"));
+    
     var root = new amino.ProtoGroup();
     stage.setRoot(root);
     
-    
     var button = new widgets.PushButton()
+        .setFontName('vera')
+        .setText('Button')
+        .setFontSize(15)
         .setW(100).setH(50)
-        .setText('button1')
-        .setFontSize(10)
         ;
     root.add(button);
-    
     var button2 = new widgets.PushButton()
-        .setText('button2')
-        .setFontSize(20)
+        .setFontName('awesome')
+        .setFontSize(15)
+        .setText('\uF152')
         .setW(100).setH(50)
         .setTx(110)
         ;

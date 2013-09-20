@@ -56,6 +56,7 @@ static const int Y_PROP = 22;
 static const int TX = 23;
 
 static const int OPACITY_PROP = 27;
+static const int FONTID_PROP = 28;
 
 using namespace v8;
 
@@ -107,6 +108,25 @@ public:
 
 };
 
+// convert a v8::String to a (char*) -- any call to this should later be free'd
+static inline char *TO_CHAR(Handle<Value> val) {
+    String::Utf8Value utf8(val->ToString());
+
+    int len = utf8.length() + 1;
+    char *str = (char *) calloc(sizeof(char), len);
+    strncpy(str, *utf8, len);
+
+    return str;
+}
+
+static wchar_t *GetWC(const char *c)
+{
+    const size_t cSize = strlen(c)+1;
+    wchar_t* wc = new wchar_t[cSize];
+    mbstowcs (wc, c, cSize);
+
+    return wc;
+}
 
 static std::vector<AminoNode*> rects;
 
@@ -276,13 +296,13 @@ public:
     float b;
     int fontid;
     float fontsize;
-    char* text;
+    std::wstring text;
     vertex_buffer_t * buffer;
     TextNode() {
         x = 0; y = 0;
         r = 0; g = 0; b = 0;
         type = TEXT;
-        text = "foo";
+        text = L"foo";
         fontsize = 40;
         fontid = INVALID;
         buffer = vertex_buffer_new( "vertex:3f,tex_coord:2f,color:4f" );
@@ -309,8 +329,8 @@ public:
     int node;
     int property;
     float value;
-    char* text;
-    Update(int Type, int Node, int Property, float Value, char* Text) {
+    std::wstring text;
+    Update(int Type, int Node, int Property, float Value, std::wstring Text) {
         type = Type;
         node = Node;
         property = Property;
@@ -360,6 +380,7 @@ public:
                 textnode->refreshText();
             }
             if(property == FONTSIZE_PROP) textnode->fontsize = value;
+            if(property == FONTID_PROP) textnode->fontid = value;
         }
     }
 };
@@ -422,23 +443,35 @@ inline Handle<Value> stopAnim(const Arguments& args) {
 	return scope.Close(Undefined());
 }
 
+// Convert a V8 string to a wide string.
+static std::wstring GetWString(v8::Handle<v8::String> str)
+{
+  uint16_t* buf = new uint16_t[str->Length()+1];
+  str->Write(buf);
+  std::wstring value = reinterpret_cast<wchar_t*>(buf);
+  delete [] buf;
+  return value;
+}
+
 
 inline Handle<Value> updateProperty(const Arguments& args) {
     HandleScope scope;
     int rectHandle   = args[0]->ToNumber()->NumberValue();
     int property     = args[1]->ToNumber()->NumberValue();
     float value = 0;
-    char* cstr = "";
+    std::wstring wstr = L"";
     if(args[2]->IsNumber()) {
         value = args[2]->ToNumber()->NumberValue();
     }
     if(args[2]->IsString()) {
-        v8::String::Utf8Value param1(args[2]->ToString());
-        std::string text = std::string(*param1);    
-        cstr = new char [text.length()+1];
-        std::strcpy (cstr, text.c_str());
+        Local<v8::String> str = args[2]->ToString();
+        uint16_t* buf = new uint16_t[str->Length()+1];
+        str->Write(buf);
+        for(int i=0; i<str->Length()+1; i++) {
+            wstr.push_back(buf[i]);
+        }
     }
-    updates.push_back(new Update(RECT, rectHandle, property, value, cstr));
+    updates.push_back(new Update(RECT, rectHandle, property, value, wstr));
     return scope.Close(Undefined());
 }
 
@@ -447,17 +480,16 @@ inline Handle<Value> updateAnimProperty(const Arguments& args) {
     int rectHandle   = args[0]->ToNumber()->NumberValue();
     int property     = args[1]->ToNumber()->NumberValue();
     float value = 0;
-    char* cstr = "";
+    //char* cstr = "";
+    std::wstring wstr = L"";
     if(args[2]->IsNumber()) {
         value = args[2]->ToNumber()->NumberValue();
     }
     if(args[2]->IsString()) {
-        v8::String::Utf8Value param1(args[2]->ToString());
-        std::string text = std::string(*param1);    
-        cstr = new char [text.length()+1];
-        std::strcpy (cstr, text.c_str());
+       char* cstr = TO_CHAR(args[2]);
+        wstr = GetWC(cstr);
     }
-    updates.push_back(new Update(ANIM, rectHandle, property, value, cstr));
+    updates.push_back(new Update(ANIM, rectHandle, property, value, wstr));
     return scope.Close(Undefined());
 }
 
@@ -577,31 +609,32 @@ inline static Handle<Value> getCharWidth(const Arguments& args) {
     int fontsize  = args[1]->ToNumber()->NumberValue();
     int fontindex  = args[2]->ToNumber()->NumberValue();
     
-//    printf("ch = %s font size = %d index = %d\n",ch.c_str(),fontsize,fontindex);
+    //printf("ch = %s font size = %d index = %d\n",ch.c_str(),fontsize,fontindex);
     AminoFont * font = fontmap[fontindex];
     texture_font_t *tf = font->fonts[fontsize];
     int w = 0;
     for(int i=0; i<ch.length(); i++) {
         texture_glyph_t *glyph = texture_font_get_glyph(tf, ch.c_str()[i]);
-//        printf("glyph. charcode = %c, w = %d ax = %d\n",glyph->charcode,glyph->width, glyph->advance_x);
+        // printf("glyph. charcode = %c, w = %d ax = %d\n",glyph->charcode,glyph->width, glyph->advance_x);
         w += glyph->advance_x;
     }
     Local<Number> num = Number::New(w);
     return scope.Close(num);
 }
 
+
 inline static Handle<Value> createNativeFont(const Arguments& args) {
     HandleScope scope;
-    AminoFont* afont = new AminoFont();
-    fontmap[0] = afont;
     
-    v8::String::Utf8Value param1(args[0]->ToString());
-//    std::string filename = std::string(*param1);    
+    AminoFont* afont = new AminoFont();
+    int id = fontmap.size();
+    fontmap[id] = afont;
+    
+    const char * filename = TO_CHAR(args[0]);
 
 
     size_t i;
     afont->atlas = texture_atlas_new(512,512,1);
-    const char * filename = "fonts/Vera.ttf";
     wchar_t *text = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     //make a single font
     
@@ -637,7 +670,7 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     //texture_font_delete(afont->font);
     
     printf("-------\n");
-    Local<Number> num = Number::New(0);
+    Local<Number> num = Number::New(id);
     return scope.Close(num);
 }
 

@@ -526,6 +526,7 @@ var propsHash = {
     "w":10,
     "h":11,
     "fontSize":12,
+    "fontId":28,
     "lerplinear":13,
     "lerpcubicin":14,
     "lerpcubicout":15,
@@ -540,6 +541,7 @@ var propsHash = {
     "filled":25,
     "closed":26,
     "opacity":27,
+    
 }
 
 exports.propsHash = propsHash;
@@ -817,6 +819,7 @@ exports.ProtoText = exports.ComposeObject({
         text: { value: 'silly text' },
         /** @prop fontSize the fontsize of this text string */
         fontSize: { value: 20 },
+        fontName: { value: 'vera' },
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
@@ -831,7 +834,12 @@ exports.ProtoText = exports.ComposeObject({
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
-            exports.native.updateProperty(this.handle, name, value);
+            if(name == 'fontName') {
+                this.font = fontmap[value];
+                exports.native.updateProperty(this.handle, 'fontId', fontmap[value].native);
+            } else {
+                exports.native.updateProperty(this.handle, name, value);
+            }
             if(name == 'fontSize') {
                 //need to update the text too
                 exports.native.updateProperty(this.handle, 'text', this.props['text']);
@@ -855,6 +863,8 @@ exports.ProtoText = exports.ComposeObject({
         }
         this.shortCircuit = true;
         this.type = "text";
+        this.font = Core._core.defaultFont;
+
     }
 });
 
@@ -917,7 +927,6 @@ exports.ProtoImageView = exports.ComposeObject({
                     self.image = image;
                     console.log("texid = ",self.image.texid);
                     if(self.image) {
-                        console.log("updating");
                         exports.native.updateProperty(self.handle, "texid", self.image.texid);
                     }
                 });
@@ -1077,8 +1086,15 @@ function JSFont(path) {
 }
 
 
+var fontmap = {};
+
 exports.native.createDefaultFont = function() {
-    return new JSFont(__dirname+"/fonts/Vera.ttf");
+    fontmap['vera'] = new JSFont(__dirname+"/fonts/Vera.ttf");
+    return fontmap['vera'];
+}
+
+exports.native.getFont = function(name) {
+    return fontmap[name];
 }
 
 /** @class Anim
@@ -1236,8 +1252,13 @@ function Core() {
     this.createStage = function(w,h) {
         exports.native.createWindow(w,h);
         this.defaultFont = exports.native.createDefaultFont();
+        fontmap['awesome'] = new JSFont(__dirname+"/fonts/fontawesome-webfont.ttf");
         this.stage = new SGStage(this);
         return this.stage;
+    }
+    
+    this.getFont = function(name) {
+        return exports.native.getFont(name);
     }
     
     this.setRoot = function(node) {

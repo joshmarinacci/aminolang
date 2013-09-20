@@ -14,6 +14,12 @@
 #include <string>
 #include <map>
 
+#include "freetype-gl.h"
+#include "mat4.h"
+#include "shader.h"
+#include "vertex-buffer.h"
+#include "texture-font.h"
+
 const int GROUP = 1;
 const int RECT = 2;
 const int TEXT = 3;
@@ -271,6 +277,7 @@ public:
     int fontid;
     float fontsize;
     char* text;
+    vertex_buffer_t * buffer;
     TextNode() {
         x = 0; y = 0;
         r = 0; g = 0; b = 0;
@@ -278,9 +285,11 @@ public:
         text = "foo";
         fontsize = 40;
         fontid = INVALID;
+        buffer = vertex_buffer_new( "vertex:3f,tex_coord:2f,color:4f" );
     }
     virtual ~TextNode() {
     }
+    void refreshText();
     void draw();
 };
 
@@ -346,7 +355,10 @@ public:
             if(property == R) textnode->r = value;
             if(property == G) textnode->g = value;
             if(property == B) textnode->b = value;
-            if(property == TEXT_PROP) textnode->text = text;
+            if(property == TEXT_PROP) {
+                textnode->text = text;
+                textnode->refreshText();
+            }
             if(property == FONTSIZE_PROP) textnode->fontsize = value;
         }
     }
@@ -542,33 +554,35 @@ static float* toFloatArray(Local<Object> obj, char* name) {
     return carray;
 }
 
+
+typedef struct {
+    float x, y, z;    // position
+    float s, t;       // texture
+    float r, g, b, a; // color
+} vertex_t;
+
+
 inline static Handle<Value> createNativeFont(const Arguments& args) {
-    printf("-------\n");
     HandleScope scope;
-    printf("creating a native font from the font data\n");
-    AminoFont* font = new AminoFont();
-    fontmap[0] = font;
+    AminoFont* afont = new AminoFont();
+    fontmap[0] = afont;
     
-    printf("num fonts loaded = %d\n",fontmap.size());
-    int texid = args[0]->ToNumber()->NumberValue();
-    printf("texture id = %d\n",texid);
-    font->texid = texid;
+    v8::String::Utf8Value param1(args[0]->ToString());
+//    std::string filename = std::string(*param1);    
+
+
+    size_t i;
+    afont->font = 0;
+    afont->atlas = texture_atlas_new(512,512,1);
+    const char * filename = "fonts/Vera.ttf";
+    wchar_t *text = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    //make a single font
+    afont->font = texture_font_new(afont->atlas, filename, 20);
+    texture_font_load_glyphs(afont->font,text);
     
-    Local<Object> json = Local<Object>::Cast(args[1]);
-    font->minchar     = json->Get(String::New("minchar"))->ToNumber()->NumberValue();
-    font->maxchar     = json->Get(String::New("maxchar"))->ToNumber()->NumberValue();
-    font->imagewidth  = json->Get(String::New("imagewidth"))->ToNumber()->NumberValue();
-    font->imageheight = json->Get(String::New("imageheight"))->ToNumber()->NumberValue();
-    font->rowcount    = json->Get(String::New("rowcount"))->ToNumber()->NumberValue();
-    font->colcount    = json->Get(String::New("colcount"))->ToNumber()->NumberValue();
-    printf("min/max char = %d %d\n",font->minchar, font->maxchar);
-    printf("image size = %d %d\n",font->imagewidth,font->imageheight);
-    printf("col/row count %d %d\n",font->colcount,font->rowcount);
-    
-    font->included = toFloatArray(json,"included");
-    font->widths   = toFloatArray(json,"widths");
-    font->offsets  = toFloatArray(json,"offsets");
-    font->yoffsets = toFloatArray(json,"yoffsets");
+    afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
+                         "shaders/v3f-t2f-c4f.frag");
+    //texture_font_delete(afont->font);
     
     printf("-------\n");
     Local<Number> num = Number::New(0);

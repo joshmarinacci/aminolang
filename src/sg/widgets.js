@@ -231,8 +231,10 @@ widgets.Label = amino.ComposeObject({
         w: {
             value: 50,
             set: function(w) {
+                this.props.w = w;
                 var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
-                this.comps.text.setTx((w-textw)/2);
+                //this.comps.text.setTx((w-textw)/2);
+                this.comps.text.setTx(0);
                 return this;
             }
         },

@@ -229,7 +229,8 @@ static void drawLetter(float tx, float ty, float tx2, float ty2,
     float x, float y, float x2, float y2,
     int attr_pos, int attr_texcoords, AminoFont* font
     ) {
-
+    printf("skiping draw letter\n");
+    /*
     GLfloat texcoords[6][2];
     texcoords[0][0] = tx;    texcoords[0][1] = ty;
     texcoords[1][0] = tx2;   texcoords[1][1] = ty;
@@ -262,6 +263,7 @@ static void drawLetter(float tx, float ty, float tx2, float ty2,
     //break it down
     glDisableVertexAttribArray(attr_pos);
     glDisableVertexAttribArray(attr_texcoords);
+    */
 }
 
 void FontShader::apply(GLfloat modelView[16], GLfloat trans[16], 
@@ -274,6 +276,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16],
         printf("can't draw. null font passed in!!!\n");
         return;
     }
+    /*
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -307,6 +310,7 @@ void FontShader::apply(GLfloat modelView[16], GLfloat trans[16],
         charx += w;
     }
     glDisable(GL_BLEND);
+    */
 }
 
 

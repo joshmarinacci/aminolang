@@ -100,8 +100,8 @@ exports.native = {
         var img = exports.sgtest.loadJpegToTexture(imagefile);
         cb(img);
     },
-    createNativeFont: function(texid,json) {
-        return exports.sgtest.createNativeFont(texid,json);
+    createNativeFont: function(path) {
+        return exports.sgtest.createNativeFont(path);
     },
     createText: function() {
         return exports.sgtest.createText();
@@ -1058,47 +1058,28 @@ function SGStage(core) {
 @desc Represents a particular font face. The face is set to a specific style,
 but can be used at multiple sizes.
 */
-function JSFont(jsonfile, imagefile) {
-    //create the default font
-    var jsontext = fs.readFileSync(jsonfile);
-    this.json = JSON.parse(jsontext);
-    var self = this;
-    exports.native.loadPngToTexture(imagefile, function(image) {
-        self.image = image;
-    });
-    this.nativefont = exports.native.createNativeFont(this.image.texid,this.json);
-    this.basesize = this.json.size;
-    this.scale = 0.5;
+function JSFont(path) {
+    this.native = exports.native.createNativeFont(path);
     /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
     this.calcStringWidth = function(str, size) {
-        var total = 0;
-        for(var i=0; i<str.length; i++) {
-            var ch = str.charCodeAt(i);
-            var n = ch - this.json.minchar;
-            var w = this.json.widths[n];
-            total += w;
-        }
-        return total * size/this.basesize;
+        return str.length * 20;
     }
     /** @func getHeight(size) returns the height of this font at the requested size */
     this.getHeight = function(fs) {
-        return this.json.height * (fs/this.basesize);
+        return 20;
     }
     /** @func getAscent(fs) returns the ascent of this font at the requested size */
     this.getAscent = function(fs) {
-        return this.ascent * (fs/this.basesize);
+        return 15;
     }
     this.getCharWidth = function(ch) {
-        var code = ch.charCodeAt(0);
-        var n = code-this.json.minchar;
-        var w = this.json.widths[n];
-        return w*this.scale;
+        return 20;
     }
 }
 
 
 exports.native.createDefaultFont = function() {
-    return new JSFont(__dirname+"/font.json",__dirname+"/font.png");
+    return new JSFont(__dirname+"/fonts/Vera.ttf");
 }
 
 /** @class Anim

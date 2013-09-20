@@ -832,6 +832,10 @@ exports.ProtoText = exports.ComposeObject({
         //mirror the property to the native side
         if(this.live) {
             exports.native.updateProperty(this.handle, name, value);
+            if(name == 'fontSize') {
+                //need to update the text too
+                exports.native.updateProperty(this.handle, 'text', this.props['text']);
+            }
         }
         
         if(name == 'fill') {

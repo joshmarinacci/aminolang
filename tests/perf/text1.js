@@ -17,10 +17,17 @@ amino.startApp(function(core, stage) {
     
     
     var button = new widgets.PushButton()
-        .setText('ABCabc')
         .setW(100).setH(50)
+        .setText('button1')
         .setFontSize(10)
         ;
     root.add(button);
     
+    var button2 = new widgets.PushButton()
+        .setText('button2')
+        .setFontSize(20)
+        .setW(100).setH(50)
+        .setTx(110)
+        ;
+    root.add(button2);
 });

@@ -36,8 +36,6 @@
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
-#include <GL/glfw.h>
-//#include "opengl.h"
 #include "texture-atlas.h"
 
 

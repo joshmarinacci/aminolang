@@ -50,6 +50,18 @@
 extern "C" {
 #endif
 
+#ifdef MAC
+#include <GL/glfw.h>
+#endif
+
+#ifdef KLAATU
+#include <GLES2/gl2.h>
+#endif
+#ifdef LINUX
+#include <GL/glfw.h>
+#include <GL/glext.h>
+#endif
+
 #include "vector.h"
 #include "vec234.h"
 

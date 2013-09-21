@@ -34,6 +34,13 @@ include $(BUILD_PREBUILT)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES:= \
+    src/sg/fonts/vector.c \
+    src/sg/fonts/vertex-buffer.c \
+    src/sg/fonts/vertex-attribute.c \
+    src/sg/fonts/texture-atlas.c \
+    src/sg/fonts/texture-font.c \
+    src/sg/fonts/shader.c \
+    src/sg/fonts/mat4.c \
     src/sg/image.cpp \
     src/sg/shaders.cpp \
     src/sg/base.cpp \
@@ -55,7 +62,10 @@ LOCAL_C_INCLUDES := frameworks/base/services \
 	external/jpeg \
 	external/libpng \
 	external/zlib \
+	external/freetype/include \
 	frameworks/base/include/surfaceflinger \
+	frameworks/native/opengl/include \
+	$(LOCAL_PATH)/src/sg/fonts \
 	$(LOCAL_PATH)/prebuilt/include
 
 LOCAL_CFLAGS = -DKLAATU -DBUILDING_NODE_EXTENSION

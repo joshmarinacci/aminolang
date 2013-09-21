@@ -35,8 +35,18 @@
 #define __FREETYPE_GL_H__
 
 /* Mandatory */
+#ifdef MAC
 #include <GL/glfw.h>
-//#include "opengl.h"
+#endif
+
+#ifdef KLAATU
+#include <GLES2/gl2.h>
+#endif
+#ifdef LINUX
+#include <GL/glfw.h>
+#include <GL/glext.h>
+#endif
+
 #include "vec234.h"
 #include "vector.h"
 #include "texture-atlas.h"

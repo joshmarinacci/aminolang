@@ -54,7 +54,7 @@ function LockScreen(core,stage) {
         .setText("80deg, sunny")
         .setTx(20)
         .setFill("#ffffff")
-        .setFontSize(25)
+        .setFontSize(20)
         .setAnchorTop(true).setTop(160);
     g.add(weatherLabel);
     

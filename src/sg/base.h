@@ -295,7 +295,7 @@ public:
     float g;
     float b;
     int fontid;
-    float fontsize;
+    int fontsize;
     std::wstring text;
     vertex_buffer_t * buffer;
     TextNode() {
@@ -615,7 +615,7 @@ inline static Handle<Value> getCharWidth(const Arguments& args) {
     int w = 0;
     for(int i=0; i<ch.length(); i++) {
         texture_glyph_t *glyph = texture_font_get_glyph(tf, ch.c_str()[i]);
-        // printf("glyph. charcode = %c, w = %d ax = %d\n",glyph->charcode,glyph->width, glyph->advance_x);
+        //printf("glyph. charcode = %c, w = %d ax = %d\n",glyph->charcode,glyph->width, glyph->advance_x);
         w += glyph->advance_x;
     }
     Local<Number> num = Number::New(w);

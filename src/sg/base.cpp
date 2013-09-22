@@ -111,6 +111,8 @@ void TextNode::refreshText() {
     wchar_t *t2 = const_cast<wchar_t*>(text.c_str());//GetWC(text);
     vertex_buffer_delete(buffer);
     buffer = vertex_buffer_new( "vertex:3f,tex_coord:2f,color:4f" );
+    texture_font_t *f = font->fonts[fontsize];
+    assert(f);
     add_text(buffer,font->fonts[fontsize],t2,&black,&pen);
 //    texture_font_delete(afont->font);
 }

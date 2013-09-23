@@ -233,9 +233,7 @@ widgets.Label = amino.ComposeObject({
             value: 50,
             set: function(w) {
                 this.props.w = w;
-                var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
-                //this.comps.text.setTx((w-textw)/2);
-                this.comps.text.setTx(3);
+                this.doHLayout();
                 return this;
             }
         },
@@ -247,12 +245,34 @@ widgets.Label = amino.ComposeObject({
                 this.comps.text.setTy(Math.round(h/2 + texth/2));
                 return this;
             }
-        }
+        },
+        align: {
+            value: 'left',
+            set: function(align) {
+                this.props.align = align;
+                this.doHLayout();
+                return this;
+            }
+        },
     },
     init: function() {
         this.comps.base.add(this.comps.text);
         this.contains = function() { return false; }
         this.setH(20);
+        this.doHLayout = function() {
+            var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
+            if(this.props.align == 'left') {
+                this.comps.text.setTx(0);
+            }
+            if(this.props.align == 'right') {
+                this.comps.text.setTx(this.getW()-textw);
+            }
+            if(this.props.align == 'left') {
+                this.comps.text.setTx(Math.round(this.getW()-textw)/2);
+            }
+            //this.comps.text.setTx((w-textw)/2);
+//            this.comps.text.setTx(3);
+        }
     }
 });
 
@@ -303,6 +323,7 @@ widgets.AnchorPanel = amino.ComposeObject({
             node.parent = this;
             //sgtest.addNodeToGroup(node.handle,this.handle);
             this.redoLayout();
+            return this;
         }
         this.live = true;
         

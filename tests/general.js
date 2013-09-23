@@ -1,72 +1,60 @@
-var amino = require('../build/desktop/amino.js');
-var general = require('./generalutil.js');
-
+var amino = null;
+var widgets = null;
+if(process.platform == 'darwin') {
+    amino = require('../build/desktop/amino.js');
+    widgets = require('../build/desktop/widgets.js');
+} else {
+    amino = require('./amino.js');    
+    widgets = require('./widgets.js');
+}
 amino.startApp(function(core,stage) {
 
-        var root = core.createGroup();
-        stage.setRoot(root);
-
-function anims(c) {
-    var rect = core.createRect();    
-    rect.setX(30);
-    rect.setY(100);
-    rect.setW(20);
-    rect.setH(20);
-    rect.setFill("#ff0000");
-    c.add(rect);
-    /*
-    var anim = chain(
-        together(
-            a(rect,"x",0,100,1000),
-            a(rect,"y",0,100,1000)
-        ),
-        chain(
-            a(rect,"x",100, 200,1000).setEase(elasticOut),
-            a(rect,"y",100,  50,500).setEase(cubicInOut),
-            a(rect,"x",200, 100,500).setEase(cubicInOut)
-        ),
-        together(
-            a(rect,"x",100,0,500).setEase(cubicInOut),
-            a(rect,"y",50, 0,500).setEase(cubicInOut)
-        )
-        ).after(function() {
-            console.log("all done!");
-        });
-    stage.addAnim(anim);
-    */
-}
-
-var tests = [general.shapes, general.comps, general.events,anims];
-var current = -1;
-var testgroup = core.createGroup();
-root.add(testgroup);
-
-
-var prevButton = core.createPushButton();
-prevButton.setText("prev").setTx(10).setTy(10);
-root.add(prevButton);
-
-stage.on("PRESS",prevButton,function(e){
-    testgroup.clear();
-    current = current - 1;
-    if(current < 0) {
-        current = tests.length-1;
-    }
-    tests[current](testgroup,core,stage);
-});
-
-var nextButton = core.createPushButton();
-nextButton.setText("next").setTx(180).setTy(10);
-root.add(nextButton);
-
-stage.on("PRESS",nextButton,function(e) {
-    testgroup.clear();
-    current = current + 1;
-    if(current >= tests.length) {
-        current = 0;
-    }
-    tests[current](testgroup,core,stage);
-});
-
+    var g = new amino.ProtoGroup();
+    g.add(new amino.ProtoRect()
+        .setTx(100).setTy(50)
+        .setW(30).setH(50));
+    
+    g.add(new amino.ProtoRect()
+        .setTx(0).setTy(100)
+        .setW(20).setH(20));
+    
+//    g.setTx(100);
+    
+    g.add(new amino.ProtoText()
+        .setText("a text node")
+        .setTy(50));
+    g.add(new widgets.PushButton()
+        .setText("a button")
+        .setW(100).setH(30)
+        //.setTx(-70).setTy(0)
+        );
+    g.add(new widgets.Label()
+        .setText("a label")
+        .setTx(50).setTy(200));
+        
+        
+    g.add(new widgets.Slider().setTy(230));
+    
+    g.add(new widgets.ProgressSpinner().setTx(200).setTy(50).setVisible(true));
+    
+    
+    var panel = new widgets.AnchorPanel()
+        .setW(100).setH(100).setTx(200).setTy(130);
+        
+    panel.add(new widgets.PushButton().setText("foo")
+        .setW(80).setH(20)
+        .setAnchorRight(true).setRight(0));
+        
+    panel.add(new widgets.PushButton().setText("foo")
+        .setW(80).setH(20)
+        .setAnchorBottom(true).setBottom(0));
+    
+    g.add(panel);
+    
+    
+    var lv = new widgets.ListView().setW(60).setH(100).setTx(-100).setTy(50);
+    g.add(lv);
+    
+    stage.setRoot(g);
 
 });

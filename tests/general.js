@@ -59,35 +59,25 @@ amino.startApp(function(core,stage) {
         .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("right"))
         .setTx(col3).setTy(100).setW(colw).setH(95)
         );
-    
+/*    
     root.add(new widgets.AnchorPanel()
         .add(new widgets.Label().setText("progress spinner"))
         .add(new widgets.ProgressSpinner().setActive(true).setTy(30).setTx(30))
         .setTx(col1).setTy(100).setW(colw).setH(95)
         );
-    
+  */  
 /*    
-    g.add(new widgets.Label()
-        .setText("a label")
-        .setTx(50).setTy(200));
-        
         
     g.add(new widgets.Slider().setTy(230));
     
-    g.add(new widgets.ProgressSpinner().setTx(200).setTy(50).setVisible(true));
-    
-    
     var panel = new widgets.AnchorPanel()
         .setW(100).setH(100).setTx(200).setTy(130);
-        
     panel.add(new widgets.PushButton().setText("foo")
         .setW(80).setH(20)
         .setAnchorRight(true).setRight(0));
-        
     panel.add(new widgets.PushButton().setText("foo")
         .setW(80).setH(20)
         .setAnchorBottom(true).setBottom(0));
-    
     g.add(panel);
     
     

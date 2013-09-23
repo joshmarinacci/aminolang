@@ -4,16 +4,25 @@ console.log("exported amino = ", this['mymodule']);
 var amino = this['mymodule'];
 amino.sgtest = {
 }
+var fontmap = {};
+
 amino.native = {
     list:[],
     
+    createDefaultFont: function(path) {
+        console.log('creating native font ' + path);
+        return new CanvasFont(this.domctx);
+    },
     init: function() {
         console.log("canvas amino doesn't really do an init");
     },
     setEventCallback: function(cb) {
         console.log("pretending to set an event callback");
     },
-    createWindow: function(w,h) {
+    createWindow: function(core,w,h) {
+        fontmap['source']  = new CanvasFont(this.domctx);//_dirname+"/fonts/SourceSansPro-Regular.ttf");
+        fontmap['awesome'] = new CanvasFont(this.domctx);//__dirname+"/fonts/fontawesome-webfont.ttf");
+        core.defaultFont = fontmap['source'];
         console.log("pretending to open an window:",w,h);
     },
     createRect: function() {
@@ -127,9 +136,6 @@ amino.native = {
         h2.children.push(h1);
     },
     
-    createDefaultFont: function() {
-        return new CanvasFont(this.domctx);
-    },
     
     loadJpegToTexture: function(path,cb) {
         var img = new Image();
@@ -165,7 +171,18 @@ amino.native = {
             w: this.domcanvas.width,
             h: this.domcanvas.height
         };
-    }
+    },
+    createAnim: function(handle,prop,start,end,duration) {
+        console.log("faking creating an animation");
+        return {
+            updateAnimProperty:function() {
+                console.log("faking an animition property update");
+            }
+        };
+    },
+    updateAnimProperty: function() {
+        console.log("faking an animition property update");
+    },
 };
 
 

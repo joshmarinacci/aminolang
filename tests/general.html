@@ -1,10 +1,9 @@
 <html>
 <head>
-<script src='../src/jscanvas/init.js'></script>
-<script src='../build/jscanvas/out.js'></script>
-<script src='../src/jscommon/widgets.js'></script>
-<script src='../src/jscanvas/handcoded7.js'></script>
-<script src='../src/jscanvas/monkeypatch.js'></script>
+<script src='../build/canvas/amino.js'></script>
+<script src='../build/canvas/widgets.js'></script>
+<script src='../build/canvas/canvasbacon.js'></script>
+<script src='../build/canvas/canvasamino.js'></script>
 <script src='generalutil.js'></script>
 <style type="text/css">
 canvas { border: 1px solid black; }
@@ -13,35 +12,64 @@ canvas { border: 1px solid black; }
 <body>
 <canvas id='mycanvas' width='600' height='300'></canvas>
 <script language="JavaScript">
-Corex.start(function(core) {
-    var stage = core.createStage('mycanvas');
+amino.startApp("mycanvas",function(core,stage) {
+    var root = new amino.ProtoGroup();
+    stage.setRoot(root);
     
-        function elasticIn(t) {
-            var p = 0.3;
-            return -(Math.pow(2,10*(t-1)) * Math.sin(((t-1)-p/4)*(2*Math.PI)/p));
-        }
-        function elasticOut(t) {
-            var p = 0.3;
-            return Math.pow(2,-10*t) * Math.sin((t-p/4)*(2*Math.PI)/p) + 1;
-        }
-        function cubicIn(t) {
-            return Math.pow(t,3);
-        }
-        function cubicOut(t) {
-            return 1-cubicIn(1-t);
-        }
-        function smoothstepIn(t) {
-            return t*t*(3-2*t);
-        }
-        
-        function cubicInOut(t) {
-            if(t < 0.5) return cubicIn(t*2.0)/2.0;
-            return 1-cubicIn((1-t)*2)/2;                
-        }
-    function camelize(s) {
-        return s.substring(0,1).toUpperCase() + s.substring(1);
-    }
     
+    var col1 = 5;
+    var col2 = 150;
+    var colw = 140;
+    var col3 = 295;
+    var col4 = col3+150;
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("rect"))
+        .add(new amino.ProtoRect().setW(30).setH(30).setFill("#00ff00").setTy(30))
+        .setTx(col1).setTy(0)
+        );
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("text"))
+        .add(new amino.ProtoText().setFill("#cc6655").setTy(40).setText("some text"))
+        .setTx(col2).setTy(0)
+        );
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("button"))
+        .add(new widgets.PushButton().setText("a button").setW(70).setH(30).setTy(30))
+        .setTx(col3).setTy(0)
+        );
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("toggle button"))
+        .add(new widgets.ToggleButton().setText("a button").setW(70).setH(30).setTy(30))
+        .setTx(col4).setTy(0)
+        );
+    
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("label left"))
+        .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("left"))
+        .setTx(col1).setTy(100).setW(colw).setH(95)
+        );
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("label center"))
+        .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("center"))
+        .setTx(col2).setTy(100).setW(colw).setH(95)
+        );
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("label right"))
+        .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("right"))
+        .setTx(col3).setTy(100).setW(colw).setH(95)
+        );
+/*    
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("progress spinner"))
+        .add(new widgets.ProgressSpinner().setActive(true).setTy(30).setTx(30))
+        .setTx(col1).setTy(100).setW(colw).setH(95)
+        );
+        */
+    /*
     function a(node, prop, start, finish, dur) {
         return {
             node:node,
@@ -135,125 +163,6 @@ Corex.start(function(core) {
             }
         }
     }
-    /*
-    function shapes(c) {
-        var rect = core.createRect();
-        rect.setX(100).setY(100).setW(50).setH(25).setFill("green");
-        c.add(rect);
-        
-        root.on(Events.Press, rect, function() { 
-            if(rect.getFill() == 'blue') {
-                rect.setFill("red");
-            } else {
-                rect.setFill('blue'); 
-            }
-        }); 
-        
-        var circle = core.createCircle();
-        circle.setCx(50).setCy(100).setRadius(30).setFill('green');
-        c.add(circle);
-    
-        
-        //e.target is a generic reference to the drag target.
-        //e.deltaX is how much the x moved between events, regardless of the current
-        //coordinate space's movement (ie: setting the x and y)
-        //drag works even if you drag quickly and go outside the target, thus it
-        //preserves the drag target through the entire gesture
-        root.on(Events.Drag, circle, function(e) {
-            e.target.setCx(e.target.getCx() + e.delta.getX());
-            e.target.setCy(e.target.getCy() + e.delta.getY());
-        });
-        
-        
-        var r2 = core.createRect();
-        r2.setX(60).setY(100).setW(50).setH(50).setFill("yellow").setOpacity(0.5);
-        c.add(r2);
-    }
-
-    
-    
-    
-    
-    function comps(c) {
-        
-        var button = core.createPushButton();
-        button.setText("button");
-        button.setX(200);
-        button.setY(50);
-        c.add(button);
-        
-    
-        var tbutton = core.createToggleButton();
-        tbutton.setText("toggle");
-        tbutton.setX(200);
-        tbutton.setY(100);
-        c.add(tbutton);
-        
-        var label = core.createLabel();
-        label.setText("label");
-        label.setX(200);
-        label.setY(130);
-        c.add(label);
-        
-        var slider = core.createSlider();
-        slider.setTx(200);
-        slider.setY(160);
-        slider.setW(100);
-        slider.setH(20);
-        c.add(slider);
-        
-        
-        
-        var textbox = core.createTextbox();
-        textbox.setX(200);
-        textbox.setY(190);
-        textbox.setW(100);
-        textbox.setH(20);
-        textbox.setText("foo");
-        c.add(textbox);
-        
-        
-        var listview = core.createListView();
-        listview.listModel = [];
-        for(var i=0; i<20; i++) {
-            listview.listModel.push(i+" foo");
-        }
-        listview.setW(200).setH(200).setTx(350).setTy(30);
-        c.add(listview);
-    }
-    
-    
-    function events(c) {
-        
-        var b1 = new PushButton().setText("no trans").setX(10).setY(100);
-        c.add(b1);
-        
-        var b2 = new PushButton().setText("trans xy").setTx(120).setTy(100);
-        c.add(b2);
-        
-        var b3 = new PushButton().setText("group trans").setTx(0).setTy(0);
-        var g3 = new Group().setTx(230).setTy(100);
-        g3.add(b3);
-        c.add(g3);
-        
-        var b4 = new PushButton().setText("rotate").setTx(0).setTy(0);
-        var g4 = new Transform().setTx(10).setTy(150).setRotate(45);
-        g4.setChild(b4);
-        c.add(g4);
-        
-        var b5 = new PushButton().setText("scale").setTx(0).setTy(0);
-        var g5 = new Transform().setTx(120).setTy(150).setScalex(2).setScaley(2);
-        g5.setChild(b5);
-        c.add(g5);
-        
-        
-        var slider = core.createSlider();
-        slider.setTx(100);
-        slider.setTy(50);
-        c.add(slider);
-        
-    }
-    */    
     function anims(c,core,stage) {
         var rect = new Rect();    
         rect.setX(0);
@@ -281,38 +190,7 @@ Corex.start(function(core) {
             });
         stage.addAnim(anim);
     }
-    
-    var root = core.createGroup();
-    stage.setRoot(root);
-    var general = window["generalutil"];
-    var tests = [general.shapes, general.comps, general.events,anims];
-    var current = -1;
-    var testgroup = new Group();
-    root.add(testgroup);
-    
-    var prevButton = core.createPushButton();
-    prevButton.setText("prev").setX(0).setY(0).setH(40);
-    root.add(prevButton);
-    stage.on(Events.Press,prevButton,function(e){
-        testgroup.clear();
-        current = current - 1;
-        if(current < 0) {
-            current = tests.length-1;
-        }
-        tests[current](testgroup,core,stage);
-    });
-    
-    var nextButton = core.createPushButton();
-    nextButton.setText("next").setX(180).setY(10);
-    root.add(nextButton);
-    stage.on(Events.Press,nextButton,function(e) {
-        testgroup.clear();
-        current = current + 1;
-        if(current >= tests.length) {
-            current = 0;
-        }
-        tests[current](testgroup,core,stage);
-    });
+    */
 });
 </script>
 </body>

@@ -69,10 +69,25 @@ exports.colortheme = {
 
 exports.sgtest = jrequire('sgtest');
 
+var fontmap = {};
 
 exports.native = {
-    init: function() {
+    createNativeFont: function(path) {
+        console.log('creating native font ' + path);
+        return exports.sgtest.createNativeFont(path);
+    },
+    init: function(core) {
+        console.log("doing native init");
         exports.sgtest.init();
+    },
+    createWindow: function(core,w,h) {
+        exports.sgtest.createWindow(w,h);
+        fontmap['source'] = new JSFont(__dirname+"/fonts/SourceSansPro-Regular.ttf");
+        fontmap['awesome'] = new JSFont(__dirname+"/fonts/fontawesome-webfont.ttf");
+        core.defaultFont = fontmap['source'];
+    },
+    getFont: function(name) {
+        return fontmap[name];
     },
     updateProperty: function(handle, name, value) {
         exports.sgtest.updateProperty(handle, propsHash[name], value);        
@@ -89,9 +104,6 @@ exports.native = {
     setEventCallback: function(cb) {
         exports.sgtest.setEventCallback(cb);
     },
-    createWindow: function(w,h) {
-        exports.sgtest.createWindow(w,h);
-    },
     createRect: function()  {          return exports.sgtest.createRect();    },
     createGroup: function() {          return exports.sgtest.createGroup();   },
     createPoly: function()  {          return exports.sgtest.createPoly();    },
@@ -105,9 +117,6 @@ exports.native = {
     loadJpegToTexture: function(imagefile, cb) {
         var img = exports.sgtest.loadJpegToTexture(imagefile);
         cb(img);
-    },
-    createNativeFont: function(path) {
-        return exports.sgtest.createNativeFont(path);
     },
     createText: function() {
         return exports.sgtest.createText();
@@ -1106,16 +1115,8 @@ function JSFont(path) {
 }
 
 
-var fontmap = {};
 
-exports.native.createDefaultFont = function() {
-    fontmap['source'] = new JSFont(__dirname+"/fonts/SourceSansPro-Regular.ttf");
-    return fontmap['source'];
-}
 
-exports.native.getFont = function(name) {
-    return fontmap[name];
-}
 
 /** @class Anim
 @desc  Anim animates ones property of a node. It must be created using the
@@ -1213,7 +1214,7 @@ function Core() {
     
     var ecount = 0;
     this.init = function() {
-        exports.native.init();
+        exports.native.init(this);
         setupBacon(this);
         exports.native.setEventCallback(function(e) {
             ecount++;
@@ -1270,9 +1271,7 @@ function Core() {
     
     /** @func createStage(w,h)  creates a new stage. Only applies on desktop. */
     this.createStage = function(w,h) {
-        exports.native.createWindow(w,h);
-        this.defaultFont = exports.native.createDefaultFont();
-        fontmap['awesome'] = new JSFont(__dirname+"/fonts/fontawesome-webfont.ttf");
+        exports.native.createWindow(this,w,h);
         this.stage = new SGStage(this);
         return this.stage;
     }

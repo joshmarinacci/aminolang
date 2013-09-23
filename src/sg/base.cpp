@@ -104,9 +104,12 @@ void TextNode::refreshText() {
     if(fontid == INVALID) return;
     AminoFont* font = fontmap[fontid];
     vec2 pen = {{5,400}};
-    vec4 black = {{0,0,0,1}};
+    vec4 black = {{0,1,0,1}};
     pen.x = 0;
     pen.y = 0;
+    black.r = r;
+    black.g = g;
+    black.b = b;
     
     wchar_t *t2 = const_cast<wchar_t*>(text.c_str());//GetWC(text);
     vertex_buffer_delete(buffer);

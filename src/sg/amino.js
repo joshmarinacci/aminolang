@@ -835,7 +835,6 @@ exports.ProtoText = exports.ComposeObject({
         //mirror the property to the native side
         if(this.live) {
             if(name == 'fontName') {
-                console.log('setting the font name to ' + value);
                 if(!fontmap[value]) {
                     console.log("WARNING. No font '" + value + "' found!!!");
                 }

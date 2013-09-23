@@ -42,16 +42,17 @@ function LockScreen(core,stage) {
 
     console.log(moment().format('MMMM Do YYYY, h:mm:ss a'));
     var timeLabel = new widgets.Label()
+        .setFill("#ffffff")
         .setFontSize(40)
         .setText("12:38")
         .setTx(20)
-        .setFill("#ffffff")
         .setAnchorTop(true).setTop(10);
     g.add(timeLabel);
     var dateLabel = new amino.ProtoText()
+        .setFill("#ffffff")
         .setFontSize(15)
         .setText("Tuesday Jan 18th")
-        .setTx(20).setTy(50).setFill("#ffffff")
+        .setTx(20).setTy(50)
         ;
     g.add(dateLabel);
     
@@ -70,11 +71,13 @@ function LockScreen(core,stage) {
     var envelope = '\uF0E0';
     var battery = new widgets.Label()
         .setFontName('awesome')
+        .setFill("#ffffff")
         .setText(icon_bolt)
         .setFontSize(20)
         .setAnchorRight(true).setRight(20);
         g.add(battery);
     var batterylevel = new widgets.Label()
+        .setFill("#ffffff")
         .setText('88%')
         .setFontSize(20)
         .setAnchorRight(true).setRight(5);
@@ -97,7 +100,7 @@ function LockScreen(core,stage) {
     weather.add(weatherIcon);
     var weatherLabel = new widgets.Label()
         .setText("68\u00F8, cloudy")
-        .setFill("#ffffff").setFontSize(15)
+        .setFill("#000000").setFontSize(15)
         .setTx(col2);
     weather.add(weatherLabel);
     weather.comps.background.setOpacity(0.6);

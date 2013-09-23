@@ -57,8 +57,7 @@ widgets.PushButton = amino.ComposeObject({
             set: function(w) {
                 this.props.w = w;
                 this.comps.background.setW(w);
-                var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize());
-                this.comps.label.setTx(Math.round((w-textw)/2));
+                this.markDirty();
                 return this;
             }
         },
@@ -68,12 +67,12 @@ widgets.PushButton = amino.ComposeObject({
             set: function(h) {
                 this.props.h = h;
                 this.comps.background.setH(h);
-                var texth = this.comps.label.font.getHeight(this.getFontSize());
-                this.comps.label.setTy(Math.round(h/2 + texth/2));
+                this.markDirty();
                 return this;
             }
         },
     },
+    //replaces all setters
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.label);
@@ -97,6 +96,21 @@ widgets.PushButton = amino.ComposeObject({
             this.actioncb = cb;
             return this;
         }
+        this.markDirty = function() {
+            self.dirty = true;
+        }
+        this.doLayout = function() {
+            var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize());
+            this.comps.label.setTx(Math.round((this.getW()-textw)/2));
+            var texth = this.comps.label.font.getHeight(this.getFontSize());
+            this.comps.label.setTy(Math.round(this.getH()/2 + texth/2));
+        }
+        amino.getCore().on('validate',null,function() {
+            if(self.dirty) {
+                self.doLayout();
+                self.dirty = false;
+            }
+        });
     }
 });
 
@@ -408,7 +422,7 @@ widgets.AnchorPanel = amino.ComposeObject({
             for(var i in this.children) {
                 var node = this.children[i];
                 if(node.getAnchorTop == undefined) {
-                    console.log("WARNING Node without getAnchorTop. Is it not a widget?");
+                    //console.log("WARNING Node without getAnchorTop. Is it not a widget?");
                     continue;
                 }
                 //top aligned

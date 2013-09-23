@@ -646,6 +646,7 @@ widgets.ListView = amino.ComposeObject({
         });
         
         this.cells = [];
+        this.bag = [];
         this.cg = function() {
             var cell = new widgets.ListViewCell();
             cell.comps.label.setFontSize(15);
@@ -691,7 +692,7 @@ widgets.ListView = amino.ComposeObject({
         this.regenerateCells = function() {
             var ch = this.getCellHeight();
             var start= Math.min(this.listModel.length, Math.floor(this.scroll/ch));
-            var end = Math.min(this.listModel.length, Math.floor((this.getH()+this.scroll)/ch));
+            var end = Math.min(this.listModel.length, Math.floor((this.getH()+this.scroll)/ch)) + 1;
             var remainder = this.scroll - Math.floor(this.scroll/ch)*ch;
             var self = this;
             
@@ -700,27 +701,48 @@ widgets.ListView = amino.ComposeObject({
             var i = start;
             var len = end-start;
             var height = len*ch;
-            for(var n=0; n<end-start; n++) {
+            //console.log("========= window = " + top + " -> " + (top+height) + " range " + start + " " + end);
+            
+            /*
+            loop through all cells
+                if cell is above the window. remove it
+                if cell is below the window. remove it
+            if we need another cell for the top of the window. add it
+            if we need another cell for the bottom of the window. add it
+            */
+            
+            this.removeCell = function(cell) {
+                var n = this.cells.indexOf(cell);
+                //use delete instead of splice so we can support sparse arrays
+                delete this.cells[n];
+                cell.setVisible(false);
+                this.bag.push(cell);
+            }
+            
+            if(this.cells[start-1]) {
+                this.removeCell(this.cells[start-1]);
+            }
+            if(this.cells[end]) {
+                this.removeCell(this.cells[end]);
+            }
+            for(var n=start; n<end; n++) {
+                var cell = this.cells[n];
                 if(!this.cells[n]) {
-                    var cell = this.generateCell();
+                    var cell = null;
+                    if(this.bag.length > 0) {
+                        cell = this.bag.pop();
+                    } else {
+                        cell = this.generateCell();
+                    }
                     this.cells[n] = cell;
                     this.comps.cellholder.add(cell);
                     cell.index = i;
+                    cell.setVisible(true);
                     cell.setTx(0);
                     cell.setTy(n*ch);
                     cell.dirty = true;
                 }
                 var cell = this.cells[n];
-                if(cell.getTy() < top) {
-                    cell.setTy(cell.getTy()+height);
-                    cell.index = end;
-                    cell.dirty = true;
-                }
-                if(cell.getTy() > top + height) {
-                    cell.setTy(cell.getTy()-height);
-                    cell.index = start;
-                    cell.dirty = true;
-                }
                 if(cell.dirty) {
                     cell.setW(this.getW());
                     cell.setH(this.getCellHeight());

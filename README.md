@@ -303,3 +303,48 @@ var label = new widgets.Label()
     .setFontName('awesome')
     .setText('\uF0C2');
 ```
+
+
+### Canvas
+
+The canvas implementation is the most immature.  It shares the same JS code with the
+rest of amino but has no native background. Instead it runs in the browser using
+the HTML Canvas 2D apis.  This means you will not get any 3D transforms.
+
+The API for Canvas is the same as desktop and mobile, but initialized slightly
+differently. Also, animation does not currently work.
+
+Build the canvas version with `node build canvas` then create an html page
+with code like this:
+
+```
+<html>
+<head>
+<script src='../build/canvas/amino.js'></script>
+<script src='../build/canvas/widgets.js'></script>
+<script src='../build/canvas/canvasbacon.js'></script>
+<script src='../build/canvas/canvasamino.js'></script>
+<script src='generalutil.js'></script>
+<style type="text/css">
+canvas { border: 1px solid black; }
+</style>
+</head>
+<body>
+<canvas id='mycanvas' width='600' height='300'></canvas>
+<script language="JavaScript">
+amino.startApp("mycanvas",function(core,stage) {
+    var root = new amino.ProtoGroup();
+    stage.setRoot(root);
+});
+</script>
+</body>
+</html>
+```
+
+Notice the path must be correct for the script imports. Also notice that
+amino.startApp has an extra parameter: the ID of the canvas to attach to.
+Other than that the API should be the same. 
+
+
+
+

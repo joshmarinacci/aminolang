@@ -58,6 +58,7 @@ static const int TX = 23;
 static const int OPACITY_PROP = 27;
 static const int FONTID_PROP = 28;
 
+static const int COUNT = 29;
 using namespace v8;
 
 static bool eventCallbackSet = false;
@@ -153,7 +154,7 @@ public:
     static const int BACKWARD = 2;
     int lerptype;
     Anim(AminoNode* Target, int Property, float Start, float End, 
-            float Duration, int Loopcount, bool Autoreverse) {
+            float Duration) {
         id = -1;
         target = Target;
         start = Start;
@@ -161,8 +162,8 @@ public:
         property = Property;
         started = false;
         duration = Duration;
-        loopcount = Loopcount;
-        autoreverse = Autoreverse;
+        loopcount = 1;
+        autoreverse = false;
         direction = FORWARD;
         lerptype = LERP_LINEAR;
         active = true;
@@ -344,6 +345,9 @@ public:
             if(property == LERP_PROP) {
                 anim->lerptype = value;
             }
+            if(property == COUNT) {
+                anim->loopcount = value;
+            }
             return;
         }
         AminoNode* target = rects[node];
@@ -422,10 +426,8 @@ inline Handle<Value> createAnim(const Arguments& args) {
     float start      = args[2]->ToNumber()->NumberValue();
     float end        = args[3]->ToNumber()->NumberValue();
     float duration   = args[4]->ToNumber()->NumberValue();
-    int loopcount    = args[5]->ToNumber()->NumberValue();
-    bool autoreverse = args[6]->ToNumber()->NumberValue();
     
-    Anim* anim = new Anim(rects[rectHandle],property, start,end,  duration, loopcount, autoreverse);
+    Anim* anim = new Anim(rects[rectHandle],property, start,end,  duration);
     anims.push_back(anim);
     anims.size();
     Local<Number> num = Number::New(anims.size()-1);

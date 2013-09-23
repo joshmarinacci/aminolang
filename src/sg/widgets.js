@@ -100,6 +100,88 @@ widgets.PushButton = amino.ComposeObject({
     }
 });
 
+widgets.ToggleButton = amino.ComposeObject({
+    type: "PushButton",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            /** @prop w the width of this push button */
+            /** @prop h the width of this push button */
+            /** @prop fill the fill color this push button. Should be a hex string. */
+            promote: ['w','h','fill'],
+        },
+        label: {
+            proto: amino.ProtoText,
+            /** @prop text the text label of this button. */
+            /** @prop fontSize the font size to use for this button. */
+            promote: ['text','fontSize','fontName'],
+        },
+    },
+    props: {
+        //override w to center the label
+        w: {
+            value: 100,
+            set: function(w) {
+                this.props.w = w;
+                this.comps.background.setW(w);
+                var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize());
+                this.comps.label.setTx(Math.round((w-textw)/2));
+                return this;
+            }
+        },
+        //override h to center the label
+        h: {
+            value:100, 
+            set: function(h) {
+                this.props.h = h;
+                this.comps.background.setH(h);
+                var texth = this.comps.label.font.getHeight(this.getFontSize());
+                this.comps.label.setTy(Math.round(h/2 + texth/2));
+                return this;
+            }
+        },
+        selected: {
+            value: false,
+            set: function(selected) {
+                this.props.selected = selected;
+                if(selected) {
+                    this.setFill(amino.colortheme.button.fill.selected);
+                } else {
+                    this.setFill(amino.colortheme.button.fill.normal);
+                }
+                return this;
+            }
+        }
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.label);
+        
+        var self = this;
+        this.setFill(amino.colortheme.accent);
+        amino.getCore().on('press', this, function(e) {
+            self.setFill("#aaee88");
+        });
+        amino.getCore().on("release",this,function(e) {
+            self.setFill(amino.colortheme.accent);
+        });
+        amino.getCore().on("click",this,function(e) {
+            self.setSelected(!self.getSelected());
+            var event = {type:'action',source:self};
+            amino.getCore().fireEvent(event);
+            if(self.actioncb) self.actioncb(event);
+            
+        });
+        this.setFontSize(15);
+        /** @func onAction(cb) a function to call when this button fires an action. You can also listen for the 'action' event. */
+        this.onAction = function(cb) {
+            this.actioncb = cb;
+            return this;
+        }
+    }
+});
+
 /**
 @class Slider
 @desc A slider to choose a value. The value is restricted to be between the max and min values.
@@ -164,25 +246,15 @@ widgets.ProgressSpinner = amino.ComposeObject({
     type: 'ProgressSpinner',
     extend: amino.ProtoWidget,
     comps: {
-        part1: {
-            proto: amino.ProtoRect,
+        wrapper: {
+            proto: amino.ProtoGroup,
         },
-        part2: {
-            proto: amino.ProtoRect,
-        }
+        icon: {
+            proto: amino.ProtoText,
+            promote: ['text','fontSize','fill','fontName'],
+        },
     },
     props: {
-        /** @prop size  the size of this slider, in pixels. */
-        size: {
-            value: 50,
-            set: function(w) {
-                this.comps.part1.setW(w).setH(w);
-                this.comps.part2.setW(w).setH(w);
-                this.comps.part1.setX(-w/2).setY(-w/2).setTx(w/2).setTy(w/2);
-                this.comps.part2.setX(-w/2).setY(-w/2).setTx(w/2).setTy(w/2);
-                return this;
-            }
-        },
         /** @prop active a boolean property to turn the spinner on or off. 
           The spinner will only be visible while it is active. */
         active: {
@@ -192,8 +264,7 @@ widgets.ProgressSpinner = amino.ComposeObject({
                 if(this.props.active) {
                     //start animations;
                     this.setVisible(1);
-                    this.a1 = amino.getCore().createPropAnim(this.comps.part1, "rotateZ", 0,  360, 1500, -1, false);
-                    this.a2 = amino.getCore().createPropAnim(this.comps.part2, "rotateZ", 0, -360, 1500, -1, false);
+                    this.a1 = amino.getCore().createPropAnim(this.comps.wrapper, "rotateZ", 0,  -360, 1500).setCount(-1);
                 } else {
                     //stop animations
                     this.setVisible(0);
@@ -204,12 +275,17 @@ widgets.ProgressSpinner = amino.ComposeObject({
         },
     },
     init: function() {
-        this.comps.base.add(this.comps.part1);
-        this.comps.base.add(this.comps.part2);
-        this.comps.part1.setFill(amino.colortheme.text);
-        this.comps.part2.setFill(amino.colortheme.text);
+        this.comps.base.add(this.comps.wrapper);
+        this.comps.wrapper.add(this.comps.icon);
+        this.comps.wrapper.setTx(0).setTy(0);
+        this.comps.icon.setTx(0).setTy(-10);
+        this.comps.icon.setFill(amino.colortheme.text)
+            .setFontName('awesome')
+            .setText('\uF110')
+            //;
+            //.setText('A')
+            ;
         this.contains = function() { return false; }
-        this.setSize(30);
         this.setVisible(0);
     }
 });

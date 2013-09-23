@@ -55,6 +55,12 @@ exports.colortheme = {
             unfocused: "#d0d0d0",
             focused: "#f0f0f0",
         }
+    },
+    button: {
+        fill: {
+            normal: "#55cc55",
+            selected: "#00FF00",
+        }
     }
 }
 
@@ -513,34 +519,46 @@ exports.ComposeObject = function(proto) {
 
 
 var propsHash = {
+    
+    //general
+    "visible":18,
+    "opacity":27,
+    "r":5,
+    "g":6,
+    "b":7,
+    "texid":8,
+    "w":10,
+    "h":11,
+    "x":21,
+    "y":22,
+    
+    //transforms
     "tx":23,
     "ty":1,
     "scalex":2,
     "scaley":3,
     "rotateZ":4,
-    "r":5,
-    "g":6,
-    "b":7,
-    "texid":8,
+    "rotateX":19,
+    "rotateY":20,
+    
+    //text
     "text":9,
-    "w":10,
-    "h":11,
     "fontSize":12,
     "fontId":28,
+    
+    //animation
+    "count":29,
     "lerplinear":13,
     "lerpcubicin":14,
     "lerpcubicout":15,
     "lerpprop":16,
     "lerpcubicinout":17,
-    "visible":18,
-    "rotateX":19,
-    "rotateY":20,
-    "x":21,
-    "y":22,
+    
+    
+    //geometry
     "geometry":24,
     "filled":25,
     "closed":26,
-    "opacity":27,
     
 }
 
@@ -867,7 +885,6 @@ exports.ProtoText = exports.ComposeObject({
         this.shortCircuit = true;
         this.type = "text";
         this.font = Core._core.defaultFont;
-
     }
 });
 
@@ -1118,7 +1135,7 @@ function SGAnim(node, prop, start, end, dur) {
         this.handle = exports.native.createAnim(
             this.node.handle,
             this.prop,
-            this.start,this.end,this.duration,this.count,this.autoreverse);
+            this.start,this.end,this.duration);
     }
     /** @func setIterpolator(type) Sets the interpolator to use for this animation. Valid values include: 
       amino.Interpolators.CubicIn and amino.Interpolators.CubicInOut and amino.Interpolators.Linear

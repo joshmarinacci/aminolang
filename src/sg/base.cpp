@@ -38,7 +38,6 @@ void rotate(double x, double y, double z) {
     GLfloat rot[16];
     GLfloat temp[16];
     
-    
     make_x_rot_matrix(x, rot);
     mul_matrix(temp, globaltx, rot);
     copy_matrix(globaltx,temp);

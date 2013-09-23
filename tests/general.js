@@ -8,6 +8,7 @@ if(process.platform == 'darwin') {
     widgets = require('./widgets.js');
 }
 amino.startApp(function(core,stage) {
+        stage.setSize(800,600);
 
     var root = new amino.ProtoGroup();
     stage.setRoot(root);
@@ -17,6 +18,8 @@ amino.startApp(function(core,stage) {
     var col2 = 150;
     var colw = 140;
     var col3 = 295;
+    var col4 = col3+150;
+    
     root.add(new amino.ProtoGroup()
         .add(new widgets.Label().setText("rect"))
         .add(new amino.ProtoRect().setW(30).setH(30).setFill("#00ff00").setTy(30))
@@ -25,7 +28,7 @@ amino.startApp(function(core,stage) {
     
     root.add(new amino.ProtoGroup()
         .add(new widgets.Label().setText("text"))
-        .add(new amino.ProtoText().setFill("#00ff00").setTy(40).setText("some text"))
+        .add(new amino.ProtoText().setFill("#cc6655").setTy(40).setText("some text"))
         .setTx(col2).setTy(0)
         );
     
@@ -33,6 +36,12 @@ amino.startApp(function(core,stage) {
         .add(new widgets.Label().setText("button"))
         .add(new widgets.PushButton().setText("a button").setW(70).setH(30).setTy(30))
         .setTx(col3).setTy(0)
+        );
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("toggle button"))
+        .add(new widgets.ToggleButton().setText("a button").setW(70).setH(30).setTy(30))
+        .setTx(col4).setTy(0)
         );
     
     root.add(new widgets.AnchorPanel()
@@ -47,9 +56,16 @@ amino.startApp(function(core,stage) {
         );
     root.add(new widgets.AnchorPanel()
         .add(new widgets.Label().setText("label right"))
-        .add(new widgets.Label().setText("X").setW(colwg).setH(30).setTy(30).setAlign("right"))
+        .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("right"))
         .setTx(col3).setTy(100).setW(colw).setH(95)
         );
+    
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("progress spinner"))
+        .add(new widgets.ProgressSpinner().setActive(true).setTy(30).setTx(30))
+        .setTx(col1).setTy(100).setW(colw).setH(95)
+        );
+    
 /*    
     g.add(new widgets.Label()
         .setText("a label")

@@ -40,8 +40,9 @@ function buildStatusBar(stage)  {
     var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     
     var time = new widgets.Label();
-    time.setText("00.00:00 00/00");
     time.setFontSize(12);
+    time.setH(20);
+    time.setText("00.00:00 00/00");
     time.setFill("#ffffff");
     setInterval(function(){
         var date = new Date();
@@ -67,9 +68,12 @@ function buildSearch() {
         }
     });
     stage.on("focusgain",tf,function() {
-        var kb = new SoftKeyboard().setW(getWW()).setH(200).setTy(getWH()-200);
+        var kb = new SoftKeyboard().setW(getWW()).setH(140).setTy(getWH()-140);
         kb.setTargetTextControl(tf);
         superroot.add(kb);
+    });
+    stage.on('focusloss',tf,function() {
+       console.log("lost the focus");
     });
     tf.setW(200).setH(30);
     search.add(tf);
@@ -88,7 +92,7 @@ var search = buildSearch();
 
 var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(getWW()).setH(getWH());
-switcherPanel.setFill("#0000ff");
+switcherPanel.setFill("#000000");
 stage.on("windowsize", stage, function(e) {
     console.log('window has been resized: ' + stage.getW(), " ", e.width);
     ww = e.width;
@@ -117,13 +121,24 @@ switcher.switcherPanel = switcherPanel;
 
 function buildDock(stage) {
     var dock = new amino.ProtoGroup().setTy(480);
-    var bg = new amino.ProtoRect().setW(getWW()).setH(80).setFill("#ffccff");
+    var bg = new amino.ProtoRect().setW(getWW()).setH(80)
+        .setFill("#ffffff").setOpacity(0.5);
+    var apps = [
+        { icon:'\uF0E0', fill: "#ff5555", color: "#ffffff" },
+        { icon:'\uF095', fill: "#f0b035", color: "#444444" },
+        { icon:'\uF001', fill: "#6666ff", color: "#eeeeff" },
+        { icon:'\uF073', fill: "#22cc22", color: "#ffffff" },
+    ];
     dock.add(bg);
     for(var i=0; i<4; i++) {
         dock.add(new widgets.PushButton()
-            .setText("foo")
             .setW(60).setH(60)
+            .setFontSize(40)
+            .setFill(apps[i].fill)
+            .setColor(apps[i].color)
+            .setFontName('awesome')
             .setTx(i*80+10).setTy(10)
+            .setText(apps[i].icon)
             .onAction(function() {
                 switcher.add(new EmailApp(stage,nav,data));
                 nav.setSize(getWW(),getWH());
@@ -163,7 +178,7 @@ switcher.onZoomOut = function() {
 
 function buildTodoList(stage,nav) {
     var panel = new widgets.AnchorPanel();
-    panel.setFill("#ffff00");
+    //panel.setFill("#ffff00");
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
     .setTop(20+40).setAnchorTop(true)
@@ -537,27 +552,31 @@ SoftKeyboard = amino.ComposeObject({
         }
 
         var done = new widgets.PushButton()
-            .setW(100).setH(keyh).setTx(210).setTy(160)
             .setText('done').onAction(function() {
                 self.setVisible(false);
                 delete self.tf;
-            });
+            })
+            .setW(80).setH(keyh).setTx(235).setTy(100)
+            ;
         this.comps.base.add(done);
         this.children.push(done);
         
+        var deletechar = '\uF137';
         var bs = new widgets.PushButton()
-            .setW(70).setH(keyh).setTx(240).setTy(120)
-            .setText("<X").onAction(function() {
+            .setFontName('awesome')
+            .setText(deletechar).onAction(function() {
                 if(self.tf) {
                     self.tf.tc.cursor.deleteChar();
                 }
-            });
+            })
+            .setW(40).setH(keyh).setTx(280).setTy(65)
+            ;
         this.comps.base.add(bs);
         this.children.push(bs);
         
         
         var space = new widgets.PushButton()
-            .setW(100).setH(keyh).setTx(100).setTy(160)
+            .setW(120).setH(keyh).setTx(100).setTy(100)
             .setText("space").onAction(function() {
                 if(self.tf) {
                     self.tf.insertStringAtCursor(" ");//tc.cursor.deleteChar();
@@ -566,16 +585,19 @@ SoftKeyboard = amino.ComposeObject({
         this.comps.base.add(space);
         this.children.push(space);
         
+        var shiftchar = '\uF062';
         var shift = new widgets.PushButton()
-            .setW(70).setH(keyh).setTx(5).setTy(120)
-            .setText("^").onAction(function() {
+            .setFontName('awesome')
+            .setText(shiftchar).onAction(function() {
                 self.shiftOn = !self.shiftOn;
                 if(self.shiftOn) {
                     shift.setFill("#00ffff");
                 } else {
                     shift.setFill("#aaee88");
                 }
-            });
+            })
+            .setW(40).setH(keyh).setTx(5).setTy(65)
+            ;
         this.comps.base.add(shift);
         this.children.push(shift);
         

@@ -71,6 +71,15 @@ widgets.PushButton = amino.ComposeObject({
                 return this;
             }
         },
+        color: {
+            value: "#000000",
+            set: function(color) {
+                this.props.color = color;
+                this.comps.label.setFill(color);
+                this.markDirty();
+                return this;
+            }
+        },
     },
     //replaces all setters
     init: function() {

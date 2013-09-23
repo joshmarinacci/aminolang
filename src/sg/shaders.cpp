@@ -7,7 +7,7 @@
 #include "shaders.h"
 
 Shader::Shader() {
-    printf("creating a shader\n");
+    //printf("creating a shader\n");
 }
 
 int Shader::compileVertShader(const char* text) {
@@ -81,7 +81,6 @@ ColorShader::ColorShader() {
       "}\n";
 
    GLuint vert = compileVertShader(vertShaderText);
-   printf("did a compile\n");
    GLuint frag = compileFragShader(fragShaderText);
    prog = compileProgram(vert,frag);
    

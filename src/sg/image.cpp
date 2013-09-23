@@ -21,12 +21,12 @@ Image * jpegfile_to_bytes(char* filename) {
     FILE * infile;		/* source file */
     JSAMPARRAY buffer;		/* Output row buffer */
     int row_stride;		/* physical row width in output buffer */
-    printf("opening\n");
+    //printf("opening\n");
     if ((infile = fopen(filename, "rb")) == NULL) {
         fprintf(stderr, "can't open %s\n", filename);
         return 0;
     }
-    printf("opened\n");
+    //printf("opened\n");
     cinfo.err = jpeg_std_error(&jerr);
     
     
@@ -36,7 +36,7 @@ Image * jpegfile_to_bytes(char* filename) {
     (void) jpeg_start_decompress(&cinfo);
     
     row_stride = cinfo.output_width * cinfo.output_components;
-    printf("row stride = %d\n",row_stride);
+    //printf("row stride = %d\n",row_stride);
     buffer = (*cinfo.mem->alloc_sarray)
         ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
         
@@ -47,7 +47,6 @@ Image * jpegfile_to_bytes(char* filename) {
     
     int count = 0;
     int datalen = cinfo.output_height * row_stride;
-    printf("data len = %d\n",datalen);
     img->data= (char*)malloc(sizeof(char)*datalen);
 
     while (cinfo.output_scanline < cinfo.output_height) {
@@ -55,14 +54,9 @@ Image * jpegfile_to_bytes(char* filename) {
         memcpy(img->data + count*row_stride, buffer[0], row_stride);
         count++;
     }
-    printf("read in %d scan lines\n",count);
-    printf("read in %d bytes\n",count*row_stride);
-    printf("finishing the decompression\n");
     
     (void) jpeg_finish_decompress(&cinfo);
-    printf("destroying\n");
     jpeg_destroy_decompress(&cinfo);
-    printf("closing\n");
     fclose(infile);
     return img;
 }
@@ -84,27 +78,23 @@ Image * pngfile_to_bytes(char* file_name) {
         return 0;
     }
     
-    printf("read the header\n");
         
     /* initialize stuff */
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (!png_ptr) abort_("[read_png_file] png_create_read_struct failed");
 
-    printf("create a read struct\n");
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) abort_("[read_png_file] png_create_info_struct failed");
 
     end_ptr = png_create_info_struct(png_ptr);
     if (!end_ptr) abort_("[read_png_file] png_create_info_struct failed");
     
-    printf("create an info struct\n");
         
     png_init_io(png_ptr, fp);
     png_set_sig_bytes(png_ptr, 0);
     png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
     
     png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
-    printf("image = %d x %d \n", width, height);
 
     Image* img = (Image*)malloc(sizeof(Image));
     img->w = width;
@@ -116,7 +106,6 @@ Image * pngfile_to_bytes(char* file_name) {
     }
 
     unsigned int row_bytes = png_get_rowbytes(png_ptr, info_ptr);
-    printf("rowbytes = %d\n",row_bytes);
     img->data = (char*) malloc(row_bytes * height);
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
     
@@ -129,15 +118,6 @@ Image * pngfile_to_bytes(char* file_name) {
     
     png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
     fclose(fp);
-    
-    printf("returning with data\n");
-    /*
-    for(i=0; i<img->h; i++) {
-        int n = row_bytes*i + 50*4; 
-        printf("pixel: %d  %x %x %x %x\n",i, img->data[n], img->data[n+1], img->data[n+2], img->data[n+3]);
-    }
-    */
-    
     
     return img;
 }

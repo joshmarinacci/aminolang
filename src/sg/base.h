@@ -501,7 +501,6 @@ inline Handle<Value> addNodeToGroup(const Arguments& args) {
 
 inline static Handle<Value> setRoot(const Arguments& args) {
     HandleScope scope;
-    printf("setting root\n");
     rootHandle = args[0]->ToNumber()->NumberValue();
     return scope.Close(Undefined());
 }
@@ -523,15 +522,12 @@ inline static Handle<Value> loadJpegToTexture(const Arguments& args) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    printf("got back texture id: %d\n",texture);
     free(image->data);
-    printf("returning the texture id\n");
     
     Local<Object> obj = Object::New();
     obj->Set(String::NewSymbol("texid"), Number::New(texture));
     obj->Set(String::NewSymbol("w"),     Number::New(image->w));
     obj->Set(String::NewSymbol("h"),     Number::New(image->h));
-    printf("returning the object\n");
     return scope.Close(obj);
 }
 
@@ -561,15 +557,12 @@ inline static Handle<Value> loadPngToTexture(const Arguments& args) {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    printf("got back texture id: %d\n",texture);
     free(image->data);
     
-    printf("returning the texture id\n");
     Local<Object> obj = Object::New();
     obj->Set(String::NewSymbol("texid"), Number::New(texture));
     obj->Set(String::NewSymbol("w"),     Number::New(image->w));
     obj->Set(String::NewSymbol("h"),     Number::New(image->h));
-    printf("done\n");
     return scope.Close(obj);
 }
 
@@ -666,7 +659,6 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
                          "shaders/v3f-t2f-c4f.frag");
     //texture_font_delete(afont->font);
     
-    printf("-------\n");
     Local<Number> num = Number::New(id);
     return scope.Close(num);
 }

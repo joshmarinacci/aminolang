@@ -73,11 +73,11 @@ var fontmap = {};
 
 exports.native = {
     createNativeFont: function(path) {
-        console.log('creating native font ' + path);
+        //console.log('creating native font ' + path);
         return exports.sgtest.createNativeFont(path);
     },
     init: function(core) {
-        console.log("doing native init");
+        //console.log("doing native init");
         exports.sgtest.init();
     },
     createWindow: function(core,w,h) {
@@ -950,11 +950,9 @@ exports.ProtoImageView = exports.ComposeObject({
                 });
             } else {
                 exports.native.loadJpegToTexture(src, function(image) {
-                    console.log('returned from loading the texture',image);
                     self.setW(image.w);
                     self.setH(image.h);
                     self.image = image;
-                    console.log("texid = ",self.image.texid);
                     if(self.image) {
                         exports.native.updateProperty(self.handle, "texid", self.image.texid);
                     }
@@ -1372,7 +1370,6 @@ function Core() {
 }
 
 function startApp(cb) {
-    console.log("starting the app");
     Core._core = new Core();
     Core._core.init();
     var stage = Core._core.createStage(600,600);

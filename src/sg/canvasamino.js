@@ -10,7 +10,7 @@ amino.native = {
     list:[],
     
     createDefaultFont: function(path) {
-        console.log('creating native font ' + path);
+        //console.log('creating native font ' + path);
         return new CanvasFont(this.domctx);
     },
     init: function() {

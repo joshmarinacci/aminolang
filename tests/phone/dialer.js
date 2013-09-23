@@ -59,25 +59,44 @@ exports.Dialer = function(stage,nav,data) {
     .setAnchorTop(true).setTop(20);
     ;
     stage.on("change",tf,function(e) {
-        console.log(e);
+        console.log(tf.getText());
+        filter(tf.getText());
     });
     stage.on("focusgain",tf,function() {
             //show soft keyboard
     });
     contacts.add(tf);
     
-    
-    
     var lv = new widgets.ListView();
+
+    
     contacts.add(lv);
     lv.setAnchorLeft(true).setAnchorRight(true)
         .setAnchorTop(true).setTop(50)
         .setAnchorBottom(true);
     lv.setModel(data.people);
     lv.setTextCellRenderer(function(cell,i,item) {
-            cell.setText(item.first + " " + item.last);
+        if(!item) return;
+        cell.setText(item.first + " " + item.last);
     });
     
+    var celldata = [];
+    function filter(str) {
+        celldata = [];
+        data.people.forEach(function(item) {
+            if(str.length > 1) {
+                if(item.first.indexOf(str) == 0) {
+                    celldata.push(item);
+                }
+            } else {
+                celldata.push(item);
+            }
+        });
+        lv.setModel(celldata);
+    }
+    
+    filter('');
+
     contacts.setVisible(false);
     
     

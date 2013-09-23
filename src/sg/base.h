@@ -445,16 +445,15 @@ inline Handle<Value> stopAnim(const Arguments& args) {
 	return scope.Close(Undefined());
 }
 
-// Convert a V8 string to a wide string.
-static std::wstring GetWString(v8::Handle<v8::String> str)
-{
-  uint16_t* buf = new uint16_t[str->Length()+1];
-  str->Write(buf);
-  std::wstring value = reinterpret_cast<wchar_t*>(buf);
-  delete [] buf;
-  return value;
+static std::wstring GetWString(v8::Handle<v8::String> str) {
+    std::wstring wstr = L"";
+    uint16_t* buf = new uint16_t[str->Length()+1];
+    str->Write(buf);
+    for(int i=0; i<str->Length()+1; i++) {
+        wstr.push_back(buf[i]);
+    }
+    return wstr;
 }
-
 
 inline Handle<Value> updateProperty(const Arguments& args) {
     HandleScope scope;
@@ -466,12 +465,7 @@ inline Handle<Value> updateProperty(const Arguments& args) {
         value = args[2]->ToNumber()->NumberValue();
     }
     if(args[2]->IsString()) {
-        Local<v8::String> str = args[2]->ToString();
-        uint16_t* buf = new uint16_t[str->Length()+1];
-        str->Write(buf);
-        for(int i=0; i<str->Length()+1; i++) {
-            wstr.push_back(buf[i]);
-        }
+        wstr = GetWString(args[2]->ToString());
     }
     updates.push_back(new Update(RECT, rectHandle, property, value, wstr));
     return scope.Close(Undefined());
@@ -606,19 +600,27 @@ inline static Handle<Value> getFontHeight(const Arguments& args) {
 }
 inline static Handle<Value> getCharWidth(const Arguments& args) {
     HandleScope scope;
-    v8::String::Utf8Value param1(args[0]->ToString());
-    std::string ch = std::string(*param1);    
+    std::wstring wstr = GetWString(args[0]->ToString());
+
     int fontsize  = args[1]->ToNumber()->NumberValue();
     int fontindex  = args[2]->ToNumber()->NumberValue();
     
-    //printf("ch = %s font size = %d index = %d\n",ch.c_str(),fontsize,fontindex);
     AminoFont * font = fontmap[fontindex];
     texture_font_t *tf = font->fonts[fontsize];
     int w = 0;
-    for(int i=0; i<ch.length(); i++) {
-        texture_glyph_t *glyph = texture_font_get_glyph(tf, ch.c_str()[i]);
-        //printf("glyph. charcode = %c, w = %d ax = %d\n",glyph->charcode,glyph->width, glyph->advance_x);
-        w += glyph->advance_x;
+    //length seems to include the null string
+    for(int i=0; i<wstr.length(); i++) {
+        wchar_t ch  = wstr.c_str()[i];
+        //skip null terminators
+        if(ch == '\0') continue;
+        texture_glyph_t *glyph = texture_font_get_glyph(tf, wstr.c_str()[i]);
+        //use width for the last, since we don't want all the way to the
+        //char beyond that
+        if(i == wstr.length()-1) {
+            w += glyph->width;
+        } else {
+            w += glyph->advance_x;
+        }
     }
     Local<Number> num = Number::New(w);
     return scope.Close(num);

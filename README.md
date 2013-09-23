@@ -275,3 +275,31 @@ view.setTextCellRenderer(function(cell,index,item) {
 });
 ```
 
+
+### Fonts
+
+We've just switched to a new renderer based on freetype-gl but it is only
+barely integrated so far.  There is not yet an api to dynamically load
+new fonts, nor is it smart about cleaning the cache.  This means you can
+currently only choose from two fonts at just four different sizes.  
+
+Set the font with setFontName on the nodes which support it (basically ProtoText
+and the widgets which wrap it). Valid values are 'source' and 'awesome'. 'source' is
+Source Sans Pro.  'awesome' is Font Awesome. Set the font size with setFontSize().
+The valid values are 10,12,15,20, and 40.
+
+https://code.google.com/p/freetype-gl/
+
+http://fortawesome.github.io/Font-Awesome/
+
+To use a glyph from Font Awesome refer to the Font Awesome docs to get the
+unicode number for the glyph you want, then use it in a string with the
+'\u' prefix.  For example, the cloud icon is documented on
+[this][http://fortawesome.github.io/Font-Awesome/icon/cloud/] page. It's
+unicode number is F0C2. So you can create a label with
+
+```
+var label = new widgets.Label()
+    .setFontName('awesome')
+    .setText('\uF0E0');
+```

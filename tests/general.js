@@ -9,25 +9,48 @@ if(process.platform == 'darwin') {
 }
 amino.startApp(function(core,stage) {
 
-    var g = new amino.ProtoGroup();
-    g.add(new amino.ProtoRect()
-        .setTx(100).setTy(50)
-        .setW(30).setH(50));
+    var root = new amino.ProtoGroup();
+    stage.setRoot(root);
     
-    g.add(new amino.ProtoRect()
-        .setTx(0).setTy(100)
-        .setW(20).setH(20));
     
-//    g.setTx(100);
-    
-    g.add(new amino.ProtoText()
-        .setText("a text node")
-        .setTy(50));
-    g.add(new widgets.PushButton()
-        .setText("a button")
-        .setW(100).setH(30)
-        //.setTx(-70).setTy(0)
+    var col1 = 5;
+    var col2 = 150;
+    var colw = 140;
+    var col3 = 295;
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("rect"))
+        .add(new amino.ProtoRect().setW(30).setH(30).setFill("#00ff00").setTy(30))
+        .setTx(col1).setTy(0)
         );
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("text"))
+        .add(new amino.ProtoText().setFill("#00ff00").setTy(40).setText("some text"))
+        .setTx(col2).setTy(0)
+        );
+    
+    root.add(new amino.ProtoGroup()
+        .add(new widgets.Label().setText("button"))
+        .add(new widgets.PushButton().setText("a button").setW(70).setH(30).setTy(30))
+        .setTx(col3).setTy(0)
+        );
+    
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("label left"))
+        .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("left"))
+        .setTx(col1).setTy(100).setW(colw).setH(95)
+        );
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("label center"))
+        .add(new widgets.Label().setText("X").setW(colw).setH(30).setTy(30).setAlign("center"))
+        .setTx(col2).setTy(100).setW(colw).setH(95)
+        );
+    root.add(new widgets.AnchorPanel()
+        .add(new widgets.Label().setText("label right"))
+        .add(new widgets.Label().setText("X").setW(colwg).setH(30).setTy(30).setAlign("right"))
+        .setTx(col3).setTy(100).setW(colw).setH(95)
+        );
+/*    
     g.add(new widgets.Label()
         .setText("a label")
         .setTx(50).setTy(200));
@@ -56,5 +79,5 @@ amino.startApp(function(core,stage) {
     g.add(lv);
     
     stage.setRoot(g);
-
+*/
 });

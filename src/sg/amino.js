@@ -819,7 +819,7 @@ exports.ProtoText = exports.ComposeObject({
         text: { value: 'silly text' },
         /** @prop fontSize the fontsize of this text string */
         fontSize: { value: 20 },
-        fontName: { value: 'vera' },
+        fontName: { value: 'source' },
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
@@ -835,6 +835,10 @@ exports.ProtoText = exports.ComposeObject({
         //mirror the property to the native side
         if(this.live) {
             if(name == 'fontName') {
+                console.log('setting the font name to ' + value);
+                if(!fontmap[value]) {
+                    console.log("WARNING. No font '" + value + "' found!!!");
+                }
                 this.font = fontmap[value];
                 exports.native.updateProperty(this.handle, 'fontId', fontmap[value].native);
             } else {
@@ -1089,8 +1093,8 @@ function JSFont(path) {
 var fontmap = {};
 
 exports.native.createDefaultFont = function() {
-    fontmap['vera'] = new JSFont(__dirname+"/fonts/Vera.ttf");
-    return fontmap['vera'];
+    fontmap['source'] = new JSFont(__dirname+"/fonts/SourceSansPro-Regular.ttf");
+    return fontmap['source'];
 }
 
 exports.native.getFont = function(name) {

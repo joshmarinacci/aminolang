@@ -640,31 +640,24 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     
     texture_font_t *font;
     //preload some standard font sizes: 10, 12, 15, 20, 40
+    
     font = texture_font_new(afont->atlas, filename, 10);
     texture_font_load_glyphs(font,text);
     afont->fonts[10] = font;
     font = texture_font_new(afont->atlas, filename, 12);
     texture_font_load_glyphs(font,text);
     afont->fonts[12] = font;
-    /*
-    font = texture_font_new(afont->atlas, filename, 80);
-    texture_font_load_glyphs(font,text);
-    afont->fonts[80] = font;
-    */
     font = texture_font_new(afont->atlas, filename, 15);
     texture_font_load_glyphs(font,text);
     afont->fonts[15] = font;
-    /*
-    font = texture_font_new(afont->atlas, filename, 16);
-    texture_font_load_glyphs(font,text);
-    afont->fonts[16] = font;
-    */
     font = texture_font_new(afont->atlas, filename, 20);
     texture_font_load_glyphs(font,text);
     afont->fonts[20] = font;
     font = texture_font_new(afont->atlas, filename, 40);
     texture_font_load_glyphs(font,text);
     afont->fonts[40] = font;
+    
+    
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
                          "shaders/v3f-t2f-c4f.frag");
     //texture_font_delete(afont->font);

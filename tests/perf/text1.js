@@ -19,7 +19,7 @@ amino.startApp(function(core, stage) {
     stage.setRoot(root);
     
     var button = new widgets.PushButton()
-        .setFontName('vera')
+//        .setFontName('vera')
         .setText('Button')
         .setFontSize(15)
         .setW(100).setH(50)

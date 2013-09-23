@@ -225,7 +225,7 @@ widgets.Label = amino.ComposeObject({
         text: {
             proto: amino.ProtoText,
             /** @prop text  the text of this label */
-            promote: ['text','fontSize','fill'],
+            promote: ['text','fontSize','fill','fontName'],
         }
     },
     props: {
@@ -235,7 +235,7 @@ widgets.Label = amino.ComposeObject({
                 this.props.w = w;
                 var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
                 //this.comps.text.setTx((w-textw)/2);
-                this.comps.text.setTx(0);
+                this.comps.text.setTx(3);
                 return this;
             }
         },
@@ -244,7 +244,7 @@ widgets.Label = amino.ComposeObject({
             set: function(h) {
                 this.props.h = h;
                 var texth = this.font.getHeight(this.getFontSize());
-                this.comps.text.setTy(h/2 + texth/2);
+                this.comps.text.setTy(Math.round(h/2 + texth/2));
                 return this;
             }
         }

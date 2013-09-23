@@ -308,7 +308,7 @@ var label = new widgets.Label()
 ### Canvas
 
 The canvas implementation is the most immature.  It shares the same JS code with the
-rest of amino but has no native background. Instead it runs in the browser using
+rest of Amino but has no native back end. Instead it runs in the browser using
 the HTML Canvas 2D apis.  This means you will not get any 3D transforms.
 
 The API for Canvas is the same as desktop and mobile, but initialized slightly

@@ -95,8 +95,11 @@ function LockScreen(core,stage) {
     var col2 = 40;
     var col1 = 5;
     g.add(weather);
-    var weatherIcon = new widgets.Label().setFontName('awesome')
-        .setTx(col1).setText(cloud);
+    var weatherIcon = new widgets.Label()
+        .setFontName('awesome')
+        .setFill("#ffffff")
+        .setTx(col1).setText(cloud)
+        ;
     weather.add(weatherIcon);
     var weatherLabel = new widgets.Label()
         .setText("68\u00F8, cloudy")
@@ -113,7 +116,9 @@ function LockScreen(core,stage) {
         .setAnchorRight(true).setRight(10)
         .setAnchorTop(true).setTop(250)
         .setFill("#ffffff");
-    email.add(new widgets.Label().setFontName('awesome')
+    email.add(new widgets.Label()
+        .setFill("#ffffff")
+        .setFontName('awesome')
         .setText(envelope).setTx(col1)); 
     email.add(new widgets.Label().setTx(col2).setFontSize(12)
         .setText("Hi Sweetie. Please make sure you pick up some.."));

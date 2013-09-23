@@ -301,5 +301,5 @@ unicode number is F0C2. So you can create a label with
 ```
 var label = new widgets.Label()
     .setFontName('awesome')
-    .setText('\uF0E0');
+    .setText('\uF0C2');
 ```

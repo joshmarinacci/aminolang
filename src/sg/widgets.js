@@ -682,11 +682,16 @@ widgets.ListView = amino.ComposeObject({
             if(i == this.getSelectedIndex()) {
                 cell.setFill(amino.colortheme.listview.cell.fillSelected);
             }
+                
             if(this.textCellRenderer) {
                 this.textCellRenderer(cell,i,item);
                 return;
             }
-            cell.setText(item);
+            if(item == null) {
+                cell.setText("");
+            } else {
+                cell.setText(item);
+            }
         }
         
         this.regenerateCells = function() {

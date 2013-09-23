@@ -188,6 +188,7 @@ function buildTodoList(stage,nav) {
     ;
     lv.setModel(data.people);
     lv.setTextCellRenderer(function(cell,i,item) {
+        if(item == null) return;
         cell.setText(item.first + " " + item.last);
     });
     panel.add(lv);

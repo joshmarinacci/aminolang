@@ -30,12 +30,12 @@ var EmailListViewCell = amino.ComposeObject({
         
         this.comps.from.setText("from");
         this.comps.from.setTx(5);
-        this.comps.from.setTy(5+15);
+        this.comps.from.setTy(5+13);
         this.comps.from.setFontSize(15);
 
         this.comps.subject.setText("subject");
         this.comps.subject.setTx(5);
-        this.comps.subject.setTy(25+15);
+        this.comps.subject.setTy(20+15);
         this.comps.subject.setFontSize(12);
     },
 });
@@ -50,6 +50,7 @@ function EmailApp(stage,nav,data) {
         return cell;
     });
     lv.setTextCellRenderer(function(cell,i,item) {
+        if(item == null) return;
         cell.comps.from.setText(item.from);
         cell.comps.subject.setText(item.subject);
     });
@@ -63,7 +64,6 @@ function EmailApp(stage,nav,data) {
     lv.setModel(data.emails);
     
     stage.on('select',lv,function(e) {
-        console.log("selected an email");
         console.log(lv.listModel[lv.getSelectedIndex()]);
 //        nav.push("composeEmail");
     });
@@ -75,17 +75,17 @@ function EmailApp(stage,nav,data) {
     panel.add(new widgets.PushButton()
             .setText("reply")
             .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(40).setTx(94).setTy(390)
+            .setW(90).setH(30).setTx(94)
             .onAction(function() { nav.push("replyEmail"); })
             );
     panel.add(new widgets.PushButton()
             .setText("delete")
             .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(40).setTx(190).setTy(390));
+            .setW(90).setH(30).setTx(190));
     panel.add(new widgets.PushButton()
             .setText("compose")
             .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(40).setTx(0).setTy(390)
+            .setW(90).setH(30).setTx(0)
             .onAction(function() { nav.push("composeEmail"); })
             );
     //list view
@@ -128,7 +128,7 @@ function EmailApp(stage,nav,data) {
         .onAction(function() {  nav.pop(); })
         );
     nav.register(composePanel);
-    nav.createTransition("composeEmail",panel,composePanel, "easeIn");
+    nav.createTransition("composeEmail", panel, composePanel, "easeIn");
         
     
     var g = new amino.ProtoGroup();

@@ -577,8 +577,15 @@ widgets.ListView = amino.ComposeObject({
         cellHeight: { value: 32 },
         /** @prop cellWidth the width of cells. Not currently used. */
         cellWidth: { value: 32 },
-        /** @prop layout the layout orientaiton of this list view. Currently only 'vertical' is supported. */
-        layout: { value: "vertical" },
+        /** @prop layout the layout orientaiton of this list view. Currently only 'vertical' and 'flow' is supported. */
+        layout: { 
+            value: "vertical",
+            set: function(layout) {
+                this.props.layout = layout;
+                this.setDirty = true;
+                return this;
+            }
+        },
         /** @prop selectedIndex not supported yet */
         selectedIndex: { value:-1 },
         /** @prop w the width of the list view. */
@@ -696,25 +703,7 @@ widgets.ListView = amino.ComposeObject({
         
         this.regenerateCells = function() {
             var ch = this.getCellHeight();
-            var start= Math.min(this.listModel.length, Math.floor(this.scroll/ch));
-            var end = Math.min(this.listModel.length, Math.floor((this.getH()+this.scroll)/ch)) + 1;
-            var remainder = this.scroll - Math.floor(this.scroll/ch)*ch;
-            var self = this;
-            
-            this.comps.cellholder.setTy(-this.scroll);
-            var top = this.scroll;
-            var i = start;
-            var len = end-start;
-            var height = len*ch;
-            //console.log("========= window = " + top + " -> " + (top+height) + " range " + start + " " + end);
-            
-            /*
-            loop through all cells
-                if cell is above the window. remove it
-                if cell is below the window. remove it
-            if we need another cell for the top of the window. add it
-            if we need another cell for the bottom of the window. add it
-            */
+            var cw = this.getCellWidth();
             
             this.removeCell = function(cell) {
                 var n = this.cells.indexOf(cell);
@@ -724,37 +713,107 @@ widgets.ListView = amino.ComposeObject({
                 this.bag.push(cell);
             }
             
-            if(this.cells[start-1]) {
-                this.removeCell(this.cells[start-1]);
-            }
-            if(this.cells[end]) {
-                this.removeCell(this.cells[end]);
-            }
-            for(var n=start; n<end; n++) {
-                var cell = this.cells[n];
-                if(!this.cells[n]) {
-                    var cell = null;
-                    if(this.bag.length > 0) {
-                        cell = this.bag.pop();
-                    } else {
-                        cell = this.generateCell();
+            this.comps.cellholder.setTy(-this.scroll);
+            if(this.getLayout() == 'flow') {
+                var rowlen = Math.floor(this.getW()/cw);
+                var start_row = Math.floor(this.scroll/ch);
+                var start_maxcells = rowlen*start_row;
+                //console.log("start max cells = " + start_maxcells);
+                var end_maxcells   = (rowlen+1)*Math.floor((this.getH()+this.scroll)/ch);
+                var start = Math.min(this.listModel.length, start_maxcells);
+                var end =   Math.min(this.listModel.length,   end_maxcells); 
+                var top = this.scroll;
+                var height = this.getH();
+                if(this.cells[start-1]) {
+                    this.removeCell(this.cells[start-1]);
+                }
+                if(this.cells[end]) {
+                    this.removeCell(this.cells[end]);
+                }
+                //console.log("doing flow layout. start = " + start + ' end = ' + end);
+                var cx = 0;
+                var cy = start_row*ch;
+                for(var n=start; n<end; n++) {
+                    var cell = this.cells[n];
+                    
+                    if(!this.cells[n]) {
+                        var cell = null;
+                        if(this.bag.length > 0) {
+                            cell = this.bag.pop();
+                        } else {
+                            cell = this.generateCell();
+                        }
+                        this.cells[n] = cell;
+                        this.comps.cellholder.add(cell);
+                        cell.index = n;
+                        cell.setVisible(true);
+                        cell.setTx(cx);
+                        cell.setTy(cy);
+                        cell.dirty = true;
                     }
-                    this.cells[n] = cell;
-                    this.comps.cellholder.add(cell);
-                    cell.index = i;
-                    cell.setVisible(true);
-                    cell.setTx(0);
-                    cell.setTy(n*ch);
-                    cell.dirty = true;
+                    var cell = this.cells[n];
+                    if(cell.dirty) {
+                        cell.setW(cw);
+                        cell.setH(ch);
+                        this.fillCellValues(cell,cell.index,this.listModel[cell.index]);
+                        cell.dirty = false;
+                    }
+                    cx += cw;
+                    if(cx+cw > this.getW()) {
+                        cx=0;
+                        cy+= ch;
+                    }
                 }
-                var cell = this.cells[n];
-                if(cell.dirty) {
-                    cell.setW(this.getW());
-                    cell.setH(this.getCellHeight());
-                    this.fillCellValues(cell,cell.index,this.listModel[cell.index]);
-                    cell.dirty = false;
+            }
+            if(this.getLayout() == 'vertical') {
+                
+                var maxcells = Math.floor(this.scroll/ch);
+                var start = Math.min(this.listModel.length, maxcells);
+                var end   = Math.min(this.listModel.length, Math.floor((this.getH()+this.scroll)/ch)) + 1;
+                var top = this.scroll;
+                var height = (end-start)*ch;
+                //console.log("========= window = " + top + " -> " + (top+height) + " range " + start + " " + end);
+                
+                /*
+                loop through all cells
+                    if cell is above the window. remove it
+                    if cell is below the window. remove it
+                if we need another cell for the top of the window. add it
+                if we need another cell for the bottom of the window. add it
+                */
+                
+                
+                if(this.cells[start-1]) {
+                    this.removeCell(this.cells[start-1]);
                 }
-                i++;
+                if(this.cells[end]) {
+                    this.removeCell(this.cells[end]);
+                }
+                for(var n=start; n<end; n++) {
+                    var cell = this.cells[n];
+                    if(!this.cells[n]) {
+                        var cell = null;
+                        if(this.bag.length > 0) {
+                            cell = this.bag.pop();
+                        } else {
+                            cell = this.generateCell();
+                        }
+                        this.cells[n] = cell;
+                        this.comps.cellholder.add(cell);
+                        cell.index = n;
+                        cell.setVisible(true);
+                        cell.setTx(0);
+                        cell.setTy(n*ch);
+                        cell.dirty = true;
+                    }
+                    var cell = this.cells[n];
+                    if(cell.dirty) {
+                        cell.setW(this.getW());
+                        cell.setH(this.getCellHeight());
+                        this.fillCellValues(cell,cell.index,this.listModel[cell.index]);
+                        cell.dirty = false;
+                    }
+                }
             }
         }
         

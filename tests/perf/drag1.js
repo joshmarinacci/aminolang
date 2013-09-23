@@ -17,5 +17,7 @@ amino.startApp(function(core, stage) {
     stage.setRoot(root);
     
     var lv = new widgets.ListView().setW(320).setH(300).setTy(50);
+    lv.setCellWidth(100).setCellHeight(100);
+    lv.setLayout('flow');
     root.add(lv);
 });

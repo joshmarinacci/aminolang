@@ -221,15 +221,27 @@ switcher.add(buildTodoList(stage,nav));
 function buildApp2(stage) {
     var panel = new widgets.AnchorPanel();
     //listview of the gallery
+    
+    var lv = new widgets.ListView()
+        .setW(320).setH(300)
+        .setCellWidth(Math.floor(320/3)).setCellHeight(100)
+        .setTop(0).setAnchorTop(true)
+        .setBottom(60).setAnchorBottom(true)
+        .setLayout('flow')
+        ;
+    panel.add(lv);
+    
+
+    
     panel.add(new widgets.PushButton()
             .setText("snap photo")
-            .setW(150).setH(60)
+            .setW(150).setH(30)
             .setLeft(5).setAnchorLeft(true)
             .setBottom(5).setAnchorBottom(true)
             );
     panel.add(new widgets.PushButton()
             .setText("gallery")
-            .setW(150).setH(60)
+            .setW(150).setH(30)
             .setRight(5).setAnchorRight(true)
             .setBottom(5).setAnchorBottom(true)
             );

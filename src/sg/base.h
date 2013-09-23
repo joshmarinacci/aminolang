@@ -59,6 +59,12 @@ static const int OPACITY_PROP = 27;
 static const int FONTID_PROP = 28;
 
 static const int COUNT = 29;
+
+static const int TEXTURELEFT_PROP   = 30;
+static const int TEXTURERIGHT_PROP  = 31;
+static const int TEXTURETOP_PROP    = 32;
+static const int TEXTUREBOTTOM_PROP = 33;
+
 using namespace v8;
 
 static bool eventCallbackSet = false;
@@ -273,6 +279,10 @@ public:
     float r;
     float g;
     float b;
+    float left;
+    float right;
+    float top;
+    float bottom;
     float opacity;
     int texid;
     Rect() {
@@ -281,6 +291,10 @@ public:
         opacity = 1;
         type = RECT;
         texid = INVALID;
+        left = 0;
+        bottom = 1;
+        right = 1;
+        top = 0;
     }
     virtual ~Rect() {
     }
@@ -372,6 +386,10 @@ public:
             if(property == H_PROP) rect->h = value;
             if(property == TEXID) rect->texid = value;
             if(property == OPACITY_PROP) rect->opacity = value;
+            if(property == TEXTURELEFT_PROP)   rect->left = value;
+            if(property == TEXTURERIGHT_PROP)  rect->right = value;
+            if(property == TEXTURETOP_PROP)    rect->top = value;
+            if(property == TEXTUREBOTTOM_PROP) rect->bottom = value;
         }
         
         if(target->type == TEXT) {

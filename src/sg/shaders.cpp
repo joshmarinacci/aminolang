@@ -60,9 +60,9 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 ColorShader::ColorShader() {
    static const char *fragShaderText =
    //the precision only seems to work on mobile, not desktop
-#ifdef KLAATU
-      "precision mediump float;\n"
-#endif
+    #ifdef KLAATU
+          "precision mediump float;\n"
+    #endif
       "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_FragColor = v_color;\n"
@@ -182,15 +182,15 @@ FontShader::FontShader() {
       "}\n";
       
     static const char *fragShaderText =
-#ifdef KLAATU
-      "precision mediump float;\n"
-#endif
+    #ifdef KLAATU
+          "precision mediump float;\n"
+    #endif
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "uniform vec3 color;\n"
       "void main() {\n"
       "   vec4 texel = texture2D(tex, uv);\n"
-//      "   if(texel.a < 0.9) { discard; }\n"
+      //      "   if(texel.a < 0.9) { discard; }\n"
       "    gl_FragColor = vec4(color.r,color.g,color.b,texel.a);\n"
       "}\n";
       
@@ -327,9 +327,9 @@ TextureShader::TextureShader() {
       "}\n";
       
     static const char *fragShaderText =
-#ifdef KLAATU
-      "precision mediump float;\n"
-#endif
+        #ifdef KLAATU
+              "precision mediump float;\n"
+        #endif
       "varying vec2 uv;\n"
       "uniform sampler2D tex;\n"
       "void main() {\n"

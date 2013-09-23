@@ -569,6 +569,11 @@ var propsHash = {
     "filled":25,
     "closed":26,
     
+    //rectangle texture
+    "textureLeft":  30,
+    "textureRight": 31,
+    "textureTop":   32,
+    "textureBottom":33,    
 }
 
 exports.propsHash = propsHash;
@@ -928,6 +933,11 @@ exports.ProtoImageView = exports.ComposeObject({
         src: { 
             value: null ,
         },
+        
+        textureLeft:   { value: 0 },
+        textureRight:  { value: 1 },
+        textureTop:    { value: 0 },
+        textureBottom: { value: 1 },
     },
     //replaces all setters
     set: function(name, value) {

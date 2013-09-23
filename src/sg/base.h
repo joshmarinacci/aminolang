@@ -595,7 +595,7 @@ inline static Handle<Value> getFontHeight(const Arguments& args) {
     int fontindex  = args[1]->ToNumber()->NumberValue();
     AminoFont * font = fontmap[fontindex];
     texture_font_t *tf = font->fonts[fontsize];
-    Local<Number> num = Number::New(tf->height);
+    Local<Number> num = Number::New(tf->ascender+tf->descender);
     return scope.Close(num);
 }
 inline static Handle<Value> getCharWidth(const Arguments& args) {

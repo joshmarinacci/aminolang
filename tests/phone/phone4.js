@@ -77,11 +77,6 @@ function buildSearch() {
     });
     tf.setW(200).setH(30);
     search.add(tf);
-    /*
-    var bg = new amino.ProtoRect().setW(getWW()).setH(40).setFill("#ffffcc");
-    search.add(bg);
-    search.add(new amino.ProtoText().setText("search").setTx(10).setTy(20));
-    */
     stage.on("WINDOWSIZE", stage, function(e) {
         tf.setW(getWW());
     });
@@ -141,8 +136,11 @@ function buildDock(stage) {
             .setTx(x*80+10).setTy(10)
             .setText(app.icon)
             .onAction(function() {
-                switcher.add(app.gen());
-                nav.setSize(getWW(),getWH());
+                var node = app.gen();
+                if(node.setW) node.setW(getWW());
+                if(node.setH) node.setH(getWH());
+                switcher.delayedAdd(node);
+                //nav.setSize(getWW(),getWH());
             })
             );
         x++;
@@ -220,6 +218,7 @@ function buildTodoList(stage,nav) {
     return panel;
     };
 switcher.add(buildTodoList(stage,nav));
+switcher.setCurrent(0);
 
 
 function buildApp2(stage) {
@@ -410,6 +409,7 @@ function NavigationManager() {
     this.panels = [];
     this.register = function(panel) {
         this.panels.push(panel);
+        sizePanel(panel);
     }
     this.transitions = {};
     this.createTransition = function(name,src,dst,type) {
@@ -441,16 +441,22 @@ function NavigationManager() {
         left: 0,
         right: 0,
     };
+    var self = this;
+    function sizePanel(panel) {
+        var w = getWW();
+        var h = getWH();
+        console.log("setting h to " + (h-self.insets.top-self.insets.bottom));
+        panel
+            .setW(w-self.insets.left-self.insets.right)
+            .setH(h-self.insets.top-self.insets.bottom);
+    }
     this.setSize = function(w,h) {
         for(var i in self.panels) {
             var panel = self.panels[i];
-            panel.setW(w-this.insets.left-this.insets.right)
-            .setH(h-this.insets.top-this.insets.bottom);
+            sizePanel(panel);
             panel.setTy(this.insets.top);
-            //panel.setTx(this.insets.left);
         }
     }
-    var self = this;
     stage.on("WINDOWSIZE", stage, function(e) {
         self.setSize(getWW(),getWH());
     });

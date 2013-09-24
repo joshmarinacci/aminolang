@@ -140,7 +140,6 @@ function buildDock(stage) {
                 if(node.setW) node.setW(getWW());
                 if(node.setH) node.setH(getWH());
                 switcher.delayedAdd(node);
-                //nav.setSize(getWW(),getWH());
             })
             );
         x++;
@@ -399,6 +398,7 @@ function generateFakeNotification() {
             );
     panel.setW(320).setH(80);
     panel.setTy(getWH()-80-30);
+    amino.getCore().createPropAnim(panel,'ty', 480, getWH()-80-30, 100);
     nav.setSize(getWW(),getWH()-80);
     superroot.add(panel);
 }
@@ -409,7 +409,7 @@ function NavigationManager() {
     this.panels = [];
     this.register = function(panel) {
         this.panels.push(panel);
-        sizePanel(panel);
+        sizePanel(panel,getWW(),getWH());
     }
     this.transitions = {};
     this.createTransition = function(name,src,dst,type) {
@@ -442,10 +442,7 @@ function NavigationManager() {
         right: 0,
     };
     var self = this;
-    function sizePanel(panel) {
-        var w = getWW();
-        var h = getWH();
-        console.log("setting h to " + (h-self.insets.top-self.insets.bottom));
+    function sizePanel(panel,w,h) {
         panel
             .setW(w-self.insets.left-self.insets.right)
             .setH(h-self.insets.top-self.insets.bottom);
@@ -453,7 +450,7 @@ function NavigationManager() {
     this.setSize = function(w,h) {
         for(var i in self.panels) {
             var panel = self.panels[i];
-            sizePanel(panel);
+            sizePanel(panel,w,h);
             panel.setTy(this.insets.top);
         }
     }

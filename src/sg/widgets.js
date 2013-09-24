@@ -87,12 +87,12 @@ widgets.PushButton = amino.ComposeObject({
         this.comps.base.add(this.comps.label);
         
         var self = this;
-        this.setFill(amino.colortheme.accent);
+        this.setFill(amino.colortheme.button.fill.normal);
         amino.getCore().on('press', this, function(e) {
-            self.setFill("#aaee88");
+            self.setFill(amino.colortheme.button.fill.pressed);
         });
         amino.getCore().on("release",this,function(e) {
-            self.setFill(amino.colortheme.accent);
+            self.setFill(amino.colortheme.button.fill.normal);
         });
         amino.getCore().on("click",this,function(e) {
             var event = {type:'action',source:self};
@@ -587,7 +587,16 @@ widgets.ListView = amino.ComposeObject({
             }
         },
         /** @prop selectedIndex not supported yet */
-        selectedIndex: { value:-1 },
+        selectedIndex: { 
+            value: -1 ,
+            set: function(selectedIndex) {
+                var cell = this.cells[this.props.selectedIndex];
+                if(cell) cell.dirty = true;
+                this.props.selectedIndex = selectedIndex;
+                cell = this.cells[this.props.selectedIndex];
+                if(cell) cell.dirty = true;
+            }
+        },
         /** @prop w the width of the list view. */
         w: {
             value: 300,
@@ -612,7 +621,7 @@ widgets.ListView = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.cellholder);
-        this.setFill("#ffccff");
+        this.setFill(amino.colortheme.listview.cell.fillOdd);
 
         this.listModel = [];
         for(var i=0; i<30; i++) {
@@ -637,10 +646,11 @@ widgets.ListView = amino.ComposeObject({
             }
         });
         amino.getCore().on("drag",this,function(e) {
-            self.scroll -= e.dy;///2;
+            self.scroll -= e.dy;
             if(self.scroll < 0) self.scroll = 0;
             var max = self.listModel.length*self.getCellHeight() - self.getH();
             if(self.scroll > max) { self.scroll = max; }
+            if(max < 0) { self.scroll = 0; }
             self.dirty = true;
         });
         amino.getCore().on("press",this,function(e) {

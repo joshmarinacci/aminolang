@@ -39,13 +39,14 @@ function d(str) {
 }
 d("OS is " + OS)
 exports.colortheme = {
-    base:    "#ccffcc",
+    base:    "#f9be00",
+
     neutral: "#cccccc",
     text:    "#000000",
     accent:  "#55ff55",
     listview: {
         cell: {
-            fillEven: "#ffffff",
+            fillEven: "#f5f5f5",
             fillOdd:  "#eeeeee",
             fillSelected: "#88ccff",
         }
@@ -58,8 +59,9 @@ exports.colortheme = {
     },
     button: {
         fill: {
-            normal: "#55cc55",
-            selected: "#00FF00",
+            normal: "#dddddd",
+            selected: "#888888",
+            pressed: "#aaaaaa",
         }
     }
 }

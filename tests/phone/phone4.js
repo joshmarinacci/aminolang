@@ -53,7 +53,7 @@ function buildStatusBar(stage)  {
     
     var panel = new widgets.AnchorPanel();
     panel.setW(getWW()).setH(20);
-    panel.setFill("#000000");
+    panel.setFill("#B65C00");
     panel.add(time);
     
     return panel;
@@ -92,7 +92,7 @@ var search = buildSearch();
 
 var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(getWW()).setH(getWH());
-switcherPanel.setFill("#000000");
+switcherPanel.setFill("#333333");
 stage.on("windowsize", stage, function(e) {
     console.log('window has been resized: ' + stage.getW(), " ", e.width);
     ww = e.width;
@@ -178,10 +178,10 @@ switcher.onZoomOut = function() {
 
 function buildTodoList(stage,nav) {
     var panel = new widgets.AnchorPanel();
-    //panel.setFill("#ffff00");
+    panel.setFill("#F9BE00");
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
-    .setTop(20+40).setAnchorTop(true)
+    .setTop(30).setAnchorTop(true)
     .setBottom(40+20).setAnchorBottom(true)
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
@@ -194,7 +194,8 @@ function buildTodoList(stage,nav) {
     panel.add(lv);
     
     
-    panel.add(new widgets.Label().setText("Todo List").setFontSize(20)
+    panel.add(new widgets.Label()
+        .setText("Todo List").setFontSize(20)
         .setAnchorLeft(true).setLeft(0)
         .setAnchorRight(true).setRight(0)
         .setAnchorTop(true).setTop(0)
@@ -252,7 +253,7 @@ switcher.add(buildApp2(stage));
 
 
 switcher.add(new EmailApp(stage,nav,data));
-
+/*
 function buildApp4(stage) {
     var panel = new widgets.AnchorPanel();
     panel.add(new widgets.PushButton()
@@ -271,7 +272,7 @@ function buildApp4(stage) {
     return panel;
 }
 switcher.add(buildApp4(stage));
-
+*/
 switcher.add(dialer.Dialer(stage,nav,data));
 
 
@@ -280,12 +281,12 @@ function buildApp6(stage) {
     panel.setId("calendarpanel");
     panel.add(new widgets.Label()
         .setText("Today: 3/3/33").setFontSize(15)
-        .setW(319).setH(40)
-        .setTop(0).setLeft(10).setRight(10)
+        .setW(320).setH(30)
+        .setTop(0)
         );
     var lv = new widgets.ListView();
     lv.setW(320).setH(200)
-        .setTop(20+40).setAnchorTop(true)
+        .setTop(30).setAnchorTop(true)
         .setBottom(40+20).setAnchorBottom(true)
         .setLeft(0).setAnchorLeft(true)
         .setRight(0).setAnchorRight(true)
@@ -294,7 +295,10 @@ function buildApp6(stage) {
     lv.setModel(data.events);
     console.log(data.events);
     lv.setTextCellRenderer(function(cell,i,item) {
-        if(!item) return;
+        if(!item) {
+            cell.setText("");
+            return;
+        }
         var date = new Date(item.datetime.year,
             item.datetime.month,
             item.datetime.day,

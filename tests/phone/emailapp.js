@@ -56,7 +56,7 @@ function EmailApp(stage,nav,data) {
     });
     lv.setCellHeight(40);
     lv.setW(320).setH(200)
-    .setTop(20+40).setAnchorTop(true)
+    .setTop(30).setAnchorTop(true)
     .setBottom(40).setAnchorBottom(true)
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
@@ -90,8 +90,10 @@ function EmailApp(stage,nav,data) {
             );
     //list view
     panel.add(new widgets.Label()
-            .setText("Email").setW(297).setFontSize(20)
-            .setTy(4).setTx(4).setH(32));
+            .setText("Email")
+            .setFontSize(15)
+            .setW(320)
+            .setH(30));
     nav.register(panel);
     
     var replyPanel = new widgets.AnchorPanel()

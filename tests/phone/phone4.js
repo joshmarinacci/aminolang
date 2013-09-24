@@ -124,27 +124,29 @@ function buildDock(stage) {
     var bg = new amino.ProtoRect().setW(getWW()).setH(80)
         .setFill("#ffffff").setOpacity(0.5);
     var apps = [
-        { icon:'\uF0E0', fill: "#ff5555", color: "#ffffff" },
-        { icon:'\uF095', fill: "#f0b035", color: "#444444" },
-        { icon:'\uF001', fill: "#6666ff", color: "#eeeeff" },
-        { icon:'\uF073', fill: "#22cc22", color: "#ffffff" },
+        { icon:'\uF0E0', fill: "#ff5555", color: "#ffffff", gen: function() {  return new EmailApp(stage,nav,data); } },
+        { icon:'\uF095', fill: "#f0b035", color: "#444444", gen: function() {  return dialer.Dialer(stage,nav,data); } },
+        { icon:'\uF030', fill: "#6666ff", color: "#eeeeff", gen: function() {  return buildApp2(stage) } },
+        { icon:'\uF073', fill: "#22cc22", color: "#ffffff", gen: function() {  return buildApp6(stage); } },
     ];
     dock.add(bg);
-    for(var i=0; i<4; i++) {
+    var x = 0;
+    apps.forEach(function(app) {
         dock.add(new widgets.PushButton()
             .setW(60).setH(60)
             .setFontSize(40)
-            .setFill(apps[i].fill)
-            .setColor(apps[i].color)
+            .setFill(app.fill)
+            .setColor(app.color)
             .setFontName('awesome')
-            .setTx(i*80+10).setTy(10)
-            .setText(apps[i].icon)
+            .setTx(x*80+10).setTy(10)
+            .setText(app.icon)
             .onAction(function() {
-                switcher.add(new EmailApp(stage,nav,data));
+                switcher.add(app.gen());
                 nav.setSize(getWW(),getWH());
             })
             );
-    }
+        x++;
+    });
     stage.on("WINDOWSIZE", stage, function(e) {
         bg.setW(getWW());
         dock.setTy(getWH());
@@ -219,6 +221,7 @@ function buildTodoList(stage,nav) {
     };
 switcher.add(buildTodoList(stage,nav));
 
+
 function buildApp2(stage) {
     var panel = new widgets.AnchorPanel();
     //listview of the gallery
@@ -249,10 +252,10 @@ function buildApp2(stage) {
     nav.register(panel);
     return panel;            
     }
-switcher.add(buildApp2(stage));
+//switcher.add(buildApp2(stage));
 
 
-switcher.add(new EmailApp(stage,nav,data));
+//switcher.add(new EmailApp(stage,nav,data));
 /*
 function buildApp4(stage) {
     var panel = new widgets.AnchorPanel();
@@ -273,7 +276,9 @@ function buildApp4(stage) {
 }
 switcher.add(buildApp4(stage));
 */
+/*
 switcher.add(dialer.Dialer(stage,nav,data));
+*/
 
 
 function buildApp6(stage) {
@@ -352,7 +357,10 @@ function buildApp6(stage) {
     g.add(addEventPanel);
     return g;
 }
-switcher.add(buildApp6(stage));
+//switcher.add(buildApp6(stage));
+
+
+
 
 nav.setSize(getWW(),getWH());
 

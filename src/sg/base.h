@@ -65,6 +65,8 @@ static const int TEXTURERIGHT_PROP  = 31;
 static const int TEXTURETOP_PROP    = 32;
 static const int TEXTUREBOTTOM_PROP = 33;
 
+static const int CLIPRECT_PROP = 34;
+
 using namespace v8;
 
 static bool eventCallbackSet = false;
@@ -331,7 +333,14 @@ public:
 class Group : public AminoNode {
 public:
     std::vector<AminoNode*> children;
+    float w;
+    float h;
+    int cliprect;
     Group() {
+        w = 50;
+        h = 50;
+        cliprect = 0;
+        type = GROUP;
     }
     ~Group() {
     }
@@ -390,6 +399,13 @@ public:
             if(property == TEXTURERIGHT_PROP)  rect->right = value;
             if(property == TEXTURETOP_PROP)    rect->top = value;
             if(property == TEXTUREBOTTOM_PROP) rect->bottom = value;
+        }
+        
+        if(target->type == GROUP) {
+            Group* group = (Group*)target;
+            if(property == W_PROP) group->w = value;
+            if(property == H_PROP) group->h = value;
+            if(property == CLIPRECT_PROP) group->cliprect = value;
         }
         
         if(target->type == TEXT) {

@@ -220,9 +220,64 @@ void Group::draw() {
     translate(tx,ty);
     scale(scalex,scaley);
     rotate(rotatex,rotatey,rotatez);
+    
+    if(this->cliprect == 1) {
+        //turn on stenciling
+        glDepthMask(GL_FALSE);
+        glEnable(GL_STENCIL_TEST);
+        //clear the buffers
+        
+        //setup the stencil
+        glStencilFunc(GL_ALWAYS, 0x1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0xFF);
+        glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
+        glDepthMask( GL_FALSE );
+        glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        //draw the stencil
+        float x = 0;
+        float y = 0;
+        float x2 = this->w;
+        float y2 = this->h;
+        GLfloat verts[6][2];
+        verts[0][0] = x;
+        verts[0][1] = y;
+        verts[1][0] = x2;
+        verts[1][1] = y;
+        verts[2][0] = x2;
+        verts[2][1] = y2;
+        
+        verts[3][0] = x2;
+        verts[3][1] = y2;
+        verts[4][0] = x;
+        verts[4][1] = y2;
+        verts[5][0] = x;
+        verts[5][1] = y;
+        GLfloat colors[6][3];
+        for(int i=0; i<6; i++) {
+            for(int j=0; j<3; j++) {
+                colors[i][j] = 1.0;
+            }
+        }
+        colorShader->apply(modelView, globaltx, verts, colors, 1.0);
+    
+        //set function to draw pixels where the buffer is equal to 1
+        glStencilFunc(GL_EQUAL, 0x1, 0xFF);
+        glStencilMask(0x00);
+        //turn color buffer drawing back on
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+        
+    }
+    //draw as normal
     for(int i=0; i<children.size(); i++) {
         children[i]->draw();
     }
+    
+    if(this->cliprect == 1) {
+        glDisable(GL_STENCIL_TEST);
+    }
+    
     restore();
 }
 

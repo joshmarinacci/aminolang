@@ -602,6 +602,7 @@ widgets.ListView = amino.ComposeObject({
             value: 300,
             set: function(w) {
                 this.props['w'] = w;
+                this.comps.base.setW(w);
                 this.comps.background.setW(w);
                 this.setDirty = true;
                 return this;
@@ -612,6 +613,7 @@ widgets.ListView = amino.ComposeObject({
             value: 300,
             set: function(h) {
                 this.props['h'] = h;
+                this.comps.base.setH(h);
                 this.comps.background.setH(h);
                 this.setDirty = true;
                 return this;
@@ -621,6 +623,7 @@ widgets.ListView = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.cellholder);
+        this.comps.base.setCliprect(1);
         this.setFill(amino.colortheme.listview.cell.fillOdd);
 
         this.listModel = [];

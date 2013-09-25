@@ -97,7 +97,7 @@ Handle<Value> createWindow(const Arguments& args) {
     int h  = args[1]->ToNumber()->NumberValue();
     width = w;
     height = h;
-    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 0, GLFW_WINDOW)) {
+    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
         printf("error. quitting\n");
         glfwTerminate();
         exit(EXIT_FAILURE);        

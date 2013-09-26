@@ -65,6 +65,7 @@ function buildStatusBar(stage)  {
         .setFontSize(fs)
         .setH(20)
         .setFill(amino.fg_accent_color)
+        .setFontWeight(600)
         .setText('T-Mobile')
         .setLeft(20).setAnchorLeft(true)
     ;
@@ -88,9 +89,11 @@ function buildStatusBar(stage)  {
     
     var time = new widgets.Label()
         .setFontSize(fs)
+        .setFontWeight(600)
         .setH(20)
         .setText("00.00:00 00/00")
         .setFill("#ffffff")
+        
         .setLeft(0).setAnchorLeft(true)
         .setRight(0).setAnchorRight(true)
         ;
@@ -124,6 +127,7 @@ function buildStatusBar(stage)  {
         .setH(20)
         //.setFontName('awesome')
         .setFill(amino.fg_accent_color)
+        .setFontWeight(600)
         .setText('28%')
         .setLeft(280).setAnchorLeft(true)
     ;

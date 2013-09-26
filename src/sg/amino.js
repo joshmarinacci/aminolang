@@ -88,13 +88,11 @@ var defaultFonts = {
                 normal: "SourceSansPro-Regular.ttf",
                 italic: "SourceSansPro-Italic.ttf",
             },
-            /*
+            
             600: {
                 normal: "SourceSansPro-Semibold.ttf",
                 italic: "SourceSansPro-SemiboldItalic.ttf",
             },
-            */
-            /*
             700: {
                 normal: "SourceSansPro-Bold.ttf",
                 italic: "SourceSansPro-BoldItalic.ttf",
@@ -103,7 +101,6 @@ var defaultFonts = {
                 normal: "SourceSansPro-Black.ttf",
                 italic: "SourceSansPro-BlackItalic.ttf",
             },
-            */
         }
     },
     'awesome': {

@@ -641,6 +641,9 @@ inline static Handle<Value> getCharWidth(const Arguments& args) {
         //skip null terminators
         if(ch == '\0') continue;
         texture_glyph_t *glyph = texture_font_get_glyph(tf, wstr.c_str()[i]);
+        if(glyph == 0) {
+            printf("WARNING. Got empty glyph from texture_font_get_glyph");
+        }
         //use width for the last, since we don't want all the way to the
         //char beyond that
         if(i == wstr.length()-1) {
@@ -662,6 +665,7 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     fontmap[id] = afont;
     
     const char * filename = TO_CHAR(args[0]);
+    printf("loading font file %s\n",filename);
 
 
     size_t i;
@@ -673,22 +677,27 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     //preload some standard font sizes: 10, 12, 15, 20, 40
     
     font = texture_font_new(afont->atlas, filename, 10);
-    texture_font_load_glyphs(font,text);
+    int bad = 0;
+    bad = texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[10] = font;
     font = texture_font_new(afont->atlas, filename, 12);
     texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[12] = font;
     font = texture_font_new(afont->atlas, filename, 15);
     texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[15] = font;
     font = texture_font_new(afont->atlas, filename, 20);
     texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[20] = font;
     
     font = texture_font_new(afont->atlas, filename, 40);
     texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[40] = font;
-    
     
     
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",

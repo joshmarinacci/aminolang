@@ -35,6 +35,7 @@ var EmailListViewCell = amino.ComposeObject({
         
         this.comps.from.setText("from")
             .setFill("#3498db")
+            .setFontWeight(600)
             .setTx(8).setTy(22)
             .setFontSize(15);
         this.comps.base.add(this.comps.from);
@@ -46,7 +47,8 @@ var EmailListViewCell = amino.ComposeObject({
         
         this.comps.desc.setText("desc")
             .setTx(8).setTy(64)
-            .setFontSize(12);
+            .setFontWeight(200)
+            .setFontSize(15);
         this.comps.base.add(this.comps.desc);
     },
 });
@@ -56,11 +58,18 @@ function EmailApp(stage,nav,data) {
     var panel = new widgets.AnchorPanel()
         .setFill(amino.bg_accent_color);
     panel.add(new widgets.Label()
-            .setFill("#ffffff")
-            .setText("Email")
-            .setFontSize(15)
             .setW(320)
-            .setH(30));
+            .setH(30)
+            .setFill("#ffffff")
+            .setAlign("left")
+            .setFontSize(20)
+            .setFontWeight(600)
+            .setTx(0)
+            .setTy(0)
+            .setAnchorLeft(true).setLeft(0)
+            .setAnchorTop(true).setTop(0)
+            .setText("Inbox")
+            );
     
     var lv = new widgets.ListView();
     lv.setCellGenerator(function() {

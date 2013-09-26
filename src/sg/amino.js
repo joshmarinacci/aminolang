@@ -953,7 +953,6 @@ exports.ProtoText = exports.ComposeObject({
             var id = this.font.getNative(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             exports.native.updateProperty(this.handle, 'fontId', id);
         }
-        this.shortCircuit = true;
         this.type = "text";
         this.font = Core._core.defaultFont;
         this.updateFont();
@@ -961,6 +960,7 @@ exports.ProtoText = exports.ComposeObject({
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
         }
+        this.shortCircuit = true;
     }
 });
 

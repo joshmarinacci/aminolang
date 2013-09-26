@@ -16,33 +16,51 @@ var EmailListViewCell = amino.ComposeObject({
             proto: amino.ProtoRect,
             promote: ['w','h','fill'],
         },
+        line: {
+            proto: amino.ProtoRect,
+        },
         from: {
             proto: amino.ProtoText,
         },
         subject: {
             proto: amino.ProtoText,
         },
+        desc: {
+            proto: amino.ProtoText,
+        },
     },
     init: function() {
         this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.line);
+        
+        this.comps.from.setText("from")
+            .setFill("#3498db")
+            .setTx(8).setTy(22)
+            .setFontSize(15);
         this.comps.base.add(this.comps.from);
+
+        this.comps.subject.setText("subject")
+            .setTx(8).setTy(42)
+            .setFontSize(15);
         this.comps.base.add(this.comps.subject);
         
-        this.comps.from.setText("from");
-        this.comps.from.setTx(5);
-        this.comps.from.setTy(5+13);
-        this.comps.from.setFontSize(15);
-
-        this.comps.subject.setText("subject");
-        this.comps.subject.setTx(5);
-        this.comps.subject.setTy(20+15);
-        this.comps.subject.setFontSize(12);
+        this.comps.desc.setText("desc")
+            .setTx(8).setTy(64)
+            .setFontSize(12);
+        this.comps.base.add(this.comps.desc);
     },
 });
 
 
 function EmailApp(stage,nav,data) {
-    var panel = new widgets.AnchorPanel();
+    var panel = new widgets.AnchorPanel()
+        .setFill(amino.bg_accent_color);
+    panel.add(new widgets.Label()
+            .setFill("#ffffff")
+            .setText("Email")
+            .setFontSize(15)
+            .setW(320)
+            .setH(30));
     
     var lv = new widgets.ListView();
     lv.setCellGenerator(function() {
@@ -52,12 +70,17 @@ function EmailApp(stage,nav,data) {
     lv.setTextCellRenderer(function(cell,i,item) {
         if(item == null) return;
         cell.comps.from.setText(item.from);
-        cell.comps.subject.setText(item.subject);
+        cell.comps.subject.setText(item.subject.substring(0,30));
+        cell.comps.desc.setText(item.body.substring(0,50));
+        cell.comps.background.setFill("#fffffa");
+        cell.comps.line.setFill("#f1ebeb");
+        cell.comps.line.setH(1);
     });
-    lv.setCellHeight(40);
+    lv.setCellHeight(80);
     lv.setW(320).setH(200)
+        .setFill("#ffffff")
     .setTop(30).setAnchorTop(true)
-    .setBottom(40).setAnchorBottom(true)
+    .setBottom(60).setAnchorBottom(true)
     .setLeft(0).setAnchorLeft(true)
     .setRight(0).setAnchorRight(true)
     ;
@@ -72,28 +95,63 @@ function EmailApp(stage,nav,data) {
     
     panel.add(lv);
     
+    var buttons = ['\uF013','\uF011','\uF130','\uF006'];
+    var i = 0;
+    buttons.forEach(function(btn) {
+        panel.add(new widgets.PushButton()
+            .setColor("#ffffff")
+            .setFontName('awesome')
+            .setFontSize(40)
+            .setText(btn)
+            .setBottom(5).setAnchorBottom(true)
+            .setLeft(20+i*75).setAnchorLeft(true)
+            .setFill("#69b88a")
+            .setW(50).setH(50)
+            );
+        i++;
+    });
+   
+    /*
     panel.add(new widgets.PushButton()
-            .setText("reply")
-            .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(30).setTx(94)
-            .onAction(function() { nav.push("replyEmail"); })
+            .setColor("#ffffff")
+            .setFontName('awesome')
+            .setFontSize(40)
+            .setText("\uF013")
+            .setBottom(5).setAnchorBottom(true)
+            .setLeft(10).setAnchorLeft(true)
+            .setFill("#69b88a")
+            .setW(40).setH(40)
+//            .onAction(function() { nav.push("composeEmail"); })
             );
     panel.add(new widgets.PushButton()
-            .setText("delete")
-            .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(30).setTx(190));
-    panel.add(new widgets.PushButton()
-            .setText("compose")
-            .setBottom(10).setAnchorBottom(true)
-            .setW(90).setH(30).setTx(0)
-            .onAction(function() { nav.push("composeEmail"); })
+            .setFontName('awesome')
+            .setFontSize(40)
+            .setText("\uF011")
+            .setW(30).setH(30)
+            .setBottom(5).setAnchorBottom(true)
+            .setLeft(90).setAnchorLeft(true)
+//            .onAction(function() { nav.push("replyEmail"); })
             );
-    //list view
-    panel.add(new widgets.Label()
-            .setText("Email")
-            .setFontSize(15)
-            .setW(320)
-            .setH(30));
+    panel.add(new widgets.PushButton()
+            .setFontName('awesome')
+            .setFontSize(40)
+            .setText("\uF130")
+            .setBottom(5).setAnchorBottom(true)
+            .setLeft(150).setAnchorLeft(true)
+            .setW(30).setH(30)
+            );
+    panel.add(new widgets.PushButton()
+            .setFontName('awesome')
+            .setFontSize(40)
+            .setText("\uF006")
+            .setBottom(5).setAnchorBottom(true)
+            .setLeft(200).setAnchorLeft(true)
+            .setW(30).setH(30)
+            );
+
+*/
+
+
     nav.register(panel);
     
     var replyPanel = new widgets.AnchorPanel()

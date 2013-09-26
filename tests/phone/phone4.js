@@ -38,25 +38,108 @@ var nav = new NavigationManager();
 nav.insets.bottom = 30+20;
 nav.insets.top = 0;
 
+amino.bg_accent_color = "#27ae60";
+amino.fg_accent_color = "#ffffff";
+
 function buildStatusBar(stage)  {
+    
+    var fs = 12;
+    
+    var panel = new widgets.AnchorPanel()
+        .setW(getWW()).setH(20)
+        .setFill(amino.bg_accent_color);
+        
+    var signal_icon = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        .setFontName('awesome')
+        .setFill(amino.fg_accent_color)
+        .setText('\uF012')
+        .setLeft(5).setAnchorLeft(true)
+    ;
+    panel.add(signal_icon);
+
+    
+    
+    var carrier = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        .setFill(amino.fg_accent_color)
+        .setText('T-Mobile')
+        .setLeft(20).setAnchorLeft(true)
+    ;
+    panel.add(carrier);
+
+    
+    
+    var cloud = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        .setFontName('awesome')
+        .setFill(amino.fg_accent_color)
+        .setText('\uF0C2')
+        .setLeft(70).setAnchorLeft(true)
+    ;
+    panel.add(cloud);
+
+    
+    
     var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     
-    var time = new widgets.Label();
-    time.setFontSize(12);
-    time.setH(20);
-    time.setText("00.00:00 00/00");
-    time.setFill("#ffffff");
+    var time = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        .setText("00.00:00 00/00")
+        .setFill("#ffffff")
+        .setLeft(0).setAnchorLeft(true)
+        .setRight(0).setAnchorRight(true)
+        ;
+    panel.add(time);
     setInterval(function(){
         var date = new Date();
-        var txt = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
-        + "    " + months[date.getMonth()] + "/"+date.getDay() + "/" + date.getFullYear();
+        var txt = date.getHours() + ":" + date.getMinutes() + " PM"
+        + "    " + months[date.getMonth()] + "/"+date.getDay();
         time.setText(txt);
     },1000);
     
-    var panel = new widgets.AnchorPanel();
-    panel.setW(getWW()).setH(20);
-    panel.setFill("#B65C00");
-    panel.add(time);
+    
+    
+    
+    
+
+
+    //clock = F017    
+    var clock = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        .setFontName('awesome')
+        .setFill(amino.fg_accent_color)
+        .setText('\uF017')
+        .setLeft(265).setAnchorLeft(true)
+    ;
+    panel.add(clock);
+
+    var battery = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        //.setFontName('awesome')
+        .setFill(amino.fg_accent_color)
+        .setText('28%')
+        .setLeft(280).setAnchorLeft(true)
+    ;
+    panel.add(battery);
+    
+    
+    var battery = new widgets.Label()
+        .setFontSize(fs)
+        .setH(20)
+        .setFontName('awesome')
+        .setFill(amino.fg_accent_color)
+        .setText('\uF0E7')
+        .setLeft(305).setAnchorLeft(true)
+    ;
+    panel.add(battery);
+    
     
     return panel;
 }
@@ -211,7 +294,8 @@ function buildTodoList(stage,nav) {
     nav.register(panel);
     return panel;
     };
-switcher.add(buildTodoList(stage,nav));
+switcher.add(new EmailApp(stage,nav,data));
+//switcher.add(buildTodoList(stage,nav));
 switcher.setCurrent(0);
 
 
@@ -398,7 +482,7 @@ function generateFakeNotification() {
     superroot.add(panel);
 }
 
-superroot.add(new LockScreen(core,stage));
+//superroot.add(new LockScreen(core,stage));
 
 function NavigationManager() {
     this.panels = [];

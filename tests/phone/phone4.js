@@ -17,6 +17,8 @@ var LockScreen = require('./lockscreen.js').LockScreen;
 var dialer = require('./dialer.js');
 var fs = require('fs');
 
+amino.SOFTKEYBOARD_ENABLED = true;
+
 amino.startApp(function(core, stage) {
     stage.setSize(320,480);
 
@@ -67,21 +69,8 @@ function buildSearch() {
             console.log(e.text);
         }
     });
-    stage.on("focusgain",tf,function() {
-        var kb = new SoftKeyboard().setW(getWW()).setH(140).setTy(getWH()-140);
-        kb.setTargetTextControl(tf);
-        superroot.add(kb);
-    });
-    stage.on('focusloss',tf,function() {
-       console.log("lost the focus");
-    });
     tf.setW(200).setH(30);
     search.add(tf);
-    /*
-    var bg = new amino.ProtoRect().setW(getWW()).setH(40).setFill("#ffffcc");
-    search.add(bg);
-    search.add(new amino.ProtoText().setText("search").setTx(10).setTy(20));
-    */
     stage.on("WINDOWSIZE", stage, function(e) {
         tf.setW(getWW());
     });
@@ -160,6 +149,7 @@ switcherPanel.add(dock);
 var scrim = new amino.ProtoRect().setW(getWW()).setH(getWH()-20-30 - 80-30).setTy(20+30).setVisible(0).setOpacity(0.0).setFill("#0000ff");
 core.on('press',scrim, function() {
     switcher.zoomAll();
+    core.requestFocus();
 });
 switcher.onZoomIn = function() {
     var anim =  core.createPropAnim(dock,"ty",getWH()-110,getWH(), 300);
@@ -503,133 +493,6 @@ function SwipeRecognizer(stage,cb) {
 
 
 
-SoftKeyboard = amino.ComposeObject({
-    type:"SoftKeyboard",
-    extend: amino.ProtoWidget,
-    comps: {
-        background: {
-            proto: amino.ProtoRect,
-            promote: ['w','h','fill'],
-        }
-    },
-    init: function() {
-        this.setFill("#888888");
-        this.comps.base.add(this.comps.background);
-        var keysvals = [
-            ['Q','W','E','R','T','Y','U','I','O','P'],
-            ['A','S','D','F','G','H','J','K','L'],
-            ['Z','X','C','V','B','N','M'],
-        ];
-        var rowoffset = [5,20,50];
-        var keyw = 30;
-        var keyh = 30;
-        var gapw = 2;
-        var gaph = 2;
-        
-        var keybgs = [];
-        for(var r=0; r<keysvals.length; r++) {
-            var row = keysvals[r];
-            var off = rowoffset[r];
-            for(var i=0; i<row.length; i++) {
-                var ch = row[i];
-                var keybg = new amino.ProtoRect().setW(keyw).setH(keyh)
-                    .setTx(i*(keyw+gapw)+off).setTy(r*(keyh+gaph))
-                    .setFill("#e0e0e0");
-                keybg.ch = ch;
-                this.comps.base.add(keybg);
-                var keytext = new amino.ProtoText()
-                    .setTx(i*(keyw+gapw)+3+off).setTy(20+r*(keyh+gaph))
-                    .setFill("#000000").setText(ch);
-                this.comps.base.add(keytext);
-                keybgs.push(keybg);
-            }
-        }
-        this.shiftOn = false;
-        var self = this;
-        amino.getCore().on('press',this,function(e) {
-            keybgs.forEach(function(key) {
-                var x = e.point.x - key.getTx();
-                var y = e.point.y - key.getTy();
-                if(key.contains(x,y)) {
-                    amino.getCore().fireEvent({
-                            type:'softkeypress',
-                            source:self,
-                            key:key.ch,
-                    });
-                    if(self.tf) {
-                        var ch = key.ch;
-                        if(self.shiftOn) {
-                            ch = ch.toUpperCase();
-                        } else {
-                            ch = ch.toLowerCase();
-                        }
-                        self.tf.insertStringAtCursor(ch);
-                    }
-                }
-            });
-        });
-        
-        this.children = [];
-        this.isParent = function() { return true; }
-        
-        this.setTargetTextControl = function(tf) {
-            this.tf = tf;
-        }
-
-        var done = new widgets.PushButton()
-            .setText('done').onAction(function() {
-                self.setVisible(false);
-                delete self.tf;
-            })
-            .setW(80).setH(keyh).setTx(235).setTy(100)
-            ;
-        this.comps.base.add(done);
-        this.children.push(done);
-        
-        var deletechar = '\uF137';
-        var bs = new widgets.PushButton()
-            .setFontName('awesome')
-            .setText(deletechar).onAction(function() {
-                if(self.tf) {
-                    self.tf.tc.cursor.deleteChar();
-                }
-            })
-            .setW(40).setH(keyh).setTx(280).setTy(65)
-            ;
-        this.comps.base.add(bs);
-        this.children.push(bs);
-        
-        
-        var space = new widgets.PushButton()
-            .setW(120).setH(keyh).setTx(100).setTy(100)
-            .setText("space").onAction(function() {
-                if(self.tf) {
-                    self.tf.insertStringAtCursor(" ");//tc.cursor.deleteChar();
-                }
-            });
-        this.comps.base.add(space);
-        this.children.push(space);
-        
-        var shiftchar = '\uF062';
-        var shift = new widgets.PushButton()
-            .setFontName('awesome')
-            .setText(shiftchar).onAction(function() {
-                self.shiftOn = !self.shiftOn;
-                if(self.shiftOn) {
-                    shift.setFill("#00ffff");
-                } else {
-                    shift.setFill("#aaee88");
-                }
-            })
-            .setW(40).setH(keyh).setTx(5).setTy(65)
-            ;
-        this.comps.base.add(shift);
-        this.children.push(shift);
-        
-        
-
-    },
-});
 
 /*
 var http = require('http');

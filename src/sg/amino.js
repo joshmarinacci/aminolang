@@ -66,7 +66,7 @@ exports.colortheme = {
     }
 }
 
-
+exports.SOFTKEYBOARD_ENABLED = false;
 
 
 exports.sgtest = jrequire('sgtest');

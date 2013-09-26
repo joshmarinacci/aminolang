@@ -47,7 +47,7 @@ widgets.PushButton = amino.ComposeObject({
             proto: amino.ProtoText,
             /** @prop text the text label of this button. */
             /** @prop fontSize the font size to use for this button. */
-            promote: ['text','fontSize','fontName'],
+            promote: ['text','fontSize','fontName','fontWeight','fontStyle'],
         },
     },
     props: {
@@ -109,9 +109,9 @@ widgets.PushButton = amino.ComposeObject({
             self.dirty = true;
         }
         this.doLayout = function() {
-            var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize());
+            var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             this.comps.label.setTx(Math.round((this.getW()-textw)/2));
-            var texth = this.comps.label.font.getHeight(this.getFontSize());
+            var texth = this.comps.label.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             this.comps.label.setTy(Math.round(this.getH()/2 + texth/2));
         }
         amino.getCore().on('validate',null,function() {
@@ -324,7 +324,7 @@ widgets.Label = amino.ComposeObject({
         text: {
             proto: amino.ProtoText,
             /** @prop text  the text of this label */
-            promote: ['text','fontSize','fill','fontName'],
+            promote: ['text','fontSize','fill','fontName','fontWeight','fontStyle'],
         }
     },
     props: {
@@ -340,7 +340,7 @@ widgets.Label = amino.ComposeObject({
             value: 30,
             set: function(h) {
                 this.props.h = h;
-                var texth = this.font.getHeight(this.getFontSize());
+                var texth = this.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
                 this.comps.text.setTy(Math.round(h/2 + texth/2));
                 return this;
             }
@@ -359,7 +359,7 @@ widgets.Label = amino.ComposeObject({
         this.contains = function() { return false; }
         this.setH(20);
         this.doHLayout = function() {
-            var textw = this.font.calcStringWidth(this.getText(),this.getFontSize());
+            var textw = this.font.calcStringWidth(this.getText(),this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             if(this.props.align == 'left') {
                 this.comps.text.setTx(0);
             }
@@ -981,7 +981,8 @@ function TextView() {
         this.layout();
     }
     this.getCharWidth = function(ch) {
-        return this.font.getCharWidth(ch,this.getFontSize());
+        return 15;
+//        return this.font.calcStringWidth(ch,this.getFontSize());
     }
     this.getCharAt = function(n) {
         return this.model.text.substring(n,n+1);
@@ -1033,6 +1034,10 @@ function TextView() {
     this.getFontSize = function() {
         return this.fontSize;
     }
+    this.fontWeight = 400;
+    this.getFontWeight = function() {
+        return this.fontWeight;
+    }
     
     this.control = null;
     this.line = null;
@@ -1061,7 +1066,7 @@ function TextView() {
         if(!this.font) return;
         this.lines = [];
         
-        this.lineheight = this.font.getHeight(this.getFontSize())*this.font.scale;
+        this.lineheight = this.font.getHeight(this.getFontSize(),this.getFontWeight())*this.font.scale;
         //this.lineheight = this.font.json.height*this.font.scale;
         
         var n = 0;

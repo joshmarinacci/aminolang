@@ -684,9 +684,11 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     font = texture_font_new(afont->atlas, filename, 20);
     texture_font_load_glyphs(font,text);
     afont->fonts[20] = font;
+    
     font = texture_font_new(afont->atlas, filename, 40);
     texture_font_load_glyphs(font,text);
     afont->fonts[40] = font;
+    
     
     
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",

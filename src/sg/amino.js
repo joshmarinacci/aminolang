@@ -73,6 +73,48 @@ exports.sgtest = jrequire('sgtest');
 
 var fontmap = {};
 
+var defaultFonts = {
+    'source': {
+        weights: {
+            200: {
+                normal: "SourceSansPro-ExtraLight.ttf",
+                italic: "SourceSansPro-ExtraLightItalic.ttf",
+            },
+            300: {
+                normal: "SourceSansPro-Light.ttf",
+                italic: "SourceSansPro-LightItalic.ttf",
+            },
+            400: {
+                normal: "SourceSansPro-Regular.ttf",
+                italic: "SourceSansPro-Italic.ttf",
+            },
+            /*
+            600: {
+                normal: "SourceSansPro-Semibold.ttf",
+                italic: "SourceSansPro-SemiboldItalic.ttf",
+            },
+            */
+            /*
+            700: {
+                normal: "SourceSansPro-Bold.ttf",
+                italic: "SourceSansPro-BoldItalic.ttf",
+            },
+            900: {
+                normal: "SourceSansPro-Black.ttf",
+                italic: "SourceSansPro-BlackItalic.ttf",
+            },
+            */
+        }
+    },
+    'awesome': {
+        weights: {
+            400: {
+                normal: "fontawesome-webfont.ttf",
+            },
+        }
+    },
+}
+
 exports.native = {
     createNativeFont: function(path) {
         //console.log('creating native font ' + path);
@@ -84,8 +126,8 @@ exports.native = {
     },
     createWindow: function(core,w,h) {
         exports.sgtest.createWindow(w,h);
-        fontmap['source'] = new JSFont(__dirname+"/fonts/SourceSansPro-Regular.ttf");
-        fontmap['awesome'] = new JSFont(__dirname+"/fonts/fontawesome-webfont.ttf");
+        fontmap['source']  = new JSFont(defaultFonts['source']);
+        fontmap['awesome'] = new JSFont(defaultFonts['awesome']);
         core.defaultFont = fontmap['source'];
     },
     getFont: function(name) {
@@ -861,6 +903,8 @@ exports.ProtoText = exports.ComposeObject({
         /** @prop fontSize the fontsize of this text string */
         fontSize: { value: 20 },
         fontName: { value: 'source' },
+        fontWeight: { value: 400 },
+        fontStyle: { value: 'normal' },
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
@@ -880,12 +924,16 @@ exports.ProtoText = exports.ComposeObject({
                     console.log("WARNING. No font '" + value + "' found!!!");
                 }
                 this.font = fontmap[value];
-                exports.native.updateProperty(this.handle, 'fontId', fontmap[value].native);
+                this.updateFont();
             } else {
+                if(name == 'fontWeight') {
+                    this.updateFont();
+                }
                 exports.native.updateProperty(this.handle, name, value);
             }
             if(name == 'fontSize') {
                 //need to update the text too
+                this.updateFont();
                 exports.native.updateProperty(this.handle, 'text', this.props['text']);
             }
         }
@@ -901,13 +949,18 @@ exports.ProtoText = exports.ComposeObject({
     init: function() {
         this.live = true;
         this.handle = exports.native.createText();
-        //invoke all setters once to push default values to the native side
-        for(var propname in this.props) {
-            this.set(propname, this.props[propname]);
+        this.updateFont = function() {
+            var id = this.font.getNative(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
+            exports.native.updateProperty(this.handle, 'fontId', id);
         }
         this.shortCircuit = true;
         this.type = "text";
         this.font = Core._core.defaultFont;
+        this.updateFont();
+        //invoke all setters once to push default values to the native side
+        for(var propname in this.props) {
+            this.set(propname, this.props[propname]);
+        }
     }
 });
 
@@ -1109,25 +1162,35 @@ function SGStage(core) {
 @desc Represents a particular font face. The face is set to a specific style,
 but can be used at multiple sizes.
 */
-function JSFont(path) {
-    this.native = exports.native.createNativeFont(path);
+function JSFont(desc) {
+    var reg = desc.weights[400];
+    this.desc = desc;
+    this.weights = {};
+    for(var weight in desc.weights) {
+        this.weights[weight] = exports.native.createNativeFont(__dirname+"/fonts/"+desc.weights[weight].normal);
+    }
+    
+    this.getNative = function(size, weight, style) {
+        if(this.weights[weight] != undefined) {
+            return this.weights[weight];
+        }
+        console.log("ERROR. COULDN'T find the native for " + size + " " + weight + " " + style);
+        return this.weights[400];
+    }
     /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
-    this.calcStringWidth = function(str, size) {
-        return w = exports.sgtest.getCharWidth(str,size,this.native);
+    this.calcStringWidth = function(str, size, weight, style) {
+        return exports.sgtest.getCharWidth(str,size,this.getNative(size,weight,style));
     }
     /** @func getHeight(size) returns the height of this font at the requested size */
-    this.getHeight = function(size) {
+    this.getHeight = function(size, weight, style) {
         if(size == undefined) {
             throw new Error("SIZE IS UNDEFINED");
         }
-        return h = exports.sgtest.getFontHeight(size,this.native);
+        return exports.sgtest.getFontHeight(size, this.getNative(size, weight, style));
     }
     /** @func getAscent(fs) returns the ascent of this font at the requested size */
     this.getAscent = function(fs) {
         return 15;
-    }
-    this.getCharWidth = function(ch) {
-        return 20;
     }
 }
 

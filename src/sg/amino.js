@@ -66,7 +66,7 @@ exports.colortheme = {
     }
 }
 
-
+exports.SOFTKEYBOARD_ENABLED = false;
 
 
 exports.sgtest = jrequire('sgtest');
@@ -576,6 +576,10 @@ var propsHash = {
     "textureRight": 31,
     "textureTop":   32,
     "textureBottom":33,    
+    
+    //clipping
+    "cliprect": 34,
+   
 }
 
 exports.propsHash = propsHash;
@@ -772,6 +776,9 @@ exports.ProtoGroup = exports.ComposeObject({
         scaley: { value: 1 },
         /** @prop visible visible or not. 1 or 0, not true or false. @default 1 */
         visible: { value: 1 },
+        w: { value: 100 },
+        h: { value: 100 },
+        cliprect: { value: 0 },
     },
     //replaces all setters
     set: function(name, value) {

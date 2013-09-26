@@ -66,6 +66,18 @@ function mkdir(dir) {
     }
 }
 
+
 exports.javac = javac;
 exports.mkdir = mkdir;
 exports.exec = doExec;
+
+exports.copyAllTo = function(path, dir) {
+    var files = fs.readdirSync(path);
+    files.forEach(function(file) {
+        var filename = path + '/' + file;//file.substring(file.lastIndexOf('/'));
+        var temp = fs.readFileSync(filename);
+        var outpath = dir+'/'+file;
+        console.log('copying ' + filename + ' to ' + outpath);
+        fs.writeFileSync(outpath,temp);
+    });
+}

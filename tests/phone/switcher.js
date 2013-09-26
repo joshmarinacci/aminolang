@@ -5,17 +5,38 @@ if(process.platform == 'darwin') {
     amino = require('./amino.js');    
 }
 function Switcher() {
-    var current = 0;
+    var yoff = 80;
+    current = 0;
     this.apps = [];
     this.root = null;
     this.switcherPanel = null;
+    this.zoomedin = true;
     
     
+    this.delayedAdd = function(app) {
+        for(var i=0; i<this.apps.length; i++) {
+            var ap = this.apps[i];
+            if(i <= current) {
+                var xoff = (i-current-1)*self.switcherPanel.getW();
+                amino.getCore().createPropAnim(ap,'tx', ap.getTx(), self.switcherPanel.getW()/4+xoff/2, 200);
+            }
+        }
+        setTimeout(function() {
+           self.add(app);
+        },250);
+    }
     this.add = function(app) {
+        console.log('adding an app');
         this.root.add(app);
-        this.apps.push(app);
-        this.core.on("drag",app,this.dragHandler);
-        this.core.on("release",app,this.releaseHandler);
+        this.apps.splice(current+1, 0, app);
+        //this.core.on("drag",app,this.dragHandler);
+        //this.core.on("release",app,this.releaseHandler);
+        if(this.zoomedin) {
+        } else {
+            app.setTx(100).setScalex(0.5).setScaley(0.5);
+            amino.getCore().createPropAnim(app,'ty',480, 80, 200);
+        }
+        current++;
     }
     this.onZoomIn = null;
     this.onZoomOut = null;
@@ -26,16 +47,17 @@ function Switcher() {
         if(self.zoomedin) {
             var xoff = (i-current)*this.switcherPanel.getW();
             anim = this.core.createPropAnim(rect, "tx", rect.getTx(), xoff, dur);
+            rect.setTy(yoff);
         } else {
             var xoff = (i-current)*this.switcherPanel.getW()*1.2;
             anim = this.core.createPropAnim(rect, "tx", rect.getTx(), this.switcherPanel.getW()/4+xoff/2, dur);
+            rect.setTy(yoff);
         }
         anim.setInterpolator(amino.Interpolators.CubicInOut);
     }
     
     this.zoomit = function(i,rect) {
         var dur = 300;
-        var yoff = 80;
         var xoff = (i-current)*this.switcherPanel.getW()*1.2;
         if(self.zoomedin) {
             //zoom out
@@ -109,7 +131,6 @@ function Switcher() {
         }
     }
     
-    this.zoomedin = true;
 
     this.zoomAll = function() {
         for(var i in self.apps) {
@@ -127,6 +148,9 @@ function Switcher() {
         }
     }
     
+    this.setCurrent = function(c) {
+        current = c;
+    }
     
 }
 

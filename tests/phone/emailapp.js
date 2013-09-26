@@ -58,6 +58,7 @@ function EmailApp(stage,nav,data) {
     var panel = new widgets.AnchorPanel()
         .setFill(amino.bg_accent_color);
     panel.add(new widgets.Label()
+            .setText("Inbox")
             .setW(320)
             .setH(30)
             .setFill("#ffffff")
@@ -68,7 +69,6 @@ function EmailApp(stage,nav,data) {
             .setTy(0)
             .setAnchorLeft(true).setLeft(0)
             .setAnchorTop(true).setTop(0)
-            .setText("Inbox")
             );
     
     var lv = new widgets.ListView();

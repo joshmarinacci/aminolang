@@ -504,6 +504,7 @@ exports.ComposeObject = function(proto) {
         obj.props[name] = prop.value;
         obj["set"+camelize(name)] = function(value) {
             this.props[name] = value;
+            this.dirty = true;
             return this;
         };
         obj["get"+camelize(name)] = function() {
@@ -517,6 +518,7 @@ exports.ComposeObject = function(proto) {
     function generalizeProp(obj, name, prop) {
         obj["set"+camelize(name)] = function(value) {
             obj.set(name,value);
+            this.dirty = true;
             return this;
         };
     }
@@ -922,17 +924,9 @@ exports.ProtoText = exports.ComposeObject({
                 }
                 this.font = fontmap[value];
                 this.updateFont();
-            } else {
-                if(name == 'fontWeight') {
-                    this.updateFont();
-                }
-                exports.native.updateProperty(this.handle, name, value);
+                return;
             }
-            if(name == 'fontSize') {
-                //need to update the text too
-                this.updateFont();
-                exports.native.updateProperty(this.handle, 'text', this.props['text']);
-            }
+            exports.native.updateProperty(this.handle, name, value);
         }
         
         if(name == 'fill') {
@@ -944,6 +938,14 @@ exports.ProtoText = exports.ComposeObject({
         }
     },
     init: function() {
+        var self = this;
+        exports.getCore().on('validate',null,function() {
+            if(self.dirty) {
+                self.updateFont();
+                exports.native.updateProperty(self.handle, 'text', self.getText());
+                self.dirty = false;
+            }
+        });
         this.live = true;
         this.handle = exports.native.createText();
         this.updateFont = function() {

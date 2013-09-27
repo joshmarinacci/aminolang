@@ -13,12 +13,27 @@ LOCAL_MODULE_TAGS     := eng
 LOCAL_SRC_FILES       := prebuilt/binaries/libv8_empty
 include $(BUILD_PREBUILT)
 
+include $(CLEAR_VARS)
+LOCAL_MODULE          := libfreetype
+LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
+LOCAL_MODULE_TAGS     := eng
+LOCAL_SRC_FILES       := prebuilt/binaries/libfreetype_empty
+include $(BUILD_PREBUILT)
+
 # prebuilt libv8 
 include $(CLEAR_VARS)
 LOCAL_MODULE          := libv8.so
 LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
 LOCAL_MODULE_TAGS     := eng
 LOCAL_SRC_FILES       := prebuilt/binaries/libv8.so
+include $(BUILD_PREBUILT)
+
+# prebuilt libfreetype.so
+include $(CLEAR_VARS)
+LOCAL_MODULE          := libfreetype.so
+LOCAL_MODULE_CLASS    := SHARED_LIBRARIES
+LOCAL_MODULE_TAGS     := eng
+LOCAL_SRC_FILES       := prebuilt/binaries/libfreetype.so
 include $(BUILD_PREBUILT)
 
 # prebuilt node next
@@ -33,6 +48,7 @@ include $(BUILD_PREBUILT)
 # now the main addon
 include $(CLEAR_VARS)
 
+# note that we are currently including the prebuilt libfreetype-gl to link in as well.
 LOCAL_SRC_FILES:= \
     src/sg/fonts/vector.c \
     src/sg/fonts/vertex-buffer.c \
@@ -45,7 +61,8 @@ LOCAL_SRC_FILES:= \
     src/sg/shaders.cpp \
     src/sg/base.cpp \
     src/sg/klaatu_events.cpp \
-    src/sg/klaatu.cpp
+    src/sg/klaatu.cpp \
+    prebuilt/binaries/libfreetype-gl.a
 
 
 
@@ -76,6 +93,7 @@ LOCAL_SHARED_LIBRARIES := \
     libEGL libGLESv2 libui libgui \
     libutils libstlport libinput \
     libjpeg \
+    libfreetype \
     libv8 \
     libmedia libbinder libcutils \
     libz

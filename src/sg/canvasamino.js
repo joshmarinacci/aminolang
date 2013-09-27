@@ -208,6 +208,9 @@ function CanvasFont(g) {
         var metrics = this.g.measureText(ch);
         return metrics.width;
     };
+    this.getNative = function() {
+        return -1;
+    };
 }
 
 //does platform specific native event handler setup

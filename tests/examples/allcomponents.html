@@ -1,9 +1,11 @@
 <html>
 <head>
+
 <script src='../../build/canvas/amino.js'></script>
 <script src='../../build/canvas/widgets.js'></script>
 <script src='../../build/canvas/canvasbacon.js'></script>
 <script src='../../build/canvas/canvasamino.js'></script>
+
 <style type='text/css'>
 body { margin: 0; padding: 0; }
 canvas { border: 1px solid black; }
@@ -13,10 +15,7 @@ canvas { border: 1px solid black; }
 <canvas id='mycanvas' width='800' height='600'></canvas>
 <script type='text/javascript'>
 amino.startApp('mycanvas',function(core, stage) {
-
     console.log("inside the start app");
-    
-    
     var tests = [];
     var selected = 0;
     var root = new amino.ProtoGroup();
@@ -25,10 +24,18 @@ amino.startApp('mycanvas',function(core, stage) {
     var label = new widgets.Label().setText("test X")
         .setW(60).setH(30).setTx(0).setTy(0);
     root.add(label);
+    root.add(new widgets.PushButton()
+        .setText("prev")
+        .setW(80).setH(30)
+        .setTx(20).setTy(30)
+        .onAction(function() {
+            selected = (selected-1+tests.length)%tests.length;
+            switchTest(selected);
+        }));
     root.add(new widgets.PushButton().setText("next")
         .setW(80).setH(30)
-        .setTx(100).setTy(30).onAction(function() {
-        console.log("clicked on the button");
+        .setTx(200).setTy(30)
+        .onAction(function() {
             selected = (selected+1)%tests.length;
             switchTest(selected);
         }));
@@ -44,15 +51,21 @@ amino.startApp('mycanvas',function(core, stage) {
     var shapes = {
         title: "basic shapes",
         content: new amino.ProtoGroup()
-        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00"))
-        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00").setOpacity(0.2).setTx(100))
-        .add(new amino.ProtoText().setText("text").setFill("#0000ff").setTx(200))
-        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(true).setTy(100))
-        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(false).setTx(100).setTy(100))
+        .add(new amino.ProtoText().setText("rects w/ & w/o opacity").setTx(0).setTy(-10))
+        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00").setTx(5).setTy(20))
+        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00").setOpacity(0.2).setTx(100).setTy(20))
+        
+        .add(new amino.ProtoText().setText("text").setFill("#0000ff").setTx(230))
+        
+        
+        .add(new amino.ProtoText().setText("polys w/ & w/o opacity").setTx(0).setTy(100))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(true).setTy(120))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(false).setTx(100).setTy(120))
         .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(true).setTy(200))
         .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(false).setTy(200).setTx(100))
         
-        .add(new amino.ProtoImageView().setSrc("../images/keane_01.jpg").setTx(300))
+        .add(new amino.ProtoText().setText("image scaled 0.5x").setTx(300).setTy(0))
+        .add(new amino.ProtoImageView().setSrc("../images/keane_01.jpg").setTx(300).setTy(20).setScalex(0.5).setScaley(0.5))
     };
     tests.push(shapes);
     
@@ -60,10 +73,12 @@ amino.startApp('mycanvas',function(core, stage) {
     
     var simpleControls = {
         title: "simple controls",
-        content: new widgets.VerticalPanel().setW(100).setH(200).setGap(5).setPadding(5),
+        content: new widgets.VerticalPanel().setW(300).setH(200).setGap(5).setPadding(5),
     }
-    simpleControls.content.add(new widgets.Label().setText("a label").setH(30));
-    simpleControls.content.add(new widgets.PushButton().setText("a button").setH(30));
+    simpleControls.content.add(new widgets.Label().setText("a label inside vertical panel").setH(30));
+    simpleControls.content.add(new widgets.PushButton().setText("Push Button").setH(30));
+    simpleControls.content.add(new widgets.ToggleButton().setText("Toggle Button").setH(30));
+    simpleControls.content.add(new widgets.Label().setText("a slider is next").setH(30));
     simpleControls.content.add(new widgets.Slider());
     //simpleControls.content.add(new widgets.ProgressSpinner().setActive(true).setSize(30));
     tests.push(simpleControls);
@@ -85,7 +100,27 @@ amino.startApp('mycanvas',function(core, stage) {
     text.content.add(new widgets.TextField().setW(200).setH(30).setTy(40));
     tests.push(text);
     
-//    switchTest(0);
+    
+    
+    var anims = {
+        title: "simple animations",
+        content: new amino.ProtoGroup()
+        .add(new widgets.PushButton().setText("anim 0 to 100 over 1 sec. no easing").setW(300).setH(30).setTx(0).setTy(30).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'tx',0,100,1000);
+        }))
+        .add(new widgets.PushButton().setText("anim 0 to 100 over 3 sec. no easing").setW(300).setH(30).setTx(0).setTy(70).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'tx',0,50,3000);
+        }))
+        .add(new widgets.PushButton().setText("anim 0 to 200 over 1 sec. ease in").setW(300).setH(30).setTx(0).setTy(110).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'tx',0,200,1000).setInterpolator('easin');
+        }))
+        .add(new widgets.PushButton().setText("anim rotate 360 over 1 sec. ease in").setW(300).setH(30).setTx(0).setTy(150).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'rotateX',0,360,1000);
+        }))
+    };
+    tests.push(anims);
+    
+    switchTest(0);
 
         
 });

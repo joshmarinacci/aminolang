@@ -369,8 +369,6 @@ widgets.Label = amino.ComposeObject({
             if(this.props.align == 'left') {
                 this.comps.text.setTx(Math.round(this.getW()-textw)/2);
             }
-            //this.comps.text.setTx((w-textw)/2);
-//            this.comps.text.setTx(3);
         }
     }
 });
@@ -982,7 +980,7 @@ function TextView() {
     }
     this.getCharWidth = function(ch) {
         return 15;
-//        return this.font.calcStringWidth(ch,this.getFontSize());
+        //        return this.font.calcStringWidth(ch,this.getFontSize());
     }
     this.getCharAt = function(n) {
         return this.model.text.substring(n,n+1);

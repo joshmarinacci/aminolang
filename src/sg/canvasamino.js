@@ -221,8 +221,10 @@ function attachEvent(node,name,func) {
         node.attachEvent(name,func);
     }
 };
-function setupEventHandlers(dom) {
+
+amino.setupEventHandlers = function() {
     var self = this;
+    var dom = amino.native.domcanvas;
     
     attachEvent(dom,'mousedown',function(e){
         mouseState.pressed = true;
@@ -257,6 +259,7 @@ function setupEventHandlers(dom) {
                 keycode: e.keyCode,
         });
     });
+    /*
     if(window.DeviceMotionEvent) {
         console.log("motion IS supported");
         attachEvent(window,'devicemotion',function(e){
@@ -264,18 +267,26 @@ function setupEventHandlers(dom) {
         });
     } else {
         console.log("motion not supported");
-    }    
+    } 
+    */
+    
 }
 
 amino.bacon = Bacon;
+
 amino.startApp = function(id, cb) {
+    if(!id) throw new Error("ID parameter missing to start app");
+    if(!cb) throw new Error("CB parameter missing to start app");
     var domcanvas = document.getElementById(id);
+    if(domcanvas == null) throw new Error("couldn't find canvas with id " + id);
     amino.native.domcanvas = domcanvas;
     amino.native.domctx = domcanvas.getContext('2d');
-    setupEventHandlers(amino.native.domcanvas);
+    if(amino.native.domctx == null) throw new Error("couldn't get a 2d context");
+    amino.setupEventHandlers();
     Core._core = new Core();
     Core._core.init();
     var stage = Core._core.createStage(600,600);
     cb(Core._core,stage);
     Core._core.start();
 }
+

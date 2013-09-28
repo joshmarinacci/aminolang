@@ -1320,8 +1320,7 @@ function Core() {
             height:size.h,
         });
         if(!this.root) {
-            console.log("ERROR. No root set!");
-            process.exit();
+            throw new Error("ERROR. No root set on stage");
         }
         // use setTimeout for looping
         function tickLoop() {

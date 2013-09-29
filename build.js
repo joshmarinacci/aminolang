@@ -130,120 +130,6 @@ function parseit(str) {
 function eq(a,b) {
     if(a != b) throw (a + " != " + b);
 }
-function langtest(cb) {
-    try {
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    
-    var tree = "";
-    
-    
-    tree = JoshParser.matchAll("4+5",'exp');    
-    eq(tree[1][0],'add');
-    eq(tree[1][1][1][0],'literal');
-    eq(tree[1][1][1][1],4);
-    
-    var ex1 = "var rect:Rect = core.createRect();";
-    tree = JoshParser.matchAll(ex1,'stmt');
-    console.log(u.inspect(tree,false,20));
-    
-    /*
-        var rect = null;
-        var rect = core.createRect();
-        var rect = 4+5;
-        var rect = z;
-        var rect = 4+z;
-        rect = z;
-    */
-    
-    } catch(e) {
-        console.log("ERROR: " + e);
-    }
-}
-
-//generate java2d code from the def files
-//can probably share this with JOGL too
-function java2dgen(cb) {
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
-    var tree = JoshParser.matchAll(stdDefs,'top');
-    console.log("parsed defs");
-    console.log(u.inspect(tree,false,20));
-    
-    {
-        //java code
-        var java2dcode = Josh2Java.matchAll([tree], 'blocks');
-        console.log("generated java code");
-        var java2doutdir = outdir+"/"+"java2d";
-        jb.mkdir(java2doutdir);
-        var java2dout = java2doutdir+"/out.java";
-        
-        var javatemplate = fs.readFileSync('src/java2d/template_java','utf8');
-        javatemplate = javatemplate.replace("${test}",java2dcode);
-        
-        fs.writeFileSync(java2dout, javatemplate);
-        console.log("wrote out " + java2dout);
-    }
-    
-    if(cb) cb();
-}
-
-function joglgen(cb) {
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
-    var tree = JoshParser.matchAll(stdDefs,'top');
-    console.log("parsed defs");
-    //console.log(u.inspect(tree,false,20));
-    
-    {
-        //java code
-        var joglcode = Josh2Java.matchAll([tree], 'blocks');
-        console.log("generated java jogl code");
-        var joutdir = outdir+"/"+"jogl";
-        jb.mkdir(outdir);
-        var outfile = joutdir+"/out.java";
-        
-        var javatemplate = fs.readFileSync('src/java2d/template_java','utf8');
-        javatemplate = javatemplate.replace("${test}",joglcode);
-        
-        fs.writeFileSync(outfile, javatemplate);
-        console.log("wrote out " + outfile);
-    }
-    
-    if(cb) cb();
-}
-
-function jscanvasgen(cb) {
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
-    var tree = JoshParser.matchAll(stdDefs,'top');
-    console.log("parsed defs");
-    console.log(u.inspect(tree,false,20));
-    {
-        //js code    
-        var jscode = Josh2JS.matchAll([tree], 'blocks');
-        console.log("generated js code");
-        var jsoutdir = outdir+"/"+"jscanvas";
-        jb.mkdir(jsoutdir);
-        var jsout = jsoutdir+"/out.js";
-        fs.writeFileSync(jsout,jscode);
-        console.log("wrote out " + jsout);
-    }
-    if(cb) cb();
-}
-
 function p(s) {
     console.log(s);
 }
@@ -325,74 +211,6 @@ function docs(cb) {
 }
 
 
-function cppgen(cb) {
-    var parsersjs = fs.readFileSync('src/aminolang/parsers.js','utf8');
-    parseit(parsersjs);
-    var stdDefs = fs.readFileSync('src/aminolang/core.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/controls.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/corecore.def','utf8');
-    stdDefs += fs.readFileSync('src/aminolang/tests.def','utf8');
-    var tree = JoshParser.matchAll(stdDefs,'top');
-    console.log("parsed defs");
-    
-    {
-        //C++ code
-        var code = Amino2CPP.matchAll([tree], 'blocks');
-        //console.log(code);
-        
-        var cppoutdir = outdir+"/cpp/";
-        jb.mkdir(cppoutdir);
-        fs.writeFileSync(cppoutdir+"out.h",
-            '#include <string>\n'+
-            '#include <vector>\n'+
-            'using namespace std;'+
-            Amino2CPP.getHFile());
-        fs.writeFileSync(cppoutdir+"out.cpp",
-            '#include "out.h"\n'+
-            Amino2CPP.getCPPFile());
-    }
-    
-    if(cb) cb();
-}
-
-
-function java2dcompile(cb) {
-    console.log("doing the java2d core now");
-    var files = [
-        "build/java2d/out.java",
-        "src/java2d/com/joshondesign/aminogen/generated/CommonObject.java",
-        "src/java2d/com/joshondesign/aminogen/custom/CoreImpl.java",
-        "src/java2d/com/joshondesign/aminogen/custom/Controls.java",
-        "src/java2d/com/joshondesign/aminogen/custom/TestRunner.java",
-        "tests/General.java",
-    ];
-    var outdir = "build/java2d/classes";
-    //the javac task can't handle *.java paths yet
-    jb.javac(files, outdir, { classpath: null},cb);
-}
-
-function joglcompile(cb) {
-    var files = [
-        "build/jogl/out.java",
-        "src/jogl/com/joshondesign/aminogen/generated/CommonObject.java",
-        "src/jogl/com/joshondesign/aminogen/custom/CoreImpl.java",
-        "src/jogl/com/joshondesign/aminogen/custom/Shader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/ColorShader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/TextureShader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/FontShader.java",
-        "src/jogl/com/joshondesign/aminogen/custom/Insets.java",
-        "src/jogl/com/joshondesign/aminogen/custom/VUtils.java",
-        "tests/General.java",
-    ];
-    var outdir = "build/jogl/classes";
-    var classpath = [
-        "/Users/josh/projects/lib/jogamp-all-platforms/jar/gluegen-rt.jar",
-        "/Users/josh/projects/lib/jogamp-all-platforms/jar/jogl-all.jar",
-    ];
-    jb.javac(files,outdir,{classpath:classpath.join(":")},cb);
-}
-
-
 function copyFileTo(file, dir) {
     var filename = file.substring(file.lastIndexOf('/'));
     var temp = fs.readFileSync(file);
@@ -402,30 +220,6 @@ function copyFileTo(file, dir) {
     
 }
 
-function jscanvastest(cb) {
-    copyFileTo('src/jscanvas/TestRunner.html','build/jscanvas');
-    copyFileTo('src/jscanvas/init.js','build/jscanvas');
-    copyFileTo('src/jscanvas/handcoded7.js','build/jscanvas');
-    copyFileTo('src/jscanvas/monkeypatch.js','build/jscanvas');
-}
-
-
-
-function java2dtest(cb) {
-    jb.exec("java -cp build/java2d/classes com.joshondesign.aminogen.custom.TestRunner com.joshondesign.aminogen.generated.out.SimpleTest", cb);
-}
-function java2dtest2(cb) {
-    jb.exec("java -cp build/java2d/classes General", cb);
-}
-
-function jogltest(cb) {
-    var classpath = [
-        "build/jogl/classes",
-        "/Users/josh/projects/lib/jogamp-all-platforms/jar/gluegen-rt.jar",
-        "/Users/josh/projects/lib/jogamp-all-platforms/jar/jogl-all.jar",
-    ];
-    doExec("java -cp " + classpath.join(":") + " General", cb);
-}
 
 function desktop(cb) {
     var out = outdir + "/desktop";
@@ -470,6 +264,7 @@ function androidnative(cb) {
     copyFileTo("aminonative.node",out);
     //prebuilts
     copyFileTo("prebuilt/binaries/libv8.so",out);
+    copyFileTo("prebuilt/binaries/libfreetype.so",out);
     copyFileTo("prebuilt/binaries/node",out);
     doExec("adb push " + out + " /data/phonetest");
 }
@@ -484,19 +279,16 @@ function androidjs(cb) {
     copyFileTo(src+"Bacon.js",out);
     copyFileTo(src+"widgets.js",out);
     //resource files
-    copyFileTo("resources/font.json",out);
-    copyFileTo("resources/font.png",out);    
     
     //various demos and tests
     copyFileTo("tests/runit.sh",out);
-    copyFileTo("tests/phonecards.js",out);
-    copyFileTo("tests/phone/phone4.js",out);
-    copyFileTo("tests/phone/fakedata.js",out);
-    copyFileTo("tests/phone/switcher.js",out);
-    copyFileTo("tests/phone/services.js",out);
-    copyFileTo("tests/phone/database.js",out);
-    copyFileTo("tests/phone/emailapp.js",out);
-    copyFileTo("tests/phone/lockscreen.js",out);
+    jb.copyAllTo("tests/phone",out);
+    var shaders = out + "/shaders";
+    jb.mkdir(shaders)
+    jb.copyAllTo("shaders/",shaders);
+    var fonts = out + "/fonts";
+    jb.mkdir(fonts);
+    jb.copyAllTo("fonts/",fonts);
     
     copyFileTo("tests/perf/drag1.js",out);
     

@@ -30,9 +30,15 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
+#ifdef GL_ES
+precision mediump float;
+#endif
 uniform sampler2D texture;
+varying vec2 uv;
+varying vec4 frontcolor;
 void main()
 {
-    float a = texture2D(texture, gl_TexCoord[0].xy).a;
-    gl_FragColor = vec4(gl_Color.rgb, gl_Color.a*a);
+    //float a = texture2D(texture, gl_TexCoord[0].xy).a;
+    float a = texture2D(texture, uv).a;
+    gl_FragColor = vec4(frontcolor.rgb, frontcolor.a*a);
 }

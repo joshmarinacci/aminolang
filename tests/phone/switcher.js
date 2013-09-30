@@ -89,13 +89,45 @@ function Switcher() {
     }
     
     var self = this;
+    var sx = 0;
+    this.pressHandler = function(e) {
+        self.sx = e.x;
+    }
     this.dragHandler = function(e) {
+        var x = self.apps[current].getTx();
+        console.log("current = " + current + " x = " + x + " dx = " + e.dx);
+        if(Math.abs(e.dx) > 50) return;
         self.apps.forEach(function(v) {
             v.setTx(v.getTx()+e.dx);
         });
     }
 
     this.releaseHandler = function(e) {
+        if(Math.abs(e.x - self.sx) < 15) {
+            console.log("didn't move");
+            self.zoomAll();
+            return;
+        }
+        for(var i = 0; i< self.apps.length; i++) {
+            var app = self.apps[i];
+            var x = app.getTx();
+            var w = this.switcherPanel.getW();
+            var sh = w/4 + i*w*1.2/2  - current*w*1.2/2;
+            var sh2 = Math.round((x-w/4)/(w*1.2/2));
+            console.log("should = " + sh + " actual = " + x + " sh2 = " + sh2);
+            if(sh2 == 0) current = i;
+            console.log("new current = " + current);
+            //app.setTx(sh);
+        }
+        for(var i = 0; i< self.apps.length; i++) {
+            var app = self.apps[i];
+            var xoff = (i-current)*this.switcherPanel.getW()*1.2;
+            app.setTx(w/4 + xoff/2);
+        }
+        
+        //console.log("current = " + current + " x = " + x + " w = " + w + " x/w = " + (x/w) + " sh = " + sh);
+        //console.log("n = " + Math.round(x/w));
+        /*
         var n = self.apps.indexOf(e.target);
         var xoff = (n-current)*this.switcherPanel.getW()*1.2;
         var targetX = this.switcherPanel.getW()/4 + xoff/2;
@@ -111,7 +143,7 @@ function Switcher() {
         
         for(var i in self.apps) {
             self.slide(i,self.apps[i]);
-        }
+        }*/
     }
     
     

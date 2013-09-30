@@ -184,15 +184,6 @@ var root = new amino.ProtoGroup();
 root.setTy(20);
 switcherPanel.add(root);
 
-stage.on("windowsize", stage, function(e) {
-    ww = e.width;
-    wh = e.height;
-    switcherPanel.setW(getWW());
-    switcherPanel.setH(getWH());
-    nav.setSize(getWW(),getWH());
-    statusBar.setW(getWW());
-});
-
 var switcher = new Switcher();
 switcher.core = core;
 switcher.root = root;
@@ -239,10 +230,21 @@ var dock = buildDock(stage);
 
 
 switcherPanel.add(dock);
-var scrim = new amino.ProtoRect().setW(getWW()).setH(getWH()-20-30 - 80-30).setTy(20+30).setVisible(0).setOpacity(0.0).setFill("#0000ff");
-core.on('press',scrim, function() {
-    switcher.zoomAll();
-    core.requestFocus();
+var scrim = new amino.ProtoRect()
+    .setW(getWW())
+    .setH(getWH()-20-30- 80-30)
+    .setTy(20+30)
+    .setVisible(0).setOpacity(0.0).setFill("#0000ff").setId("scrim");
+core.on('press',scrim, function(e) {
+    switcher.pressHandler(e);
+//    switcher.zoomAll();
+//    core.requestFocus();
+});
+core.on('drag', scrim, function(e) {
+    switcher.dragHandler(e);
+});
+core.on('release', scrim, function(e) {
+    switcher.releaseHandler(e);
 });
 switcher.onZoomIn = function() {
     var anim  = core.createPropAnim(dock,"ty",getWH()-bottom-80,getWH(), 300);
@@ -478,6 +480,16 @@ core.on('edgeswipestart',null,function(e) {
     }
 });
 
+
+stage.on("windowsize", stage, function(e) {
+    ww = e.width;
+    wh = e.height;
+    switcherPanel.setW(getWW());
+    switcherPanel.setH(getWH());
+    nav.setSize(getWW(),getWH());
+    statusBar.setW(getWW());
+    scrim.setW(getWW());
+});
 
 
 function generateFakeNotification() {

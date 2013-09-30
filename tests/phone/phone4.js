@@ -19,7 +19,7 @@ var fs = require('fs');
 
 amino.SOFTKEYBOARD_ENABLED = true;
 
-//amino.setHiDPIScale(2);
+amino.setHiDPIScale(2);
 amino.startApp(function(core, stage) {
     stage.setSize(320,480);
 
@@ -44,7 +44,7 @@ amino.fg_accent_color = "#ffffff";
 
 function buildStatusBar(stage)  {
     
-    var fs = 12;
+    var fs = 10;
     
     var panel = new widgets.AnchorPanel()
         .setW(getWW()).setH(20)
@@ -211,7 +211,7 @@ function buildDock(stage) {
     apps.forEach(function(app) {
         dock.add(new widgets.PushButton()
             .setW(60).setH(60)
-            .setFontSize(40)
+            .setFontSize(20)
             .setFill(app.fill)
             .setColor(app.color)
             .setFontName('awesome')

@@ -681,10 +681,6 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     bad = texture_font_load_glyphs(font,text);
     if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[10] = font;
-    font = texture_font_new(afont->atlas, filename, 12);
-    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[12] = font;
     font = texture_font_new(afont->atlas, filename, 15);
     texture_font_load_glyphs(font,text);
     if(bad > 0) printf("bad glyphs = %d\n",bad);
@@ -693,6 +689,10 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     texture_font_load_glyphs(font,text);
     if(bad > 0) printf("bad glyphs = %d\n",bad);
     afont->fonts[20] = font;
+    font = texture_font_new(afont->atlas, filename, 30);
+    texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[30] = font;
     
     font = texture_font_new(afont->atlas, filename, 40);
     texture_font_load_glyphs(font,text);

@@ -43,7 +43,7 @@ function LockScreen(core,stage) {
     console.log(moment().format('MMMM Do YYYY, h:mm:ss a'));
     var timeLabel = new widgets.Label()
         .setFill("#ffffff")
-        .setFontSize(40)
+        .setFontSize(20)
         .setText("12:38")
         .setTx(20)
         .setAnchorTop(true).setTop(10);

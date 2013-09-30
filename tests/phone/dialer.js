@@ -23,7 +23,7 @@ exports.Dialer = function(stage,nav,data) {
     panel.add(dial);
     
     dial.add(new widgets.Label()
-        .setText("707-707-7077").setFontSize(40)
+        .setText("707-707-7077").setFontSize(20)
         .setW(200).setH(50).setTx(65).setTy(15)
         );
     

@@ -111,6 +111,15 @@ var defaultFonts = {
         }
     },
 }
+var validFontSizes = {10:10,15:15,20:20,30:30,40:40};
+
+function validateFontSize(fs) {
+    if(validFontSizes[fs] == undefined) {
+        console.log("WARNING.  invalid font size: " + fs);
+        return 15;
+    }
+    return fs;
+}
 
 exports.native = {
     createNativeFont: function(path) {
@@ -938,6 +947,11 @@ exports.ProtoText = exports.ComposeObject({
                 this.font = fontmap[value];
                 this.updateFont();
                 return;
+            }
+            if(name == "fontSize") {
+                value = validateFontSize(value*Core.DPIScale);
+                this.setScalex(0.5);
+                this.setScaley(0.5);
             }
             exports.native.updateProperty(this.handle, name, value);
         }

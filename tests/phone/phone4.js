@@ -19,6 +19,7 @@ var fs = require('fs');
 
 amino.SOFTKEYBOARD_ENABLED = true;
 
+//amino.setHiDPIScale(2);
 amino.startApp(function(core, stage) {
     stage.setSize(320,480);
 
@@ -170,11 +171,11 @@ var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(getWW()).setH(getWH());
 switcherPanel.setFill("#333333");
 stage.on("windowsize", stage, function(e) {
-    console.log('window has been resized: ' + stage.getW(), " ", e.width);
     ww = e.width;
     wh = e.height;
     switcherPanel.setW(getWW());
     switcherPanel.setH(getWH());
+    nav.setSize(getWW(),getWH());
 });
 superroot.add(switcherPanel);
 
@@ -220,14 +221,15 @@ function buildDock(stage) {
                 var node = app.gen();
                 if(node.setW) node.setW(getWW());
                 if(node.setH) node.setH(getWH());
+                nav.setSize(getWW(),getWH());
                 switcher.delayedAdd(node);
             })
             );
         x++;
     });
     stage.on("WINDOWSIZE", stage, function(e) {
-        bg.setW(getWW());
-        dock.setTy(getWH());
+        bg.setW(e.width);
+        dock.setTy(e.height);
     });
     return dock;
 }
@@ -443,7 +445,6 @@ function buildApp6(stage) {
 
 
 
-nav.setSize(getWW(),getWH());
 
 switcherPanel.add(scrim);
 
@@ -534,12 +535,9 @@ function NavigationManager() {
         for(var i in self.panels) {
             var panel = self.panels[i];
             sizePanel(panel,w,h);
-            panel.setTy(this.insets.top);
+            //panel.setTy(this.insets.top);
         }
     }
-    stage.on("WINDOWSIZE", stage, function(e) {
-        self.setSize(getWW(),getWH());
-    });
 }
 function SwipeRecognizer(stage,cb) {
     

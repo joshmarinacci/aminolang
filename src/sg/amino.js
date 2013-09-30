@@ -118,14 +118,18 @@ exports.native = {
         return exports.sgtest.createNativeFont(path);
     },
     init: function(core) {
-        //console.log("doing native init");
+        console.log("doing native init. dpi scale = " + Core.DPIScale);
         exports.sgtest.init();
     },
     createWindow: function(core,w,h) {
-        exports.sgtest.createWindow(w,h);
+        exports.sgtest.createWindow(w* Core.DPIScale,h*Core.DPIScale);
         fontmap['source']  = new JSFont(defaultFonts['source']);
         fontmap['awesome'] = new JSFont(defaultFonts['awesome']);
         core.defaultFont = fontmap['source'];
+        this.rootWrapper = exports.native.createGroup();
+        exports.native.updateProperty(this.rootWrapper, "scalex", Core.DPIScale);
+        exports.native.updateProperty(this.rootWrapper, "scaley", Core.DPIScale);
+        exports.sgtest.setRoot(this.rootWrapper);
     },
     getFont: function(name) {
         return fontmap[name];
@@ -134,7 +138,7 @@ exports.native = {
         exports.sgtest.updateProperty(handle, propsHash[name], value);        
     },
     setRoot: function(handle) {
-        exports.sgtest.setRoot(handle);
+        exports.sgtest.addNodeToGroup(handle,this.rootWrapper);
     },
     tick: function() {
         exports.sgtest.tick();
@@ -163,10 +167,14 @@ exports.native = {
         return exports.sgtest.createText();
     },
     setWindowSize: function(w,h) {
-        exports.sgtest.setWindowSize(w,h);
+        exports.sgtest.setWindowSize(w*Core.DPIScale,h*Core.DPIScale);
     },
     getWindowSize: function(w,h) {
-        return exports.sgtest.getWindowSize(w,h);
+        var size = exports.sgtest.getWindowSize(w,h);
+        return {
+            w: size.w/Core.DPIScale,
+            h: size.h/Core.DPIScale,
+        };
     },
     createAnim: function(handle,prop,start,end,dur,count,rev) {
         return exports.sgtest.createAnim(handle,propsHash[prop],start,end,dur,count,rev);
@@ -1306,6 +1314,8 @@ function Core() {
             if(e.type == "mousebutton") {
                 mouseState.pressed = (e.state == 1);
             }
+            if(e.x) e.x = e.x/Core.DPIScale;
+            if(e.y) e.y = e.y/Core.DPIScale;
             baconbus.push(e);
         });
     }
@@ -1455,6 +1465,7 @@ function Core() {
     }
 }
 
+Core.DPIScale = 1.0;
 function startApp(cb) {
     Core._core = new Core();
     Core._core.init();
@@ -1472,6 +1483,11 @@ exports.Interpolators = {
     CubicIn:propsHash["lerpcubicin"],
     CubicInOut:propsHash["lerpcubicinout"],
 }
+
+exports.setHiDPIScale = function(scale) {
+    Core.DPIScale = scale;
+}
+
 
 
 

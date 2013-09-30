@@ -174,6 +174,11 @@ exports.native = {
     updateAnimProperty: function(handle, prop, type) {
         exports.sgtest.updateAnimProperty(handle, propsHash[prop], type);
     },
+    
+    createPropAnim: function(node,prop,start,end,dur) {
+        return new SGAnim(node,prop,start,end,dur);
+    },
+
 }
 
 var mouseState = {
@@ -1273,7 +1278,7 @@ function Core() {
     alternate direction on every other time. Only applies if the animatione will play more than one time.
     */
     this.createPropAnim = function(node, prop, start, end, dur) {
-        var anim = new SGAnim(node,prop,start,end,dur);
+        var anim = exports.native.createPropAnim(node,prop,start,end,dur);
         anim.init(this);
         this.anims.push(anim);
         return anim;
@@ -1312,6 +1317,7 @@ function Core() {
         ecount = 0;
     }
     this.start = function() {
+        var core = this;
         //send a final window size event to make sure everything is lined up correctly
         var size = exports.native.getWindowSize();
         baconbus.push({
@@ -1324,7 +1330,7 @@ function Core() {
         }
         // use setTimeout for looping
         function tickLoop() {
-            exports.native.tick();
+            exports.native.tick(core);
             setTimeout(tickLoop,1);
         }
         
@@ -1332,7 +1338,7 @@ function Core() {
         function immediateLoop() {
             try {
                 //console.time("tick");
-                exports.native.tick();
+                exports.native.tick(core);
                 self.validate();
                 //console.timeEnd("tick");
             } catch (ex) {

@@ -152,7 +152,8 @@ amino.native = {
     setRoot: function(root) {
         this.root = root;
     },
-    tick: function() {
+    tick: function(core) {
+        this.processAnims(core);
         var w = this.domcanvas.width;
         var h = this.domcanvas.height;
         var g = this.domctx;
@@ -172,18 +173,72 @@ amino.native = {
             h: this.domcanvas.height
         };
     },
-    createAnim: function(handle,prop,start,end,duration) {
-        console.log("faking creating an animation");
-        return {
-            updateAnimProperty:function() {
-                console.log("faking an animition property update");
-            }
-        };
+    createPropAnim: function(node, prop, start, end, dur) {
+        return new CanvasPropAnim(node,prop,start,end,dur);
     },
-    updateAnimProperty: function() {
-        console.log("faking an animition property update");
-    },
+    processAnims: function(core) {
+        core.anims.forEach(function(anim) {
+            anim.update();
+        });
+    }
 };
+
+function CanvasPropAnim(target,prop,start,end,duration) {
+    this.target = target;
+    this.prop = prop;
+    this.start = start;
+    this.end = end;
+    this.duration = duration;
+    this.count = 1;
+    this.autoreverse = false;
+    this.afterCallbacks = [];
+    this.beforeCallbacks = [];
+    this.init = function(core) {
+        this.startTime = Date.now();
+    }
+    this.setInterpolator = function(lerptype) {
+        this.lerptype = lerptype;
+        return this;
+    }
+    this.setCount = function(count) {
+        this.count = count;
+        exports.native.updateAnimProperty(this.handle, "count", count);
+        return this;
+    }
+    this.setAutoreverse = function(av) {
+        this.autoreverse = av;
+        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
+        return this;
+    }
+    this.finish = function() {
+        var setterName = "set"+camelize(this.prop);
+        var setter = this.node[setterName];
+        if(setter) {
+            setter.call(this.node,this.end);
+        }
+        for(var i in this.afterCallbacks) {
+            this.afterCallbacks[i]();
+        }
+    }
+    /** @func after(cb)  Sets a callback to be called when the animation finishes. Note: an infinite animation will never finish. */
+    this.after = function(cb) {
+        this.afterCallbacks.push(cb);
+        return this;
+    }
+    
+    this.before = function(cb) {
+        this.beforeCallbacks.push(cb);
+        return this;
+    }
+    this.update = function() {
+        this.currentTime = Date.now();
+        var t = (this.currentTime - this.startTime)/this.duration;
+        if(t > 1) return;
+        var val = (end-start)*t + start;
+        var setter = this.target["set"+camelize(this.prop)];
+        if(setter) setter.call(this.target,val);
+    }
+}
 
 
 amino.KEY_MAP.LEFT_ARROW   = 37; //browser right key

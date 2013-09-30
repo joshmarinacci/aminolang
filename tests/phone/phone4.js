@@ -467,6 +467,14 @@ switcherPanel.add(new widgets.PushButton().setText(">")
     );
 
 
+core.on('edgeswipestart',null,function(e) {
+    if(e.direction == "up") {
+        switcher.zoomAll();
+    }
+});
+
+
+
 function generateFakeNotification() {
     var panel = new widgets.AnchorPanel()
         .setFill("#ffff55");

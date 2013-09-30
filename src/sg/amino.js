@@ -203,6 +203,8 @@ var mouseState = {
     x:0,
     y:0,
     pressTarget:null,
+    downSwipeInProgress:false,
+    upSwipeInProgress:false,
  }
 var baconbus = null;
 
@@ -358,6 +360,9 @@ function setupBacon(core) {
                 a.dtime = b.dtime;
                 return a;
         })
+        .filter(function(e) {
+                return !(mouseState.downSwipeInProgress || mouseState.upSwipeInProgress);
+        })
         .filter(mousePressed)
         .onValue(function(e) {
             var node = mouseState.pressTarget;
@@ -393,11 +398,14 @@ function setupBacon(core) {
             });
         });
         
+        
     //mouse releases
     var releaseStream = bus.filter(typeIs("mousebutton"))
         .filter(function(e) { return e.state == 0; });
         //        .onValue(log("mouse released"));
     releaseStream.onValue(function(e) {
+        mouseState.downSwipeInProgress = false;
+        mouseState.upSwipeInProgress = false;
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {
             core.fireEventAtTarget(
@@ -415,6 +423,54 @@ function setupBacon(core) {
         }
     });
         
+    var swipeStream = bus.filter(typeIs("mouseposition"))
+        .filter(mousePressed)
+        .slidingWindow(5,2);
+        
+    var downSwipe = swipeStream
+        //make sure it y starts < 10
+        .filter(function(e) { return e[0].y < 10; })
+        .onValue(function(e) {
+            if(!mouseState.downSwipeInProgress) {
+                mouseState.downSwipeInProgress = true;
+                core.fireEvent({
+                    type:"edgeswipestart",
+                    direction:'down',
+                    source:core,
+                    x:e.x,
+                    y:e.y,
+                });
+            }
+        });
+    var upSwipe = swipeStream
+        .filter(function(e) { return e[0].y > core.stage.getH()-10; })
+        .onValue(function(e) {
+            if(!mouseState.upSwipeInProgress) {
+                mouseState.upSwipeInProgress = true;
+                core.fireEvent({
+                    type:"edgeswipestart",
+                    direction:'up',
+                    source:core,
+                    x:e.x,
+                    y:e.y,
+                });
+            }
+        });
+        
+    //issue swipe events
+    bus.filter(typeIs("mouseposition"))
+        .filter(function(e) { return mouseState.downSwipeInProgress || mouseState.upSwipeInProgress; })
+        .onValue(function(e) {
+            var dir = "down";
+            if(mouseState.upSwipeInProgress) dir = "up";
+            core.fireEvent({
+                type:"edgeswipedrag",
+                direction:dir,
+                source:core,
+                x:e.x,
+                y:e.y,
+            });
+        });
         
     //mouse clicks
     clickStream = bus.filter(typeIs("mousebutton"))
@@ -950,8 +1006,8 @@ exports.ProtoText = exports.ComposeObject({
             }
             if(name == "fontSize") {
                 value = validateFontSize(value*Core.DPIScale);
-                this.setScalex(0.5);
-                this.setScaley(0.5);
+                this.setScalex(1.0/Core.DPIScale);
+                this.setScaley(1.0/Core.DPIScale);
             }
             exports.native.updateProperty(this.handle, name, value);
         }
@@ -1344,6 +1400,8 @@ function Core() {
         var core = this;
         //send a final window size event to make sure everything is lined up correctly
         var size = exports.native.getWindowSize();
+        this.stage.width = size.w;
+        this.stage.height = size.h;
         baconbus.push({
             type:"windowsize",
             width:size.w,

@@ -1,11 +1,14 @@
 var amino = null;
 var widgets = null;
+var bottom = 0;
 if(process.platform == 'darwin') {
     amino = require('../../build/desktop/amino.js');
     widgets = require('../../build/desktop/widgets.js');
+    bottom = 30;
 } else {
     amino = require('./amino.js');    
     widgets = require('./widgets.js');
+    bottom = 0;
 }
 
 
@@ -36,8 +39,6 @@ amino.startApp(function(core, stage) {
     }
 
 var nav = new NavigationManager();
-nav.insets.bottom = 30+20;
-nav.insets.top = 0;
 
 amino.bg_accent_color = "#27ae60";
 amino.fg_accent_color = "#ffffff";
@@ -170,13 +171,6 @@ var search = buildSearch();
 var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(getWW()).setH(getWH());
 switcherPanel.setFill("#333333");
-stage.on("windowsize", stage, function(e) {
-    ww = e.width;
-    wh = e.height;
-    switcherPanel.setW(getWW());
-    switcherPanel.setH(getWH());
-    nav.setSize(getWW(),getWH());
-});
 superroot.add(switcherPanel);
 
 
@@ -190,6 +184,14 @@ var root = new amino.ProtoGroup();
 root.setTy(20);
 switcherPanel.add(root);
 
+stage.on("windowsize", stage, function(e) {
+    ww = e.width;
+    wh = e.height;
+    switcherPanel.setW(getWW());
+    switcherPanel.setH(getWH());
+    nav.setSize(getWW(),getWH());
+    statusBar.setW(getWW());
+});
 
 var switcher = new Switcher();
 switcher.core = core;
@@ -243,14 +245,13 @@ core.on('press',scrim, function() {
     core.requestFocus();
 });
 switcher.onZoomIn = function() {
-    var anim =  core.createPropAnim(dock,"ty",getWH()-110,getWH(), 300);
+    var anim  = core.createPropAnim(dock,"ty",getWH()-bottom-80,getWH(), 300);
     var animx = core.createPropAnim(dock,'rotateX',0,-90, 300);
     var anim2 = core.createPropAnim(search,"ty",20,-50, 300);
     scrim.setVisible(0);
 };
 switcher.onZoomOut = function() {
-    var anim = core.createPropAnim(dock,"ty",getWH(),getWH()
-        -110, 300);
+    var anim  = core.createPropAnim(dock,"ty",getWH(),getWH()-bottom-80, 300);
     var animx = core.createPropAnim(dock,'rotateX',-90,0, 400);
     var anim2 = core.createPropAnim(search,"ty",-50,20, 300);
     scrim.setVisible(1);
@@ -448,24 +449,28 @@ function buildApp6(stage) {
 
 switcherPanel.add(scrim);
 
-switcherPanel.add(new widgets.PushButton().setText("<")
-    .setW(100).setH(30)
-    .setBottom(0).setAnchorBottom(true)
-    .onAction(switcher.slidePrev));
-switcherPanel.add(new widgets.PushButton().setText("switch")
-    .setW(100).setH(30)
-    .setLeft(101).setAnchorLeft(true)
-    .setRight(101).setAnchorRight(true)
-    .setBottom(0).setAnchorBottom(true)
-    .onAction(switcher.zoomAll));
-switcherPanel.add(new widgets.PushButton().setText(">")
-    .setW(100).setH(30)
-    .setTx(320-100)
-    .setRight(0).setAnchorRight(true)
-    .setBottom(0).setAnchorBottom(true)
-    .onAction(switcher.slideNext)
-    );
+if(process.platform == 'darwin') {
+    switcherPanel.add(new widgets.PushButton().setText("<")
+        .setW(100).setH(30)
+        .setBottom(0).setAnchorBottom(true)
+        .onAction(switcher.slidePrev));
+    switcherPanel.add(new widgets.PushButton().setText("switch")
+        .setW(100).setH(30)
+        .setLeft(101).setAnchorLeft(true)
+        .setRight(101).setAnchorRight(true)
+        .setBottom(0).setAnchorBottom(true)
+        .onAction(switcher.zoomAll));
+    switcherPanel.add(new widgets.PushButton().setText(">")
+        .setW(100).setH(30)
+        .setTx(320-100)
+        .setRight(0).setAnchorRight(true)
+        .setBottom(0).setAnchorBottom(true)
+        .onAction(switcher.slideNext)
+        );
+}
 
+nav.insets.top = 0;
+nav.insets.bottom = 20+bottom;
 
 core.on('edgeswipestart',null,function(e) {
     if(e.direction == "up") {
@@ -489,8 +494,8 @@ function generateFakeNotification() {
             })
             );
     panel.setW(320).setH(80);
-    panel.setTy(getWH()-80-30);
-    amino.getCore().createPropAnim(panel,'ty', 480, getWH()-80-30, 100);
+    panel.setTy(getWH()-80-bottom);
+    amino.getCore().createPropAnim(panel,'ty', 480, getWH()-80-bottom, 100);
     nav.setSize(getWW(),getWH()-80);
     superroot.add(panel);
 }
@@ -529,7 +534,7 @@ function NavigationManager() {
     }
     this.insets = {
         top: 20,
-        bottom: 30,
+        bottom: 0,
         left: 0,
         right: 0,
     };
@@ -547,55 +552,6 @@ function NavigationManager() {
         }
     }
 }
-function SwipeRecognizer(stage,cb) {
-    
-    var MAX_SWIPE_DURATION = 500;
-    var MIN_SWIPE_DISTANCE = 50;
-    
-    var started;
-    var startTime;
-    var startX;
-    var startY;
-    function reset() {
-        started = false;
-        startTime = 0;
-        startX = 0;
-        startY = 0;
-    }
-    reset();
-    
-    var lastTimeout = 0;
-    stage.on("DRAG",null,function(e) {
-        var time = Date.now();
-        if(!started) {
-            started = true;
-            startTime = time;
-            startX = e.x;
-            startY = e.y;
-        }
-        var dx = e.x - startX;
-        var dy = e.y - startY;
-        var dt = time-startTime;
-        //console.log("pressed it", " x/y ", e.x , e.y, "  dx/dy  ", dx, dy, "  dt", dt);
-        clearTimeout(lastTimeout);
-        lastTimeout = setTimeout(function() {
-            console.log("later");
-            if( startY < 75 && dy > 150 && dt < 500) {
-                console.log("down swipe");
-                cb({type:"down"});
-            }
-            if( startY > 500 && dy < -125 && dt < 300) {
-                console.log("up swipe");
-                cb({type:"up"});
-            }
-            reset();
-        },100);
-    });
-}
-
-
-
-
 /*
 var http = require('http');
 var req = http.request({

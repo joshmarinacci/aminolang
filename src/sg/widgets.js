@@ -979,8 +979,7 @@ function TextView() {
         this.layout();
     }
     this.getCharWidth = function(ch) {
-        return 15;
-        //        return this.font.calcStringWidth(ch,this.getFontSize());
+        return this.font.calcStringWidth(ch,this.getFontSize());
     }
     this.getCharAt = function(n) {
         return this.model.text.substring(n,n+1);
@@ -1786,6 +1785,9 @@ widgets.TextField = amino.ComposeObject({
             this.tc.cursor.insertChar(str);
             this.tc.cursor.advanceChar(+str.length);
         }
+        
+        this.tc.setFontSize(15);
+        this.comps.text.setFontSize(15);
     }
 });
 

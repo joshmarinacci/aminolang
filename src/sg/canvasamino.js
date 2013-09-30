@@ -20,8 +20,8 @@ amino.native = {
         console.log("pretending to set an event callback");
     },
     createWindow: function(core,w,h) {
-        fontmap['source']  = new CanvasFont(this.domctx);//_dirname+"/fonts/SourceSansPro-Regular.ttf");
-        fontmap['awesome'] = new CanvasFont(this.domctx);//__dirname+"/fonts/fontawesome-webfont.ttf");
+        fontmap['source']  = new CanvasFont(this.domctx,'source');//_dirname+"/fonts/SourceSansPro-Regular.ttf");
+        fontmap['awesome'] = new CanvasFont(this.domctx,'awesome');//__dirname+"/fonts/fontawesome-webfont.ttf");
         core.defaultFont = fontmap['source'];
         console.log("pretending to open an window:",w,h);
     },
@@ -125,8 +125,8 @@ amino.native = {
             ty:0,
             draw: function(g) {
                 if(this.visible != 1) return;
-                g.fillStyle = "black";
-                g.font = "20px sans-serif";
+                g.fillStyle = "rgb("+this.r*255+","+this.g*255+","+this.b*255+")";
+                g.font = this.fontSize +"px sans-serif";
                 g.fillText(this.text,this.tx,this.ty);
             }
         };
@@ -248,23 +248,20 @@ amino.KEY_MAP.DOWN_ARROW   = 40; //backspace key
 amino.KEY_MAP.BACKSPACE    = 8; //backspace key
 amino.KEY_MAP.ENTER        = 13; //backspace key
 
-function CanvasFont(g) {
+function CanvasFont(g,name) {
     this.g = g;
-    this.calcStringWidth = function(str,size) {
+    this.name = name;
+    this.calcStringWidth = function(str, size, weight, style) {
         g.font = size+"px sans-serif";
         var metrics = this.g.measureText(str);
         return metrics.width;
     };
-    this.getHeight = function(size) {
+    this.getHeight = function(size, weight, style) {
         g.font = size+"px sans-serif";
         return this.g.measureText('M').width;
     };
-    this.getCharWidth = function(ch) {
-        var metrics = this.g.measureText(ch);
-        return metrics.width;
-    };
-    this.getNative = function() {
-        return -1;
+    this.getNative = function(size,weight,style) {
+        return this.name;
     };
 }
 

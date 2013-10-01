@@ -1386,6 +1386,10 @@ function Core() {
             }
             if(e.x) e.x = e.x/Core.DPIScale;
             if(e.y) e.y = e.y/Core.DPIScale;
+            if(e.type == "windowsize") {
+                e.width = e.width/Core.DPIScale;
+                e.height = e.height/Core.DPIScale;
+            }
             baconbus.push(e);
         });
     }

@@ -366,7 +366,7 @@ widgets.Label = amino.ComposeObject({
             if(this.props.align == 'right') {
                 this.comps.text.setTx(this.getW()-textw);
             }
-            if(this.props.align == 'left') {
+            if(this.props.align == 'center') {
                 this.comps.text.setTx(Math.round(this.getW()-textw)/2);
             }
         }
@@ -602,7 +602,10 @@ widgets.ListView = amino.ComposeObject({
                 this.props['w'] = w;
                 this.comps.base.setW(w);
                 this.comps.background.setW(w);
-                this.setDirty = true;
+                this.dirty = true;
+                this.cells.forEach(function(cell) {
+                        cell.dirty = true;
+                });
                 return this;
             }
         },
@@ -613,7 +616,7 @@ widgets.ListView = amino.ComposeObject({
                 this.props['h'] = h;
                 this.comps.base.setH(h);
                 this.comps.background.setH(h);
-                this.setDirty = true;
+                this.dirty = true;
                 return this;
             }
         },
@@ -1740,6 +1743,7 @@ widgets.TextField = amino.ComposeObject({
                 var stage = amino.getCore().stage;
                 console.log("removing the keyboard");
                 stage.getRoot().remove(self.kb);
+                self.kb.setVisible(false);
                 self.kb = null;
             }
         });

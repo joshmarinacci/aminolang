@@ -86,16 +86,16 @@ function buildStatusBar(stage)  {
     panel.add(cloud);
 
     
-    
     var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     
     var time = new widgets.Label()
         .setFontSize(fs)
         .setFontWeight(600)
+        .setW(100)
         .setH(20)
         .setText("00.00:00 00/00")
         .setFill("#ffffff")
-        
+        .setAlign("center")
         .setLeft(0).setAnchorLeft(true)
         .setRight(0).setAnchorRight(true)
         ;
@@ -107,11 +107,6 @@ function buildStatusBar(stage)  {
         time.setText(txt);
     },1000);
     
-    
-    
-    
-    
-
 
     //clock = F017    
     var clock = new widgets.Label()
@@ -120,32 +115,32 @@ function buildStatusBar(stage)  {
         .setFontName('awesome')
         .setFill(amino.fg_accent_color)
         .setText('\uF017')
-        .setLeft(265).setAnchorLeft(true)
+        .setAlign("right").setRight(35).setAnchorRight(true)
     ;
     panel.add(clock);
 
-    var battery = new widgets.Label()
+    var batteryper = new widgets.Label()
         .setFontSize(fs)
+        .setW(100)
         .setH(20)
         //.setFontName('awesome')
         .setFill(amino.fg_accent_color)
         .setFontWeight(600)
         .setText('28%')
-        .setLeft(280).setAnchorLeft(true)
+        .setAlign("right").setRight(10).setAnchorRight(true)
     ;
-    panel.add(battery);
+    panel.add(batteryper);
     
     
-    var battery = new widgets.Label()
+    var batterysym = new widgets.Label()
         .setFontSize(fs)
         .setH(20)
         .setFontName('awesome')
         .setFill(amino.fg_accent_color)
         .setText('\uF0E7')
-        .setLeft(305).setAnchorLeft(true)
+        .setAlign("right").setRight(0).setAnchorRight(true)
     ;
-    panel.add(battery);
-    
+    panel.add(batterysym);
     
     return panel;
 }
@@ -181,12 +176,26 @@ function buildSearch() {
     search.add(results);
     search.results = results;
     
+    
+    stage.on('select',results,function(e) {
+        console.log(results.listModel[results.getSelectedIndex()]);
+        results.setVisible(false);
+        var node = dialer.Dialer(stage,nav,data);
+        if(node.setW) node.setW(getWW());
+        if(node.setH) node.setH(getWH());
+        nav.setSize(getWW(),getWH());
+        switcher.delayedAdd(node);
+        var anim2 = core.createPropAnim(search,"ty",20,-50, 300);
+        setTimeout(function() { switcher.zoomAll()}, 400);
+        core.requestFocus();
+    });
+    
     return search;
 }
 var search = buildSearch();
 
 function filterSearch(text) {
-    if(text == null || text == undefined || text.length < 2) {
+    if(text == null || text == undefined || text.length < 1) {
         search.results.setVisible(false);
         return;
     }
@@ -201,6 +210,7 @@ function filterSearch(text) {
     if(results.length > 0) {
         search.results.setVisible(true);
         search.results.setModel(results);
+        search.results.setH(results.length * search.results.getCellHeight());
     } else {
         search.results.setVisible(false);
     }
@@ -274,11 +284,7 @@ var scrim = new amino.ProtoRect()
     .setH(getWH()-20-30- 80-30)
     .setTy(20+30)
     .setVisible(0).setOpacity(0.0).setFill("#0000ff").setId("scrim");
-core.on('press',scrim, function(e) {
-    switcher.pressHandler(e);
-//    switcher.zoomAll();
-//    core.requestFocus();
-});
+core.on('press',scrim, function(e) { switcher.pressHandler(e); });
 core.on('drag', scrim, function(e) {
     switcher.dragHandler(e);
 });

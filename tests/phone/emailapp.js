@@ -59,15 +59,15 @@ function EmailApp(stage,nav,data) {
         .setFill(amino.bg_accent_color);
     panel.add(new widgets.Label()
             .setText("Inbox")
-            .setW(320)
             .setH(30)
             .setFill("#ffffff")
-            .setAlign("left")
+            .setAlign("center")
             .setFontSize(20)
             .setFontWeight(600)
             .setTx(0)
             .setTy(0)
-            .setAnchorLeft(true).setLeft(0)
+            .setAnchorLeft(true).setLeft(10)
+            .setAnchorRight(true).setRight(10)
             .setAnchorTop(true).setTop(0)
             );
     
@@ -88,10 +88,10 @@ function EmailApp(stage,nav,data) {
     lv.setCellHeight(80);
     lv.setW(320).setH(200)
         .setFill("#ffffff")
-    .setTop(30).setAnchorTop(true)
-    .setBottom(60).setAnchorBottom(true)
-    .setLeft(0).setAnchorLeft(true)
-    .setRight(0).setAnchorRight(true)
+        .setTop(30).setAnchorTop(true)
+        .setBottom(60).setAnchorBottom(true)
+        .setLeft(0).setAnchorLeft(true)
+        .setRight(0).setAnchorRight(true)
     ;
     lv.setModel(data.emails);
     

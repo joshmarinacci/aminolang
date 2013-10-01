@@ -150,12 +150,14 @@ function buildStatusBar(stage)  {
     return panel;
 }
 
+
+
 function buildSearch() {
     var search = new amino.ProtoGroup();
     var tf = new widgets.TextField().setText('');
     stage.on("change",tf,function(e) {
         if(e.name=='text') {
-            console.log(e.text);
+            filterSearch(e.text);
         }
     });
     tf.setW(200).setH(30);
@@ -163,10 +165,46 @@ function buildSearch() {
     stage.on("WINDOWSIZE", stage, function(e) {
         tf.setW(getWW());
     });
+    
+    var results = new widgets.ListView();
+    results.setTextCellRenderer(function(cell,i,item) {
+        if(item == null || item == undefined) {
+            cell.setText("");//item.first + " " + item.last);
+        } else {
+            console.log(item);
+            cell.setText(item.first + " " + item.last);
+        }
+    });
+    
+    results.setW(300).setH(400).setTy(35);
+    results.setVisible(false);
+    search.add(results);
+    search.results = results;
+    
     return search;
 }
 var search = buildSearch();
 
+function filterSearch(text) {
+    if(text == null || text == undefined || text.length < 2) {
+        search.results.setVisible(false);
+        return;
+    }
+    var results = [];
+    data.people.forEach(function(item) {
+        console.log(item);
+        if(item.first.toLowerCase().indexOf(text.toLowerCase()) == 0) {
+            results.push(item);
+        }
+    });
+    console.log("results = ",results);
+    if(results.length > 0) {
+        search.results.setVisible(true);
+        search.results.setModel(results);
+    } else {
+        search.results.setVisible(false);
+    }
+}
 
 var switcherPanel = new widgets.AnchorPanel();
 switcherPanel.setW(getWW()).setH(getWH());
@@ -174,11 +212,12 @@ switcherPanel.setFill("#333333");
 superroot.add(switcherPanel);
 
 
-switcherPanel.add(search);
 var statusBar = buildStatusBar(stage);
 statusBar.setAnchorLeft(true).setAnchorRight(true);
 statusBar.setAnchorTop(true);
-switcherPanel.add(statusBar);
+superroot.add(search);
+search.setTy(-50);
+superroot.add(statusBar);
 
 var root = new amino.ProtoGroup();
 root.setTy(20);

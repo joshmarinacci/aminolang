@@ -138,7 +138,7 @@ widgets.ToggleButton = amino.ComposeObject({
             proto: amino.ProtoText,
             /** @prop text the text label of this button. */
             /** @prop fontSize the font size to use for this button. */
-            promote: ['text','fontSize','fontName'],
+            promote: ['text','fontSize','fontName','fontWeight','fontStyle'],
         },
     },
     props: {
@@ -148,8 +148,7 @@ widgets.ToggleButton = amino.ComposeObject({
             set: function(w) {
                 this.props.w = w;
                 this.comps.background.setW(w);
-                var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize());
-                this.comps.label.setTx(Math.round((w-textw)/2));
+                this.markDirty();
                 return this;
             }
         },
@@ -159,8 +158,7 @@ widgets.ToggleButton = amino.ComposeObject({
             set: function(h) {
                 this.props.h = h;
                 this.comps.background.setH(h);
-                var texth = this.comps.label.font.getHeight(this.getFontSize());
-                this.comps.label.setTy(Math.round(h/2 + texth/2));
+                this.markDirty();
                 return this;
             }
         },
@@ -196,7 +194,22 @@ widgets.ToggleButton = amino.ComposeObject({
             if(self.actioncb) self.actioncb(event);
             
         });
+        this.markDirty = function() {
+            self.dirty = true;
+        }
         this.setFontSize(15);
+        this.doLayout = function() {
+            var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize(),this.getFontWeight(),this.getFontStyle());
+            this.comps.label.setTx(Math.round((this.getW()-textw)/2));
+            var texth = this.comps.label.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
+            this.comps.label.setTy(Math.round(this.getH()/2 + texth/2));
+        }
+        amino.getCore().on('validate',null,function() {
+            if(self.dirty) {
+                self.doLayout();
+                self.dirty = false;
+            }
+        });
         /** @func onAction(cb) a function to call when this button fires an action. You can also listen for the 'action' event. */
         this.onAction = function(cb) {
             this.actioncb = cb;

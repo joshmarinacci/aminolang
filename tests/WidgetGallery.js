@@ -8,13 +8,12 @@ var child_process = require('child_process');
 
 //stage will be created for us already
 amino.startApp(function(core,stage) {
-    var ww = 720;
-    // for grouper
-    ww=800;
+    var wsize = amino.native.getWindowSize();
+    var ww = wsize.w;
     function getWW() {
         return ww;
     }
-    var wh = 1280;
+    var wh = wsize.h;
     function getWH() {
         return wh;
     }
@@ -45,7 +44,7 @@ amino.startApp(function(core,stage) {
 
     var labelTitle = new widgets.Label();
     labelTitle.setText("Widget Gallery");
-    labelTitle.setFontSize(60);
+    labelTitle.setFontSize(40);
     labelTitle.setTx(getWW()/2-80);
     //labelTitle.setH(120);
 
@@ -74,7 +73,7 @@ amino.startApp(function(core,stage) {
     buttonImage.setFontSize(40);                    
 
     var buttonExit = new widgets.PushButton();     
-    buttonExit.setText("Poweroff");               
+    buttonExit.setText("Exit");               
     buttonExit.setFontSize(40);                    
               
     stage.setRoot(groupRoot);
@@ -110,7 +109,7 @@ amino.startApp(function(core,stage) {
     //buttonPBPage.setTy(getWH()/2-100);
     //buttonPBPage.setW(200);
     //buttonPBPage.setH(160);   
-    buttonPBPage.setFontSize(50);
+    buttonPBPage.setFontSize(40);
     vPanelPBPage.add(buttonPBPage);
 
     groupPB.add(vPanelPBPage);
@@ -148,7 +147,8 @@ amino.startApp(function(core,stage) {
     spinnerSpinnerPage.setTx(getWW()/2-100);
     spinnerSpinnerPage.setTy(getWH()/2-100);
     spinnerSpinnerPage.setActive(true);
-    spinnerSpinnerPage.setSize(200);
+//    spinnerSpinnerPage.setSize(200);
+    spinnerSpinnerPage.setFontSize(40);
     groupSpinner.add(spinnerSpinnerPage);
     groupSpinner.add(exitSpinnerPage);
     groupRoot.add(groupSpinner);
@@ -168,7 +168,7 @@ amino.startApp(function(core,stage) {
     labelLabelPage.setTy(getWH()/2-100);
     //buttonPBPage.setW(200);
     //buttonPBPage.setH(160);   
-    labelLabelPage.setFontSize(50);
+    labelLabelPage.setFontSize(40);
 
     groupLabel.add(labelLabelPage);
     groupLabel.add(exitLabelPage);
@@ -346,14 +346,16 @@ amino.startApp(function(core,stage) {
 
 
     core.on("action", buttonExit, function() { 
-        //process.exit(0);                   
-	var child = child_process.exec("/system/bin/poweroff -f", function (error, stdout, stderr) {
+        process.exit(0);                   
+	/*
+        var child = child_process.exec("/system/bin/poweroff -f", function (error, stdout, stderr) {
 	    sys.print('stdout: ' + stdout);
 	    sys.print('stderr: ' + stderr);
 	    if (error !== null) {
 		console.log('exec error: ' + error);
 	    }
 	});
+        */
     });
 
 });

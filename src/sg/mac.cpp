@@ -203,6 +203,87 @@ Handle<Value> selfDrive(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+Handle<Value> runTest(const Arguments& args) {
+    HandleScope scope;
+    
+    double startTime = getTime();
+    int count = 100;
+    Local<v8::Object> opts = args[0]->ToObject();
+    count = (int)(opts
+        ->Get(String::NewSymbol("count"))
+        ->ToNumber()
+        ->NumberValue()
+        );
+    
+    
+    bool sync = false;
+    sync = opts
+        ->Get(String::NewSymbol("sync"))
+        ->ToBoolean()
+        ->BooleanValue();
+        
+    printf("rendering %d times, vsync = %d\n",count,sync);
+
+    printf("applying updates first\n");
+    for(int j=0; j<updates.size(); j++) {
+        updates[j]->apply();
+    }
+    updates.clear();
+    
+    printf("setting up the screen\n");
+    GLfloat* scaleM = new GLfloat[16];
+    make_scale_matrix(1,-1,1,scaleM);
+    //make_scale_matrix(1,1,1,scaleM);
+    GLfloat* transM = new GLfloat[16];
+    make_trans_matrix(-width/2,height/2,0,transM);
+    //make_trans_matrix(10,10,0,transM);
+    //make_trans_matrix(0,0,0,transM);
+    
+    GLfloat* m4 = new GLfloat[16];
+    mul_matrix(m4, transM, scaleM); 
+
+
+    GLfloat* pixelM = new GLfloat[16];
+//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
+    loadPixelPerfect(pixelM, width, height, eye, near, far);
+    //printf("eye = %f\n",eye);
+    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
+    
+    GLfloat* m5 = new GLfloat[16];
+    //transpose(m5,pixelM);
+    
+    mul_matrix(modelView,pixelM,m4);
+    
+    
+    make_identity_matrix(globaltx);
+    glViewport(0,0,width, height);
+    glClearColor(1,1,1,1);
+    
+    
+    glDisable(GL_DEPTH_TEST);
+    printf("running %d times\n",count);
+    for(int i=0; i<count; i++) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        /*
+        for(int j=0; j<anims.size(); j++) {
+            anims[j]->update();
+        }
+        */
+        AminoNode* root = rects[rootHandle];
+        root->draw();
+        if(sync) {
+            glfwSwapBuffers();
+        }
+    }
+    
+    double endTime = getTime();
+    Local<Object> ret = Object::New();
+    ret->Set(String::NewSymbol("count"),Number::New(count));
+    ret->Set(String::NewSymbol("totalTime"),Number::New(endTime-startTime));
+    return scope.Close(ret);
+}
+
+
 Handle<Value> setEventCallback(const Arguments& args) {
     HandleScope scope;
     eventCallbackSet = true;
@@ -234,6 +315,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("createNativeFont"), FunctionTemplate::New(createNativeFont)->GetFunction());
     exports->Set(String::NewSymbol("getCharWidth"),     FunctionTemplate::New(getCharWidth)->GetFunction());
     exports->Set(String::NewSymbol("getFontHeight"),    FunctionTemplate::New(getFontHeight)->GetFunction());
+    exports->Set(String::NewSymbol("runTest"),          FunctionTemplate::New(runTest)->GetFunction());
 }
 
 NODE_MODULE(aminonative, InitAll)

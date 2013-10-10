@@ -195,6 +195,10 @@ exports.native = {
     createPropAnim: function(node,prop,start,end,dur) {
         return new SGAnim(node,prop,start,end,dur);
     },
+    
+    runTest: function(opts) {
+        return exports.sgtest.runTest(opts);
+    },
 
 }
 
@@ -1539,6 +1543,11 @@ function Core() {
             this.fireEventAtTarget(this.keyfocus,{type:"focusgain",target:this.keyfocus});
         }
     }
+    
+    this.runTest = function(opts) {
+        console.log("running the test with options",opts);
+        return exports.native.runTest(opts);
+    }
 }
 
 Core.DPIScale = 1.0;
@@ -1554,6 +1563,15 @@ exports.getCore = function() {
     return Core._core;
 }
 exports.startApp = startApp;
+
+exports.startTest = function(cb) {
+    Core._core = new Core();
+    Core._core.init();
+    var stage = Core._core.createStage(600,600);
+    var root = new exports.ProtoGroup();
+    stage.setRoot(root);
+    cb(Core._core, root);
+}
 exports.Interpolators = {
     Linear:propsHash["lerplinear"],
     CubicIn:propsHash["lerpcubicin"],

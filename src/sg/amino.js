@@ -164,6 +164,9 @@ exports.native = {
     addNodeToGroup: function(h1,h2) {
         exports.sgtest.addNodeToGroup(h1,h2);
     },
+    removeNodeFromGroup: function(h1, h2) {
+        exports.sgtest.removeNodeFromGroup(h1, h2);
+    },
     loadPngToTexture: function(imagefile,cb) {
         var img = exports.sgtest.loadPngToTexture(imagefile);
         cb(img);
@@ -943,6 +946,7 @@ exports.ProtoGroup = exports.ComposeObject({
         this.remove = function(target) {
             var n = this.children.indexOf(target);
             this.children.splice(n,1);
+            exports.native.removeNodeFromGroup(target.handle, this.handle);
             target.parent = null;
         }
         /** @func clear() remove all children of this group */

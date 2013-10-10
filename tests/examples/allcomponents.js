@@ -89,4 +89,12 @@ amino.startApp(function(core, stage) {
     vbox.add(new widgets.PushButton().setText("button3").setW(100).setH(40));
     group.add(vbox);
     
+    
+    var removegroup = new amino.ProtoGroup();
+    var removerect = new amino.ProtoRect().setW(300).setH(300);
+    removegroup.add(removerect);
+    console.log("group childrent len = " + removegroup.children.length);
+    removegroup.remove(removerect);
+    console.log("group childrent len = " + removegroup.children.length);
+    group.add(removegroup);
 });

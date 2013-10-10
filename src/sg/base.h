@@ -533,6 +533,20 @@ inline Handle<Value> addNodeToGroup(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+inline Handle<Value> removeNodeFromGroup(const Arguments& args) {
+    HandleScope scope;
+    int rectHandle   = args[0]->ToNumber()->NumberValue();
+    int groupHandle  = args[1]->ToNumber()->NumberValue();
+    Group* group = (Group*)rects[groupHandle];
+    AminoNode* node = rects[rectHandle];
+    group->children.erase(
+        std::remove(group->children.begin(),
+            group->children.end(),
+            node),
+        group->children.end());
+    return scope.Close(Undefined());
+}
+
 inline static Handle<Value> setRoot(const Arguments& args) {
     HandleScope scope;
     rootHandle = args[0]->ToNumber()->NumberValue();

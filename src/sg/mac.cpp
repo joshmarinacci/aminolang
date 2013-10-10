@@ -306,6 +306,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("updateProperty"),   FunctionTemplate::New(updateProperty)->GetFunction());
     exports->Set(String::NewSymbol("updateAnimProperty"),FunctionTemplate::New(updateAnimProperty)->GetFunction());
     exports->Set(String::NewSymbol("addNodeToGroup"),   FunctionTemplate::New(addNodeToGroup)->GetFunction());
+    exports->Set(String::NewSymbol("removeNodeFromGroup"),   FunctionTemplate::New(removeNodeFromGroup)->GetFunction());
     exports->Set(String::NewSymbol("tick"),             FunctionTemplate::New(tick)->GetFunction());
     exports->Set(String::NewSymbol("selfDrive"),        FunctionTemplate::New(selfDrive)->GetFunction());
     exports->Set(String::NewSymbol("setEventCallback"), FunctionTemplate::New(setEventCallback)->GetFunction());

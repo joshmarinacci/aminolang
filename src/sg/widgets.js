@@ -537,6 +537,58 @@ widgets.VerticalPanel = amino.ComposeObject({
 });
 
 /**
+@class VerticalPanel
+@desc A panel which lays out it's children in a vertical box. All children will be given the width
+of the panel, minus pading.
+*/
+widgets.HorizontalPanel = amino.ComposeObject({
+    type:"HorizontalPanel",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        }
+    },
+    props: {
+        /** @prop gap the gap between widgets in the panel */
+        gap: { value: 10 },
+        /** @prop padding the padding between widgets and the edges of the panel */
+        padding: { value: 10 },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.contains = function() { return false; }
+        this.children = [];
+        this.isParent = function() { return true; }
+        /** @func add(node) adds a widget to this panel */
+        this.add = function(node) {
+            if(!node) abort("can't add a null child to an anchor panel");
+            if(!this.live) abort("error. trying to add child to a group that isn't live yet");
+            this.children.push(node);
+            this.comps.base.add(node);
+            node.parent = this;
+            this.redoLayout();
+            return this;
+        }
+        this.live = true;
+        this.setFill(amino.colortheme.base);
+        this.redoLayout = function() {
+            var x = this.getPadding();
+            for(var i in this.children) {
+                var node = this.children[i];
+                node.setTy(this.getPadding());
+                node.setTx(x);
+                x += node.getW() + this.getGap();
+                node.setH(this.getH()-this.getPadding()*2);
+            }
+        }
+        
+        
+    }
+});
+
+/**
 @class ListViewCell
 @desc A panel which lays out it's children in a vertical box. All children will be given the width
 of the panel, minus pading.

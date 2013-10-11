@@ -962,6 +962,15 @@ exports.ProtoGroup = exports.ComposeObject({
         }
         this.shortCircuit = true;
         this.type = "group";
+        
+        this.raiseToTop = function(node) {
+            if(node == undefined) abort("can't move a null child");
+            if(!this.live) abort("error. can't move a child in a group that isn't live yet");
+            if(node.handle == undefined) abort("the child doesn't have a handle");
+            this.remove(node);
+            this.add(node);
+            return this;
+        };
     }
 });
 

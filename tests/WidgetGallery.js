@@ -1,9 +1,8 @@
-var  widgets= require(process.env.AMINOPATH+'/widgets.js'); 
-var amino = require(process.env.AMINOPATH+'/amino.js'); //change to wherever you end up putting amino
+var  widgets= require('widgets.js'); 
+var amino = require('amino.js');
 var fs = require('fs');
 var util = require('util');
 var sys = require('sys');
-var child_process = require('child_process');
 
 
 //stage will be created for us already
@@ -347,15 +346,6 @@ amino.startApp(function(core,stage) {
 
     core.on("action", buttonExit, function() { 
         process.exit(0);                   
-	/*
-        var child = child_process.exec("/system/bin/poweroff -f", function (error, stdout, stderr) {
-	    sys.print('stdout: ' + stdout);
-	    sys.print('stderr: ' + stderr);
-	    if (error !== null) {
-		console.log('exec error: ' + error);
-	    }
-	});
-        */
     });
 
 });

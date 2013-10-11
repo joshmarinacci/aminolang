@@ -1,6 +1,36 @@
 var amino = require('../../build/desktop/amino.js');
 var widgets = require('../../build/desktop/widgets.js');
 
+
+var db = require('../phone/database').makeDB();
+
+var doctypes = {
+    email: "com.joshondesign.aminos.email.message",
+    song: "com.joshondesign.aminos.music.song",
+    
+}
+for(var i=0; i<10; i++) {
+    db.insert({doctype:doctypes.email, doc: {
+        title:"an email "+i,
+        from: "foo@bar.com",
+        to: "bar@foo.com",
+        subject:"Subjects are for the weak!"+Math.floor(Math.random()*100),
+        body: "Hah. You read the message! Foolish mortal.",
+    }});
+}
+
+for(var i=0; i<10; i++) {
+    db.insert({doctype:doctypes.song, doc: {
+            title: "Song " + i,
+            artist: "Bob",
+            album: "Bob's Songs",
+    }});
+}
+
+
+
+
+
 IconView = amino.ComposeObject({
     type:"IconView",
     extend:amino.ProtoWidget,
@@ -40,7 +70,6 @@ IconView = amino.ComposeObject({
 var root = null;
 function openView(item) {
     console.log("opening a view for the item: ", item);
-    console.log("root = " + root);
     console.log("folder = " + item.isFolder());
     if(item.isFolder()) {
         var view = new WindowView();
@@ -95,6 +124,12 @@ function openView(item) {
         view.comps.toolbar.redoLayout();
             
         root.add(view);
+        
+        if(folder.onUpdate) {
+            folder.onUpdate(function(doc) {
+                lv.setModel(item.getItems());
+            });
+        }
     } else {
         var view = new WindowView();
         view.setFill("#ffffff");
@@ -232,15 +267,14 @@ WindowView = amino.ComposeObject({
 
 
 
-/*
-function Item(title) {
-    this.title = title;
+function DocumentItem(doc) {
+    this.title = doc.title;
+    this.type = 'generic';
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return false; }
-    this.getType = function() { return this.type; }
+    this.getType  = function() { return this.type; }
     return this;
 }
-*/
 
 function TextDocumentItem(title,contents) {
     this.title    = title;
@@ -262,24 +296,44 @@ function SongDocumentItem(title,artist,album) {
     return this;
 }
 
-/*
-function Folder() {
-    this.getTitle
-    this.isFolder return true
-    this.getItems
-}
-*/
+
 function MusicFolder() {
     this.title = "music";
-    this.items = [
-        new SongDocumentItem("song 1", "bob", "bob's music"),
-        new SongDocumentItem("song 2", "bob", "bob's music"),
-        new SongDocumentItem("song 3", "bob", "bob's music"),
-    ];
+    var items = [];
+    db.query({doctype:doctypes.song}).forEach(function(song) {
+        items.push(new SongDocumentItem(
+            song.title,
+            song.artist,
+            song.album));
+    });
     
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return true; }
-    this.getItems = function() { return this.items; }
+    this.getItems = function() { return items; }
+}
+
+function DocumentQueryFolder(title,doctype) {
+    this.title = title;
+    console.log("adding a monitor");
+    var self = this;
+    db.monitor({doctype:doctypes.email, action:"insert"}, function(db,data) {
+        var count = db.query({doctype:doctypes.email}).length;
+        console.log("total email count is now: " + count);
+        if(self.cb) self.cb(data);
+    });
+    
+    this.getTitle = function() { return this.title; }
+    this.isFolder = function() { return true; }
+    this.getItems = function() { 
+        var items = [];
+        db.query({doctype:doctype}).forEach(function(doc) {
+            items.push(new DocumentItem(doc));
+        });
+        return items; 
+    }
+    this.onUpdate = function(cb) {
+        this.cb = cb;
+    }
 }
 
 function DesktopFolder() {
@@ -289,6 +343,7 @@ function DesktopFolder() {
         new MusicFolder(),
         new TextDocumentItem('foo.txt',"some foo text"),
         new TextDocumentItem('bar.txt',"some bar text"),
+        new DocumentQueryFolder("All Email",doctypes.email),
     ];
     this.getItems = function() { return this.items; }
 }
@@ -324,4 +379,27 @@ amino.startApp(function(core, stage) {
     }
     desktopview.comps.title.setText("desktop");
     root.add(desktopview);
+    
+    
+    var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
+        .setW(110).setH(30).setTx(800).setTy(50);
+    fakeNewEmail.onAction(function(e) {
+        db.insert({doctype:doctypes.email, doc: {
+            title:"an new email ",
+            from: "foo@bar.com",
+            to: "bar@foo.com",
+            subject:"Subjects are for the weak!"+Math.floor(Math.random()*100),
+            body: "Hah. You read the message! Foolish mortal.",
+        }});
+        
+    });
+    root.add(fakeNewEmail);
+    
+    
+    setInterval(function() {
+        //console.log("============");
+        //console.log("processing database updates");
+        db.processUpdates();
+    },100);
+    
 });

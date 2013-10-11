@@ -12,7 +12,8 @@ canvas { border: 1px solid black; }
 <body>
 <canvas id='mycanvas' width='500' height='350'></canvas>
 <script type='text/javascript'>
-amino.startApp("mycanvas",function(core,stage) {
+amino.setCanvas("mycanvas");
+amino.startApp(function(core,stage) {
     console.log("inside the start app");
     
     

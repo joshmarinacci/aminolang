@@ -202,12 +202,12 @@ function CanvasPropAnim(target,prop,start,end,duration) {
     }
     this.setCount = function(count) {
         this.count = count;
-        exports.native.updateAnimProperty(this.handle, "count", count);
+//        exports.native.updateAnimProperty(this.handle, "count", count);
         return this;
     }
     this.setAutoreverse = function(av) {
         this.autoreverse = av;
-        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
+//        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
         return this;
     }
     this.finish = function() {
@@ -326,14 +326,17 @@ amino.setupEventHandlers = function() {
 
 amino.bacon = Bacon;
 
-amino.startApp = function(id, cb) {
+amino.setCanvas = function(id) {
     if(!id) throw new Error("ID parameter missing to start app");
-    if(!cb) throw new Error("CB parameter missing to start app");
     var domcanvas = document.getElementById(id);
     if(domcanvas == null) throw new Error("couldn't find canvas with id " + id);
     amino.native.domcanvas = domcanvas;
     amino.native.domctx = domcanvas.getContext('2d');
     if(amino.native.domctx == null) throw new Error("couldn't get a 2d context");
+};
+
+amino.startApp = function(cb) {
+    if(!cb) throw new Error("CB parameter missing to start app");
     amino.setupEventHandlers();
     Core._core = new Core();
     Core._core.init();

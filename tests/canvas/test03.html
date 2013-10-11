@@ -12,7 +12,8 @@ canvas { border: 1px solid black; }
 <body>
 <canvas id='mycanvas' width='500' height='350'></canvas>
 <script type='text/javascript'>
-amino.startApp("mycanvas",function(core,stage) {
+amino.setCanvas("mycanvas");
+amino.startApp(function(core,stage) {
     var root = new amino.ProtoGroup().setTx(100).setScalex(1.4);
     
     var g2 = new amino.ProtoGroup().setScaley(2);

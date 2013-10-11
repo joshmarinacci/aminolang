@@ -12,7 +12,8 @@ canvas { border: 1px solid black; }
 <body>
 <canvas id='mycanvas' width='600' height='300'></canvas>
 <script language="JavaScript">
-amino.startApp("mycanvas",function(core,stage) {
+amino.setCanvas("mycanvas");
+amino.startApp(function(core,stage) {
     var root = new amino.ProtoGroup();
     stage.setRoot(root);
     

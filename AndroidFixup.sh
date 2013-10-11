@@ -4,7 +4,7 @@ set -x
 
 OUTFILE=$1
 MY_DIR=`dirname $1`
-
+DESTDIR=system/amino
 
 
 
@@ -28,22 +28,26 @@ echo "outfile=$OUTFILE"
 echo "my_dir=$MY_DIR"
 echo "cwd="`pwd`
 
-mkdir -p $ANDROID_PRODUCT_OUT/data/phonetest
+mkdir -p $ANDROID_PRODUCT_OUT/$DESTDIR
 if [ -f ${ANDROID_PRODUCT_OUT}/system/lib/libaminolang.so ]; then
     # given how node imports addons, we CANNOT use a soft link here. sad but true.
-    #ln -sf ../system/lib/libaminolang.so ${ANDROID_PRODUCT_OUT}/data/phonetest/aminonative.node 
-    cp ${ANDROID_PRODUCT_OUT}/system/lib/libaminolang.so  ${ANDROID_PRODUCT_OUT}/data/phonetest/aminonative.node 
+    #ln -sf ../system/lib/libaminolang.so ${ANDROID_PRODUCT_OUT}/$DESTDIR/aminonative.node 
+    cp ${ANDROID_PRODUCT_OUT}/system/lib/libaminolang.so  ${ANDROID_PRODUCT_OUT}/$DESTDIR/aminonative.node 
     echo "copying libaminolang.so to /data/phonetest/aminonative.node so node can load it as an addon"
 else
     echo "no libaminolang.so to link node addon to"
 fi
 
 
-cp src/sg/amino.js $ANDROID_PRODUCT_OUT/data/phonetest
-cp src/sg/Bacon.js $ANDROID_PRODUCT_OUT/data/phonetest
-cp src/jscommon/*.js $ANDROID_PRODUCT_OUT/data/phonetest
-cp resources/*.* $ANDROID_PRODUCT_OUT/data/phonetest
-cp tests/phone/*.* $ANDROID_PRODUCT_OUT/data/phonetest
+cp src/sg/amino.js $ANDROID_PRODUCT_OUT/$DESTDIR
+cp src/sg/Bacon.js $ANDROID_PRODUCT_OUT/$DESTDIR
+cp src/sg/widgets.js $ANDROID_PRODUCT_OUT/$DESTDIR
+cp resources/*.* $ANDROID_PRODUCT_OUT/$DESTDIR
+cp tests/phone/*.* $ANDROID_PRODUCT_OUT/$DESTDIR
+mkdir -p $ANDROID_PRODUCT_OUT/$DESTDIR/fonts
+cp fonts/* $ANDROID_PRODUCT_OUT/$DESTDIR/fonts
+mkdir -p $ANDROID_PRODUCT_OUT/$DESTDIR/shaders
+cp shaders/* $ANDROID_PRODUCT_OUT/$DESTDIR/fonts
 
 #the following makes the  make system run everytime you build android. If you comment it out 
 # you either need to touch the AndroidFixup.sh or 

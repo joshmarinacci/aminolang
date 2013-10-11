@@ -14,134 +14,42 @@ IconView = amino.ComposeObject({
             promote: ['text'],
         },
     },
+    props: {
+        item: {
+            value: null,
+            set: function(item) {
+                this.props.item = item;
+                return this;
+            }
+        }
+    },
+    
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.title);
+        this.comps.title.setTx(5).setTy(5);
+        var self = this;
+        amino.getCore().on('click',this,function(e) {
+            openView(self.getItem());
+        });
+        
     }
 });
 
-WindowView = amino.ComposeObject({
-    type:"WindowView",
-    extend: amino.ProtoWidget,
-    comps: {
-        background: {
-            proto: amino.ProtoRect,
-            promote: ['fill'],
-        },
-        contents: {
-            proto: widgets.ListView,
-        },
-        icons: {
-            proto: amino.ProtoGroup,
-        },
-        titlebar: {
-            proto: amino.ProtoRect,
-        },
-        switchicons: {
-            proto: widgets.ToggleButton,
-        },
-        switchlist: {
-            proto: widgets.ToggleButton,
-        },
-        close: {
-            proto: widgets.PushButton,
-        },
-        title: {
-            proto: widgets.Label,
-        },
-        grabber: {
-            proto: amino.ProtoRect,
-        },
-    },
-    props: {
-        w: {
-            value: 300,
-            set: function(w) {
-                this.props.w = w;
-                this.comps.background.setW(w);
-                this.comps.titlebar.setW(w);
-                this.comps.title.setW(w);
-                this.comps.grabber.setTx(w-this.comps.grabber.getW());
-                this.comps.contents.setW(w);
-                return this;
-            }
-        },
-        h: {
-            value: 200,
-            set: function(h) {
-                this.props.h = h;
-                this.comps.background.setH(h);
-                this.comps.contents.setH(h-30);
-                var g = this.comps.grabber;
-                g.setTy(h-g.getH());
-                return this;
-            }
-        },
-        folder: {
-            value: null,
-            set: function(folder) {
-                this.props.folder = folder;
-                if(folder != null) {
-                    this.comps.title.setText(folder.getTitle());
-                    if(folder.windowtx) this.setTx(folder.windowtx);
-                    if(folder.windowty) this.setTy(folder.windowty);
-                    if(folder.windoww) this.setW(folder.windoww);
-                    if(folder.windowh) this.setH(folder.windowh);
-                }
-                this.regenCells();
-                return this;
-            }
-        },
-        mode: {
-            value: "list",
-            set: function(mode) {
-                this.props.mode = mode;
-                if(mode == "list") {
-                    this.comps.contents.setVisible(true);
-                    this.comps.icons.setVisible(false);
-                } else {
-                    this.comps.contents.setVisible(false);
-                    this.comps.icons.setVisible(true);
-                }
-                return this;
-            }
-        },
+
+var root = null;
+function openView(item) {
+    console.log("opening a view for the item: ", item);
+    console.log("root = " + root);
+    console.log("folder = " + item.isFolder());
+    if(item.isFolder()) {
+        var view = new WindowView();
+        var lv = new widgets.ListView();
+        lv.setFill("#ffffff");
+        view.comps.contents.add(lv);
         
-        draggable: {
-            value: true,
-        },
-        
-        resizable: {
-            value: true,
-        },
-    },
-    init: function() {
-        this.comps.base.add(this.comps.background);
-        this.comps.base.add(this.comps.contents);
-        this.comps.base.add(this.comps.icons);
-        this.comps.base.add(this.comps.grabber);
-        this.comps.base.add(this.comps.titlebar);
-        
-        this.comps.base.add(this.comps.switchicons);
-        this.comps.base.add(this.comps.switchlist);
-        this.comps.base.add(this.comps.close);
-        this.comps.base.add(this.comps.title);
-        
-        
-        
-        this.comps.background.setFill("#eeeeee");
-        this.comps.icons.setTy(30);
-        
-        this.comps.switchicons.setTx(5).setTy(5).setW(30).setH(20).setText("icons").setFontSize(10);
-        this.comps.switchlist.setTx(40).setTy(5).setW(30).setH(20).setText("list").setFontSize(10);
-        this.comps.close.setTx(75).setTy(5).setW(30).setH(20).setText("close").setFontSize(10);
-        
-        
-        this.comps.titlebar.setW(100).setH(30).setFill("#cccccc");
-        this.comps.title.setAlign("center").setTy(3);
-        this.comps.grabber.setW(30).setH(30).setFill("#555555");
-        this.comps.contents.setTy(30).setFill("#dddddd");
-        this.comps.contents.setTextCellRenderer(function(cell,index,item) {
+        lv.setModel(item.getItems());
+        lv.setTextCellRenderer(function(cell,index,item) {
             if(item == null) {
                 cell.setText("");
             } else {
@@ -158,70 +66,220 @@ WindowView = amino.ComposeObject({
             }
         });
         
+        view.setFill("#ff0000");
+        view.setW(400).setH(300);
+        view.setTx(300).setTy(200);
+        var folder = item;
+        view.comps.title.setText(folder.getTitle());
+        if(folder.windowx) view.setTx(folder.windowx);
+        if(folder.windowy) view.setTy(folder.windowy);
+        if(folder.windoww) view.setW(folder.windoww);
+        if(folder.windowh) view.setH(folder.windowh);
+        view.comps.toolbar
+            .add(new widgets.ToggleButton()
+                .setW(30).setH(20)
+                .setText("icons").setFontSize(10)
+                )
+            .add(new widgets.ToggleButton()
+                .setW(30).setH(20)
+                .setText("list").setFontSize(10)
+                )
+            .add(new widgets.PushButton()
+                .setW(30).setH(20)
+                .setText("close").setFontSize(10)
+                .onAction(function(e) {
+                    view.setVisible(false);
+                })
+                )
+            ;
+        view.comps.toolbar.redoLayout();
+            
+        root.add(view);
+    } else {
+        var view = new WindowView();
+        view.setFill("#ffffff");
+        view.comps.toolbar
+            .add(new widgets.PushButton()
+                .setW(30).setH(20)
+                .setText("close").setFontSize(10)
+                .onAction(function(e) {
+                    view.setVisible(false);
+                })
+                );
+
+        var label = new widgets.Label()
+            .setText(item.getTitle())
+            .setFontSize(40);
+        view.comps.contents.add(label);
+        view.setW(400).setH(300);
+        view.setTx(300).setTy(200);
+        root.add(view);
+    }
+}
+
+WindowView = amino.ComposeObject({
+    type:"WindowView",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['fill'],
+        },
+        contents: {
+            proto: amino.ProtoGroup,
+        },
+        titlebar: {
+            proto: amino.ProtoRect,
+        },
+        toolbar: {
+            proto: widgets.HorizontalPanel,
+        },
+        title: {
+            proto: widgets.Label,
+        },
+        grabber: {
+            proto: amino.ProtoRect,
+        },
+    },
+    props: {
+        w: {
+            value: 300,
+            set: function(w) {
+                this.props.w = w;
+                this.comps.background.setW(w);
+                this.comps.titlebar.setW(w);
+                this.comps.title.setW(w);
+                this.comps.toolbar.setW(w);
+                this.comps.grabber.setTx(w-this.comps.grabber.getW());
+                this.comps.contents.children.forEach(function(ch) {
+                    if(ch.setW) ch.setW(w);
+                });
+                return this;
+            }
+        },
+        h: {
+            value: 200,
+            set: function(h) {
+                this.props.h = h;
+                this.comps.background.setH(h);
+                this.comps.contents.setH(h-30);
+                var g = this.comps.grabber;
+                g.setTy(h-g.getH());
+                this.comps.contents.children.forEach(function(ch) {
+                    if(ch.setH) ch.setH(h-30);
+                    if(ch.setTy) ch.setTy(0);
+                });
+                return this;
+            }
+        },
+        
+        draggable: {
+            value: true,
+        },
+        
+        resizable: {
+            value: true,
+            set: function(resizable) {
+                this.props.resizable = resizable;
+                this.comps.grabber.setVisible(resizable);
+                return this;
+            }
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.contents);
+        this.comps.base.add(this.comps.grabber);
+        this.comps.base.add(this.comps.titlebar);
+        this.comps.base.add(this.comps.toolbar);
+        this.comps.base.add(this.comps.title);
+        
+        this.comps.background.setFill("#eeeeee");
+        this.comps.contents.setTy(30);
+        
+        this.comps.titlebar.setW(100).setH(30).setFill("#cccccc");
+        this.comps.toolbar.setW(100).setH(30).setGap(2).setPadding(2);
+        this.comps.title.setAlign("center").setTy(3);
+        this.comps.grabber.setW(30).setH(30).setFill("#555555");
         var self = this;
         amino.getCore().on("drag",this.comps.grabber,function(e) {
             self.setW(self.getW()+e.dx);
             self.setH(self.getH()+e.dy);
         });
         
+        amino.getCore().on("press",this.comps.titlebar, function(e) {
+            if(!self.getDraggable()) return;
+            self.parent.raiseToTop(self);
+        });
         amino.getCore().on("drag",this.comps.titlebar, function(e) {
             if(!self.getDraggable()) return;
             self.setTx(self.getTx()+e.dx);
             self.setTy(self.getTy()+e.dy);
         });
         
-        amino.getCore().on("action", this.comps.close, function(e) {
-            self.setVisible(false);
-        });
-        
-        this.regenCells = function() {
-            var items = this.getFolder().getItems();
-            this.comps.contents.setModel(items);
-            for(var i=0; i<items.length; i++) {
-                var item = items[i];
-                this.comps.icons.add(new IconView()
-                    .setTx(i*60+5).setTy(5)
-                    .setW(50).setH(50)
-                    .setText(item.getTitle())
-                    .setFill(item.isFolder()?"#cc8888":"#8888cc")
-                    );
-            }
-            
-            
-        }
-        
-        this.layoutCells = function() {
-            for(var i=0; i<this.comps.cells.children.length; i++) {
-                var cell = this.comps.cells.children[i];
-                cell.setTx(i*60);
-            }
-        }
-        
+
         this.contains = undefined;
-        this.children = [this.comps.background, this.comps.titlebar, this.comps.grabber, this.comps.switchlist, this.comps.switchicons, this.comps.close];
+        this.children = [
+            this.comps.background,
+            this.comps.contents, 
+            this.comps.titlebar,
+            this.comps.toolbar, 
+            this.comps.grabber,
+            
+        ];
     }
 });
 
-function FolderItem(title) {
+
+
+/*
+function Item(title) {
     this.title = title;
+    this.getTitle = function() { return this.title; }
+    this.isFolder = function() { return false; }
+    this.getType = function() { return this.type; }
+    return this;
+}
+*/
+
+function TextDocumentItem(title,contents) {
+    this.title    = title;
+    this.contents = contents;
+    this.type     = 'text';
+    this.getTitle = function() { return this.title; }
+    this.isFolder = function() { return false; }
+    this.getType  = function() { return this.type; }
+    return this;
+}
+
+function SongDocumentItem(title,artist,album) {
+    this.title    = title;
+    this.artist   = artist;
+    this.album    = album;
+    this.type     = 'song';
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return false; }
     return this;
 }
 
+/*
+function Folder() {
+    this.getTitle
+    this.isFolder return true
+    this.getItems
+}
+*/
 function MusicFolder() {
     this.title = "music";
     this.items = [
-        new FolderItem("song 1"),
-        new FolderItem("song 2"),
-        new FolderItem("song 3"),
+        new SongDocumentItem("song 1", "bob", "bob's music"),
+        new SongDocumentItem("song 2", "bob", "bob's music"),
+        new SongDocumentItem("song 3", "bob", "bob's music"),
     ];
     
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return true; }
-    this.getItems = function() {
-        return this.items;
-    }
+    this.getItems = function() { return this.items; }
 }
 
 function DesktopFolder() {
@@ -229,70 +287,41 @@ function DesktopFolder() {
     this.getTitle = function() { return this.title; }
     this.items = [
         new MusicFolder(),
-        new FolderItem('other'),
+        new TextDocumentItem('foo.txt',"some foo text"),
+        new TextDocumentItem('bar.txt',"some bar text"),
     ];
-    this.getItems = function() {
-        return this.items;
-    }
+    this.getItems = function() { return this.items; }
 }
 
 amino.startApp(function(core, stage) {
-        
+    stage.setSize(1000,700);
     var desktopfolder = new DesktopFolder();
     var music = desktopfolder.items[0];
-    music.windowtx = 100;
-    music.windowty = 150;
+    music.windowx = 100;
+    music.windowy = 150;
     music.windoww = 300;
     music.windowh = 300;
         
-    var root = new amino.ProtoGroup();
+    root = new amino.ProtoGroup();
     stage.setRoot(root);
     
-    var desktop = new WindowView().setId("desktop").setW(600).setH(600)
+    var desktopview = new WindowView()
+        .setId("desktop")
+        .setW(1000).setH(700)
         .setDraggable(false)
         .setResizable(false)
-        .setMode('icon')
-        .setFolder(desktopfolder)
         ;
-    root.add(desktop);
-    
-    var window1 = new WindowView().setId('window1')
-        //.setW(500).setH(300)
-        .setMode('list')
-        .setFolder(music)
-        //.setTx(50).setTy(150).setW(300)
-        ;
-    root.add(window1);
-    
-
-    /*
-    
-    windowview has w/h x/y, title, and folder that it maps to
-    iconview has x/y, title, and folder that it maps to
-    
-    //windowview draggable from titlebar
-    //windowview resizable from lower right corner
-    //windowview shows the contents of a folder
-    window view can be closed
-    
-    desktop is another window view, but with icons
-    
-    folder is adhoc or query
-    //folder returns an ordered list of folder items
-    
-    folder item is represented by an icon in the window view grid 
-    or a textual row in the list view. extra properties shown as extra columns
-    in the list view.
-    
-    clicking on an icon opens the window for the folder, if the item is a folder.
-    closing a window makes the window object invisible and destroys it.  
-    make sure x/y/w/h are persisted back to the folder it came from
-    
-    
-    */
-    
-    
-    
-    
-
+    var items = desktopfolder.getItems();
+    for(var i=0; i<items.length; i++) {
+        var item = items[i];
+        desktopview.comps.contents.add(new IconView()
+                .setTx(i*85+5).setTy(5)
+                .setW(80).setH(80)
+                .setText(item.getTitle())
+                .setFill(item.isFolder()?"#cc8888":"#8888cc")
+                .setItem(item)
+        );
+    }
+    desktopview.comps.title.setText("desktop");
+    root.add(desktopview);
 });

@@ -202,12 +202,12 @@ function CanvasPropAnim(target,prop,start,end,duration) {
     }
     this.setCount = function(count) {
         this.count = count;
-        exports.native.updateAnimProperty(this.handle, "count", count);
+//        exports.native.updateAnimProperty(this.handle, "count", count);
         return this;
     }
     this.setAutoreverse = function(av) {
         this.autoreverse = av;
-        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
+//        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
         return this;
     }
     this.finish = function() {

@@ -1,9 +1,12 @@
+if(typeof document == "undefined") {
+
 var  widgets= require('widgets.js'); 
 var amino = require('amino.js');
 var fs = require('fs');
 var util = require('util');
 var sys = require('sys');
 
+}
 
 //stage will be created for us already
 amino.startApp(function(core,stage) {

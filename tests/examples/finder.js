@@ -6,9 +6,10 @@ var db = require('../phone/database').makeDB();
 
 var doctypes = {
     email: "com.joshondesign.aminos.email.message",
-    song: "com.joshondesign.aminos.music.song",
-    
+    song:  "com.joshondesign.aminos.music.song",
+    text:  "com.joshondesign.aminos.text.plain",
 }
+
 for(var i=0; i<10; i++) {
     db.insert({doctype:doctypes.email, doc: {
         title:"an email "+i,
@@ -24,6 +25,13 @@ for(var i=0; i<10; i++) {
             title: "Song " + i,
             artist: "Bob",
             album: "Bob's Songs",
+    }});
+}
+
+for(var i=0; i<3; i++) {
+    db.insert({doctype:doctypes.text, doc: {
+        title: "Text " + i,
+        content: "This is some contents in the text document",
     }});
 }
 
@@ -72,66 +80,72 @@ function openView(item) {
     console.log("opening a view for the item: ", item);
     console.log("folder = " + item.isFolder());
     if(item.isFolder()) {
+        var folder = item;
         var view = new WindowView();
-        var lv = new widgets.ListView();
-        lv.setFill("#ffffff");
-        view.comps.contents.add(lv);
+        view.comps.title.setText(folder.getTitle());
         
-        lv.setModel(item.getItems());
-        lv.setTextCellRenderer(function(cell,index,item) {
-            if(item == null) {
-                cell.setText("");
-            } else {
-                var str = "";
-                if(item.isFolder && item.isFolder()) {
-                    str += "folder: ";
+        if(folder.customizer) {
+            console.log("doing custom version");
+            folder.customizer(view,folder);
+        } else {
+            var lv = new widgets.ListView();
+            lv.setFill("#ffffff");
+            view.comps.contents.add(lv);
+            
+            lv.setModel(item.getItems());
+            lv.setTextCellRenderer(function(cell,index,item) {
+                if(item == null) {
+                    cell.setText("");
                 } else {
-                    str += "file: ";
+                    var str = "";
+                    if(item.isFolder && item.isFolder()) {
+                        str += "folder: ";
+                    } else {
+                        str += "file: ";
+                    }
+                    if(item.getTitle) {
+                        str += item.getTitle();
+                    }
+                    cell.setText(str);
                 }
-                if(item.getTitle) {
-                    str += item.getTitle();
-                }
-                cell.setText(str);
+            });
+            if(folder.onUpdate) {
+                folder.onUpdate(function(doc) {
+                    lv.setModel(item.getItems());
+                });
             }
-        });
+            view.comps.toolbar
+                .add(new widgets.ToggleButton()
+                    .setW(30).setH(20)
+                    .setText("icons").setFontSize(10)
+                    )
+                .add(new widgets.ToggleButton()
+                    .setW(30).setH(20)
+                    .setText("list").setFontSize(10)
+                    )
+                .add(new widgets.PushButton()
+                    .setW(30).setH(20)
+                    .setText("close").setFontSize(10)
+                    .onAction(function(e) {
+                        view.setVisible(false);
+                    })
+                    )
+                ;
+            view.comps.toolbar.redoLayout();
+        }
         
         view.setFill("#ff0000");
         view.setW(400).setH(300);
         view.setTx(300).setTy(200);
-        var folder = item;
-        view.comps.title.setText(folder.getTitle());
         if(folder.windowx) view.setTx(folder.windowx);
         if(folder.windowy) view.setTy(folder.windowy);
         if(folder.windoww) view.setW(folder.windoww);
         if(folder.windowh) view.setH(folder.windowh);
-        view.comps.toolbar
-            .add(new widgets.ToggleButton()
-                .setW(30).setH(20)
-                .setText("icons").setFontSize(10)
-                )
-            .add(new widgets.ToggleButton()
-                .setW(30).setH(20)
-                .setText("list").setFontSize(10)
-                )
-            .add(new widgets.PushButton()
-                .setW(30).setH(20)
-                .setText("close").setFontSize(10)
-                .onAction(function(e) {
-                    view.setVisible(false);
-                })
-                )
-            ;
-        view.comps.toolbar.redoLayout();
             
         root.add(view);
-        
-        if(folder.onUpdate) {
-            folder.onUpdate(function(doc) {
-                lv.setModel(item.getItems());
-            });
-        }
     } else {
         var view = new WindowView();
+        view.comps.title.setText(item.getTitle());
         view.setFill("#ffffff");
         view.comps.toolbar
             .add(new widgets.PushButton()
@@ -142,10 +156,9 @@ function openView(item) {
                 })
                 );
 
-        var label = new widgets.Label()
-            .setText(item.getTitle())
-            .setFontSize(40);
-        view.comps.contents.add(label);
+        var text = new widgets.TextField()
+            .setText(item.doc.content);
+        view.comps.contents.add(text);
         view.setW(400).setH(300);
         view.setTx(300).setTy(200);
         root.add(view);
@@ -269,6 +282,7 @@ WindowView = amino.ComposeObject({
 
 function DocumentItem(doc) {
     this.title = doc.title;
+    this.doc = doc;
     this.type = 'generic';
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return false; }
@@ -286,34 +300,10 @@ function TextDocumentItem(title,contents) {
     return this;
 }
 
-function SongDocumentItem(title,artist,album) {
-    this.title    = title;
-    this.artist   = artist;
-    this.album    = album;
-    this.type     = 'song';
-    this.getTitle = function() { return this.title; }
-    this.isFolder = function() { return false; }
-    return this;
-}
-
-
-function MusicFolder() {
-    this.title = "music";
-    var items = [];
-    db.query({doctype:doctypes.song}).forEach(function(song) {
-        items.push(new SongDocumentItem(
-            song.title,
-            song.artist,
-            song.album));
-    });
-    
-    this.getTitle = function() { return this.title; }
-    this.isFolder = function() { return true; }
-    this.getItems = function() { return items; }
-}
-
-function DocumentQueryFolder(title,doctype) {
+function DocumentQueryFolder(title,doctype,customizer) {
     this.title = title;
+    this.customizer = null;
+    if(customizer) this.customizer = customizer;
     console.log("adding a monitor");
     var self = this;
     db.monitor({doctype:doctypes.email, action:"insert"}, function(db,data) {
@@ -336,15 +326,166 @@ function DocumentQueryFolder(title,doctype) {
     }
 }
 
+var EmailListViewCell = amino.ComposeObject({
+    type: "EmailListViewCell",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        },
+        line: {
+            proto: amino.ProtoRect,
+        },
+        from: {
+            proto: amino.ProtoText,
+        },
+        subject: {
+            proto: amino.ProtoText,
+        },
+        desc: {
+            proto: amino.ProtoText,
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.line);
+        
+        this.comps.from.setText("from")
+            .setFill("#3498db")
+            .setFontWeight(600)
+            .setTx(8).setTy(22)
+            .setFontSize(15);
+        this.comps.base.add(this.comps.from);
+
+        this.comps.subject.setText("subject")
+            .setTx(8).setTy(42)
+            .setFontSize(15);
+        this.comps.base.add(this.comps.subject);
+        
+        this.comps.desc.setText("desc")
+            .setTx(8).setTy(64)
+            .setFontWeight(200)
+            .setFontSize(15);
+        this.comps.base.add(this.comps.desc);
+    },
+});
+
+var SongListViewCell = amino.ComposeObject({
+    type:"SongListViewCell",
+    extend: amino.ProtoWidget,
+    comps: {
+        background: {
+            proto: amino.ProtoRect,
+            promote: ['w','h','fill'],
+        },
+        title: {
+            proto: amino.ProtoText,
+        },
+        artist: {
+            proto: amino.ProtoText,
+        },
+        album: {
+            proto: amino.ProtoText,
+        },
+        play: {
+            proto: widgets.PushButton,
+        },
+    },
+    init: function() {
+        this.comps.base.add(this.comps.background);
+        this.comps.base.add(this.comps.title);
+        this.comps.base.add(this.comps.artist);
+        this.comps.base.add(this.comps.album);
+        this.comps.base.add(this.comps.play);
+        this.comps.title.setTx(0).setTy(20).setFontSize(15);
+        this.comps.artist.setTx(100).setTy(20).setFontSize(15);
+        this.comps.album.setTx(200).setTy(20).setFontSize(15);
+        this.comps.play.setTx(300).setTy(5).setW(40).setH(20).setText("play");
+    },
+});
+
+function EmailViewCustomizer(view,folder) {
+    var lv = new widgets.ListView()
+        .setFill("#ffffff")
+        .setCellHeight(80)
+        ;
+    view.comps.contents.add(lv);
+    
+    lv.setModel(folder.getItems());
+    lv.setCellGenerator(function() { return new EmailListViewCell(); });
+    
+    lv.setTextCellRenderer(function(cell,index,item) {
+        if(item == null) return;
+        cell.comps.from.setText(item.from);
+        cell.comps.subject.setText(item.doc.subject.substring(0,30));
+        cell.comps.desc.setText(item.doc.body.substring(0,50));
+        cell.comps.background.setFill("#fffffa");
+        cell.comps.line.setFill("#f1ebeb");
+        cell.comps.line.setH(1);
+        cell.comps.line.setW(cell.getW());
+        //cell.setText(email.doc.from + " : " + email.doc.subject);
+        //console.log(email);
+    });
+    if(folder.onUpdate) {
+        folder.onUpdate(function(doc) {
+            lv.setModel(folder.getItems());
+        });
+    }
+
+
+    view.comps.toolbar.add(new widgets.PushButton()
+            .setW(30).setH(20)
+            .setText("close").setFontSize(10)
+            .onAction(function(e) {
+                view.setVisible(false);
+            })
+            )
+        ;
+    view.comps.toolbar.redoLayout();
+}
+
+
+function MusicViewCustomizer(view,folder) {
+    var lv = new widgets.ListView().setFill("#ffffff");
+    view.comps.contents.add(lv);
+    lv.setModel(folder.getItems());
+    lv.setCellGenerator(function() { return new SongListViewCell(); });
+    lv.setTextCellRenderer(function(cell,index,item) {
+        if(item == null) return;
+        cell.comps.title.setText(item.doc.title);
+        cell.comps.artist.setText(item.doc.artist);
+        cell.comps.album.setText(item.doc.album);
+    });
+    if(folder.onUpdate) {
+        folder.onUpdate(function(doc) {
+            lv.setModel(folder.getItems());
+        });
+    }
+
+
+    view.comps.toolbar.add(new widgets.PushButton().setW(30).setH(20).setText("close").setFontSize(10)
+            .onAction(function(e) {
+                view.setVisible(false);
+            }));
+    view.comps.toolbar.redoLayout();
+}
+
 function DesktopFolder() {
     this.title = "desktop";
     this.getTitle = function() { return this.title; }
     this.items = [
-        new MusicFolder(),
-        new TextDocumentItem('foo.txt',"some foo text"),
-        new TextDocumentItem('bar.txt',"some bar text"),
         new DocumentQueryFolder("All Email",doctypes.email),
+        new DocumentQueryFolder("Inbox", doctypes.email, EmailViewCustomizer),
+        new DocumentQueryFolder("All Music", doctypes.song),
+        new DocumentQueryFolder("Music", doctypes.song, MusicViewCustomizer),
+        new DocumentQueryFolder("All Text",doctypes.text),
     ];
+
+    var items = this.items;    
+    db.query({doctype:doctypes.text}).forEach(function(doc) {
+        items.push(new DocumentItem(doc));
+    });
     this.getItems = function() { return this.items; }
 }
 

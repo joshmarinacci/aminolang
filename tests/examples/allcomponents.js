@@ -147,6 +147,6 @@ amino.startApp(function(core, stage) {
     
     tests.push(textlayout);
     
-    switchTest(5);
+    switchTest(4);
         
 });

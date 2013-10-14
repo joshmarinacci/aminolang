@@ -17,7 +17,7 @@ amino.startApp(function(core,stage) {
     function getWH() {
         return wh;
     }
-    var slidespeed=1600;
+    var slidespeed=600;
     function getSlideSpeed(){
 	return slidespeed;
     }

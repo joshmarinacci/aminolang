@@ -108,6 +108,13 @@ amino.native = {
                 g.save();
                 g.translate(this.tx,this.ty);
                 g.scale(this.scalex,this.scaley);
+                
+                if(this.cliprect == 1) {
+                    g.beginPath();
+                    g.rect(0,0,this.w,this.h);
+                    g.clip();
+                }
+                
                 for(var i=0; i<this.children.length; i++) {
                     this.children[i].draw(g);
                 }

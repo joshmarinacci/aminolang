@@ -101,19 +101,19 @@ amino.startApp(function(core, stage) {
             amino.getCore().createPropAnim(e.source,'tx',0,100,3000);
         }))
         .add(new widgets.PushButton().setText("0 to 200, 1 sec. ease in").setW(300).setH(30).setTx(0).setTy(110).onAction(function(e) {
-            amino.getCore().createPropAnim(e.source,'tx',0,200,1000).setInterpolator('easin');
+            amino.getCore().createPropAnim(e.source,'tx',0,200,1000).setInterpolator(amino.Interpolators.CubicIn);
         }))
-        .add(new widgets.PushButton().setText("rotate 360, 1 sec. ease in").setW(300).setH(30).setTx(0).setTy(150).onAction(function(e) {
+        .add(new widgets.PushButton().setText("rotate X 360, 1 sec.").setW(300).setH(30).setTx(0).setTy(150).onAction(function(e) {
             amino.getCore().createPropAnim(e.source,'rotateX',0,360,1000);
         }))
         .add(new widgets.PushButton().setText("0 to 100, 1 sec, loop 2").setW(300).setH(30).setTx(0).setTy(190).onAction(function(e) {
-            amino.getCore().createPropAnim(e.source,'rotateX',0,100,1000).setCount(2);
+            amino.getCore().createPropAnim(e.source,'tx',0,100,1000).setCount(2);
         }))
         .add(new widgets.PushButton().setText("0 to 100, 1 sec, loop -1").setW(300).setH(30).setTx(0).setTy(230).onAction(function(e) {
-            amino.getCore().createPropAnim(e.source,'rotateX',0,100,1000).setCount(-1);
+            amino.getCore().createPropAnim(e.source,'tx',0,100,1000).setCount(-1);
         }))
         .add(new widgets.PushButton().setText("0 to 100, 1 sec, loop -1, autoreverse").setW(300).setH(30).setTx(0).setTy(270).onAction(function(e) {
-            amino.getCore().createPropAnim(e.source,'rotateX',0,100,1000).setCount(-1).setAutoReverse(true);
+            amino.getCore().createPropAnim(e.source,'tx',0,100,1000).setCount(-1).setAutoreverse(true);
         }))
     };
     tests.push(anims);

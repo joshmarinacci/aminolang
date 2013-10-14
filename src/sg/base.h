@@ -66,6 +66,7 @@ static const int TEXTURETOP_PROP    = 32;
 static const int TEXTUREBOTTOM_PROP = 33;
 
 static const int CLIPRECT_PROP = 34;
+static const int AUTOREVERSE = 35;
 
 using namespace v8;
 
@@ -370,6 +371,9 @@ public:
             }
             if(property == COUNT) {
                 anim->loopcount = value;
+            }
+            if(property == AUTOREVERSE) {
+                anim->autoreverse = value;
             }
             return;
         }

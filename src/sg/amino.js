@@ -690,6 +690,7 @@ var propsHash = {
     "lerpcubicout":15,
     "lerpprop":16,
     "lerpcubicinout":17,
+    "autoreverse":35,
     
     
     //geometry
@@ -1332,7 +1333,7 @@ function SGAnim(node, prop, start, end, dur) {
     }
     this.setAutoreverse = function(av) {
         this.autoreverse = av;
-        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
+        exports.native.updateAnimProperty(this.handle, "autoreverse", av?1:0);
         return this;
     }
     this.finish = function() {

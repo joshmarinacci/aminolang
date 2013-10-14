@@ -952,8 +952,8 @@ exports.ProtoGroup = exports.ComposeObject({
         }
         /** @func clear() remove all children of this group */
         this.clear = function() {
-            for(var i in this.children) {
-                this.children[i].setVisible(false);
+            while(this.children.length > 0) {
+                this.remove(this.children.pop());
             }
             this.children = [];
         }

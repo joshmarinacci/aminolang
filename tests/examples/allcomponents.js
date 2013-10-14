@@ -139,8 +139,14 @@ amino.startApp(function(core, stage) {
     for(var i=0; i<texts.length; i++) {
         textlayout.content.add(texts[i].setTx(100).setTy(i*40));
     }
+    
+    textlayout.content.add(new amino.ProtoRect().setTx(350).setTy(0).setW(200).setH(200));
+    textlayout.content.add(new widgets.Label().setText('top aligned')   .setTx(350).setTy(0).setFontSize(40).setH(200).setValign("top"));
+    textlayout.content.add(new widgets.Label().setText('center aligned').setTx(350).setTy(0).setFontSize(40).setH(200).setValign("center"));
+    textlayout.content.add(new widgets.Label().setText('bottom aligned').setTx(350).setTy(0).setFontSize(40).setH(200).setValign("bottom"));
+    
     tests.push(textlayout);
     
-    switchTest(0);
+    switchTest(5);
         
 });

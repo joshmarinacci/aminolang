@@ -17,7 +17,7 @@ amino.startApp(function(core,stage) {
     function getWH() {
         return wh;
     }
-    var slidespeed=600;
+    var slidespeed=1600;
     function getSlideSpeed(){
 	return slidespeed;
     }
@@ -46,6 +46,7 @@ amino.startApp(function(core,stage) {
     labelTitle.setText("Widget Gallery");
     labelTitle.setFontSize(40);
     labelTitle.setTx(getWW()/2-80);
+    labelTitle.setValign("top");
     //labelTitle.setH(120);
 
     var buttonPB = new widgets.PushButton();
@@ -97,7 +98,7 @@ amino.startApp(function(core,stage) {
     var groupPB = new amino.ProtoGroup();
     groupPB.setTx(getWW());
     var exitPBPage= new widgets.PushButton();
-    exitPBPage.setTx(getWW()-80);
+    exitPBPage.setTx(getWW()-200).setW(200);
     exitPBPage.setText("Exit");
     exitPBPage.setFontSize(40);
     exitPBPage.setFill("DD0000");
@@ -105,6 +106,7 @@ amino.startApp(function(core,stage) {
     var vPanelPBPage = new widgets.VerticalPanel();
     var buttonPBPage= new widgets.PushButton();
     buttonPBPage.setText("Push");
+    buttonPBPage.setTx(0);
     //buttonPBPage.setTx(getWW()/2-100);
     //buttonPBPage.setTy(getWH()/2-100);
     //buttonPBPage.setW(200);
@@ -120,7 +122,7 @@ amino.startApp(function(core,stage) {
     var groupSlider = new amino.ProtoGroup();
     groupSlider.setTx(getWW());
     var exitSliderPage= new widgets.PushButton();
-    exitSliderPage.setTx(getWW()-80);
+    exitSliderPage.setTx(getWW()-200).setW(200);
     exitSliderPage.setText("Exit");
     exitSliderPage.setFontSize(40);
     exitSliderPage.setFill("DD0000");
@@ -138,7 +140,7 @@ amino.startApp(function(core,stage) {
     var groupSpinner = new amino.ProtoGroup();
     groupSpinner.setTx(getWW());
     var exitSpinnerPage= new widgets.PushButton();
-    exitSpinnerPage.setTx(getWW()-80);
+    exitSpinnerPage.setTx(getWW()-200).setW(200);
     exitSpinnerPage.setText("Exit");
     exitSpinnerPage.setFontSize(40);
     exitSpinnerPage.setFill("DD0000");
@@ -157,7 +159,7 @@ amino.startApp(function(core,stage) {
     var groupLabel = new amino.ProtoGroup();
     groupLabel.setTx(getWW());
     var exitLabelPage= new widgets.PushButton();
-    exitLabelPage.setTx(getWW()-80);
+    exitLabelPage.setTx(getWW()-200).setW(200);
     exitLabelPage.setText("Exit");
     exitLabelPage.setFontSize(40);
     exitLabelPage.setFill("DD0000");
@@ -178,7 +180,7 @@ amino.startApp(function(core,stage) {
     var groupLV = new amino.ProtoGroup();
     groupLV.setTx(getWW());
     var exitLVPage= new widgets.PushButton();
-    exitLVPage.setTx(getWW()-80);
+    exitLVPage.setTx(getWW()-200).setW(200);
     exitLVPage.setText("Exit");
     exitLVPage.setFontSize(40);
     exitLVPage.setFill("DD0000");
@@ -198,7 +200,7 @@ amino.startApp(function(core,stage) {
    var groupImage = new amino.ProtoGroup();
    groupImage.setTx(getWW());                               
     var exitImagePage= new widgets.PushButton();             
-    exitImagePage.setTx(getWW()-80);                         
+    exitImagePage.setTx(getWW()-200).setW(200);
     exitImagePage.setText("Exit");                           
     exitImagePage.setFontSize(40);                           
     exitImagePage.setFill("DD0000");      
@@ -231,17 +233,17 @@ amino.startApp(function(core,stage) {
     core.on("action",buttonPB, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupPB,"tx",getWW(), 0, getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed());
+	var anim2 = core.createPropAnim(groupPB,"tx",getWW(), 0, getSlideSpeed());
     });
 
     core.on("action",exitPBPage, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupPB,"tx",0,getWW(),  getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed());
+	var anim2 = core.createPropAnim(groupPB,"tx",0,getWW(),  getSlideSpeed());
 	exitPBPage.setFill("DD0000");
     });
 
@@ -250,25 +252,25 @@ amino.startApp(function(core,stage) {
 	console.log('buttonPBPage pushed');
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(vPanelPBPage,"ty",0, getWH()-100,getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(vPanelPBPage,"ty",0, getWH()-100,getSlideSpeed());
 
     });
 
     core.on("action",buttonSlider, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupSlider,"tx",getWW(), 0, getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed());
+	var anim2 = core.createPropAnim(groupSlider,"tx",getWW(), 0, getSlideSpeed());
     });
 
     core.on("action",exitSliderPage, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupSlider,"tx",0,getWW(),  getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed());
+	var anim2 = core.createPropAnim(groupSlider,"tx",0,getWW(),  getSlideSpeed());
 	exitSliderPage.setFill("DD0000");
     });
 
@@ -276,71 +278,71 @@ amino.startApp(function(core,stage) {
     core.on("action",buttonSpinner, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupSpinner,"tx",getWW(), 0, getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed());
+	var anim2 = core.createPropAnim(groupSpinner,"tx",getWW(), 0, getSlideSpeed());
     });
 
     core.on("action",exitSpinnerPage, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupSpinner,"tx",0,getWW(),  getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed());
+	var anim2 = core.createPropAnim(groupSpinner,"tx",0,getWW(),  getSlideSpeed());
 	exitSpinnerPage.setFill("DD0000");
     });
 
     core.on("action",buttonLabel, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupLabel,"tx",getWW(), 0, getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed());
+	var anim2 = core.createPropAnim(groupLabel,"tx",getWW(), 0, getSlideSpeed());
     });
 
     core.on("action",exitLabelPage, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupLabel,"tx",0,getWW(),  getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed());
+	var anim2 = core.createPropAnim(groupLabel,"tx",0,getWW(),  getSlideSpeed());
 	exitLabelPage.setFill("DD0000");
     });
 
     core.on("action",buttonLV, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupLV,"tx",getWW(), 0, getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed());
+	var anim2 = core.createPropAnim(groupLV,"tx",getWW(), 0, getSlideSpeed());
     });
 
     core.on("action",exitLVPage, function() {
         //create an animation
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);
-	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed(), 1, false);
-	var anim2 = core.createPropAnim(groupLV,"tx",0,getWW(),  getSlideSpeed(), 1, false);
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);
+	var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed());
+	var anim2 = core.createPropAnim(groupLV,"tx",0,getWW(),  getSlideSpeed());
 	exitLVPage.setFill("DD0000");
     });
 
     core.on("action",buttonImage, function() {                                                         
         //create an animation                                                                       
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse                        
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);                          
-        var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed(), 1, false);     
-        var anim3 = core.createPropAnim(groupBackground,"tx",0, -getWW(), getSlideSpeed(), 1, false);     
-        var anim2 = core.createPropAnim(groupImage,"tx",getWW(), 0, getSlideSpeed(), 1, false);        
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);                          
+        var anim1 = core.createPropAnim(groupMain,"tx",0, -getWW(), getSlideSpeed());     
+        var anim3 = core.createPropAnim(groupBackground,"tx",0, -getWW(), getSlideSpeed());     
+        var anim2 = core.createPropAnim(groupImage,"tx",getWW(), 0, getSlideSpeed());        
 
     });                                                                                             
                                                                                                     
     core.on("action",exitImagePage, function() {                                                       
         //create an animation                                                                       
         // tx goes from 0 to 400 over 600ms. do it once (1). no auto reverse                        
-        //var anim = core.createPropAnim(rect,"tx",0, 400, 600, 1, false);                          
-        var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed(), 1, false);      
-        var anim3 = core.createPropAnim(groupBackground,"tx",-getWW(),0, getSlideSpeed(), 1, false);      
-        var anim2 = core.createPropAnim(groupImage,"tx",0,getWW(),  getSlideSpeed(), 1, false);        
+        //var anim = core.createPropAnim(rect,"tx",0, 400, 600);                          
+        var anim1 = core.createPropAnim(groupMain,"tx",-getWW(),0, getSlideSpeed());      
+        var anim3 = core.createPropAnim(groupBackground,"tx",-getWW(),0, getSlideSpeed());      
+        var anim2 = core.createPropAnim(groupImage,"tx",0,getWW(),  getSlideSpeed());        
         exitImagePage.setFill("DD0000");                                                               
     });                          
 

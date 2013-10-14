@@ -135,6 +135,10 @@ amino.native = {
     addNodeToGroup: function(h1,h2) {
         h2.children.push(h1);
     },
+    removeNodeFromGroup: function(h1, h2) {
+        var n = h2.children.indexOf(h1);
+        h2.children.splice(n,1);
+    },
     
     
     loadJpegToTexture: function(path,cb) {

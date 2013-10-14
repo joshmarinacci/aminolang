@@ -1,100 +1,146 @@
-var amino = require('../../build/desktop/amino.js');
-var widgets = require('../../build/desktop/widgets.js');
+if(typeof document == "undefined") {
+    var amino = require('amino.js');
+    var widgets= require('widgets.js'); 
+}
 
 amino.startApp(function(core, stage) {
+    var tests = [];
+    var selected = 0;
+    var root = new amino.ProtoGroup();
+    var testarea = new amino.ProtoGroup().setTx(30).setTy(100);
+    root.add(testarea);
+    var label = new widgets.Label().setText("test X")
+        .setW(60).setH(30).setTx(0).setTy(0);
+    root.add(label);
+    root.add(new widgets.PushButton()
+        .setText("prev")
+        .setW(80).setH(30)
+        .setTx(20).setTy(30)
+        .onAction(function() {
+            selected = (selected-1+tests.length)%tests.length;
+            switchTest(selected);
+        }));
+    root.add(new widgets.PushButton().setText("next")
+        .setW(80).setH(30)
+        .setTx(200).setTy(30)
+        .onAction(function() {
+            selected = (selected+1)%tests.length;
+            switchTest(selected);
+        }));
+    stage.setRoot(root);
+    
+    function switchTest(n) {
+        var test = tests[n];
+        testarea.clear();
+        testarea.add(test.content);
+        label.setText(test.title);
+    }
+    
+    var shapes = {
+        title: "basic shapes",
+        content: new amino.ProtoGroup()
+        .add(new amino.ProtoText().setText("rects w/ & w/o opacity").setTx(0).setTy(-10))
+        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00").setTx(5).setTy(20))
+        .add(new amino.ProtoRect().setW(50).setH(50).setFill("#00ff00").setOpacity(0.2).setTx(100).setTy(20))
         
-
-    var group = new amino.ProtoGroup().setTx(0);
-    stage.setRoot(group);
-    
-    group.add(new amino.ProtoRect()
-            .setFill("#ff00ff")
-            .setW(50));
-    
-    var text = new amino.ProtoText();
-    text.setTx(0).setTy(50);
-    group.add(text);
-    
-    var button = new widgets.PushButton()
-        .setId("button1")
-        .setTy(200).setTx(100)
-        .setW(100).setH(50)
-        .setText("buttons");
-    group.add(button);
-    
-    
-    var slider = new widgets.Slider()
-        .setW(200).setH(30)
-        .setTx(100).setTy(300)
-        .setValue(33);
-    group.add(slider);
+        .add(new amino.ProtoText().setText("text").setFill("#0000ff").setTx(230))
+        
+        
+        .add(new amino.ProtoText().setText("polys w/ & w/o opacity").setTx(0).setTy(100))
+        /*
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(true).setTy(120))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(false).setTx(100).setTy(120))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(true).setTy(200))
+        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(false).setTy(200).setTx(100))
+        */
+        .add(new amino.ProtoText().setText("image scaled 0.5x").setTx(300).setTy(0))
+        .add(new amino.ProtoImageView().setSrc("tests/images/keane_01.jpg").setTx(300).setTy(20).setScalex(0.5).setScaley(0.5))
+    };
+    tests.push(shapes);
     
     
     
-    var label = new widgets.Label();
-    label.setTx(100).setTy(100)
-        .setText("A Big Label")
-        .setW(100);
-    group.add(label);
+    var simpleControls = {
+        title: "simple controls",
+        content: new widgets.VerticalPanel().setW(300).setH(200).setGap(5).setPadding(5),
+    }
+    simpleControls.content.add(new widgets.Label().setText("a label inside vertical panel").setH(30));
+    simpleControls.content.add(new widgets.PushButton().setText("Push Button").setH(30));
+    simpleControls.content.add(new widgets.ToggleButton().setText("Toggle Button").setH(30));
+    simpleControls.content.add(new widgets.Label().setText("a slider is next").setH(30));
+    simpleControls.content.add(new widgets.Slider());
+    //simpleControls.content.add(new widgets.ProgressSpinner().setActive(true).setSize(30));
+    tests.push(simpleControls);
     
     
-    var image = new amino.ProtoImageView();
-    image.setTx(50).setTy(50);
-    image.setSrc("tests/images/beatles_01.jpg");
-    group.add(image);
+    var lists = {
+        title: "list example, plain and styled",
+        content: new widgets.AnchorPanel().setW(400).setH(200),
+    };
+    lists.content.add(new widgets.ListView().setW(100).setH(150));
+    lists.content.add(new widgets.ListView().setW(100).setH(150).setTx(120));
+    tests.push(lists);
     
-    
-    var panel = new widgets.AnchorPanel();
-    panel.setTx(300).setTy(20).setW(300).setH(300);
-    group.add(panel);
-    
-    //left anchored
-    panel.add(new widgets.PushButton()
-        .setW(120).setH(30)
-        .setAnchorLeft(true));
-    
-    //right anchored
-    panel.add(new widgets.PushButton()
-        .setW(120).setH(30)
-        .setTy(50)
-        .setAnchorRight(true));
-    
-    //left and right anchored, making it stretch
-    panel.add(new widgets.PushButton()
-        .setW(120).setH(30)
-        .setTy(100)
-        .setAnchorRight(true).setAnchorLeft(true));
-    
-    //bottom left anchored, then moved up by 10 px
-    panel.add(new widgets.PushButton()
-        .setW(120).setH(30)
-        .setAnchorBottom(true).setBottom(10));
-
-
-    var spinner = new widgets.ProgressSpinner();
-    spinner.setTx(240).setTy(200);
-    spinner.setActive(false);
-    group.add(spinner);
-    core.on('action',button, function(e) {
-        console.log("the button " + e.source.getId() + " fired an action");
-        spinner.setActive(!spinner.getActive());
-    });
+    var text = {
+        title: "textfield example, field and area",
+        content: new widgets.AnchorPanel().setW(400).setH(200),
+    };
+    text.content.add(new widgets.TextField().setW(200).setH(30));
+    text.content.add(new widgets.TextField().setW(200).setH(30).setTy(40));
+    tests.push(text);
     
     
     
-    var vbox = new widgets.VerticalPanel()
-        .setTx(50).setTy(400).setW(200).setH(200);
-    vbox.add(new widgets.PushButton().setText("button1").setW(100).setH(40));
-    vbox.add(new widgets.PushButton().setText("button2").setW(100).setH(40));
-    vbox.add(new widgets.PushButton().setText("button3").setW(100).setH(40));
-    group.add(vbox);
+    var anims = {
+        title: "simple animations",
+        content: new amino.ProtoGroup()
+        .add(new widgets.PushButton().setText("0 to 100, 1 sec. no easing").setW(300).setH(30).setTx(0).setTy(30).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'tx',0,100,1000);
+        }))
+        .add(new widgets.PushButton().setText("0 to 100, 3 sec. no easing").setW(300).setH(30).setTx(0).setTy(70).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'tx',0,100,3000);
+        }))
+        .add(new widgets.PushButton().setText("0 to 200, 1 sec. ease in").setW(300).setH(30).setTx(0).setTy(110).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'tx',0,200,1000).setInterpolator('easin');
+        }))
+        .add(new widgets.PushButton().setText("rotate 360, 1 sec. ease in").setW(300).setH(30).setTx(0).setTy(150).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'rotateX',0,360,1000);
+        }))
+        .add(new widgets.PushButton().setText("0 to 100, 1 sec, loop 2").setW(300).setH(30).setTx(0).setTy(190).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'rotateX',0,100,1000).setCount(2);
+        }))
+        .add(new widgets.PushButton().setText("0 to 100, 1 sec, loop -1").setW(300).setH(30).setTx(0).setTy(230).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'rotateX',0,100,1000).setCount(-1);
+        }))
+        .add(new widgets.PushButton().setText("0 to 100, 1 sec, loop -1, autoreverse").setW(300).setH(30).setTx(0).setTy(270).onAction(function(e) {
+            amino.getCore().createPropAnim(e.source,'rotateX',0,100,1000).setCount(-1).setAutoReverse(true);
+        }))
+    };
+    tests.push(anims);
     
     
-    var removegroup = new amino.ProtoGroup();
-    var removerect = new amino.ProtoRect().setW(300).setH(300);
-    removegroup.add(removerect);
-    console.log("group childrent len = " + removegroup.children.length);
-    removegroup.remove(removerect);
-    console.log("group childrent len = " + removegroup.children.length);
-    group.add(removegroup);
+    var texts = [
+        new amino.ProtoText().setText('small size').setFontSize(10),
+        new amino.ProtoText().setText('default size'),
+        new amino.ProtoText().setText('large size').setFontSize(20),
+        new widgets.Label().setText('left label').setAlign("left").setW(200),
+        new widgets.Label().setText('center label').setAlign("center").setW(200),
+        new widgets.Label().setText('right label').setAlign("right").setW(200),
+        new amino.ProtoText().setText('blue text').setFill("#0000ff"),
+        new amino.ProtoText().setText('translucent text')//.setOpacity(0.3),
+    ];
+        
+    
+    var textlayout = {
+        title: "text layout",
+        content: new amino.ProtoGroup()
+    }
+    textlayout.content.add(new amino.ProtoRect().setTx(100).setTy(0).setW(200).setH(300));
+    for(var i=0; i<texts.length; i++) {
+        textlayout.content.add(texts[i].setTx(100).setTy(i*40));
+    }
+    tests.push(textlayout);
+    
+    switchTest(0);
+        
 });

@@ -543,11 +543,14 @@ inline Handle<Value> removeNodeFromGroup(const Arguments& args) {
     int groupHandle  = args[1]->ToNumber()->NumberValue();
     Group* group = (Group*)rects[groupHandle];
     AminoNode* node = rects[rectHandle];
-    group->children.erase(
-        std::remove(group->children.begin(),
-            group->children.end(),
-            node),
-        group->children.end());
+    int n = -1;
+    for(int i=0; i<group->children.size(); i++) {
+        if(group->children[i] == node) {
+            n = i;
+        }
+    }
+    
+    group->children.erase(group->children.begin()+n);
     return scope.Close(Undefined());
 }
 

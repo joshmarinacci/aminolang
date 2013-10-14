@@ -193,10 +193,22 @@ function CanvasPropAnim(target,prop,start,end,duration) {
     this.start = start;
     this.end = end;
     this.duration = duration;
+    var FORWARD = 1;
+    var BACKWARDS = 2;
+    var FOREVER = -1;
+    var direction = FORWARD;
     this.count = 1;
+    var loopcount = 1;
     this.autoreverse = false;
     this.afterCallbacks = [];
     this.beforeCallbacks = [];
+    
+    this.active = true;
+    this.applyValue = function(val) {
+        var setter = this.target["set"+camelize(this.prop)];
+        if(setter) setter.call(this.target,val);
+    }
+    
     this.init = function(core) {
         this.startTime = Date.now();
     }
@@ -206,12 +218,11 @@ function CanvasPropAnim(target,prop,start,end,duration) {
     }
     this.setCount = function(count) {
         this.count = count;
-//        exports.native.updateAnimProperty(this.handle, "count", count);
+        loopcount = this.count;
         return this;
     }
     this.setAutoreverse = function(av) {
         this.autoreverse = av;
-//        exports.native.updateAnimProperty(this.handle, "autoreverse", av);
         return this;
     }
     this.finish = function() {
@@ -234,13 +245,46 @@ function CanvasPropAnim(target,prop,start,end,duration) {
         this.beforeCallbacks.push(cb);
         return this;
     }
+    this.toggle = function() {
+        if(this.autoreverse == true) {
+            if(direction == FORWARD) {
+                direction = BACKWARDS;
+            } else {
+                direction = FORWARD;
+            }
+        }
+    }
+    this.endAnimation = function() {
+        this.applyValue(this.end);
+        this.active = false;
+    }
     this.update = function() {
+        if(!this.active) return;
         this.currentTime = Date.now();
         var t = (this.currentTime - this.startTime)/this.duration;
-        if(t > 1) return;
+        if(t > 1) {
+            if(loopcount == FOREVER) {
+                this.startTime = this.currentTime;
+                t = 0;
+                this.toggle();
+            }
+            if(loopcount > 0) {
+                loopcount--;
+                if(loopcount > 0) {
+                    t = 0;
+                    this.startTime = this.currentTime;
+                    this.toggle();
+                } else {
+                    this.endAnimation();
+                    return;
+                }
+            }
+        }
+        if(direction == BACKWARDS) {
+            t = 1-t;
+        }
         var val = (end-start)*t + start;
-        var setter = this.target["set"+camelize(this.prop)];
-        if(setter) setter.call(this.target,val);
+        this.applyValue(val);
     }
 }
 

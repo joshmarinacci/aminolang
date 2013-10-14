@@ -353,8 +353,7 @@ widgets.Label = amino.ComposeObject({
             value: 30,
             set: function(h) {
                 this.props.h = h;
-                var texth = this.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
-                this.comps.text.setTy(Math.round(h/2 + texth/2));
+                this.doVLayout();
                 return this;
             }
         },
@@ -366,11 +365,18 @@ widgets.Label = amino.ComposeObject({
                 return this;
             }
         },
+        valign: {
+            value: "center",
+            set: function(valign) {
+                this.props.valign = valign;
+                this.doVLayout();
+                return this;
+            }
+        },
     },
     init: function() {
         this.comps.base.add(this.comps.text);
         this.contains = function() { return false; }
-        this.setH(20);
         this.doHLayout = function() {
             var textw = this.font.calcStringWidth(this.getText(),this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             if(this.props.align == 'left') {
@@ -383,6 +389,20 @@ widgets.Label = amino.ComposeObject({
                 this.comps.text.setTx(Math.round(this.getW()-textw)/2);
             }
         }
+        this.doVLayout = function() {
+            var texth = this.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
+            var h = this.props.h;
+            if(this.props.valign == 'top') {
+                this.comps.text.setTy(0+texth);
+            }
+            if(this.props.valign == 'center') {
+                this.comps.text.setTy(Math.round(h/2 + texth/2));
+            }
+            if(this.props.valign == 'bottom') {
+                this.comps.text.setTy(h);
+            }
+        }
+        this.setH(20);
     }
 });
 

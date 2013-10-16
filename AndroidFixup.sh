@@ -47,7 +47,7 @@ cp tests/phone/*.* $ANDROID_PRODUCT_OUT/$DESTDIR
 mkdir -p $ANDROID_PRODUCT_OUT/$DESTDIR/fonts
 cp fonts/* $ANDROID_PRODUCT_OUT/$DESTDIR/fonts
 mkdir -p $ANDROID_PRODUCT_OUT/$DESTDIR/shaders
-cp shaders/* $ANDROID_PRODUCT_OUT/$DESTDIR/fonts
+cp shaders/* $ANDROID_PRODUCT_OUT/$DESTDIR/shaders
 
 #the following makes the  make system run everytime you build android. If you comment it out 
 # you either need to touch the AndroidFixup.sh or 

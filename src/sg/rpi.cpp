@@ -140,7 +140,7 @@ static void init_ogl(PWindow *state)
    // create an EGL window surface
    success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
    assert( success >= 0 );
-   printf("display size = %d x %d\n",state->screen_width, state->screen_height);
+   printf("RPI: display size = %d x %d\n",state->screen_width, state->screen_height);
 
    dst_rect.x = 0;
    dst_rect.y = 0;
@@ -180,38 +180,6 @@ static void init_ogl(PWindow *state)
    
    printf("rpi.c: got to the real opengl context\n");
 
-/*
-   //init the shaders
-   const GLchar *vshader_source;
-   loadFile("SimpleVertex.glsl",&vshader_source);
-   state->vshader = glCreateShader(GL_VERTEX_SHADER);
-   glShaderSource(state->vshader, 1, &vshader_source, 0);
-   glCompileShader(state->vshader);
-
-   const GLchar *fshader_source;
-   loadFile("SimpleFragment.glsl",&fshader_source);
-   state->fshader = glCreateShader(GL_FRAGMENT_SHADER);
-   glShaderSource(state->fshader, 1, &fshader_source, 0);
-   glCompileShader(state->fshader);
-   //printf("compiled the vertex shader %s",vshader_source);
-   
-   //link into a shader program
-   state->program = glCreateProgram();
-   glAttachShader(state->program, state->vshader);
-   glAttachShader(state->program, state->fshader);
-   glLinkProgram(state->program);
-   
-   
-    
-   //use the program
-   glUseProgram(state->program);
-    
-   //save references to the parameters for the shaders
-   state->positionSlot = glGetAttribLocation(state->program, "Position");
-   state->colorSlot = glGetAttribLocation(state->program, "SourceColor");
-   glEnableVertexAttribArray(state->positionSlot);
-   glEnableVertexAttribArray(state->colorSlot);
-   */
 }
 
 
@@ -226,13 +194,9 @@ Handle<Value> init(const Arguments& args) {
     // Start OGLES
     init_ogl(state);    
     
-    /*
-    if(!glfwInit()) {
-        printf("error. quitting\n");
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    */
+    width = state->screen_width;
+    height = state->screen_height;
+    
     return scope.Close(Undefined());
 }
 
@@ -241,16 +205,7 @@ Handle<Value> createWindow(const Arguments& args) {
     HandleScope scope;
     int w  = args[0]->ToNumber()->NumberValue();
     int h  = args[1]->ToNumber()->NumberValue();
-    width = w;
-    height = h;
     //window already allocated at this point.
-    /*
-    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
-        printf("error. quitting\n");
-        glfwTerminate();
-        exit(EXIT_FAILURE);        
-    }
-    */
     
 //    glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
 //    glfwSetWindowCloseCallback(GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION);
@@ -268,7 +223,6 @@ Handle<Value> createWindow(const Arguments& args) {
     
 
     
-    
     glViewport(0,0,width, height);
     return scope.Close(Undefined());
 }
@@ -279,8 +233,7 @@ Handle<Value> setWindowSize(const Arguments& args) {
     int h  = args[1]->ToNumber()->NumberValue();
     width = w;
     height = h;
-    //glfwSetWindowSize(width,height);
-    printf("setting the window size to: %d %d\n",width,height);
+    printf("pretending to set the window size to: %d %d\n",width,height);
     return scope.Close(Undefined());
 }
 

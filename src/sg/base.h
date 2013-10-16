@@ -565,7 +565,7 @@ inline static Handle<Value> loadJpegToTexture(const Arguments& args) {
     v8::String::Utf8Value param1(args[0]->ToString());
     std::string text = std::string(*param1);    
     char * file = new char [text.length()+1];
-    std::strcpy (file, text.c_str());
+    strcpy (file, text.c_str());
     printf("LoadJpegFromFile %s\n",file);
     Image* image = jpegfile_to_bytes(file);
     GLuint texture;
@@ -591,7 +591,7 @@ inline static Handle<Value> loadPngToTexture(const Arguments& args) {
     v8::String::Utf8Value param1(args[0]->ToString());
     std::string text = std::string(*param1);    
     char * file = new char [text.length()+1];
-    std::strcpy (file, text.c_str());
+    strcpy (file, text.c_str());
     printf("LoadPngFromFile %s\n",file);
     Image* image = pngfile_to_bytes(file);
     if(image == 0) {

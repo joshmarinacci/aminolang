@@ -1,0 +1,472 @@
+
+#include "base.h"
+#include "bcm_host.h"
+
+// ========== Event Callbacks ===========
+
+/*
+static void GLFW_WINDOW_SIZE_CALLBACK_FUNCTION(int newWidth, int newHeight) {
+	width = newWidth;
+	height = newHeight;
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("windowsize"));
+    event_obj->Set(String::NewSymbol("width"), Number::New(width));
+    event_obj->Set(String::NewSymbol("height"), Number::New(height));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("windowclose"));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+    return GL_TRUE;
+}
+*/
+static float near = 150;
+static float far = -300;
+static float eye = 600;
+//1000,250,-500
+//far = -eye/2.  near = -far/2;  ex: 800,200,-400.
+//400+200+600 = 1200
+//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
+
+/*
+static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    if(action == 1) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keypress"));
+    }
+    if(action == 0) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keyrelease"));
+    }
+    event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+
+static void GLFW_MOUSE_POS_CALLBACK_FUNCTION(int x, int y) {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mouseposition"));
+    event_obj->Set(String::NewSymbol("x"), Number::New(x));
+    event_obj->Set(String::NewSymbol("y"), Number::New(y));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousebutton"));
+    event_obj->Set(String::NewSymbol("button"), Number::New(button));
+    event_obj->Set(String::NewSymbol("state"), Number::New(state));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+*/
+
+
+typedef struct
+{
+   uint32_t screen_width;
+   uint32_t screen_height;
+   
+// OpenGL|ES objects
+   EGLDisplay display;
+   EGLSurface surface;
+   EGLContext context;
+
+} PWindow;
+
+static PWindow _state, *state=&_state;
+
+static void init_ogl(PWindow *state)
+{
+   int32_t success = 0;
+   EGLBoolean result;
+   EGLint num_config;
+
+   static EGL_DISPMANX_WINDOW_T nativewindow;
+
+   DISPMANX_ELEMENT_HANDLE_T dispman_element;
+   DISPMANX_DISPLAY_HANDLE_T dispman_display;
+   DISPMANX_UPDATE_HANDLE_T dispman_update;
+   VC_RECT_T dst_rect;
+   VC_RECT_T src_rect;
+
+   static const EGLint attribute_list[] =
+   {
+      EGL_RED_SIZE, 8,
+      EGL_GREEN_SIZE, 8,
+      EGL_BLUE_SIZE, 8,
+      EGL_ALPHA_SIZE, 8,
+      EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+      EGL_NONE
+   };
+   
+   static const EGLint context_attributes[] = 
+   {
+      EGL_CONTEXT_CLIENT_VERSION, 2,
+      EGL_NONE
+   };
+
+   EGLConfig config;
+
+   // get an EGL display connection
+   state->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+   assert(state->display!=EGL_NO_DISPLAY);
+
+   // initialize the EGL display connection
+   result = eglInitialize(state->display, NULL, NULL);
+   assert(EGL_FALSE != result);
+
+   // get an appropriate EGL frame buffer configuration
+   result = eglChooseConfig(state->display, attribute_list, &config, 1, &num_config);
+   assert(EGL_FALSE != result);
+
+   // choose opengl 2
+   result = eglBindAPI(EGL_OPENGL_ES_API);
+   assert(EGL_FALSE != result);
+   
+   // create an EGL rendering context
+   state->context = eglCreateContext(state->display, config, EGL_NO_CONTEXT, context_attributes);
+   assert(state->context!=EGL_NO_CONTEXT);
+
+   // create an EGL window surface
+   success = graphics_get_display_size(0 /* LCD */, &state->screen_width, &state->screen_height);
+   assert( success >= 0 );
+   printf("display size = %d x %d\n",state->screen_width, state->screen_height);
+
+   dst_rect.x = 0;
+   dst_rect.y = 0;
+   dst_rect.width = state->screen_width;
+   dst_rect.height = state->screen_height;
+      
+   src_rect.x = 0;
+   src_rect.y = 0;
+   src_rect.width = state->screen_width << 16;
+   src_rect.height = state->screen_height << 16;        
+
+   dispman_display = vc_dispmanx_display_open( 0 /* LCD */);
+   dispman_update = vc_dispmanx_update_start( 0 );
+         
+   dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display,
+      0/*layer*/, &dst_rect, 0/*src*/,
+      &src_rect, DISPMANX_PROTECTION_NONE, 0 /*alpha*/, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
+      
+   nativewindow.element = dispman_element;
+   nativewindow.width = state->screen_width;
+   nativewindow.height = state->screen_height;
+   vc_dispmanx_update_submit_sync( dispman_update );
+      
+   state->surface = eglCreateWindowSurface( state->display, config, &nativewindow, NULL );
+   assert(state->surface != EGL_NO_SURFACE);
+
+   // connect the context to the surface
+   result = eglMakeCurrent(state->display, state->surface, state->surface, state->context);
+   assert(EGL_FALSE != result);
+
+   
+   
+   //now we have a real opengl context so we can do stuff
+   glClearColor(1,0,0,1);
+   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   eglSwapBuffers(state->display, state->surface);
+   
+   printf("rpi.c: got to the real opengl context\n");
+
+/*
+   //init the shaders
+   const GLchar *vshader_source;
+   loadFile("SimpleVertex.glsl",&vshader_source);
+   state->vshader = glCreateShader(GL_VERTEX_SHADER);
+   glShaderSource(state->vshader, 1, &vshader_source, 0);
+   glCompileShader(state->vshader);
+
+   const GLchar *fshader_source;
+   loadFile("SimpleFragment.glsl",&fshader_source);
+   state->fshader = glCreateShader(GL_FRAGMENT_SHADER);
+   glShaderSource(state->fshader, 1, &fshader_source, 0);
+   glCompileShader(state->fshader);
+   //printf("compiled the vertex shader %s",vshader_source);
+   
+   //link into a shader program
+   state->program = glCreateProgram();
+   glAttachShader(state->program, state->vshader);
+   glAttachShader(state->program, state->fshader);
+   glLinkProgram(state->program);
+   
+   
+    
+   //use the program
+   glUseProgram(state->program);
+    
+   //save references to the parameters for the shaders
+   state->positionSlot = glGetAttribLocation(state->program, "Position");
+   state->colorSlot = glGetAttribLocation(state->program, "SourceColor");
+   glEnableVertexAttribArray(state->positionSlot);
+   glEnableVertexAttribArray(state->colorSlot);
+   */
+}
+
+
+
+Handle<Value> init(const Arguments& args) {
+	matrixStack = std::stack<void*>();
+    HandleScope scope;
+    bcm_host_init();
+    // Clear application state
+    memset( state, 0, sizeof( *state ) );
+      
+    // Start OGLES
+    init_ogl(state);    
+    
+    /*
+    if(!glfwInit()) {
+        printf("error. quitting\n");
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    */
+    return scope.Close(Undefined());
+}
+
+
+Handle<Value> createWindow(const Arguments& args) {
+    HandleScope scope;
+    int w  = args[0]->ToNumber()->NumberValue();
+    int h  = args[1]->ToNumber()->NumberValue();
+    width = w;
+    height = h;
+    //window already allocated at this point.
+    /*
+    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
+        printf("error. quitting\n");
+        glfwTerminate();
+        exit(EXIT_FAILURE);        
+    }
+    */
+    
+//    glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
+//    glfwSetWindowCloseCallback(GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION);
+//    glfwSetMousePosCallback(GLFW_MOUSE_POS_CALLBACK_FUNCTION);
+//    glfwSetMouseButtonCallback(GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION);
+//    glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
+    
+    colorShader = new ColorShader();
+    textureShader = new TextureShader();
+    fontShader = new FontShader();
+    modelView = new GLfloat[16];
+
+    globaltx = new GLfloat[16];
+    make_identity_matrix(globaltx);
+    
+
+    
+    
+    glViewport(0,0,width, height);
+    return scope.Close(Undefined());
+}
+
+Handle<Value> setWindowSize(const Arguments& args) {
+    HandleScope scope;
+    int w  = args[0]->ToNumber()->NumberValue();
+    int h  = args[1]->ToNumber()->NumberValue();
+    width = w;
+    height = h;
+    //glfwSetWindowSize(width,height);
+    printf("setting the window size to: %d %d\n",width,height);
+    return scope.Close(Undefined());
+}
+
+Handle<Value> getWindowSize(const Arguments& args) {
+    HandleScope scope;
+    Local<Object> obj = Object::New();
+    obj->Set(String::NewSymbol("w"), Number::New(width));
+    obj->Set(String::NewSymbol("h"), Number::New(height));
+    return scope.Close(obj);
+}
+
+
+void render() {
+
+
+    for(int j=0; j<updates.size(); j++) {
+        updates[j]->apply();
+    }
+    updates.clear();
+    
+    GLfloat* scaleM = new GLfloat[16];
+    make_scale_matrix(1,-1,1,scaleM);
+    //make_scale_matrix(1,1,1,scaleM);
+    GLfloat* transM = new GLfloat[16];
+    make_trans_matrix(-width/2,height/2,0,transM);
+    //make_trans_matrix(10,10,0,transM);
+    //make_trans_matrix(0,0,0,transM);
+    
+    GLfloat* m4 = new GLfloat[16];
+    mul_matrix(m4, transM, scaleM); 
+
+
+    GLfloat* pixelM = new GLfloat[16];
+//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
+    loadPixelPerfect(pixelM, width, height, eye, near, far);
+    //printf("eye = %f\n",eye);
+    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
+    
+    GLfloat* m5 = new GLfloat[16];
+    //transpose(m5,pixelM);
+    
+    mul_matrix(modelView,pixelM,m4);
+    
+    
+    make_identity_matrix(globaltx);
+    glViewport(0,0,width, height);
+    glClearColor(1,1,1,1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+    AminoNode* root = rects[rootHandle];
+    root->draw();
+    eglSwapBuffers(state->display, state->surface);
+}
+
+Handle<Value> tick(const Arguments& args) {
+    HandleScope scope;
+    render();
+    return scope.Close(Undefined());
+}
+
+Handle<Value> selfDrive(const Arguments& args) {
+    HandleScope scope;
+    for(int i =0; i<100; i++) {
+        render();
+    }
+    return scope.Close(Undefined());
+}
+
+Handle<Value> runTest(const Arguments& args) {
+    HandleScope scope;
+    
+    double startTime = getTime();
+    int count = 100;
+    Local<v8::Object> opts = args[0]->ToObject();
+    count = (int)(opts
+        ->Get(String::NewSymbol("count"))
+        ->ToNumber()
+        ->NumberValue()
+        );
+    
+    
+    bool sync = false;
+    sync = opts
+        ->Get(String::NewSymbol("sync"))
+        ->ToBoolean()
+        ->BooleanValue();
+        
+    printf("rendering %d times, vsync = %d\n",count,sync);
+
+    printf("applying updates first\n");
+    for(int j=0; j<updates.size(); j++) {
+        updates[j]->apply();
+    }
+    updates.clear();
+    
+    printf("setting up the screen\n");
+    GLfloat* scaleM = new GLfloat[16];
+    make_scale_matrix(1,-1,1,scaleM);
+    //make_scale_matrix(1,1,1,scaleM);
+    GLfloat* transM = new GLfloat[16];
+    make_trans_matrix(-width/2,height/2,0,transM);
+    //make_trans_matrix(10,10,0,transM);
+    //make_trans_matrix(0,0,0,transM);
+    
+    GLfloat* m4 = new GLfloat[16];
+    mul_matrix(m4, transM, scaleM); 
+
+
+    GLfloat* pixelM = new GLfloat[16];
+//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
+    loadPixelPerfect(pixelM, width, height, eye, near, far);
+    //printf("eye = %f\n",eye);
+    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
+    
+    GLfloat* m5 = new GLfloat[16];
+    //transpose(m5,pixelM);
+    
+    mul_matrix(modelView,pixelM,m4);
+    
+    
+    make_identity_matrix(globaltx);
+    glViewport(0,0,width, height);
+    glClearColor(1,1,1,1);
+    
+    
+    glDisable(GL_DEPTH_TEST);
+    printf("running %d times\n",count);
+    for(int i=0; i<count; i++) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        /*
+        for(int j=0; j<anims.size(); j++) {
+            anims[j]->update();
+        }
+        */
+        AminoNode* root = rects[rootHandle];
+        root->draw();
+        if(sync) {
+            eglSwapBuffers(state->display, state->surface);
+        }
+    }
+    
+    double endTime = getTime();
+    Local<Object> ret = Object::New();
+    ret->Set(String::NewSymbol("count"),Number::New(count));
+    ret->Set(String::NewSymbol("totalTime"),Number::New(endTime-startTime));
+    return scope.Close(ret);
+}
+
+
+Handle<Value> setEventCallback(const Arguments& args) {
+    HandleScope scope;
+    eventCallbackSet = true;
+    NODE_EVENT_CALLBACK = Persistent<Function>::New(Handle<Function>::Cast(args[0]));
+    return scope.Close(Undefined());
+}
+
+
+
+void InitAll(Handle<Object> exports, Handle<Object> module) {
+    exports->Set(String::NewSymbol("init"),             FunctionTemplate::New(init)->GetFunction());
+    exports->Set(String::NewSymbol("createWindow"),     FunctionTemplate::New(createWindow)->GetFunction());
+    exports->Set(String::NewSymbol("setWindowSize"),    FunctionTemplate::New(setWindowSize)->GetFunction());
+    exports->Set(String::NewSymbol("getWindowSize"),    FunctionTemplate::New(getWindowSize)->GetFunction());
+    exports->Set(String::NewSymbol("createRect"),       FunctionTemplate::New(createRect)->GetFunction());
+    exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
+    exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());
+    exports->Set(String::NewSymbol("createAnim"),       FunctionTemplate::New(createAnim)->GetFunction());
+    exports->Set(String::NewSymbol("stopAnim"),         FunctionTemplate::New(stopAnim)->GetFunction());
+    exports->Set(String::NewSymbol("updateProperty"),   FunctionTemplate::New(updateProperty)->GetFunction());
+    exports->Set(String::NewSymbol("updateAnimProperty"),FunctionTemplate::New(updateAnimProperty)->GetFunction());
+    exports->Set(String::NewSymbol("addNodeToGroup"),   FunctionTemplate::New(addNodeToGroup)->GetFunction());
+    exports->Set(String::NewSymbol("removeNodeFromGroup"),   FunctionTemplate::New(removeNodeFromGroup)->GetFunction());
+    exports->Set(String::NewSymbol("tick"),             FunctionTemplate::New(tick)->GetFunction());
+    exports->Set(String::NewSymbol("selfDrive"),        FunctionTemplate::New(selfDrive)->GetFunction());
+    exports->Set(String::NewSymbol("setEventCallback"), FunctionTemplate::New(setEventCallback)->GetFunction());
+    exports->Set(String::NewSymbol("setRoot"),          FunctionTemplate::New(setRoot)->GetFunction());
+    exports->Set(String::NewSymbol("loadPngToTexture"), FunctionTemplate::New(loadPngToTexture)->GetFunction());   
+    exports->Set(String::NewSymbol("loadJpegToTexture"),FunctionTemplate::New(loadJpegToTexture)->GetFunction());
+    exports->Set(String::NewSymbol("createNativeFont"), FunctionTemplate::New(createNativeFont)->GetFunction());
+    exports->Set(String::NewSymbol("getCharWidth"),     FunctionTemplate::New(getCharWidth)->GetFunction());
+    exports->Set(String::NewSymbol("getFontHeight"),    FunctionTemplate::New(getFontHeight)->GetFunction());
+    exports->Set(String::NewSymbol("runTest"),          FunctionTemplate::New(runTest)->GetFunction());
+}
+
+NODE_MODULE(aminonative, InitAll)
+

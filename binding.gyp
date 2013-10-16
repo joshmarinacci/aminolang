@@ -12,7 +12,6 @@
                 "src/sg/fonts/mat4.c",
                 
                 "src/sg/base.cc",
-                "src/sg/mac.cpp",
                 "src/sg/shaders.cpp",
                 "src/sg/image.cpp"
             ],
@@ -33,6 +32,9 @@
                         '-framework OpenCL',
                         '<!@(freetype-config --libs)'
                     ],
+                    "sources": [
+                        "src/sg/mac.cpp",
+                    ],
                     "defines": [
                         "MAC"
                     ]
@@ -42,6 +44,29 @@
                     "defines": [
                         "KLAATU"
                     ]
+                }],
+                ['OS=="raspberrypi"', {
+                    "sources": [
+                        "src/sg/rpi.cpp",
+                    ],
+                    "libraries":[
+                        "-lpng",
+                        "-ljpeg",
+                        "-L/opt/vc/lib/ -lbcm_host",
+                        "-lGLESv2",
+                        "-lEGL",
+                        '<!@(freetype-config --libs)',
+                    ],
+                    "defines": [
+                        "RPI"
+                    ],
+                    "include_dirs": [
+                        "/opt/vc/include/",
+                        "/usr/include/freetype2",
+                        "/opt/vc/include/interface/vcos/pthreads",
+                        "/opt/vc/include/interface/vmcs_host/linux",
+                        '<!@(freetype-config --cflags)'
+                    ],
                 }],
 
                 ['OS=="linux"', {

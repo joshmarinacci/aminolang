@@ -29,6 +29,9 @@ exports.bacon = jrequire('bacon');
 var OS = "BROWSER";
 if((typeof process) != 'undefined') {
     OS = "KLAATU";
+    if(process.arch == 'arm') {
+        OS = "RPI";
+    }
     if(process.platform == "darwin") {
         OS = "MAC";
     }

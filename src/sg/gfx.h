@@ -35,6 +35,15 @@ static double getTime(void) {
 #include <GL/glext.h>
 #endif
 
+#ifdef RPI
+//return the current time in msec
+static double getTime(void) {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + ((double) res.tv_nsec / 1e6);
+}
+#endif
+
 
 #include <map>
 class AminoFont {

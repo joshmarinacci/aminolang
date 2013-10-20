@@ -1,6 +1,7 @@
 
 #include "base.h"
 #include "bcm_host.h"
+#include <linux/input.h>
 
 // ========== Event Callbacks ===========
 
@@ -183,6 +184,30 @@ static void init_ogl(PWindow *state)
 }
 
 
+const char* mouse_device = "/dev/input/event0";
+int mouse_fd;
+
+void init_mouse() {
+    char name[256] = "Unknown";
+    printf("initting the mouse\n");
+
+    if((getuid()) != 0) {
+        printf("you are not root. this might not work\n");
+    }
+    if((mouse_fd = open(mouse_device, O_RDONLY | O_NONBLOCK)) == -1) {
+        printf("this is not a valid device\n",mouse_device);
+        exit(0);
+    }
+    
+    ioctl(mouse_fd, EVIOCGNAME(sizeof (name)), name);
+    printf("Reading from: %s (%s)\n", mouse_device,name);
+    ioctl(mouse_fd, EVIOCGPHYS(sizeof (name)), name);
+    printf("Location %s (%s)\n", mouse_device,name);
+}
+
+void init_keyboard() {
+    printf("initting the keyboard\n");
+}
 
 Handle<Value> init(const Arguments& args) {
 	matrixStack = std::stack<void*>();
@@ -197,6 +222,10 @@ Handle<Value> init(const Arguments& args) {
     width = state->screen_width;
     height = state->screen_height;
     
+    
+    init_mouse();
+    init_keyboard();
+    
     return scope.Close(Undefined());
 }
 
@@ -207,11 +236,11 @@ Handle<Value> createWindow(const Arguments& args) {
     int h  = args[1]->ToNumber()->NumberValue();
     //window already allocated at this point.
     
-//    glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
-//    glfwSetWindowCloseCallback(GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION);
-//    glfwSetMousePosCallback(GLFW_MOUSE_POS_CALLBACK_FUNCTION);
-//    glfwSetMouseButtonCallback(GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION);
-//    glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
+    //    glfwSetWindowSizeCallback(GLFW_WINDOW_SIZE_CALLBACK_FUNCTION);
+    //    glfwSetWindowCloseCallback(GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION);
+    //    glfwSetMousePosCallback(GLFW_MOUSE_POS_CALLBACK_FUNCTION);
+    //    glfwSetMouseButtonCallback(GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION);
+    //    glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
     
     colorShader = new ColorShader();
     textureShader = new TextureShader();
@@ -245,9 +274,64 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
+void dump_event(struct input_event* event) {
+    switch(event->type) {
+        case EV_SYN: printf("EV_SYN  event separator\n"); break;
+        case EV_KEY: printf("EV_KEY  keyboard or button \n"); break;
+        case EV_REL: printf("EV_REL  relative axis\n"); break;
+        case EV_ABS: printf("EV_ABS  absolute axis\n"); break;
+        case EV_MSC: printf("EV_MSC  misc\n"); break;
+        case EV_LED: printf("EV_LED  led\n"); break;
+        case EV_SND: printf("EV_SND  sound\n"); break;
+        case EV_REP: printf("EV_REP  autorepeating\n"); break;
+        case EV_FF:  printf("EV_FF   force feedback send\n"); break;
+        case EV_PWR: printf("EV_PWR  power button\n"); break;
+        case EV_FF_STATUS: printf("EV_FF_STATUS force feedback receive\n"); break;
+        case EV_MAX: printf("EV_MAX  max value\n"); break;
+    }
+    printf("type = %d code = %d value = %d\n",event->type,event->code,event->value);
+}
 
+static int mouse_x = 0;
+static int mouse_y = 0;
+
+static void GLFW_MOUSE_POS_CALLBACK_FUNCTION(int x, int y) {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mouseposition"));
+    event_obj->Set(String::NewSymbol("x"), Number::New(x));
+    event_obj->Set(String::NewSymbol("y"), Number::New(y));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+void processInput() {
+    int size = sizeof(struct input_event);
+    struct input_event ev[64];
+//    printf("processing input\n");
+    int rd = read(mouse_fd, ev, size*64);
+    if(rd == -1) return;
+    if(rd < size) {
+        printf("read too little!!!  %d\n",rd);
+    }
+    //process all events
+    for(int i=0; i<(int)(rd/size); i++) {
+        //dump_event(&(ev[i]));
+        //check for relative mouse motion
+        if(ev[i].type == EV_REL) {
+            if(ev[i].code == 0) {
+                mouse_x += ev[i].value;
+            }
+            if(ev[i].code == 1) {
+                mouse_y += ev[i].value;
+            }
+            printf("mouse moved to: %d %d\n", mouse_x, mouse_y);
+            GLFW_MOUSE_POS_CALLBACK_FUNCTION(mouse_x, mouse_y);
+        }
+    }
+}
 void render() {
-
+    processInput();
 
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();

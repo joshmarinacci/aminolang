@@ -353,6 +353,13 @@ function setupBacon(core) {
         .onValue(function(e) {
             mouseState.x = e.x;
             mouseState.y = e.y;
+            core.fireEvent({
+                    type: "move",
+                    x:mouseState.x,
+                    y:mouseState.y,
+                    point:{x:mouseState.x, y:mouseState.y},
+                    source:core,
+            });
         });
     var diffstream = bus.filter(typeIs("mouseposition"))
         .diff(null,function(a,b) { 

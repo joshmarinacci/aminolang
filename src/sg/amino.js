@@ -1276,9 +1276,14 @@ function JSFont(desc) {
     var reg = desc.weights[400];
     this.desc = desc;
     this.weights = {};
+
+    var dir = process.cwd();
+    process.chdir(__dirname); // chdir such that fonts (and internal shaders) may be found
+    var aminodir = process.cwd();
     for(var weight in desc.weights) {
-        this.weights[weight] = exports.native.createNativeFont(__dirname+"/fonts/"+desc.weights[weight].normal);
+        this.weights[weight] = exports.native.createNativeFont(aminodir+"/fonts/"+desc.weights[weight].normal);
     }
+    process.chdir(dir);
     
     this.getNative = function(size, weight, style) {
         if(this.weights[weight] != undefined) {

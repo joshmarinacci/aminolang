@@ -5,7 +5,8 @@ void SimpleRenderer::startRender(AminoNode* root) {
     GLContext* c = new GLContext();
     this->render(c,root);
     printf("shader count = %d\n",c->shadercount);
-    printf("dupe count = %d\n",c->shaderDupCount);
+    printf("shader dupe count = %d\n",c->shaderDupCount);
+    printf("texture dupe count = %d\n",c->texDupCount);
     
 }
 void SimpleRenderer::render(GLContext* c, AminoNode* root) {
@@ -46,8 +47,6 @@ void colorShaderApply(GLContext *ctx, ColorShader* shader, GLfloat modelView[16]
     if(opacity != 1.0) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    } else {
-        printf("skipping alpha\n");
     }
 
     glVertexAttribPointer(shader->attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
@@ -180,7 +179,7 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     c->save();
     //flip the y axis
     c->scale(1,-1);
-    glBindTexture( GL_TEXTURE_2D, font->atlas->id );
+    c->bindTexture(font->atlas->id );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     c->useProgram(font->shader);

@@ -6,9 +6,11 @@ public:
     GLfloat* globaltx;
     int shadercount;
     int shaderDupCount;
+    int texDupCount;
     GLContext() {
         shadercount = 0;
         shaderDupCount = 0;
+        texDupCount = 0;
         this->globaltx = new GLfloat[16];
         make_identity_matrix(this->globaltx);
     }
@@ -66,6 +68,14 @@ public:
         shadercount++;
     }
     
+    int prevtex = -1;
+    void bindTexture(int tex) {
+        if(prevtex == tex) {
+            texDupCount++;
+        }
+        prevtex = tex;
+        glBindTexture( GL_TEXTURE_2D, tex);
+    }
     
 };
 

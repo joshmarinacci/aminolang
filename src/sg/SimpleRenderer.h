@@ -4,7 +4,9 @@ class GLContext {
 public:
     std::stack<void*> matrixStack;
     GLfloat* globaltx;
+    int shadercount;
     GLContext() {
+        shadercount = 0;
         this->globaltx = new GLfloat[16];
         make_identity_matrix(this->globaltx);
     }
@@ -51,6 +53,14 @@ public:
         this->globaltx = (GLfloat*)this->matrixStack.top();
         this->matrixStack.pop();
     }
+    
+    
+    void useProgram(int prog) {
+        glUseProgram(prog);
+        shadercount++;
+    }
+    
+    
 };
 
 class SimpleRenderer : public AbstractRenderer {

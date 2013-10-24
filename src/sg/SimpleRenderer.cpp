@@ -4,6 +4,8 @@
 void SimpleRenderer::startRender(AminoNode* root) {
     GLContext* c = new GLContext();
     this->render(c,root);
+    printf("shader count = %d\n",c->shadercount);
+    
 }
 void SimpleRenderer::render(GLContext* c, AminoNode* root) {
     if(root == NULL) {
@@ -34,6 +36,25 @@ void SimpleRenderer::render(GLContext* c, AminoNode* root) {
     c->restore();
 }        
 
+void colorShaderApply(GLContext *ctx, ColorShader* shader, GLfloat modelView[16], GLfloat verts[][2], GLfloat colors[][3], GLfloat opacity) {
+    ctx->useProgram(shader->prog);
+    glUniformMatrix4fv(shader->u_matrix, 1, GL_FALSE, modelView);
+    glUniformMatrix4fv(shader->u_trans,  1, GL_FALSE, ctx->globaltx);
+    glUniform1f(shader->u_opacity, opacity);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glVertexAttribPointer(shader->attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
+    glVertexAttribPointer(shader->attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(shader->attr_pos);
+    glEnableVertexAttribArray(shader->attr_color);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray(shader->attr_pos);
+    glDisableVertexAttribArray(shader->attr_color);
+}
 
 void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
     if(group->cliprect == 1) {
@@ -75,7 +96,7 @@ void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
                 colors[i][j] = 1.0;
             }
         }
-        colorShader->apply(modelView, c->globaltx, verts, colors, 1.0);
+        colorShaderApply(c,colorShader, modelView, verts, colors, 1.0);
     
         //set function to draw pixels where the buffer is equal to 1
         glStencilFunc(GL_EQUAL, 0x1, 0xFF);
@@ -91,6 +112,8 @@ void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
         glDisable(GL_STENCIL_TEST);
     }
 }
+
+
 void SimpleRenderer::drawRect(GLContext* c, Rect* rect) {
     float x =  rect->x;
     float y =  rect->y;
@@ -138,9 +161,10 @@ void SimpleRenderer::drawRect(GLContext* c, Rect* rect) {
         texcoords[5][0] = tx;    texcoords[5][1] = ty;
         textureShader->apply(modelView, c->globaltx, verts, texcoords, rect->texid);
     } else {
-        colorShader->apply(modelView, c->globaltx, verts, colors, rect->opacity);
+        colorShaderApply(c,colorShader, modelView, verts, colors, rect->opacity);
     }
 }
+
 
 void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     if(fontmap.size() < 1) return;
@@ -148,29 +172,19 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     AminoFont* font = fontmap[text->fontid];
     
     
-    mat4   model, view, projection;
-    mat4_set_identity( &projection );
-    mat4_set_identity( &model );
-    mat4_set_identity( &view );
-    
-    //view == globaltx, plus we must flip the ty coord
-    size_t i;
-    for(i=0;i<16; i++) {
-        view.data[i] = c->globaltx[i];
-    }
-    view.data[13] = height-c->globaltx[13];
-    
+    c->save();
+    //flip the y axis
+    c->scale(1,-1);
     glBindTexture( GL_TEXTURE_2D, font->atlas->id );
-    mat4_set_orthographic( &projection, 0, width, 0, height, -1, 1);
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    glUseProgram( font->shader );
+    c->useProgram(font->shader);
     {
         glUniform1i( glGetUniformLocation( font->shader, "texture" ),             0 );
-        glUniformMatrix4fv( glGetUniformLocation( font->shader, "model" ),        1, 0,  model.data );
-        glUniformMatrix4fv( glGetUniformLocation( font->shader, "view" ),         1, 0,  view.data  );
-        glUniformMatrix4fv( glGetUniformLocation( font->shader, "projection" ),   1, 0,  projection.data);
+        glUniformMatrix4fv( glGetUniformLocation( font->shader, "trans" ),        1, 0,  c->globaltx );
+        glUniformMatrix4fv( glGetUniformLocation( font->shader, "mvp" ),         1, 0,  modelView  );
         vertex_buffer_render(text->buffer, GL_TRIANGLES );
     }
+    c->restore();
 }
 

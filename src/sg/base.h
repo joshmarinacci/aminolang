@@ -113,8 +113,6 @@ public:
     }
     virtual ~AminoNode() {
     }
-    virtual void draw() {
-    }
 
 };
 
@@ -301,7 +299,6 @@ public:
     }
     virtual ~Rect() {
     }
-    void draw();
 };
 
 
@@ -328,7 +325,6 @@ public:
     virtual ~TextNode() {
     }
     void refreshText();
-    void draw();
 };
 
 class Group : public AminoNode {
@@ -345,7 +341,6 @@ public:
     }
     ~Group() {
     }
-    void draw();
 };
 
 class Update {

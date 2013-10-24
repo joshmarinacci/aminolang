@@ -240,6 +240,8 @@ function desktop(cb) {
     copyFileTo("fonts/Vera.ttf",out+"/fonts");
     copyFileTo("fonts/SourceSansPro-Regular.ttf",out+"/fonts");
     copyFileTo("fonts/fontawesome-webfont.ttf",out+"/fonts");
+    jb.mkdir(out+"/shaders");
+    jb.copyAllTo("shaders",out+"/shaders");
 }
 
 function canvas(cb) {

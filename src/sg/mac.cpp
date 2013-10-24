@@ -1,5 +1,6 @@
 
 #include "base.h"
+#include "SimpleRenderer.h"
 
 // ========== Event Callbacks ===========
 
@@ -25,25 +26,8 @@ static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
 static float near = 150;
 static float far = -300;
 static float eye = 600;
-//1000,250,-500
-//far = -eye/2.  near = -far/2;  ex: 800,200,-400.
-//400+200+600 = 1200
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
-
 
 static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
-//    printf("callback key = %d action = %d\n",key,action);
-/*
-    switch(key) {
-        case 65: eye-=10; break;
-        case 81: eye+=10; break;
-        case 87: near+=5; break;
-        case 83: near-=5; break;
-        case 69: far-=5; break;
-        case 68: far+=5; break;
-    }
-    */
-//    printf("eye = %f near = %f far = %f\n",eye,near,far);
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
     if(action == 1) {
@@ -117,7 +101,7 @@ Handle<Value> createWindow(const Arguments& args) {
     globaltx = new GLfloat[16];
     make_identity_matrix(globaltx);
     
-
+ 
     
     
     glViewport(0,0,width, height);
@@ -183,8 +167,14 @@ void render() {
     for(int j=0; j<anims.size(); j++) {
         anims[j]->update();
     }
+    
     AminoNode* root = rects[rootHandle];
-    root->draw();
+
+    AbstractRenderer* rend = new SimpleRenderer();
+    rend->startRender(root);
+    delete rend;
+    
+//    root->draw();
     
     glfwSwapBuffers();
 }
@@ -270,7 +260,9 @@ Handle<Value> runTest(const Arguments& args) {
         }
         */
         AminoNode* root = rects[rootHandle];
-        root->draw();
+        AbstractRenderer* rend = new SimpleRenderer();
+        rend->startRender(root);
+        delete rend;
         if(sync) {
             glfwSwapBuffers();
         }

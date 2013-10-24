@@ -13,7 +13,8 @@
                 
                 "src/sg/base.cc",
                 "src/sg/shaders.cpp",
-                "src/sg/image.cpp"
+                "src/sg/image.cpp",
+                "src/sg/SimpleRenderer.cpp"
             ],
             "include_dirs": [
                     "src/sg/",

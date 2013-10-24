@@ -5,6 +5,7 @@ void SimpleRenderer::startRender(AminoNode* root) {
     GLContext* c = new GLContext();
     this->render(c,root);
     printf("shader count = %d\n",c->shadercount);
+    printf("dupe count = %d\n",c->shaderDupCount);
     
 }
 void SimpleRenderer::render(GLContext* c, AminoNode* root) {
@@ -42,8 +43,12 @@ void colorShaderApply(GLContext *ctx, ColorShader* shader, GLfloat modelView[16]
     glUniformMatrix4fv(shader->u_trans,  1, GL_FALSE, ctx->globaltx);
     glUniform1f(shader->u_opacity, opacity);
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if(opacity != 1.0) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        printf("skipping alpha\n");
+    }
 
     glVertexAttribPointer(shader->attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
     glVertexAttribPointer(shader->attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);

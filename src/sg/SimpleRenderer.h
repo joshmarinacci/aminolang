@@ -5,8 +5,10 @@ public:
     std::stack<void*> matrixStack;
     GLfloat* globaltx;
     int shadercount;
+    int shaderDupCount;
     GLContext() {
         shadercount = 0;
+        shaderDupCount = 0;
         this->globaltx = new GLfloat[16];
         make_identity_matrix(this->globaltx);
     }
@@ -54,9 +56,13 @@ public:
         this->matrixStack.pop();
     }
     
-    
+    int prevProg = -1;
     void useProgram(int prog) {
         glUseProgram(prog);
+        if(prog == prevProg) {
+            shaderDupCount++;
+        }
+        prevProg = prog;
         shadercount++;
     }
     

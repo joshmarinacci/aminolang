@@ -1527,6 +1527,17 @@ function Core() {
 	    	}
 	    }
     }
+    this.localToGlobal = function(pt, node) {
+        pt = {
+            x: pt.x + node.getTx(),
+            y: pt.y + node.getTy(),
+        };
+        if(node.parent) {
+            return this.localToGlobal(pt,node.parent);
+        } else {
+            return pt;
+        }
+    }
     this.listeners = {};
     this.on = function(name, target, listener) {
         name = name.toLowerCase();

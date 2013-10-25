@@ -4,9 +4,9 @@
 void SimpleRenderer::startRender(AminoNode* root) {
     GLContext* c = new GLContext();
     this->render(c,root);
-    printf("shader count = %d\n",c->shadercount);
-    printf("shader dupe count = %d\n",c->shaderDupCount);
-    printf("texture dupe count = %d\n",c->texDupCount);
+//    printf("shader count = %d\n",c->shadercount);
+//    printf("shader dupe count = %d\n",c->shaderDupCount);
+//    printf("texture dupe count = %d\n",c->texDupCount);
     
 }
 void SimpleRenderer::render(GLContext* c, AminoNode* root) {

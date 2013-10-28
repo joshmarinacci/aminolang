@@ -32,22 +32,9 @@ static float near = 150;
 static float far = -300;
 static float eye = 600;
 
+
+
 /*
-static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
-    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
-    Local<Object> event_obj = Object::New();
-    if(action == 1) {
-        event_obj->Set(String::NewSymbol("type"), String::New("keypress"));
-    }
-    if(action == 0) {
-        event_obj->Set(String::NewSymbol("type"), String::New("keyrelease"));
-    }
-    event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
-    Handle<Value> event_argv[] = {event_obj};
-    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
-}
-
-
 static void GLFW_MOUSE_POS_CALLBACK_FUNCTION(int x, int y) {
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
@@ -184,6 +171,8 @@ static void init_ogl(PWindow *state)
 
 const char* mouse_device = "/dev/input/event0";
 int mouse_fd;
+const char* key_device   = "/dev/input/event1";
+int key_fd;
 
 void init_mouse() {
     char name[256] = "Unknown";
@@ -204,7 +193,21 @@ void init_mouse() {
 }
 
 void init_keyboard() {
+    char name[256] = "Unknown";
     printf("initting the keyboard\n");
+
+    if((getuid()) != 0) {
+        printf("you are not root. this might not work\n");
+    }
+    if((key_fd = open(key_device, O_RDONLY | O_NONBLOCK)) == -1) {
+        printf("this is not a valid device\n",key_device);
+        exit(0);
+    }
+    
+    ioctl(key_fd, EVIOCGNAME(sizeof (name)), name);
+    printf("Reading from: %s (%s)\n", key_device,name);
+    ioctl(key_fd, EVIOCGPHYS(sizeof (name)), name);
+    printf("Location %s (%s)\n", key_device,name);
 }
 
 Handle<Value> init(const Arguments& args) {
@@ -303,11 +306,41 @@ static void GLFW_MOUSE_POS_CALLBACK_FUNCTION(int x, int y) {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
 }
 
-void processInput() {
+static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    if(action == 0) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keyrelease"));
+    }
+    if(action == 1) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keypress"));
+    }
+    if(action == 2) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keyrepeat"));
+    }
+    event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+
+static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousebutton"));
+    event_obj->Set(String::NewSymbol("button"), Number::New(button));
+    event_obj->Set(String::NewSymbol("state"), Number::New(state));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+int KEYBOARD = 5061;
+int MOUSE    = 5062;
+
+void processInput(int fd, int type) {
     int size = sizeof(struct input_event);
     struct input_event ev[64];
 //    printf("processing input\n");
-    int rd = read(mouse_fd, ev, size*64);
+    int rd = read(fd, ev, size*64);
     if(rd == -1) return;
     if(rd < size) {
         printf("read too little!!!  %d\n",rd);
@@ -323,13 +356,32 @@ void processInput() {
             if(ev[i].code == 1) {
                 mouse_y += ev[i].value;
             }
-            printf("mouse moved to: %d %d\n", mouse_x, mouse_y);
+            if(mouse_x < 0) mouse_x = 0;
+            if(mouse_y < 0) mouse_y = 0;
+            if(mouse_x > width)  { mouse_x = width;  }
+            if(mouse_y > height) { mouse_y = height; }
+            //printf("mouse moved to: %d %d\n", mouse_x, mouse_y);
             GLFW_MOUSE_POS_CALLBACK_FUNCTION(mouse_x, mouse_y);
+        }
+        
+        if(ev[i].type == EV_KEY) {
+            //printf("key or button pressed code = %d, state = %d\n",ev[i].code, ev[i].value);
+            if(type == MOUSE) {
+                //emit mouse event
+                GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(ev[i].code,ev[i].value);
+            }
+            if(type == KEYBOARD) {
+                //emit keyboard event
+                GLFW_KEY_CALLBACK_FUNCTION(ev[i].code, ev[i].value);
+            }
+            
         }
     }
 }
+
 void render() {
-    processInput();
+    processInput(mouse_fd,MOUSE);
+    processInput(key_fd,KEYBOARD);
 
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();

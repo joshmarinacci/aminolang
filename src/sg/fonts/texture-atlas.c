@@ -338,13 +338,6 @@ texture_atlas_upload( texture_atlas_t * self )
     }
     else
     {
-        printf("doing std upload depth = %d , used = %d, %d x %d, texid = %d\n",
-                self->depth, 
-                self->used, 
-                self->width, 
-                self->height,
-                self->id
-                );
         /*
         int i = 0;
         int j = 0;

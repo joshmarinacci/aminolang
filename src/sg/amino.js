@@ -301,6 +301,67 @@ SHIFT_MAP['.'] = '>';
 SHIFT_MAP['/'] = '?';
 //console.log(SHIFT_MAP);
 
+
+
+/* raspberry pi specific for now */
+function ascii(ch) {
+    return ch.charCodeAt(0);
+}
+//josh's mac keyboard. must replace with something obtained from the system
+var RPI_KEYCODE_MAP = {
+    57:ascii(' '),
+}
+
+function insertKeyboardRow(n, letters) {
+    for(var i=0; i<letters.length; i++) {
+        RPI_KEYCODE_MAP[n+i] = ascii(letters[i]);
+    }
+}
+
+insertKeyboardRow(2,'1234567890-=');
+insertKeyboardRow(16,'QWERTYUIOP[]');
+insertKeyboardRow(30,'ASDFGHJKL');
+insertKeyboardRow(44,'ZXCVBNM,./');
+RPI_KEYCODE_MAP[103] = 283; //up arrow
+RPI_KEYCODE_MAP[105] = 285; //left arrow
+RPI_KEYCODE_MAP[106] = 286; //right arrow
+RPI_KEYCODE_MAP[108] = 284; //down arrow
+
+/* end rpi keyboard stuff */
+
+function mapNativeButton(e) {
+    if(OS != "RPI") return;
+}
+function mapNativeKey(e) {
+    if(OS != "RPI") return;
+    
+    //left and right shift
+    if(e.keycode == 42 || e.keycode == 54) {
+        e.shift = 1;
+    }
+    //left and right control
+    if(e.keycode == 29 || e.keycode == 97) {
+        e.control = 1;
+    }
+    //left and right option/alt
+    if(e.keycode == 56 || e.keycode == 100) {
+        e.alt = 1;
+    }
+    //left and right command
+    if(e.keycode == 125 || e.keycode == 126) {
+        e.system = 1;
+    }
+    
+    
+    
+    var nc = RPI_KEYCODE_MAP[e.keycode];
+    if(nc) {
+        var ch = KEY_TO_CHAR_MAP[nc];
+        //console.log("mapping: " + e.keycode + " to " + nc + " which is char '"+ch+"'");
+        e.keycode = nc;
+    }
+    
+}
 function setupBacon(core) {
     var bus = new exports.bacon.Bus();
     baconbus = bus;
@@ -1289,7 +1350,7 @@ function JSFont(desc) {
         if(this.weights[weight] != undefined) {
             return this.weights[weight];
         }
-        console.log("ERROR. COULDN'T find the native for " + size + " " + weight + " " + style);
+        //console.log("ERROR. COULDN'T find the native for " + size + " " + weight + " " + style);
         return this.weights[400];
     }
     /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
@@ -1415,7 +1476,11 @@ function Core() {
             ecount++;
             e.time = new Date().getTime();
             if(e.type == "mousebutton") {
+                mapNativeButton(e);
                 mouseState.pressed = (e.state == 1);
+            }
+            if(e.type == "keypress" || e.type == "keyrelease" || e.type == "keyrepeat") {
+                mapNativeKey(e);
             }
             if(e.x) e.x = e.x/Core.DPIScale;
             if(e.y) e.y = e.y/Core.DPIScale;

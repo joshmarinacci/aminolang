@@ -237,7 +237,6 @@ function desktop(cb) {
     copyFileTo("resources/font.json",out);
     jb.mkdir(out+"/fonts");
     jb.copyAllTo("fonts",out+"/fonts");
-    copyFileTo("fonts/Vera.ttf",out+"/fonts");
     copyFileTo("fonts/SourceSansPro-Regular.ttf",out+"/fonts");
     copyFileTo("fonts/fontawesome-webfont.ttf",out+"/fonts");
     jb.mkdir(out+"/shaders");

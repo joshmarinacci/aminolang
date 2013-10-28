@@ -1,4 +1,7 @@
-#include "AbstractRenderer.h"
+//#include "AbstractRenderer.h"
+#ifndef SIMPLE_RENDERER
+#define SIMPLE_RENDERER
+#include "base.h"
 
 class GLContext {
 public:
@@ -7,10 +10,14 @@ public:
     int shadercount;
     int shaderDupCount;
     int texDupCount;
+    int prevProg;
+    int prevtex;
     GLContext() {
         shadercount = 0;
         shaderDupCount = 0;
         texDupCount = 0;
+        prevProg = -1;
+        prevtex = -1;
         this->globaltx = new GLfloat[16];
         make_identity_matrix(this->globaltx);
     }
@@ -58,7 +65,6 @@ public:
         this->matrixStack.pop();
     }
     
-    int prevProg = -1;
     void useProgram(int prog) {
         glUseProgram(prog);
         if(prog == prevProg) {
@@ -68,7 +74,6 @@ public:
         shadercount++;
     }
     
-    int prevtex = -1;
     void bindTexture(int tex) {
         if(prevtex == tex) {
             texDupCount++;
@@ -79,7 +84,7 @@ public:
     
 };
 
-class SimpleRenderer : public AbstractRenderer {
+class SimpleRenderer {
 public:
     virtual void startRender(AminoNode* node);
     virtual void render(GLContext* c, AminoNode* node);
@@ -89,4 +94,4 @@ public:
 };
 
 
-
+#endif

@@ -1,5 +1,7 @@
 
 #include "base.h"
+//#include "AbstractRenderer.h"
+#include "SimpleRenderer.h"
 #include "bcm_host.h"
 #include <linux/input.h>
 
@@ -29,10 +31,6 @@ static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
 static float near = 150;
 static float far = -300;
 static float eye = 600;
-//1000,250,-500
-//far = -eye/2.  near = -far/2;  ex: 800,200,-400.
-//400+200+600 = 1200
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
 
 /*
 static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
@@ -371,7 +369,9 @@ void render() {
         anims[j]->update();
     }
     AminoNode* root = rects[rootHandle];
-    root->draw();
+    SimpleRenderer* rend = new SimpleRenderer();
+    rend->startRender(root);
+    delete rend;
     eglSwapBuffers(state->display, state->surface);
 }
 
@@ -456,7 +456,9 @@ Handle<Value> runTest(const Arguments& args) {
         }
         */
         AminoNode* root = rects[rootHandle];
-        root->draw();
+        SimpleRenderer* rend = new SimpleRenderer();
+        rend->startRender(root);
+        delete rend;
         if(sync) {
             eglSwapBuffers(state->display, state->surface);
         }

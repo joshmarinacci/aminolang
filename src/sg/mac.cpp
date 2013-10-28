@@ -173,9 +173,6 @@ void render() {
     AbstractRenderer* rend = new SimpleRenderer();
     rend->startRender(root);
     delete rend;
-    
-//    root->draw();
-    
     glfwSwapBuffers();
 }
 

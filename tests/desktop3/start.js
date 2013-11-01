@@ -6,6 +6,7 @@ var Email = require('./Email.js');
 var WindowView = require('./WindowView.js');
 var IconView = require('./IconView.js');
 var Music = require('./Music.js');
+var Contacts = require('./Contacts.js');
 var fs = require('fs');
 
 
@@ -120,7 +121,7 @@ function DesktopFolder() {
         new DocumentQueryFolder("All Music", doctypes.song),
         new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer),
         new DocumentQueryFolder("All Text",doctypes.text),
-        new DocumentQueryFolder("Contacts", doctypes.person),
+        new DocumentQueryFolder("Contacts", doctypes.person, Contacts.ContactsViewCustomizer),
     ];
 
     var items = this.items;    

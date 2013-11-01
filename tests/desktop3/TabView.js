@@ -42,8 +42,12 @@ exports.TabView = amino.ComposeObject({
         this.comps.base.add(this.comps.closeButton);
         this.comps.background.setW(100);
         this.comps.background.setH(30);
-        this.comps.closeButton.setW(40).setText("x").setH(20).setTx(100);
-        this.comps.title.setText("foo").setTx(0);
+        this.comps.closeButton
+            .setW(20).setH(20).setTx(110).setTy(5)
+            .setFontName('awesome').setFontSize(20)
+            .setText("\uf057")
+            ;
+        this.comps.title.setText("foo").setTx(3).setTy(3);
         this.setW(140).setH(30);
         var self = this;
         var ty = 0;
@@ -54,10 +58,8 @@ exports.TabView = amino.ComposeObject({
         
         amino.getCore().on("action",this.comps.closeButton, function(e) {
                 if(self.window.getTabCount() == 1) {
-                    console.log("closing window");
                     self.window.destroy();
                 } else {
-                    console.log("closing tab");
                     self.window.removeTab(self);
                 }
         });

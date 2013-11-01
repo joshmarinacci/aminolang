@@ -124,6 +124,13 @@ exports.WindowView = amino.ComposeObject({
         
         this.addExistingTab = function(tab) {
             this.comps.contents.add(tab.content);
+            var h = this.getH();
+            var w = this.getW();
+            this.comps.contents.children.forEach(function(ch) {
+                if(ch.setW) ch.setW(w);
+                if(ch.setH) ch.setH(h-30);
+                if(ch.setTy) ch.setTy(0);
+            });
             var count = this.comps.tabholder.children.length;
             tab.window = this;
             this.comps.tabholder.add(tab);

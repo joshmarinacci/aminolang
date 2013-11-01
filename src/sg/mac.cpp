@@ -62,6 +62,15 @@ static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
 }
 
+static void GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(int wheel) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+//    printf("wheel = %d\n",wheel);
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousewheelv"));
+    event_obj->Set(String::NewSymbol("position"), Number::New(wheel));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
 
 Handle<Value> init(const Arguments& args) {
 	matrixStack = std::stack<void*>();
@@ -92,6 +101,7 @@ Handle<Value> createWindow(const Arguments& args) {
     glfwSetMousePosCallback(GLFW_MOUSE_POS_CALLBACK_FUNCTION);
     glfwSetMouseButtonCallback(GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION);
     glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
+    glfwSetMouseWheelCallback(GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION);
     
     colorShader = new ColorShader();
     textureShader = new TextureShader();
@@ -170,7 +180,7 @@ void render() {
     
     AminoNode* root = rects[rootHandle];
 
-    AbstractRenderer* rend = new SimpleRenderer();
+    SimpleRenderer* rend = new SimpleRenderer();
     rend->startRender(root);
     delete rend;
     glfwSwapBuffers();
@@ -257,7 +267,7 @@ Handle<Value> runTest(const Arguments& args) {
         }
         */
         AminoNode* root = rects[rootHandle];
-        AbstractRenderer* rend = new SimpleRenderer();
+        SimpleRenderer* rend = new SimpleRenderer();
         rend->startRender(root);
         delete rend;
         if(sync) {

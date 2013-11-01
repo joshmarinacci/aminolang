@@ -385,6 +385,11 @@ function setupBacon(core) {
         });
     });
     
+    bus.filter(typeIs("mousewheelv"))
+    .onValue(function(e) {
+        console.log("wheel",e.position);
+    });
+    
     //mouse presses
     pressStream = bus.filter(typeIs("mousebutton"))
         .filter(function(e) { return e.state == 1; });

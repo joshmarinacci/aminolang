@@ -1,5 +1,8 @@
 var amino = require('../../build/desktop/amino.js');
 var widgets = require('../../build/desktop/widgets.js');
+var fs = require('fs');
+var lame = require('lame');
+var Speaker = require('speaker');
 
 exports.SongListViewCell = amino.ComposeObject({
     type:"SongListViewCell",
@@ -52,21 +55,67 @@ exports.MusicViewCustomizer = function(view,folder) {
             lv.setModel(folder.getItems());
         });
     }
+    
+    var trackLabel = new widgets.Label().setText("track")
+        .setH(20).setW(100).setFontSize(15);
 
+    var speaker;
 
+    var PLAY_ICON ='\uf04b';
+    var PAUSE_ICON='\uf04c';
+    var playButton = new widgets.PushButton();
+    var playing = false;
+    function playFile(file) {
+        console.log("playing: " + file);
+        if(playing) {
+            playButton.setText(PLAY_ICON);
+            speaker.end();
+            speaker = null;
+            playing = false;
+            return;
+        }
+        playing = true;
+        speaker = new Speaker;
+        trackLabel.setText(file);
+        playButton.setText(PAUSE_ICON);
+        fs.createReadStream(file)
+            .pipe(new lame.Decoder)
+            .on('format',console.log)
+            .on('readable',console.log)
+            .on('end',console.log)
+            .on('error',console.log)
+            .on('close',console.log)
+            .pipe(speaker);
+    }
+    
+    function playFirstTrack() {
+        var items = folder.getItems();
+        for(var i =0; i<items.length; i++) {
+            var song = items[i];
+            if(song.doc.file) {
+                if(fs.existsSync(song.doc.file)) {
+                    playFile(song.doc.file);
+                }
+            }
+        }
+    }
+    
+    
     view.comps.toolbar
         .add(
             new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
             .setText('\uf04a').onAction(function(e) {
             }))
         .add(
-            new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
-            .setText('\uf04b').onAction(function(e) {
+            playButton.setW(30).setH(20).setFontSize(20).setFontName('awesome')
+            .setText(PLAY_ICON).onAction(function(e) {
+                playFirstTrack();
             }))
         .add(
             new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
             .setText('\uf04e').onAction(function(e) {
             }))
+        .add(trackLabel);
         ;
     view.comps.toolbar.redoLayout();
 }

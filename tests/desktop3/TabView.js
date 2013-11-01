@@ -1,5 +1,6 @@
 var amino = require('../../build/desktop/amino.js');
 var widgets = require('../../build/desktop/widgets.js');
+var Global = require('./Global.js');
 
 exports.TabView = amino.ComposeObject({
     type: "Tabview",
@@ -71,11 +72,11 @@ exports.TabView = amino.ComposeObject({
                 self.window.setTy(self.window.getTy()+e.dy);
                 
                 var pt = amino.getCore().localToGlobal(e.point,e.target);
-                windowlist.forEach(function(win) {
+                Global.windowlist.forEach(function(win) {
                     var tb = win.comps.titlebar;
                     var lpt = amino.getCore().globalToLocal(pt,tb);
                     if(tb.contains(lpt.x,lpt.y) && tb != self.window.comps.titlebar) {
-                        mergeWindow(self,win,pt);
+                        Global.mergeWindow(self,win,pt);
                         broken = false;
                     }
                 });
@@ -89,7 +90,7 @@ exports.TabView = amino.ComposeObject({
                 if(self.window.getTabCount() > 1) {
                     var pt = e.point;
                     pt = amino.getCore().localToGlobal(pt,e.target);
-                    splitWindow(self,self.window,pt.x,pt.y);
+                    Global.splitWindow(self,self.window,pt.x,pt.y);
                     broken = true;
                 }
             }

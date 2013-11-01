@@ -6,6 +6,7 @@ var Email = require('./Email.js');
 var WindowView = require('./WindowView.js');
 var IconView = require('./IconView.js');
 var Music = require('./Music.js');
+var fs = require('fs');
 
 
 var doctypes = {
@@ -32,6 +33,19 @@ for(var i=0; i<10; i++) {
             album: "Bob's Songs",
     }});
 }
+
+var files = fs.readdirSync("Resources");
+files.forEach(function(file) {
+    if(file.toLowerCase().endsWith('.mp3')) {
+        db.insert({doctype:doctypes.song, doc: {
+            title: file,
+            artist: "Unknown",
+            album: "Unknown",
+            file: "Resources/"+file,
+        }});
+        console.log(file);
+    }
+});
 
 for(var i=0; i<3; i++) {
     db.insert({doctype:doctypes.text, doc: {
@@ -78,7 +92,7 @@ function DocumentQueryFolder(title,doctype,customizer) {
     var self = this;
     db.monitor({doctype:doctypes.email, action:"insert"}, function(db,data) {
         var count = db.query({doctype:doctypes.email}).length;
-        console.log("total email count is now: " + count);
+//        console.log("total email count is now: " + count);
         if(self.cb) self.cb(data);
     });
     

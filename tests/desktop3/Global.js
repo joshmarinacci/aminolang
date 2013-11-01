@@ -3,6 +3,29 @@ var widgets = require('../../build/desktop/widgets.js');
 var ContentView = require('./ContentView.js');
 var WindowView = require('./WindowView.js');
 exports.windowlist = [];
+
+exports.splitWindow = function(tab, window,x,y) {
+    window.comps.contents.remove(tab.content);
+    window.comps.tabholder.remove(tab);
+    window.layoutTabs();
+    var winview = new WindowView.WindowView();
+    winview.setTx(x).setTy(y).setW(window.getW()).setH(window.getH());
+    winview.addExistingTab(tab);
+    root.add(winview);
+}
+
+exports.mergeWindow = function (tab, window, gpt) {
+    tab.window.comps.contents.remove(tab.content);
+    tab.window.comps.tabholder.remove(tab);
+    tab.window.layoutTabs();
+    if(tab.window.getTabCount() < 1) {
+        tab.window.destroy();
+    }
+    tab.window = window;
+    tab.window.addExistingTab(tab);
+    root.raiseToTop(tab.window);
+}
+
 exports.openView = function(item) {
     console.log("folder = " + item.isFolder());
     if(item.isFolder()) {

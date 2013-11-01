@@ -8,6 +8,7 @@ var doctypes = {
     email: "com.joshondesign.aminos.email.message",
     song:  "com.joshondesign.aminos.music.song",
     text:  "com.joshondesign.aminos.text.plain",
+    person:  "com.joshondesign.aminos.contacts.person",
 }
 
 for(var i=0; i<10; i++) {
@@ -35,6 +36,13 @@ for(var i=0; i<3; i++) {
     }});
 }
 
+for(var i=0; i<20; i++) {
+    db.insert({doctype:doctypes.person, doc: {
+        title: "Bob Smith",
+        firstname: "Bob",
+        lastname: "Smith",
+    }});
+}
 
 
 
@@ -192,9 +200,9 @@ ContentView = amino.ComposeObject({
             set: function(h) {
                 this.props.h = h;
                 this.comps.background.setH(h);
-                this.comps.toolbar.setH(h);
+                this.comps.toolbar.setH(30);
                 this.comps.contents.children.forEach(function(ch) {
-                    if(ch.setH) ch.setH(h);
+                    if(ch.setH) ch.setH(h-30);
                     if(ch.setTy) ch.setTy(0);
                 });
                 return this;
@@ -204,6 +212,13 @@ ContentView = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.contents);
+        this.comps.base.add(this.comps.toolbar);
+        this.comps.toolbar.setH(30);
+        this.comps.toolbar.setGap(5).setPadding(3);
+        this.comps.contents.setTy(30);
+        this.children = [
+            this.comps.contents, this.comps.toolbar,
+        ];
     },
     
 });
@@ -652,13 +667,13 @@ function EmailViewCustomizer(view,folder) {
     }
 
 
-    view.comps.toolbar.add(new widgets.PushButton()
-            .setW(30).setH(20)
-            .setText("close").setFontSize(10)
-            .onAction(function(e) {
-                view.setVisible(false);
-            })
-            )
+    view.comps.toolbar
+        .add(new widgets.PushButton().setW(30).setH(30).setFontSize(20).setFontName('awesome')
+            .setText("\uf112").onAction(function(e) {
+            }))
+        .add(new widgets.PushButton().setW(30).setH(30).setFontSize(20).setFontName('awesome')
+            .setText("\uf044").onAction(function(e) {
+            }))
         ;
     view.comps.toolbar.redoLayout();
 }
@@ -682,10 +697,20 @@ function MusicViewCustomizer(view,folder) {
     }
 
 
-    view.comps.toolbar.add(new widgets.PushButton().setW(30).setH(20).setText("close").setFontSize(10)
-            .onAction(function(e) {
-                view.setVisible(false);
-            }));
+    view.comps.toolbar
+        .add(
+            new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
+            .setText('\uf04a').onAction(function(e) {
+            }))
+        .add(
+            new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
+            .setText('\uf04b').onAction(function(e) {
+            }))
+        .add(
+            new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
+            .setText('\uf04e').onAction(function(e) {
+            }))
+        ;
     view.comps.toolbar.redoLayout();
 }
 
@@ -698,6 +723,7 @@ function DesktopFolder() {
         new DocumentQueryFolder("All Music", doctypes.song),
         new DocumentQueryFolder("Music", doctypes.song, MusicViewCustomizer),
         new DocumentQueryFolder("All Text",doctypes.text),
+        new DocumentQueryFolder("Contacts", doctypes.person),
     ];
 
     var items = this.items;    
@@ -725,6 +751,9 @@ amino.startApp(function(core, stage) {
         .setDraggable(false)
         .setResizable(false)
         ;
+    amino.getCore().on("windowsize",stage,function(size) {
+        console.log(size.width,size.height);
+    });
     var items = desktopfolder.getItems();
     for(var i=0; i<items.length; i++) {
         var item = items[i];

@@ -1,14 +1,8 @@
-var amino = null;
-var widgets = null;
-if(process.platform == 'darwin') {
-    amino = require('../../build/desktop/amino.js');
-    widgets = require('../../build/desktop/widgets.js');
-} else {
-    amino = require('./amino.js');    
-    widgets = require('./widgets.js');
-}
+var amino = require('../../build/desktop/amino.js');
+var widgets = require('../../build/desktop/widgets.js');
 
 amino.startTest(function(core,root) {
+        /*
     for(var i=0; i<100; i++) {
         root.add(new amino.ProtoRect()
 			.setTx(0)
@@ -16,7 +10,7 @@ amino.startTest(function(core,root) {
 			.setW(400)
 			.setH(50)
              );
-        }
+        }*/
 	for(var i=0; i<100; i++) {
 		root.add(new amino.ProtoText()
 			.setTx(0)
@@ -25,8 +19,8 @@ amino.startTest(function(core,root) {
 			);
 	}
     var results = core.runTest({
-            count: 1000,
-            sync: false,
+            count: 50,
+            sync: true,
             events: false,
             anim: false,
     });

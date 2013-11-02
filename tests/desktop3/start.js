@@ -7,14 +7,18 @@ var WindowView = require('./WindowView.js');
 var IconView = require('./IconView.js');
 var Music = require('./Music.js');
 var Contacts = require('./Contacts.js');
+var Twitter = require('./Twitter.js');
 var fs = require('fs');
 
+var util = require('util');
+var twitter = require('twitter');
 
 var doctypes = {
-    email: "com.joshondesign.aminos.email.message",
-    song:  "com.joshondesign.aminos.music.song",
-    text:  "com.joshondesign.aminos.text.plain",
-    person:  "com.joshondesign.aminos.contacts.person",
+    email:   'com.joshondesign.aminos.email.message',
+    song:    'com.joshondesign.aminos.music.song',
+    text:    'com.joshondesign.aminos.text.plain',
+    person:  'com.joshondesign.aminos.contacts.person',
+    tweet:   'com.joshondesign.aminos.twitter.tweet',
 }
 
 for(var i=0; i<10; i++) {
@@ -63,6 +67,33 @@ for(var i=0; i<20; i++) {
     }});
 }
 
+
+var consumer_key = "hva7MBAIH8VA93HFeVMNg";
+var consumer_secret = "m2fwhKqoQJK90MY7IK4Z01ct5bG0S4I9ergj0pHw7c";
+var access_token = "8559252-r1FVHjOf7bT9ZXJfklOKFxA6UDuapFvgXmcfjeGUsW";
+var access_secret = "5274r6RwpNILFWjdilYeIHsw433kJZTsw5ByuLxZemWCa";
+var twit = new twitter({
+        consumer_key: consumer_key,
+        consumer_secret: consumer_secret,
+        access_token_key: access_token,
+        access_token_secret: access_secret,
+});
+twit
+  .verifyCredentials(function (err, data) {
+    console.log(data);
+    twit.get('/statuses/mentions_timeline.json',{
+            count: 5,
+            trim_user:true,
+        },function(data) {
+        data.forEach(function(tweet) {
+            console.log("inserting: " + tweet.text);
+            db.insert({doctype:doctypes.tweet, doc: {
+                title: tweet.text,
+                content:tweet,
+            }});
+        });
+    });
+  })
 
 
 function DocumentItem(doc) {
@@ -122,6 +153,7 @@ function DesktopFolder() {
         new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer),
         new DocumentQueryFolder("All Text",doctypes.text),
         new DocumentQueryFolder("Contacts", doctypes.person, Contacts.ContactsViewCustomizer),
+        new DocumentQueryFolder("Twitter", doctypes.tweet, Twitter.ConnectViewCustomizer),
     ];
 
     var items = this.items;    

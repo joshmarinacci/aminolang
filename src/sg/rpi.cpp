@@ -261,8 +261,8 @@ Handle<Value> setWindowSize(const Arguments& args) {
     HandleScope scope;
     int w  = args[0]->ToNumber()->NumberValue();
     int h  = args[1]->ToNumber()->NumberValue();
-    width = w;
-    height = h;
+//    width = w;
+//    height = h;
     printf("pretending to set the window size to: %d %d\n",width,height);
     return scope.Close(Undefined());
 }

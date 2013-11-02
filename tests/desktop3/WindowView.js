@@ -157,7 +157,7 @@ exports.WindowView = amino.ComposeObject({
         Global.windowlist.push(this);        
         
         this.destroy = function() {
-            root.remove(this);
+            windows.remove(this);
             var n = Global.windowlist.indexOf(this);
             Global.windowlist.splice(n,1);
         }

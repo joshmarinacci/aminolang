@@ -27,7 +27,9 @@ exports.mergeWindow = function (tab, window, gpt) {
 }
 
 exports.openView = function(item) {
-    console.log("folder = " + item.isFolder());
+    console.log("opening a view for the item",item);
+    console.log("is folder = " + item.isFolder());
+    console.log("has customizer = " + item.customizer);
     if(item.isFolder()) {
         var folder = item;
         var view = new ContentView.ContentView();
@@ -84,7 +86,8 @@ exports.openView = function(item) {
           
         var winview = new WindowView.WindowView();
         winview.addTab(view,folder.getTitle());
-        root.add(winview);
+        console.log('adding a winview');
+        windows.add(winview);
         
         /*
         if(folder.windowx) winview.setTx(folder.windowx);
@@ -100,7 +103,7 @@ exports.openView = function(item) {
         view.comps.contents.add(text);
         var winview = new WindowView();
         winview.addTab(view,item.getTitle());
-        root.add(winview);
+        windows.add(winview);
     }
     
     winview.setTx(100).setTy(100).setW(500).setH(300);

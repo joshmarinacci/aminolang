@@ -65,7 +65,7 @@ exports.TabView = amino.ComposeObject({
         });
         amino.getCore().on("press",this,function(e) {
             self.window.raiseContentToFront(self.content);
-            root.raiseToTop(self.window);
+            windows.raiseToTop(self.window);
         });
         amino.getCore().on("drag",this, function(e) {
             if(broken || self.window.getTabCount() == 1) {

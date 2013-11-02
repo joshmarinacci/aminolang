@@ -165,7 +165,8 @@ function DesktopFolder() {
 
 
 amino.startApp(function(core, stage) {
-    stage.setSize(1000,700);
+    var root;
+//    stage.setSize(1000,700);
     var desktopfolder = new DesktopFolder();
     var music = desktopfolder.items[0];
     music.windowx = 100;
@@ -178,7 +179,7 @@ amino.startApp(function(core, stage) {
     
     var desktopview = new WindowView.WindowView()
         .setId("desktop")
-        .setW(1000).setH(700)
+        .setW(stage.getW()).setH(stage.getH())
         .setDraggable(false)
         .setResizable(false)
         ;
@@ -199,7 +200,8 @@ amino.startApp(function(core, stage) {
     //desktopview.comps.title.setText("desktop");
     root.add(desktopview);
     
-    
+    windows = new amino.ProtoGroup();
+    root.add(windows);
     var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
         .setW(110).setH(30).setTx(800).setTy(50);
     fakeNewEmail.onAction(function(e) {
@@ -216,9 +218,15 @@ amino.startApp(function(core, stage) {
     
     
     setInterval(function() {
-        //console.log("============");
-        //console.log("processing database updates");
         db.processUpdates();
     },100);
+
+
+    var cursor = new amino.ProtoRect().setW(10).setH(10).setFill("#33cc44");
+    root.add(cursor);
+    core.on("move",null,function(e) {
+        cursor.setTx(e.x+1);
+        cursor.setTy(e.y+1);
+    });
     
 });

@@ -169,6 +169,7 @@ void SimpleRenderer::drawRect(GLContext* c, Rect* rect) {
     }
 }
 
+int te = 0;
 
 void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     if(fontmap.size() < 1) return;
@@ -184,9 +185,16 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     c->useProgram(font->shader);
     {
-        glUniform1i( glGetUniformLocation( font->shader, "texture" ),             0 );
-        glUniformMatrix4fv( glGetUniformLocation( font->shader, "trans" ),        1, 0,  c->globaltx );
-        glUniformMatrix4fv( glGetUniformLocation( font->shader, "mvp" ),         1, 0,  modelView  );
+        //by only doing this init work once we save almost 80% of the time for drawing text
+        if(font->texuni == -1) {
+            font->texuni = glGetUniformLocation( font->shader, "texture" );
+            font->mvpuni = glGetUniformLocation( font->shader, "mvp" );
+            font->transuni =glGetUniformLocation( font->shader, "trans" );
+            glUniform1i(font->texuni,0 );
+            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
+        }
+        //only the global transform will change each time
+        glUniformMatrix4fv(font->transuni,        1, 0,  c->globaltx );
         vertex_buffer_render(text->buffer, GL_TRIANGLES );
     }
     c->restore();

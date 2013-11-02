@@ -52,7 +52,12 @@ public:
     texture_atlas_t *atlas;
     std::map<int,texture_font_t*> fonts;
     GLuint shader;
-    
+    GLint texuni;
+    GLint mvpuni;
+    GLint transuni;
+    AminoFont() {
+        texuni = -1;
+    }
 };
 
 #endif

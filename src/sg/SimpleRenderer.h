@@ -66,9 +66,10 @@ public:
     }
     
     void useProgram(int prog) {
-        glUseProgram(prog);
         if(prog == prevProg) {
             shaderDupCount++;
+        } else {
+            glUseProgram(prog);
         }
         prevProg = prog;
         shadercount++;
@@ -77,9 +78,10 @@ public:
     void bindTexture(int tex) {
         if(prevtex == tex) {
             texDupCount++;
+        } else {
+            glBindTexture( GL_TEXTURE_2D, tex);
         }
         prevtex = tex;
-        glBindTexture( GL_TEXTURE_2D, tex);
     }
     
 };

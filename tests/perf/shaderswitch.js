@@ -1,8 +1,10 @@
-var amino = require('../../build/desktop/amino.js');
-var widgets = require('../../build/desktop/widgets.js');
+if(typeof document == "undefined") {
+    var amino = require('amino.js');
+    var widgets= require('widgets.js'); 
+}
 
 amino.startTest(function(core,root) {
-        /*
+        
     for(var i=0; i<100; i++) {
         root.add(new amino.ProtoRect()
 			.setTx(0)
@@ -10,8 +12,8 @@ amino.startTest(function(core,root) {
 			.setW(400)
 			.setH(50)
              );
-        }*/
-	for(var i=0; i<100; i++) {
+        }
+	for(var i=0; i<200; i++) {
 		root.add(new amino.ProtoText()
 			.setTx(0)
 			.setTy(i*50)
@@ -19,7 +21,7 @@ amino.startTest(function(core,root) {
 			);
 	}
     var results = core.runTest({
-            count: 50,
+            count: 2*60,
             sync: true,
             events: false,
             anim: false,

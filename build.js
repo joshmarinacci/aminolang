@@ -292,6 +292,8 @@ function androidjs(cb) {
     jb.copyAllTo("fonts/",fonts);
     
     copyFileTo("tests/perf/drag1.js",out);
+    copyFileTo("tests/perf/textspeed.js",out);
+    copyFileTo("tests/perf/shaderswitch.js",out);
     
     copyFileTo("node_modules/Faker/Faker.js",out);
     copyFileTo("node_modules/moment/moment.js",out);

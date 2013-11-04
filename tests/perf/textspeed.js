@@ -9,8 +9,8 @@ if(process.platform == 'darwin') {
     widgets = require('./widgets.js');
 }
 */
-var amino = require('../../build/desktop/amino.js');
-var widgets = require('../../build/desktop/widgets.js');
+var amino = require('amino.js');
+var widgets = require('widgets.js');
 
 function rand(min, max) {
     return Math.random()*(max-min) + min;
@@ -25,8 +25,8 @@ amino.startTest(function(core,root) {
 			);
 	}
 	var results = core.runTest({
-		count: 5*60,
-		sync: true,
+		count: 1*60,
+		sync: false,
 		events: false,
 		anim: false,
 	});

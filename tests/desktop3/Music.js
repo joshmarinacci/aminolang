@@ -32,9 +32,9 @@ exports.SongListViewCell = amino.ComposeObject({
         this.comps.base.add(this.comps.album);
         this.comps.base.add(this.comps.play);
         this.comps.title.setTx(0).setTy(20).setFontSize(15);
-        this.comps.artist.setTx(100).setTy(20).setFontSize(15);
-        this.comps.album.setTx(200).setTy(20).setFontSize(15);
-        this.comps.play.setTx(300).setTy(5).setW(40).setH(20).setText("play");
+        this.comps.artist.setTx(200).setTy(20).setFontSize(15);
+        this.comps.album.setTx(300).setTy(20).setFontSize(15);
+        this.comps.play.setTx(450).setTy(5).setW(40).setH(20).setText("play");
     },
 });
 
@@ -65,14 +65,16 @@ exports.MusicViewCustomizer = function(view,folder) {
     var PAUSE_ICON='\uf04c';
     var playButton = new widgets.PushButton();
     var playing = false;
+    function stopPlaying() {
+        playButton.setText(PLAY_ICON);
+        speaker.end();
+        speaker = null;
+        playing = false;
+    }
     function playFile(file) {
         console.log("playing: " + file);
         if(playing) {
-            playButton.setText(PLAY_ICON);
-            speaker.end();
-            speaker = null;
-            playing = false;
-            return;
+            stopPlaying();
         }
         playing = true;
         speaker = new Speaker;
@@ -88,32 +90,47 @@ exports.MusicViewCustomizer = function(view,folder) {
             .pipe(speaker);
     }
     
-    function playFirstTrack() {
+    var current = -1;
+    function playCurrentTrack() {
+        console.log("current = " + current);
+        if(current < 0) current = 0;
         var items = folder.getItems();
-        for(var i =0; i<items.length; i++) {
-            var song = items[i];
-            if(song.doc.file) {
-                if(fs.existsSync(song.doc.file)) {
-                    playFile(song.doc.file);
-                }
-            }
+        if(current >= items.length) return;
+        var song = items[current];
+        console.log("trying to play",song);
+        if(song.doc.file && fs.existsSync(song.doc.file)) {
+            playFile(song.doc.file);
+        } else {
+            current++;
+            playCurrentTrack();
         }
     }
     
+    function playNextTrack() {
+        current++;
+        playCurrentTrack();
+    }
+    
+    function playPrevTrack() {
+        current--;
+        playCurrentTrack();
+    }
     
     view.comps.toolbar
         .add(
             new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
             .setText('\uf04a').onAction(function(e) {
+                playPrevTrack();
             }))
         .add(
             playButton.setW(30).setH(20).setFontSize(20).setFontName('awesome')
             .setText(PLAY_ICON).onAction(function(e) {
-                playFirstTrack();
+                playCurrentTrack();
             }))
         .add(
             new widgets.PushButton().setW(30).setH(20).setFontSize(20).setFontName('awesome')
             .setText('\uf04e').onAction(function(e) {
+                playNextTrack();
             }))
         .add(trackLabel);
         ;

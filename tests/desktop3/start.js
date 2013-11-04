@@ -30,7 +30,7 @@ for(var i=0; i<10; i++) {
         body: "Hah. You read the message! Foolish mortal.",
     }});
 }
-
+/*
 for(var i=0; i<10; i++) {
     db.insert({doctype:doctypes.song, doc: {
             title: "Song " + i,
@@ -38,7 +38,8 @@ for(var i=0; i<10; i++) {
             album: "Bob's Songs",
     }});
 }
-
+*/
+/*
 var files = fs.readdirSync("Resources");
 files.forEach(function(file) {
     if(file.toLowerCase().endsWith('.mp3')) {
@@ -50,6 +51,14 @@ files.forEach(function(file) {
         }});
         console.log(file);
     }
+});
+*/
+console.log("parsing the on disk database");
+var docs = JSON.parse(fs.readFileSync("DesktopDB/Music/songs.json")).documents;
+console.log(docs);
+docs.forEach(function(meta) {
+    meta.doc.file = "DesktopDB/Music/"+meta.doc.file;
+    db.insert({doctype:meta.type, doc: meta.doc});
 });
 
 for(var i=0; i<3; i++) {
@@ -166,7 +175,7 @@ function DesktopFolder() {
 
 amino.startApp(function(core, stage) {
     var root;
-//    stage.setSize(1000,700);
+    stage.setSize(1000,700);
     var desktopfolder = new DesktopFolder();
     var music = desktopfolder.items[0];
     music.windowx = 100;

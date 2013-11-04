@@ -1,0 +1,50 @@
+{ 
+    "documents": [
+        {
+            "type": "com.joshondesign.aminos.music.song",
+            "doc": {
+                "title": "Black Celebration",
+                "artist": "Depeche Mode",
+                "album":"Black Celebration",
+                "file":"01 Black Celebration.mp3"
+            }
+        },
+        {
+            "type": "com.joshondesign.aminos.music.song",
+            "doc": {
+                "title": "Fly On the Windscreen",
+                "artist": "Depeche Mode",
+                "album":"Black Celebration",
+                "file":"02 Fly On The Windscreen.mp3"
+            }
+        },
+        {
+            "type": "com.joshondesign.aminos.music.song",
+            "doc": {
+                "title": "A Question Of Lust",
+                "artist": "Depeche Mode",
+                "album":"Black Celebration",
+                "file":"03 A Question Of Lust.mp3"
+            }
+        },
+        {
+            "type": "com.joshondesign.aminos.music.song",
+            "doc": {
+                "title": "Sometimes",
+                "artist": "Depeche Mode",
+                "album":"Black Celebration",
+                "file":"04 Sometimes.mp3"
+            }
+        },
+        {
+            "type": "com.joshondesign.aminos.music.song",
+            "doc": {
+                "title": "It Doesn't Matter",
+                "artist": "Depeche Mode",
+                "album":"Black Celebration",
+                "file":"05 It Doesn't Matter Two.mp3"
+            }
+        }
+ 
+    ]
+}

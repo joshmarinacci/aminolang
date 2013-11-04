@@ -5,6 +5,9 @@ exports.WindowView = amino.ComposeObject({
     type:"WindowView",
     extend: amino.ProtoWidget,
     comps: {
+        border: {
+            proto: amino.ProtoRect,
+        },
         background: {
             proto: amino.ProtoRect,
             promote: ['fill'],
@@ -27,11 +30,10 @@ exports.WindowView = amino.ComposeObject({
             value: 300,
             set: function(w) {
                 this.props.w = w;
+                this.comps.border.setW(w+2);
                 this.comps.background.setW(w);
                 this.comps.titlebar.setW(w);
                 this.comps.tabholder.setW(w);
-                //this.comps.title.setW(w);
-                //this.comps.toolbar.setW(w);
                 this.comps.grabber.setTx(w-this.comps.grabber.getW());
                 
                 this.comps.contents.children.forEach(function(ch) {
@@ -45,6 +47,7 @@ exports.WindowView = amino.ComposeObject({
             value: 200,
             set: function(h) {
                 this.props.h = h;
+                this.comps.border.setH(h+2);
                 this.comps.background.setH(h);
                 this.comps.contents.setH(h-30);
                 this.comps.tabholder.setH(30);
@@ -74,12 +77,14 @@ exports.WindowView = amino.ComposeObject({
         },
     },
     init: function() {
+        this.comps.base.add(this.comps.border);
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.contents);
         this.comps.base.add(this.comps.grabber);
         this.comps.base.add(this.comps.titlebar);
         this.comps.base.add(this.comps.tabholder);
         
+        this.comps.border.setFill("#000000").setTx(-1).setTy(-1);
         this.comps.background.setFill("#eeeeee");
         this.comps.contents.setTy(30);
         

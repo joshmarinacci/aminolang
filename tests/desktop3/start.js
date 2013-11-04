@@ -57,6 +57,18 @@ for(var i=0; i<20; i++) {
 }
 
 
+var apps = [
+    {
+        title: "Chat",
+        init: ChatApp.buildApp,
+    },
+    {
+        title: "Settings",
+        init: SettingsApp.buildApp,
+    },
+    
+];
+
 /*
 var consumer_key = "hva7MBAIH8VA93HFeVMNg";
 var consumer_secret = "m2fwhKqoQJK90MY7IK4Z01ct5bG0S4I9ergj0pHw7c";
@@ -208,26 +220,18 @@ amino.startApp(function(core, stage) {
     root.add(fakeNewEmail);
     
     
-    var startChatApp = new widgets.PushButton().setText('Chat')
-        .setW(110).setH(30).setTx(5).setTy(150+5+30)
-        .onAction(function(e) {
-            var app = ChatApp.buildApp(core,stage,db);
-            Global.openView(app);
+    var dy = 150;
+    apps.forEach(function(app) {
+        dy+= 5;
+        dy+= 30;
+        var button = new widgets.PushButton().setText(app.title)
+            .setW(110).setH(30).setTx(5).setTy(dy);
+        button.onAction(function(e) {
+            var ap = app.init(core,stage,db);
+            Global.openView(ap);
         });
-        ;
-        
-    root.add(startChatApp);
-    
-    var startSettingsApp = new widgets.PushButton().setText('Settings')
-        .setW(110).setH(30).setTx(5).setTy(150+5+30+5+30)
-        .onAction(function(e) {
-            var app = SettingsApp.buildApp(core,stage,db);
-            Global.openView(app);
-        });
-        ;
-        
-    root.add(startSettingsApp);
-    
+        root.add(button);
+    });
     
     setInterval(function() {
         db.processUpdates();

@@ -690,36 +690,12 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     //make a single font
     
     texture_font_t *font;
-    //preload some standard font sizes: 10, 12, 15, 20, 40
-    
-    font = texture_font_new(afont->atlas, filename, 10);
-    int bad = 0;
-    bad = texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[10] = font;
-    font = texture_font_new(afont->atlas, filename, 15);
-//    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[15] = font;
-    font = texture_font_new(afont->atlas, filename, 20);
-//    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[20] = font;
-    font = texture_font_new(afont->atlas, filename, 30);
-//    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[30] = font;
-    
-    font = texture_font_new(afont->atlas, filename, 40);
-//    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[40] = font;
-    
-    font = texture_font_new(afont->atlas, filename, 80);
-//    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[80] = font;
-    
+    //preload some standard font sizes: 10, 12, 15, 20, 30, 40, 80
+    int fontsizes[] = {10,12,15,20,30,40,80};
+    for(int n = 0; n<7; n++) {
+        int fsize = fontsizes[n];
+        afont->fonts[fsize] = texture_font_new(afont->atlas, filename, fsize);
+    }
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
                          "shaders/v3f-t2f-c4f.frag");
     //texture_font_delete(afont->font);

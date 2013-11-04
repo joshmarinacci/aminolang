@@ -114,7 +114,7 @@ var defaultFonts = {
         }
     },
 }
-var validFontSizes = {10:10,15:15,20:20,30:30,40:40};
+var validFontSizes = {10:10,15:15,20:20,30:30,40:40,80:80};
 
 function validateFontSize(fs) {
     if(validFontSizes[fs] == undefined) {

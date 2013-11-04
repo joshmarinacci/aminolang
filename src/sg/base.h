@@ -686,28 +686,44 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
 
     size_t i;
     afont->atlas = texture_atlas_new(512,512,1);
-//    wchar_t *text = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    wchar_t *text = L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     //make a single font
     
     texture_font_t *font;
-    //preload some standard font sizes: 10, 12, 15, 20, 40, 80
-    std::vector<int> fontsizes;
-    fontsizes.push_back(10);
-    fontsizes.push_back(12);
-    fontsizes.push_back(15);
-    fontsizes.push_back(20);
-    fontsizes.push_back(40);
-    fontsizes.push_back(80);
+    //preload some standard font sizes: 10, 12, 15, 20, 40
     
-    for(std::vector<int>::iterator it = fontsizes.begin();
-        it != fontsizes.end(); 
-        ++it) {
-        int size = *it;
-        texture_font_t* font = texture_font_new(afont->atlas, filename, size);
-        afont->fonts[size] = font;
-    }
+    font = texture_font_new(afont->atlas, filename, 10);
+    int bad = 0;
+    bad = texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[10] = font;
+    font = texture_font_new(afont->atlas, filename, 15);
+//    texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[15] = font;
+    font = texture_font_new(afont->atlas, filename, 20);
+//    texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[20] = font;
+    font = texture_font_new(afont->atlas, filename, 30);
+//    texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[30] = font;
+    
+    font = texture_font_new(afont->atlas, filename, 40);
+//    texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[40] = font;
+    
+    font = texture_font_new(afont->atlas, filename, 80);
+//    texture_font_load_glyphs(font,text);
+    if(bad > 0) printf("bad glyphs = %d\n",bad);
+    afont->fonts[80] = font;
+    
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
                          "shaders/v3f-t2f-c4f.frag");
+    //texture_font_delete(afont->font);
+    
     Local<Number> num = Number::New(id);
     return scope.Close(num);
 }

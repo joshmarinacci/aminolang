@@ -1,13 +1,7 @@
-var amino = null;
-var widgets = null;
-if(process.platform == 'darwin') {
-    amino = require('../../build/desktop/amino.js');
-    widgets = require('../../build/desktop/widgets.js');
-} else {
-    amino = require('./amino.js');    
-    widgets = require('./widgets.js');
+if(typeof document == "undefined") {
+    var amino = require('amino.js');
+    var widgets= require('widgets.js'); 
 }
-
 
 amino.startApp(function(core, stage) {
     stage.setSize(320,480);
@@ -16,7 +10,7 @@ amino.startApp(function(core, stage) {
 //    root.setScalex(2).setScaley(2);
     stage.setRoot(root);
     
-    var lv = new widgets.ListView().setW(320).setH(300).setTy(50);
+    var lv = new widgets.ListView().setW(320).setH(600).setTy(50);
     lv.setCellWidth(100).setCellHeight(100);
     lv.setLayout('flow');
     root.add(lv);

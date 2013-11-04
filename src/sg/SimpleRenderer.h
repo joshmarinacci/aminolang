@@ -93,6 +93,7 @@ public:
     virtual void drawGroup(GLContext* c, Group* group);
     virtual void drawRect(GLContext* c, Rect* rect);
     virtual void drawText(GLContext* c, TextNode* text);
+    virtual ~SimpleRenderer() { }
 };
 
 

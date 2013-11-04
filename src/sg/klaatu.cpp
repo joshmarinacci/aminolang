@@ -1,6 +1,7 @@
 #include "base.h"
 #include "klaatu_events.h"
 #include <binder/ProcessState.h>
+#include "SimpleRenderer.h"
 
 
 static float near = 150;
@@ -244,8 +245,9 @@ void render() {
     if(DEBUG_RENDER_LOOP) { printf("processing drawing\n"); }
 
     AminoNode* root = rects[rootHandle];
-    root->draw();
-    
+    SimpleRenderer* rend = new SimpleRenderer();
+    rend->startRender(root);
+    delete rend;
     //glfwSwapBuffers();
     double post = getTime();
     /*

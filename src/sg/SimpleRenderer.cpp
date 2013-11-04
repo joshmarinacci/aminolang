@@ -196,8 +196,9 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
             glUniform1i(font->texuni,0 );
         }
         if(modelViewChanged) {
-            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
+//            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
         }
+        glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
         //only the global transform will change each time
         glUniformMatrix4fv(font->transuni,        1, 0,  c->globaltx );
         vertex_buffer_render(text->buffer, GL_TRIANGLES );

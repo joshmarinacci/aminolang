@@ -28,9 +28,7 @@ exports.mergeWindow = function (tab, window, gpt) {
 
 exports.openView = function(item) {
     console.log("opening a view for the item",item);
-    console.log("is folder = " + item.isFolder());
-    console.log("has customizer = " + item.customizer);
-    if(item.isFolder()) {
+    if(item.isFolder && item.isFolder()) {
         var folder = item;
         var view = new ContentView.ContentView();
         
@@ -95,16 +93,28 @@ exports.openView = function(item) {
         if(folder.windoww) winview.setW(folder.windoww);
         if(folder.windowh) winview.setH(folder.windowh);
         */
-    } else {
-        var view = new WindowView();
-        view.setFill("#ffffff");
-        var text = new widgets.TextField()
-            .setText(item.doc.content);
-        view.comps.contents.add(text);
-        var winview = new WindowView();
-        winview.addTab(view,item.getTitle());
-        windows.add(winview);
+        winview.setTx(100).setTy(100).setW(500).setH(300);
+        return;
     }
+    if(item.isApp && item.isApp()) {
+        console.log('setting up an app');
+        var view = new WindowView.WindowView();
+        view.setFill("#ffffff");
+        view.comps.contents.add(item);
+        view.setTx(100).setTy(100).setW(500).setH(300);
+        windows.add(view);
+        return;
+    }
+    
+    console.log("assuming it's a text document");
+    var view = new WindowView();
+    view.setFill("#ffffff");
+    var text = new widgets.TextField()
+        .setText(item.doc.content);
+    view.comps.contents.add(text);
+    var winview = new WindowView();
+    winview.addTab(view,item.getTitle());
+    windows.add(winview);
     
     winview.setTx(100).setTy(100).setW(500).setH(300);
 }

@@ -9,6 +9,7 @@ var Music = require('./Music.js');
 var Contacts = require('./Contacts.js');
 var Twitter = require('./Twitter.js');
 var fs = require('fs');
+var ChatApp = require('./ChatApp.js');
 
 var util = require('util');
 var twitter = require('twitter');
@@ -30,29 +31,7 @@ for(var i=0; i<10; i++) {
         body: "Hah. You read the message! Foolish mortal.",
     }});
 }
-/*
-for(var i=0; i<10; i++) {
-    db.insert({doctype:doctypes.song, doc: {
-            title: "Song " + i,
-            artist: "Bob",
-            album: "Bob's Songs",
-    }});
-}
-*/
-/*
-var files = fs.readdirSync("Resources");
-files.forEach(function(file) {
-    if(file.toLowerCase().endsWith('.mp3')) {
-        db.insert({doctype:doctypes.song, doc: {
-            title: file,
-            artist: "Unknown",
-            album: "Unknown",
-            file: "Resources/"+file,
-        }});
-        console.log(file);
-    }
-});
-*/
+
 console.log("parsing the on disk database");
 var docs = JSON.parse(fs.readFileSync("DesktopDB/Music/songs.json")).documents;
 console.log(docs);
@@ -77,6 +56,7 @@ for(var i=0; i<20; i++) {
 }
 
 
+/*
 var consumer_key = "hva7MBAIH8VA93HFeVMNg";
 var consumer_secret = "m2fwhKqoQJK90MY7IK4Z01ct5bG0S4I9ergj0pHw7c";
 var access_token = "8559252-r1FVHjOf7bT9ZXJfklOKFxA6UDuapFvgXmcfjeGUsW";
@@ -104,6 +84,7 @@ twit
     });
   })
 
+*/
 
 function DocumentItem(doc) {
     this.title = doc.title;
@@ -133,7 +114,6 @@ function DocumentQueryFolder(title,doctype,customizer) {
     var self = this;
     db.monitor({doctype:doctypes.email, action:"insert"}, function(db,data) {
         var count = db.query({doctype:doctypes.email}).length;
-//        console.log("total email count is now: " + count);
         if(self.cb) self.cb(data);
     });
     
@@ -212,7 +192,7 @@ amino.startApp(function(core, stage) {
     windows = new amino.ProtoGroup();
     root.add(windows);
     var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
-        .setW(110).setH(30).setTx(800).setTy(50);
+        .setW(110).setH(30).setTx(5).setTy(150);
     fakeNewEmail.onAction(function(e) {
         db.insert({doctype:doctypes.email, doc: {
             title:"an new email ",
@@ -224,6 +204,17 @@ amino.startApp(function(core, stage) {
         
     });
     root.add(fakeNewEmail);
+    
+    
+    var startChatApp = new widgets.PushButton().setText('Chat')
+        .setW(110).setH(30).setTx(5).setTy(150+5+30)
+        .onAction(function(e) {
+            var app = ChatApp.buildApp(core,stage,db);
+            Global.openView(app);
+        });
+        ;
+        
+    root.add(startChatApp);
     
     
     setInterval(function() {

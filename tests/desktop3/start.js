@@ -10,6 +10,7 @@ var Contacts = require('./Contacts.js');
 var Twitter = require('./Twitter.js');
 var fs = require('fs');
 var ChatApp = require('./ChatApp.js');
+var SettingsApp = require('./Settings.js');
 
 var util = require('util');
 var twitter = require('twitter');
@@ -165,6 +166,7 @@ amino.startApp(function(core, stage) {
         
     root = new amino.ProtoGroup();
     stage.setRoot(root);
+//    Global.root = root;
     
     var desktopview = new WindowView.WindowView()
         .setId("desktop")
@@ -189,8 +191,8 @@ amino.startApp(function(core, stage) {
     //desktopview.comps.title.setText("desktop");
     root.add(desktopview);
     
-    windows = new amino.ProtoGroup();
-    root.add(windows);
+    Global.windows = new amino.ProtoGroup();
+    root.add(Global.windows);
     var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
         .setW(110).setH(30).setTx(5).setTy(150);
     fakeNewEmail.onAction(function(e) {
@@ -215,6 +217,16 @@ amino.startApp(function(core, stage) {
         ;
         
     root.add(startChatApp);
+    
+    var startSettingsApp = new widgets.PushButton().setText('Settings')
+        .setW(110).setH(30).setTx(5).setTy(150+5+30+5+30)
+        .onAction(function(e) {
+            var app = SettingsApp.buildApp(core,stage,db);
+            Global.openView(app);
+        });
+        ;
+        
+    root.add(startSettingsApp);
     
     
     setInterval(function() {

@@ -4,6 +4,8 @@ var ContentView = require('./ContentView.js');
 var WindowView = require('./WindowView.js');
 exports.windowlist = [];
 
+exports.windows = null;
+
 exports.splitWindow = function(tab, window,x,y) {
     window.comps.contents.remove(tab.content);
     window.comps.tabholder.remove(tab);
@@ -11,7 +13,7 @@ exports.splitWindow = function(tab, window,x,y) {
     var winview = new WindowView.WindowView();
     winview.setTx(x).setTy(y).setW(window.getW()).setH(window.getH());
     winview.addExistingTab(tab);
-    root.add(winview);
+    exports.windows.add(winview);
 }
 
 exports.mergeWindow = function (tab, window, gpt) {
@@ -19,11 +21,12 @@ exports.mergeWindow = function (tab, window, gpt) {
     tab.window.comps.tabholder.remove(tab);
     tab.window.layoutTabs();
     if(tab.window.getTabCount() < 1) {
+        console.log('destroying the window');
         tab.window.destroy();
     }
     tab.window = window;
     tab.window.addExistingTab(tab);
-    root.raiseToTop(tab.window);
+    exports.windows.raiseToTop(tab.window);
 }
 
 exports.openView = function(item) {
@@ -85,24 +88,17 @@ exports.openView = function(item) {
         var winview = new WindowView.WindowView();
         winview.addTab(view,folder.getTitle());
         console.log('adding a winview');
-        windows.add(winview);
-        
-        /*
-        if(folder.windowx) winview.setTx(folder.windowx);
-        if(folder.windowy) winview.setTy(folder.windowy);
-        if(folder.windoww) winview.setW(folder.windoww);
-        if(folder.windowh) winview.setH(folder.windowh);
-        */
+        exports.windows.add(winview);
         winview.setTx(100).setTy(100).setW(500).setH(300);
         return;
     }
+    
     if(item.isApp && item.isApp()) {
         console.log('setting up an app');
-        var view = new WindowView.WindowView();
-        view.setFill("#ffffff");
-        view.comps.contents.add(item);
-        view.setTx(100).setTy(100).setW(500).setH(300);
-        windows.add(view);
+        var winview = new WindowView.WindowView();
+        winview.addTab(item,item.getTitle());
+        exports.windows.add(winview);
+        winview.setTx(100).setTy(100).setW(500).setH(300);
         return;
     }
     
@@ -114,7 +110,7 @@ exports.openView = function(item) {
     view.comps.contents.add(text);
     var winview = new WindowView();
     winview.addTab(view,item.getTitle());
-    windows.add(winview);
+    exports.windows.add(winview);
     
     winview.setTx(100).setTy(100).setW(500).setH(300);
 }

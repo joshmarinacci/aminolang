@@ -51,6 +51,7 @@ exports.ChatCell = amino.ComposeObject({
 exports.buildApp = function(core, stage, db) {
     var panel = new widgets.AnchorPanel();
     panel.isApp = function() { return true; }
+    panel.getTitle = function() { return "Chat"; }
     
     
     var lv = new widgets.ListView()

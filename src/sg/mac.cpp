@@ -4,9 +4,11 @@
 
 // ========== Event Callbacks ===========
 
+static bool windowSizeChanged = true;
 static void GLFW_WINDOW_SIZE_CALLBACK_FUNCTION(int newWidth, int newHeight) {
 	width = newWidth;
 	height = newHeight;
+	windowSizeChanged = true;
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
     event_obj->Set(String::NewSymbol("type"), String::New("windowsize"));
@@ -147,28 +149,13 @@ void render() {
     
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
-    make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
-    
+    make_trans_matrix(-((float)width)/2,((float)height)/2,0,transM);
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
-    
-    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
-    
     mul_matrix(modelView,pixelM,m4);
-    
-    
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
     glClearColor(1,1,1,1);
@@ -181,6 +168,8 @@ void render() {
     AminoNode* root = rects[rootHandle];
 
     SimpleRenderer* rend = new SimpleRenderer();
+    rend->modelViewChanged = windowSizeChanged;
+    windowSizeChanged = false;
     rend->startRender(root);
     delete rend;
     glfwSwapBuffers();
@@ -230,24 +219,16 @@ Handle<Value> runTest(const Arguments& args) {
     printf("setting up the screen\n");
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
     make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
     
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
 
 
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
     
-    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
     
     mul_matrix(modelView,pixelM,m4);
     

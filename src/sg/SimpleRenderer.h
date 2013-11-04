@@ -88,6 +88,8 @@ public:
 
 class SimpleRenderer {
 public:
+    bool modelViewChanged;
+    SimpleRenderer();
     virtual void startRender(AminoNode* node);
     virtual void render(GLContext* c, AminoNode* node);
     virtual void drawGroup(GLContext* c, Group* group);

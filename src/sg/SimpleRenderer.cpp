@@ -1,6 +1,9 @@
 #include "SimpleRenderer.h"
 
 
+SimpleRenderer::SimpleRenderer() {
+    modelViewChanged = false;
+}
 void SimpleRenderer::startRender(AminoNode* root) {
     GLContext* c = new GLContext();
     this->render(c,root);
@@ -187,10 +190,12 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     {
         //by only doing this init work once we save almost 80% of the time for drawing text
         if(font->texuni == -1) {
-            font->texuni = glGetUniformLocation( font->shader, "texture" );
-            font->mvpuni = glGetUniformLocation( font->shader, "mvp" );
-            font->transuni =glGetUniformLocation( font->shader, "trans" );
+            font->texuni   = glGetUniformLocation( font->shader, "texture" );
+            font->mvpuni   = glGetUniformLocation( font->shader, "mvp" );
+            font->transuni = glGetUniformLocation( font->shader, "trans" );
             glUniform1i(font->texuni,0 );
+        }
+        if(modelViewChanged) {
             glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
         }
         //only the global transform will change each time

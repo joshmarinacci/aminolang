@@ -168,7 +168,7 @@ function DesktopFolder() {
 
 amino.startApp(function(core, stage) {
     var root;
-    stage.setSize(1000,700);
+    stage.setSize(1200,600);
     var desktopfolder = new DesktopFolder();
     var music = desktopfolder.items[0];
     music.windowx = 100;

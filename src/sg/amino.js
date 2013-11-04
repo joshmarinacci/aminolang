@@ -1290,17 +1290,15 @@ function SGStage(core) {
 	this.core = core;
 	/** @func setSize(w,h) set the width and height of the stage. Has no effect on mobile. */
 	this.setSize = function(width,height) {
-	    this.width = width;
-	    this.height = height;
-	    exports.native.setWindowSize(this.width,this.height);
+	    exports.native.setWindowSize(width,height);
 	}
 	/** @func getW returns the width of this stage. */
 	this.getW = function() {
-	    return this.width;
+	    return exports.native.getWindowSize().width;
 	}
 	/** @func getH returns the height of this stage. */
 	this.getH = function() {
-	    return this.height;
+	    return exports.native.getWindowSize().height;
 	}
 	/** @func on(name,node,cb) sets a callback for events matching the specified name on the 
 	specified node. Use null for the node to match global events. */

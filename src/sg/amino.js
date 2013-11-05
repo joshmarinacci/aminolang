@@ -124,6 +124,8 @@ function validateFontSize(fs) {
     return fs;
 }
 
+var propertyCount = 0;
+
 exports.native = {
     createNativeFont: function(path) {
         //console.log('creating native font ' + path);
@@ -147,6 +149,7 @@ exports.native = {
         return fontmap[name];
     },
     updateProperty: function(handle, name, value) {
+        propertyCount++;
         exports.sgtest.updateProperty(handle, propsHash[name], value);        
     },
     setRoot: function(handle) {
@@ -1528,6 +1531,8 @@ function Core() {
                 exports.native.tick(core);
                 self.validate();
                 //console.timeEnd("tick");
+                //console.log("propcount = " + propertyCount);
+                propertyCount = 0;
             } catch (ex) {
                 console.log(ex);
                 console.log(ex.stack);

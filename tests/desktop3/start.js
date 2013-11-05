@@ -70,7 +70,24 @@ var apps = [
         title: "Settings",
         init: SettingsApp.buildApp,
     },
-    
+    {
+        title: "Twitter",
+        init: function() {
+            return new DocumentQueryFolder("Twitter", doctypes.tweet, Twitter.ConnectViewCustomizer);
+        },
+    },
+    {
+        title: "Email",
+        init: function() {
+            return new DocumentQueryFolder("Inbox", doctypes.email, Email.EmailViewCustomizer);
+        },
+    },
+    {
+        title: "Music",
+        init: function() {
+            return new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer);
+        },
+    },
 ];
 
 /*
@@ -154,12 +171,12 @@ function DesktopFolder() {
     this.getTitle = function() { return this.title; }
     this.items = [
         new DocumentQueryFolder("All Email",doctypes.email),
-        new DocumentQueryFolder("Inbox", doctypes.email, Email.EmailViewCustomizer),
+        //new DocumentQueryFolder("Inbox", doctypes.email, Email.EmailViewCustomizer),
         new DocumentQueryFolder("All Music", doctypes.song),
-        new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer),
+        //new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer),
         new DocumentQueryFolder("All Text",doctypes.text),
         new DocumentQueryFolder("Contacts", doctypes.person, Contacts.ContactsViewCustomizer),
-        new DocumentQueryFolder("Twitter", doctypes.tweet, Twitter.ConnectViewCustomizer),
+        //new DocumentQueryFolder("Twitter", doctypes.tweet, Twitter.ConnectViewCustomizer),
     ];
 
     var items = this.items;    

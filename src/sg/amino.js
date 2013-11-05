@@ -1545,9 +1545,12 @@ function Core() {
         var self = this;
         function immediateLoop() {
             try {
-                //console.time("tick");
                 exports.native.tick(core);
                 self.validate();
+                if(settimer) {
+                    console.timeEnd('start');
+                    settimer = false;
+                }
                 //console.timeEnd("tick");
                 if(propertyCount > 0) {
                     console.log("propcount = " + propertyCount);
@@ -1681,6 +1684,12 @@ function Core() {
         console.log("running the test with options",opts);
         return exports.native.runTest(opts);
     }
+}
+
+var settimer = false;
+exports.startTime = function() {
+    console.time('start');
+    settimer = true;
 }
 
 Core.DPIScale = 1.0;

@@ -63,6 +63,36 @@ void colorShaderApply(GLContext *ctx, ColorShader* shader, GLfloat modelView[16]
     glDisableVertexAttribArray(shader->attr_color);
 }
 
+void textureShaderApply(GLContext *ctx, TextureShader* shader, GLfloat modelView[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
+//void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
+//        textureShaderApply(c,textureShader, modelView, verts, texcoords, rect->texid);
+
+    //printf("doing texture shader apply %d\n",texid);
+    ctx->useProgram(shader->prog);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glUniformMatrix4fv(shader->u_matrix, 1, GL_FALSE, modelView);
+    glUniformMatrix4fv(shader->u_trans,  1, GL_FALSE, ctx->globaltx);
+    glUniform1i(shader->attr_tex, 0);
+    
+
+    glVertexAttribPointer(shader->attr_texcoords, 2, GL_FLOAT, GL_FALSE, 0, texcoords);
+    glEnableVertexAttribArray(shader->attr_texcoords);
+
+    glVertexAttribPointer(shader->attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
+    glEnableVertexAttribArray(shader->attr_pos);
+    glActiveTexture(GL_TEXTURE0);
+    
+    ctx->bindTexture(texid );
+    //glBindTexture(GL_TEXTURE_2D, texid);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray(shader->attr_pos);
+    glDisableVertexAttribArray(shader->attr_texcoords);
+    glDisable(GL_BLEND);
+}
+
 void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
     if(group->cliprect == 1) {
         //turn on stenciling
@@ -76,7 +106,7 @@ void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
         glStencilMask(0xFF);
         glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
         glDepthMask( GL_FALSE );
-//        glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //        glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //draw the stencil
         float x = 0;
@@ -120,8 +150,8 @@ void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
     }
 }
 
-
 void SimpleRenderer::drawRect(GLContext* c, Rect* rect) {
+    c->save();
     float x =  rect->x;
     float y =  rect->y;
     float x2 = rect->x+rect->w;
@@ -166,10 +196,11 @@ void SimpleRenderer::drawRect(GLContext* c, Rect* rect) {
         texcoords[3][0] = tx2;   texcoords[3][1] = ty2;
         texcoords[4][0] = tx;    texcoords[4][1] = ty2;
         texcoords[5][0] = tx;    texcoords[5][1] = ty;
-        textureShader->apply(modelView, c->globaltx, verts, texcoords, rect->texid);
+        textureShaderApply(c,textureShader, modelView, verts, texcoords, rect->texid);
     } else {
         colorShaderApply(c,colorShader, modelView, verts, colors, rect->opacity);
     }
+    c->restore();
 }
 
 int te = 0;
@@ -183,18 +214,19 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     c->save();
     //flip the y axis
     c->scale(1,-1);
+    glActiveTexture(GL_TEXTURE0);
     c->bindTexture(font->atlas->id );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     c->useProgram(font->shader);
     {
         //by only doing this init work once we save almost 80% of the time for drawing text
-        if(font->texuni == -1) {
+//        if(font->texuni == -1) {
             font->texuni   = glGetUniformLocation( font->shader, "texture" );
             font->mvpuni   = glGetUniformLocation( font->shader, "mvp" );
             font->transuni = glGetUniformLocation( font->shader, "trans" );
-            glUniform1i(font->texuni,0 );
-        }
+//        }
+        glUniform1i(font->texuni,0 );
         if(modelViewChanged) {
 //            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
         }

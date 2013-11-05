@@ -88,8 +88,8 @@ exports.WindowView = amino.ComposeObject({
         this.comps.background.setFill("#eeeeee");
         this.comps.contents.setTy(30);
         
-        this.comps.titlebar.setW(100).setH(30).setFill("#ccccff");
-        this.comps.grabber.setW(30).setH(30).setFill("#555555");
+        this.comps.titlebar.setW(100).setH(30).setFill("#cccccc");
+        this.comps.grabber.setW(20).setH(20).setFill("#555555");
         
         var self = this;
         amino.getCore().on("drag",this.comps.grabber,function(e) {

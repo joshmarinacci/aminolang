@@ -48,8 +48,7 @@ exports.ContentView = amino.ComposeObject({
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.contents);
         this.comps.base.add(this.comps.toolbar);
-        this.comps.toolbar.setH(30);
-        this.comps.toolbar.setGap(5).setPadding(3);
+        this.comps.toolbar.setH(30).setGap(5).setPadding(3).setFill("#dddddd");
         this.comps.contents.setTy(30);
         this.children = [
             this.comps.contents, this.comps.toolbar,

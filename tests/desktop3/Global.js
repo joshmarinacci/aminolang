@@ -81,7 +81,7 @@ exports.openView = function(item) {
             
         }
         
-        view.setFill("#ff0000");
+        view.setFill("#cccccc");
         view.setW(400).setH(300);
         view.setTx(300).setTy(200);
           

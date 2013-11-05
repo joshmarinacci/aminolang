@@ -40,8 +40,7 @@ exports.TabView = amino.ComposeObject({
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.title);
         this.comps.base.add(this.comps.closeButton);
-        this.comps.background.setW(100);
-        this.comps.background.setH(30);
+        this.comps.background.setW(100).setH(30).setFill("#dddddd");
         this.comps.closeButton
             .setW(20).setH(20).setTx(110).setTy(5)
             .setFontName('awesome').setFontSize(20)

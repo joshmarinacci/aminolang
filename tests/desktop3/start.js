@@ -15,6 +15,9 @@ var SettingsApp = require('./Settings.js');
 var util = require('util');
 var twitter = require('twitter');
 
+
+amino.colortheme.base = "#dddddd";
+
 var doctypes = {
     email:   'com.joshondesign.aminos.email.message',
     song:    'com.joshondesign.aminos.music.song',
@@ -201,7 +204,12 @@ amino.startApp(function(core, stage) {
         );
     }
     //desktopview.comps.title.setText("desktop");
+    var desktopbg = new amino.ProtoImageView().setSrc("DesktopDB/Photos/saturn.jpg");
+    root.add(desktopbg);
     root.add(desktopview);
+    desktopview.comps.border.setVisible(false);
+    desktopview.comps.background.setVisible(false);
+    
     
     Global.windows = new amino.ProtoGroup();
     root.add(Global.windows);
@@ -238,7 +246,8 @@ amino.startApp(function(core, stage) {
     },100);
 
 
-    var cursor = new amino.ProtoRect().setW(10).setH(10).setFill("#33cc44");
+    var cursor = new amino.ProtoRect().setW(10).setH(10).setFill("#e0e0e0");
+//    var cursor = new amino.ProtoText().setFontName('awesome').setText('\uF124').setFill("#ffffff");
     root.add(cursor);
     core.on("move",null,function(e) {
         cursor.setTx(e.x+1);

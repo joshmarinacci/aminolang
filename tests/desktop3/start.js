@@ -11,6 +11,7 @@ var Twitter = require('./Twitter.js');
 var fs = require('fs');
 var ChatApp = require('./ChatApp.js');
 var SettingsApp = require('./Settings.js');
+var ContentView = require('./ContentView.js');
 
 var util = require('util');
 var twitter = require('twitter');
@@ -188,17 +189,19 @@ amino.startApp(function(core, stage) {
     var desktopview = new WindowView.WindowView()
         .setId("desktop")
         .setW(stage.getW()).setH(stage.getH())
-        //.setW(600).setH(800)
         .setDraggable(false)
         .setResizable(false)
         ;
+        /*
     amino.getCore().on("windowsize",stage,function(size) {
         console.log(size.width,size.height);
     });
+    */
     var items = desktopfolder.getItems();
+    var cv = new amino.ProtoGroup();
     for(var i=0; i<items.length; i++) {
         var item = items[i];
-        desktopview.comps.contents.add(new IconView.IconView()
+        cv.add(new IconView.IconView()
                 .setTx(i*85+5).setTy(5)
                 .setW(80).setH(80)
                 .setText(item.getTitle())
@@ -206,12 +209,13 @@ amino.startApp(function(core, stage) {
                 .setItem(item)
         );
     }
+    desktopview.comps.contents.add(cv);
     //desktopview.comps.title.setText("desktop");
     var desktopbg = new amino.ProtoImageView().setSrc("DesktopDB/Photos/saturn.jpg");
     root.add(desktopbg);
     root.add(desktopview);
-    desktopview.comps.border.setVisible(false);
-    desktopview.comps.background.setVisible(false);
+//    desktopview.comps.border.setVisible(false);
+//    desktopview.comps.background.setVisible(false);
     
     
     Global.windows = new amino.ProtoGroup();
@@ -257,9 +261,5 @@ amino.startApp(function(core, stage) {
         cursor.setTy(e.y+1);
     });
     
-    setTimeout(function() {
-//        desktopview.dirty = true;
-//        desktopview.setW(1000);
-    },1000);
     
 });

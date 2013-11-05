@@ -21,7 +21,6 @@ exports.mergeWindow = function (tab, window, gpt) {
     tab.window.comps.tabholder.remove(tab);
     tab.window.layoutTabs();
     if(tab.window.getTabCount() < 1) {
-        console.log('destroying the window');
         tab.window.destroy();
     }
     tab.window = window;
@@ -30,13 +29,11 @@ exports.mergeWindow = function (tab, window, gpt) {
 }
 
 exports.openView = function(item) {
-    console.log("opening a view for the item",item);
     if(item.isFolder && item.isFolder()) {
         var folder = item;
         var view = new ContentView.ContentView();
         
         if(folder.customizer) {
-            console.log("doing custom version");
             folder.customizer(view,folder);
         } else {
             var lv = new widgets.ListView();
@@ -87,14 +84,12 @@ exports.openView = function(item) {
           
         var winview = new WindowView.WindowView();
         winview.addTab(view,folder.getTitle());
-        console.log('adding a winview');
         exports.windows.add(winview);
         winview.setTx(100).setTy(100).setW(500).setH(300);
         return;
     }
     
     if(item.isApp && item.isApp()) {
-        console.log('setting up an app');
         var winview = new WindowView.WindowView();
         winview.addTab(item,item.getTitle());
         exports.windows.add(winview);
@@ -102,7 +97,6 @@ exports.openView = function(item) {
         return;
     }
     
-    console.log("assuming it's a text document");
     var view = new WindowView();
     view.setFill("#ffffff");
     var text = new widgets.TextField()

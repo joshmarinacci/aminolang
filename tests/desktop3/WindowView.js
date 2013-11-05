@@ -31,6 +31,7 @@ exports.WindowView = amino.ComposeObject({
             set: function(w) {
                 this.props.w = w;
                 this.dirty = true;
+                this.updateChildrenSizes();
                 return this;
             }
         },
@@ -39,6 +40,7 @@ exports.WindowView = amino.ComposeObject({
             set: function(h) {
                 this.props.h = h;
                 this.dirty = true;                
+                this.updateChildrenSizes();
                 return this;
             }
         },
@@ -74,19 +76,7 @@ exports.WindowView = amino.ComposeObject({
         var self = this;
         
         this.updateChildrenSizes = function() {
-            var w = this.getW();
             var h = this.getH();
-            this.comps.border.setW(w+2);
-            this.comps.background.setW(w);
-            this.comps.titlebar.setW(w);
-            this.comps.tabholder.setW(w);
-            this.comps.grabber.setTx(w-this.comps.grabber.getW());
-            
-            this.comps.contents.children.forEach(function(ch) {
-                if(ch.setW) ch.setW(w);
-                if(ch.setTx) ch.setTx(0);
-            });            
-            
             this.comps.border.setH(h+2);
             this.comps.background.setH(h);
             this.comps.contents.setH(h-30);
@@ -98,11 +88,23 @@ exports.WindowView = amino.ComposeObject({
                 if(ch.setH) ch.setH(h-30);
                 if(ch.setTy) ch.setTy(0);
             });            
+            
+            var w = this.getW();
+            this.comps.border.setW(w+2);
+            this.comps.background.setW(w);
+            this.comps.titlebar.setW(w);
+            this.comps.tabholder.setW(w);
+            this.comps.grabber.setTx(w-this.comps.grabber.getW());
+            
+            this.comps.contents.children.forEach(function(ch) {
+                if(ch.setW) ch.setW(w);
+                if(ch.setTx) ch.setTx(0);
+            });            
+            
         }
         
         amino.getCore().on('validate',null,function() {
             if(self.dirty) {
-                console.log("validating window");
                 self.updateChildrenSizes();
                 self.dirty = false;
             }

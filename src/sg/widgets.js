@@ -734,6 +734,14 @@ widgets.ListView = amino.ComposeObject({
                 self.dirty = false;
             }
         });
+        amino.getCore().on("mousewheelv",this,function(e) {
+            self.scroll -= e.wheel*2;
+            if(self.scroll < 0) self.scroll = 0;
+            var max = self.listModel.length*self.getCellHeight() - self.getH();
+            if(self.scroll > max) { self.scroll = max; }
+            if(max < 0) { self.scroll = 0; }
+            self.dirty = true;
+        });
         amino.getCore().on("drag",this,function(e) {
             self.scroll -= e.dy;
             if(self.scroll < 0) self.scroll = 0;

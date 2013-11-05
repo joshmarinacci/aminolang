@@ -389,9 +389,27 @@ function setupBacon(core) {
     });
     
     bus.filter(typeIs("mousewheelv"))
-    .onValue(function(e) {
-        console.log("wheel",e.position);
-    });
+        .diff(null,function(a,b) { 
+            if(!a) {
+                return 0;
+            } else {
+                return b.position-a.position;
+            }
+        })
+       .filter(function(v) { return v!= 0; })
+       .onValue(function(e) {
+           var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+           if(node != null) {
+                core.fireEventAtTarget(
+                    node,
+                    {
+                        type:"mousewheelv",
+                        wheel:e,
+                        target:node,
+                    }
+                );
+           }
+       });
     
     //mouse presses
     pressStream = bus.filter(typeIs("mousebutton"))

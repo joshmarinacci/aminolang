@@ -214,8 +214,8 @@ amino.startApp(function(core, stage) {
     var desktopbg = new amino.ProtoImageView().setSrc("DesktopDB/Photos/saturn.jpg");
     root.add(desktopbg);
     root.add(desktopview);
-//    desktopview.comps.border.setVisible(false);
-//    desktopview.comps.background.setVisible(false);
+    desktopview.comps.border.setVisible(false);
+    desktopview.comps.background.setVisible(false);
     
     
     Global.windows = new amino.ProtoGroup();

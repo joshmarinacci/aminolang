@@ -1297,11 +1297,11 @@ function SGStage(core) {
 	}
 	/** @func getW returns the width of this stage. */
 	this.getW = function() {
-	    return exports.native.getWindowSize().width;
+	    return exports.native.getWindowSize().w;
 	}
 	/** @func getH returns the height of this stage. */
 	this.getH = function() {
-	    return exports.native.getWindowSize().height;
+	    return exports.native.getWindowSize().h;
 	}
 	/** @func on(name,node,cb) sets a callback for events matching the specified name on the 
 	specified node. Use null for the node to match global events. */
@@ -1531,7 +1531,9 @@ function Core() {
                 exports.native.tick(core);
                 self.validate();
                 //console.timeEnd("tick");
-                //console.log("propcount = " + propertyCount);
+                if(propertyCount > 0) {
+                    console.log("propcount = " + propertyCount);
+                }
                 propertyCount = 0;
             } catch (ex) {
                 console.log(ex);

@@ -30,16 +30,7 @@ exports.WindowView = amino.ComposeObject({
             value: 300,
             set: function(w) {
                 this.props.w = w;
-                this.comps.border.setW(w+2);
-                this.comps.background.setW(w);
-                this.comps.titlebar.setW(w);
-                this.comps.tabholder.setW(w);
-                this.comps.grabber.setTx(w-this.comps.grabber.getW());
-                
-                this.comps.contents.children.forEach(function(ch) {
-                    if(ch.setW) ch.setW(w);
-                    if(ch.setTx) ch.setTx(0);
-                });
+                this.dirty = true;
                 return this;
             }
         },
@@ -47,18 +38,7 @@ exports.WindowView = amino.ComposeObject({
             value: 200,
             set: function(h) {
                 this.props.h = h;
-                this.comps.border.setH(h+2);
-                this.comps.background.setH(h);
-                this.comps.contents.setH(h-30);
-                this.comps.tabholder.setH(30);
-                var g = this.comps.grabber;
-                g.setTy(h-g.getH());
-                
-                this.comps.contents.children.forEach(function(ch) {
-                    if(ch.setH) ch.setH(h-30);
-                    if(ch.setTy) ch.setTy(0);
-                });
-                
+                this.dirty = true;                
                 return this;
             }
         },
@@ -92,6 +72,42 @@ exports.WindowView = amino.ComposeObject({
         this.comps.grabber.setW(20).setH(20).setFill("#555555");
         
         var self = this;
+        
+        this.updateChildrenSizes = function() {
+            var w = this.getW();
+            var h = this.getH();
+            this.comps.border.setW(w+2);
+            this.comps.background.setW(w);
+            this.comps.titlebar.setW(w);
+            this.comps.tabholder.setW(w);
+            this.comps.grabber.setTx(w-this.comps.grabber.getW());
+            
+            this.comps.contents.children.forEach(function(ch) {
+                if(ch.setW) ch.setW(w);
+                if(ch.setTx) ch.setTx(0);
+            });            
+            
+            this.comps.border.setH(h+2);
+            this.comps.background.setH(h);
+            this.comps.contents.setH(h-30);
+            this.comps.tabholder.setH(30);
+            var g = this.comps.grabber;
+            g.setTy(h-g.getH());
+            
+            this.comps.contents.children.forEach(function(ch) {
+                if(ch.setH) ch.setH(h-30);
+                if(ch.setTy) ch.setTy(0);
+            });            
+        }
+        
+        amino.getCore().on('validate',null,function() {
+            if(self.dirty) {
+                console.log("validating window");
+                self.updateChildrenSizes();
+                self.dirty = false;
+            }
+        });
+        
         amino.getCore().on("drag",this.comps.grabber,function(e) {
             self.setW(self.getW()+e.dx);
             self.setH(self.getH()+e.dy);
@@ -125,6 +141,7 @@ exports.WindowView = amino.ComposeObject({
             tab.content = view;
             this.comps.tabholder.add(tab);
             tab.setTx(count*150);
+            this.dirty = true;
         };
         
         this.addExistingTab = function(tab) {
@@ -140,6 +157,7 @@ exports.WindowView = amino.ComposeObject({
             tab.window = this;
             this.comps.tabholder.add(tab);
             tab.setTx(count*150);
+            this.dirty = true;
         }
         
         this.layoutTabs = function() {
@@ -165,17 +183,22 @@ exports.WindowView = amino.ComposeObject({
             Global.windows.remove(this);
             var n = Global.windowlist.indexOf(this);
             Global.windowlist.splice(n,1);
+            this.dirty = true;
         }
         
         this.removeTab = function(tab) {
             this.comps.contents.remove(tab.content);
             this.comps.tabholder.remove(tab);
             this.layoutTabs();
+            this.dirty = true;
         }
         
         this.raiseContentToFront = function(content) {
             this.comps.contents.raiseToTop(content);
+            this.dirty = true;
         }
+        
+        this.dirty = true;
     }
 });
 

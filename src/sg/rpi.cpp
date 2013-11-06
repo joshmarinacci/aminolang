@@ -379,15 +379,36 @@ void processInput(int fd, int type) {
     }
 }
 
+void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
+
+
+
 void render() {
+    //process input
     processInput(mouse_fd,MOUSE);
     processInput(key_fd,KEYBOARD);
-
+    
+    //send the validate event
+    sendValidate();
+    
+    //apply the processed updates
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
     
+    //apply the animations
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+
+    //set up the viewport
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
     //make_scale_matrix(1,1,1,scaleM);
@@ -417,9 +438,6 @@ void render() {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    for(int j=0; j<anims.size(); j++) {
-        anims[j]->update();
-    }
     AminoNode* root = rects[rootHandle];
     SimpleRenderer* rend = new SimpleRenderer();
     rend->startRender(root);

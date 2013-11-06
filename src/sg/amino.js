@@ -37,6 +37,11 @@ if((typeof process) != 'undefined') {
     }
 }
 
+
+
+var debug = {
+    eventCount:0,
+}
 function d(str) {
     console.log("AMINO: ",str);
 }
@@ -374,6 +379,11 @@ function setupBacon(core) {
     var typeIs = function(name) { return function(e) { return e.type == name; } };
     
     function exitApp() { setTimeout(function() { process.exit(0); },10); };
+    function sendValidate() {
+        core.fireEvent({ type:"validate", source:core});
+        console.log("total events for this frame = " + debug.eventCount);
+        debug.eventCount = 0;
+    }
     
     function mousePressed() { return mouseState.pressed; }
      
@@ -388,6 +398,8 @@ function setupBacon(core) {
         });
     });
     
+    bus.filter(typeIs("validate")).onValue(sendValidate);
+        
     bus.filter(typeIs("mousewheelv"))
         .diff(null,function(a,b) { 
             if(!a) {
@@ -1492,12 +1504,11 @@ function Core() {
         }
     }
     
-    var ecount = 0;
     this.init = function() {
         exports.native.init(this);
         setupBacon(this);
         exports.native.setEventCallback(function(e) {
-            ecount++;
+            debug.eventCount++;
             e.time = new Date().getTime();
             if(e.type == "mousebutton") {
                 mapNativeButton(e);
@@ -1517,11 +1528,6 @@ function Core() {
     }
     
     this.root = null;
-    this.validate = function() {
-        this.fireEvent({ type:"validate", source:this});
-        //console.log("total events for this frame = " + ecount);
-        ecount = 0;
-    }
     this.start = function() {
         var core = this;
         //send a final window size event to make sure everything is lined up correctly
@@ -1536,22 +1542,15 @@ function Core() {
         if(!this.root) {
             throw new Error("ERROR. No root set on stage");
         }
-        // use setTimeout for looping
-        function tickLoop() {
-            exports.native.tick(core);
-            setTimeout(tickLoop,1);
-        }
         
         var self = this;
         function immediateLoop() {
             try {
                 exports.native.tick(core);
-                self.validate();
                 if(settimer) {
                     console.timeEnd('start');
                     settimer = false;
                 }
-                //console.timeEnd("tick");
                 if(propertyCount > 0) {
                     console.log("propcount = " + propertyCount);
                 }
@@ -1565,7 +1564,6 @@ function Core() {
             exports.native.setImmediate(immediateLoop);
         }
         setTimeout(immediateLoop,1);
-        //setTimeout(tickLoop,1);
     }
     
     /** @func createStage(w,h)  creates a new stage. Only applies on desktop. */

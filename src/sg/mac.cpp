@@ -138,15 +138,32 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
+void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
 
 void render() {
+    //input updates happen at any time
+    
+    //send the validate event
+    sendValidate();
 
-
+    //apply processed updates
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
     
+    //apply animations
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+    
+    //set up the viewport
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
@@ -161,10 +178,8 @@ void render() {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    for(int j=0; j<anims.size(); j++) {
-        anims[j]->update();
-    }
     
+    //draw
     AminoNode* root = rects[rootHandle];
 
     SimpleRenderer* rend = new SimpleRenderer();
@@ -172,6 +187,8 @@ void render() {
     windowSizeChanged = false;
     rend->startRender(root);
     delete rend;
+    
+    //swap
     glfwSwapBuffers();
 }
 
@@ -221,32 +238,18 @@ Handle<Value> runTest(const Arguments& args) {
     make_scale_matrix(1,-1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
     make_trans_matrix(-width/2,height/2,0,transM);
-    
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    
-    
     mul_matrix(modelView,pixelM,m4);
-    
-    
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
     glClearColor(1,1,1,1);
-    
-    
     glDisable(GL_DEPTH_TEST);
     printf("running %d times\n",count);
     for(int i=0; i<count; i++) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        /*
-        for(int j=0; j<anims.size(); j++) {
-            anims[j]->update();
-        }
-        */
         AminoNode* root = rects[rootHandle];
         SimpleRenderer* rend = new SimpleRenderer();
         rend->startRender(root);

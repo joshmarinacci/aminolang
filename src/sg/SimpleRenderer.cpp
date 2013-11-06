@@ -221,11 +221,11 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
     c->useProgram(font->shader);
     {
         //by only doing this init work once we save almost 80% of the time for drawing text
-//        if(font->texuni == -1) {
+        if(font->texuni == -1) {
             font->texuni   = glGetUniformLocation( font->shader, "texture" );
             font->mvpuni   = glGetUniformLocation( font->shader, "mvp" );
             font->transuni = glGetUniformLocation( font->shader, "trans" );
-//        }
+        }
         glUniform1i(font->texuni,0 );
         if(modelViewChanged) {
 //            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );

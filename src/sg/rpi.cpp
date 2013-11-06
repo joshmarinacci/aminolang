@@ -388,62 +388,57 @@ void sendValidate() {
 }
 
 struct DebugEvent {
-    long inputtime;
-    long validatetime;
-    long updatestime;
-    long animationstime;
-    long rendertime;
-    long frametime;
-    long framewithsynctime;
+    double inputtime;
+    double validatetime;
+    double updatestime;
+    double animationstime;
+    double rendertime;
+    double frametime;
+    double framewithsynctime;
 };
 
 void render() {
-    DebugEvent *de = malloc(sizeof(DebugEvent));
-    long starttime = getTime();
+    DebugEvent de;
+    double starttime = getTime();
     
     //process input
     processInput(mouse_fd,MOUSE);
     processInput(key_fd,KEYBOARD);
+    double postinput = getTime();
+    de.inputtime = postinput-starttime;
     
     //send the validate event
     sendValidate();
+    double postvalidate = getTime();
+    de.validatetime = postvalidate-postinput;
     
+    int updatecount = updates.size();
     //apply the processed updates
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
+    double postupdates = getTime();
+    de.updatestime = postupdates-postvalidate;
+    
     
     //apply the animations
     for(int j=0; j<anims.size(); j++) {
         anims[j]->update();
     }
+    double postanim = getTime();
+    de.animationstime = postanim-postupdates;
 
     //set up the viewport
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
     make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
-    
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
-    
-    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
-    
     mul_matrix(modelView,pixelM,m4);
-    
-    
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
     glClearColor(1,1,1,1);
@@ -451,9 +446,17 @@ void render() {
     glDisable(GL_DEPTH_TEST);
     AminoNode* root = rects[rootHandle];
     SimpleRenderer* rend = new SimpleRenderer();
+    double prerender = getTime();
     rend->startRender(root);
     delete rend;
+    double postrender = getTime();
+    de.rendertime = postrender-prerender;
+    de.frametime = postrender-starttime;
     eglSwapBuffers(state->display, state->surface);
+    double postswap = getTime();
+    de.framewithsynctime = postswap-starttime;
+    printf("input = %.2f validate = %.2f update = %.2f update count %d ",  de.inputtime, de.validatetime, de.updatestime, updatecount);
+    printf("animtime = %.2f render = %.2f frame = %.2f, full frame = %.2f\n", de.animationstime, de.rendertime, de.frametime, de.framewithsynctime);
 }
 
 Handle<Value> tick(const Arguments& args) {

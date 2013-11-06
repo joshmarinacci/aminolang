@@ -85,10 +85,10 @@ amino.startApp(function(core,stage) {
         //console.log(email);
     });
     
-    setTimeout(function() {
-        amino.startTime();
-        lv.setW(300);
-    },1000);
+    setInterval(function() {
+        console.log("resizing");
+        lv.setW(lv.getW()+1);
+    },200);
    
     /*
 	var results = core.runTest({

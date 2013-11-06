@@ -387,9 +387,20 @@ void sendValidate() {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
 }
 
-
+struct DebugEvent {
+    long inputtime;
+    long validatetime;
+    long updatestime;
+    long animationstime;
+    long rendertime;
+    long frametime;
+    long framewithsynctime;
+};
 
 void render() {
+    DebugEvent *de = malloc(sizeof(DebugEvent));
+    long starttime = getTime();
+    
     //process input
     processInput(mouse_fd,MOUSE);
     processInput(key_fd,KEYBOARD);

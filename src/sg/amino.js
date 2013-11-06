@@ -381,7 +381,7 @@ function setupBacon(core) {
     function exitApp() { setTimeout(function() { process.exit(0); },10); };
     function sendValidate() {
         core.fireEvent({ type:"validate", source:core});
-        console.log("total events for this frame = " + debug.eventCount);
+        //console.log("total events for this frame = " + debug.eventCount);
         debug.eventCount = 0;
     }
     
@@ -712,7 +712,6 @@ exports.ComposeObject = function(proto) {
     function generalizeProp(obj, name, prop) {
         obj["set"+camelize(name)] = function(value) {
             obj.set(name,value);
-            this.dirty = true;
             return this;
         };
     }
@@ -871,6 +870,7 @@ exports.ProtoRect = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         if(shortCircuit(this, this.props[name],value)) return;
+        this.dirty = true;
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
@@ -957,6 +957,7 @@ exports.ProtoPoly = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
+        this.dirty = true;
         //mirror the property to the native side
         if(this.live) {
             if(propsHash[name]) {
@@ -1019,6 +1020,7 @@ exports.ProtoGroup = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         if(shortCircuit(this,this.props[name],value)) return;
+        this.dirty = true;
         this.props[name] = value;
         if(name == 'visible') {
             this.props[name] = (value?1:0);
@@ -1121,6 +1123,7 @@ exports.ProtoText = exports.ComposeObject({
     set: function(name, value) {
         if(shortCircuit(this,this.props[name],value)) return;
         this.props[name] = value;
+        this.dirty = true;
         //mirror the property to the native side
         if(this.live) {
             if(name == 'fontName') {
@@ -1213,6 +1216,7 @@ exports.ProtoImageView = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
+        this.dirty = true;
         //mirror the property to the native side
         if(this.live) {
             exports.native.updateProperty(this.handle, name, value);
@@ -1552,7 +1556,7 @@ function Core() {
                     settimer = false;
                 }
                 if(propertyCount > 0) {
-                    console.log("propcount = " + propertyCount);
+                    //console.log("propcount = " + propertyCount);
                 }
                 propertyCount = 0;
             } catch (ex) {

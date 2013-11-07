@@ -421,7 +421,6 @@ void render() {
     double postupdates = getTime();
     de.updatestime = postupdates-postvalidate;
     
-    
     //apply the animations
     for(int j=0; j<anims.size(); j++) {
         anims[j]->update();

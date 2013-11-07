@@ -108,7 +108,7 @@ public:
     EVDispatcher() {
         down = false;
     }
-    virtual void touchStart(float rx, float ry, unsigned int tap_count=0) { 
+    virtual void touchStart(float rx, float ry, unsigned int tap_count=0, double time=0) { 
         if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
         if(down) {
             //printf("touch moving\n");
@@ -116,6 +116,7 @@ public:
             event->Set(String::NewSymbol("type"), String::New("mouseposition"));
             event->Set(String::NewSymbol("x"), Number::New(rx));
             event->Set(String::NewSymbol("y"), Number::New(ry));
+            event->Set(String::NewSymbol("timestamp"), Number::New(time));
             Handle<Value> argv[] = {event};
             NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, argv);
         } else {
@@ -127,11 +128,15 @@ public:
             event->Set(String::NewSymbol("type"), String::New("mouseposition"));
             event->Set(String::NewSymbol("x"), Number::New(rx));
             event->Set(String::NewSymbol("y"), Number::New(ry));
+            event->Set(String::NewSymbol("timestamp"), Number::New(time));
             NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, argv);
             
+            event = Object::New();
+            argv[0] = event;
             event->Set(String::NewSymbol("type"), String::New("mousebutton"));
             event->Set(String::NewSymbol("button"), Number::New(0));
             event->Set(String::NewSymbol("state"), Number::New(1));
+            event->Set(String::NewSymbol("timestamp"), Number::New(time));
             NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, argv);
             
         }
@@ -188,9 +193,29 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
+void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    event->Set(String::NewSymbol("timestamp"), Number::New(getTime()));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
+
+struct DebugEvent {
+    double inputtime;
+    double validatetime;
+    double updatestime;
+    double animationstime;
+    double rendertime;
+    double frametime;
+    double framewithsynctime;
+};
 
 static const bool DEBUG_RENDER_LOOP = false;
 void render() {
+    DebugEvent de;
+    double starttime = getTime();
     double start = getTime();
     if(DEBUG_RENDER_LOOP) {    printf("processing events\n"); }
     if(event_indication) {
@@ -198,36 +223,38 @@ void render() {
         event_process();
     }
     
-    double mid = getTime();
-    if(DEBUG_RENDER_LOOP) { printf("processing updates\n"); }
+    double postinput = getTime();
+    de.inputtime = postinput-starttime;
+
+    sendValidate();
+    double postvalidate = getTime();
+    de.validatetime = postvalidate-postinput;
+    
+
+    int updatecount = updates.size();
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
-    double end = getTime();
+    double postupdates = getTime();
+    de.updatestime = postupdates-postvalidate;
 
 
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+
+    double postanim = getTime();
+    de.animationstime = postanim-postupdates;
+    
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
     make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
-    
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
-    
-//    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
-    
     mul_matrix(modelView,pixelM,m4);
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
@@ -236,25 +263,19 @@ void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     
-    if(DEBUG_RENDER_LOOP) { printf("processing anims\n"); }
-
-    for(int j=0; j<anims.size(); j++) {
-        anims[j]->update();
-    }
-    
-    if(DEBUG_RENDER_LOOP) { printf("processing drawing\n"); }
-
     AminoNode* root = rects[rootHandle];
     SimpleRenderer* rend = new SimpleRenderer();
+    double prerender = getTime();
     rend->startRender(root);
     delete rend;
-    //glfwSwapBuffers();
-    double post = getTime();
-    /*
-    printf("event time = %f   update time = %f   draw time = %f   total %f\n",
-        mid-start,end-mid,post-end, post-start);
-        */
+    double postrender = getTime();
+    de.rendertime = postrender-prerender;
+    de.frametime = postrender-starttime;
     eglSwapBuffers(mEglDisplay, mEglSurface);
+    double postswap = getTime();
+    de.framewithsynctime = postswap-starttime;
+    printf("input = %6.2f validate = %.2f update = %.2f update count %d ",  de.inputtime, de.validatetime, de.updatestime, updatecount);
+    printf("animtime = %.2f render = %.2f frame = %.2f, full frame = %.2f\n", de.animationstime, de.rendertime, de.frametime, de.framewithsynctime);
 }
 
 Handle<Value> runTest(const Arguments& args) {

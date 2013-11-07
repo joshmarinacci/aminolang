@@ -370,6 +370,88 @@ function mapNativeKey(e) {
     }
     
 }
+
+
+var prevmouse = {};
+function processEvent(core,e) {
+    function exitApp() { setTimeout(function() { process.exit(0); },10); };
+    if(e.type == "validate") {
+        core.fireEvent({ type:"validate", source:core});
+        return;
+    }
+    if(e.type == "windowclose") {
+        exitApp();
+        return;
+    }
+    if(e.type == "windowsize") {
+        core.fireEvent({
+                type:"windowsize",
+                source:core.stage,
+                width:e.width,
+                height:e.height,
+        });
+        return;
+    }
+    if(e.type == "mouseposition") {
+        prevmouse.x = mouseState.x;
+        prevmouse.y = mouseState.y;
+        mouseState.x = e.x;
+        mouseState.y = e.y;
+        var dx = (mouseState.x - prevmouse.x);
+        var dy = (mouseState.y - prevmouse.y);
+        if(mouseState.pressed) {
+            var node = mouseState.pressTarget;
+            //console.log("firing: " + (mouseState.x - prevmouse.x));
+            if(node == null) {
+                node = core.findNodeAtXY(mouseState.x,mouseState.y);
+            }
+            if(node != null) {
+                var t1 = process.hrtime();
+	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+                //console.log('globalToLocal time',process.hrtime(t1)[1]/1e6);
+                core.fireEventAtTarget(
+                    node,
+                    {
+                        type:"drag",
+                        pressed:mouseState.pressed,
+                        x:pt.x,
+                        y:pt.y,
+                        dx:dx,
+                        dy:dy,
+	                    point:pt,
+                        target:node,
+                        timestamp:e.timestamp,
+                        time:e.time,
+                    }
+                );
+            }
+        }
+        return;
+    }
+    if(e.type == "mousebutton" && mouseState.pressed) {
+        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+        if(node != null) {
+            mouseState.pressTarget = node;
+            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+            core.fireEventAtTarget(
+                node,
+                {
+                    type:"press",
+                    pressed:mouseState.pressed,
+                    x:pt.x,
+                    y:pt.y,
+                    point:pt,
+                    target:node,
+                    timestamp:e.timestamp,
+                    time:e.time,
+                }
+            );
+        }
+        return;
+    }
+    
+    //console.log(e);
+}
 function setupBacon(core) {
     var bus = new exports.bacon.Bus();
     baconbus = bus;
@@ -397,9 +479,7 @@ function setupBacon(core) {
                 height:e.height,
         });
     });
-    
     bus.filter(typeIs("validate")).onValue(sendValidate);
-        
     bus.filter(typeIs("mousewheelv"))
         .diff(null,function(a,b) { 
             if(!a) {
@@ -425,9 +505,9 @@ function setupBacon(core) {
     
     //mouse presses
     pressStream = bus.filter(typeIs("mousebutton"))
-        .filter(function(e) { return e.state == 1; });
-        //        .onValue(log("mouse pressed"));
-
+            .filter(function(e) { return e.state == 1; })
+            ;
+            
     pressStream.onValue(function(e) {
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {
@@ -514,7 +594,6 @@ function setupBacon(core) {
             });
         });
         
-        
     //mouse releases
     var releaseStream = bus.filter(typeIs("mousebutton"))
         .filter(function(e) { return e.state == 0; });
@@ -538,7 +617,7 @@ function setupBacon(core) {
             }
         }
     });
-        
+
     var swipeStream = bus.filter(typeIs("mouseposition"))
         .filter(mousePressed)
         .slidingWindow(5,2);
@@ -612,7 +691,6 @@ function setupBacon(core) {
         
     });
     
-    
     bus.filter(typeIs("animend"))
         .onValue(core.notifyAnimEnd);
 
@@ -624,7 +702,7 @@ function setupBacon(core) {
             repeatTimeout = setTimeout(repeatKey, 20);
         }
     }
-        
+    
     bus.filter(typeIs("keypress"))
         .onValue(function(e) {
             if(repeatTimeout) {
@@ -682,12 +760,10 @@ exports.ComposeObject = function(proto) {
             comp.promote.forEach(function(propname) {
                 obj["set"+camelize(propname)] = function(value) {
                     //delegate to the nested component
-                    //console.log('delegating ' + propname + ' to ',obj.comps[name]);
                     this.comps[name]["set"+camelize(propname)](value);
                     return this;
                 };
                 obj["get"+camelize(propname)] = function() {
-                    //console.log('delegating ' + propname + ' to ',obj.comps[name]);
                     return this.comps[name]["get"+camelize(propname)]();
                 };
             });
@@ -1508,12 +1584,14 @@ function Core() {
         }
     }
     
+    var self = this;
     this.init = function() {
         exports.native.init(this);
         setupBacon(this);
         exports.native.setEventCallback(function(e) {
             debug.eventCount++;
             e.time = new Date().getTime();
+            var t1 = process.hrtime();
             if(e.type == "mousebutton") {
                 mapNativeButton(e);
                 mouseState.pressed = (e.state == 1);
@@ -1527,7 +1605,14 @@ function Core() {
                 e.width = e.width/Core.DPIScale;
                 e.height = e.height/Core.DPIScale;
             }
-            baconbus.push(e);
+            processEvent(self,e);
+            if(e.type == "mousebutton" ||
+               e.type == "mouseposition") {
+               // console.log('done',e.type,process.hrtime(t1)[1]/1e6);
+            }
+            if(e.type == "validate") {
+               //console.log('done',e.type,process.hrtime(t1)[1]/1e6);
+            }
         });
     }
     
@@ -1538,7 +1623,7 @@ function Core() {
         var size = exports.native.getWindowSize();
         this.stage.width = size.w;
         this.stage.height = size.h;
-        baconbus.push({
+        processEvent(this,{
             type:"windowsize",
             width:size.w,
             height:size.h,
@@ -1586,7 +1671,10 @@ function Core() {
         this.root = node;
     }
     this.findNodeAtXY = function(x,y) {
-        	return this.findNodeAtXY_helper(this.root,x,y);
+        var t1 = process.hrtime();
+        var node = this.findNodeAtXY_helper(this.root,x,y);
+        console.log('search time',process.hrtime(t1)[1]/1e6);
+        return node;
     }
     this.findNodeAtXY_helper = function(root,x,y) {
         if(!root) return null;
@@ -1611,19 +1699,44 @@ function Core() {
         }
         return null;
     }
+    this.prevGlobalToLocal = null;
+    this.prevGlobalToLocalNode = null;
+    function calcGlobalToLocalTransform(node) {
+        if(node.parent) {
+            var trans = calcGlobalToLocalTransform(node.parent);
+            trans.x -= node.getTx();
+            trans.y -= node.getTy();
+            return trans;
+        }
+        return {x:0,y:0};
+    }
     this.globalToLocal = function(pt, node) {
+        var trans = null;
+        if(node == this.prevGlobalToLocalNode) {
+            trans = this.prevGlobalToLocal;
+        } else {
+            trans = calcGlobalToLocalTransform(node);
+            this.prevGlobalToLocalNode = node;
+            this.prevGlobalToLocal = trans;
+        }
+        
+        var pt2 = {
+            x: pt.x-trans.x,
+            y: pt.y-trans.y,
+        }
+//        var pt3 = this.globalToLocal_helper(pt,node);
+//        console.log(pt2,pt3);
+        return pt2;
+    }
+    
+    this.globalToLocal_helper = function(pt, node) {
     	if(node.parent) {
-    		pt =  this.globalToLocal(pt,node.parent);
-            return {
-                x: (pt.x - node.getTx())/node.getScalex(),
-                y: (pt.y - node.getTy())/node.getScaley(),
-            }
-    	} else {
-    	    return {
-                x: (pt.x - node.getTx())/node.getScalex(),
-                y: (pt.y - node.getTy())/node.getScaley(),
-	    	}
-	    }
+    		pt =  this.globalToLocal_helper(pt,node.parent);
+    	}
+        return {
+            x: (pt.x - node.getTx())/node.getScalex(),
+            y: (pt.y - node.getTy())/node.getScaley(),
+        }
     }
     this.localToGlobal = function(pt, node) {
         pt = {
@@ -1663,12 +1776,20 @@ function Core() {
     }
     this.fireEvent = function(event) {
         if(!event.type) { console.log("WARNING. Event has no type!"); }
+        
+        var t1 = process.hrtime();
         if(this.listeners[event.type]) {
-            this.listeners[event.type].forEach(function(l) {
-                    if(l.target == event.source) {
-                        l.func(event);
-                    }
-            });
+            var arr = this.listeners[event.type];
+            var len = arr.length;
+            for(var i=0; i<len; i++) {
+                var listener = arr[i];
+                if(listener.target == event.source) {
+                    listener.func(event);
+                }
+            }
+        }
+        if(event.type == "validate") {
+            //console.log('validate time = ',process.hrtime(t1)[1]/1e6);
         }
     };
     

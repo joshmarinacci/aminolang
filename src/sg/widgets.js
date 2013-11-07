@@ -728,9 +728,7 @@ widgets.ListView = amino.ComposeObject({
         var self = this;
         amino.getCore().on('validate',null,function() {
             if(self.dirty) {
-                //console.time("cells");
                 self.regenerateCells();
-                //console.timeEnd("cells");
                 self.dirty = false;
             }
         });

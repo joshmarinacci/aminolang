@@ -368,12 +368,23 @@ function mapNativeKey(e) {
     
 }
 
-
+exports.dirtylist = [];
+function validateScene() {
+    exports.dirtylist.forEach(function(node) {
+        if(node.dirty == true) {
+            if(node.validate) {
+                node.validate();
+            }
+            node.dirty = false;
+        }
+    });
+    exports.dirtylist = [];
+}
 var prevmouse = {};
 function processEvent(core,e) {
     function exitApp() { setTimeout(function() { process.exit(0); },10); };
     if(e.type == "validate") {
-        core.fireEvent({ type:"validate", source:core});
+        validateScene();
         return;
     }
     if(e.type == "windowclose") {
@@ -1232,7 +1243,7 @@ exports.ProtoText = exports.ComposeObject({
     set: function(name, value) {
         if(shortCircuit(this,this.props[name],value)) return;
         this.props[name] = value;
-        this.dirty = true;
+        this.markDirty();
         //mirror the property to the native side
         if(this.live) {
             if(name == 'fontName') {
@@ -1261,13 +1272,14 @@ exports.ProtoText = exports.ComposeObject({
     },
     init: function() {
         var self = this;
-        exports.getCore().on('validate',null,function() {
-            if(self.dirty) {
-                self.updateFont();
-                exports.native.updateProperty(self.handle, 'text', self.getText());
-                self.dirty = false;
-            }
-        });
+        this.markDirty = function() {
+            this.dirty = true;
+            exports.dirtylist.push(this);
+        }
+        this.validate = function() {
+            this.updateFont();
+            exports.native.updateProperty(this.handle, 'text', this.getText());
+        }
         this.live = true;
         this.handle = exports.native.createText();
         this.updateFont = function() {

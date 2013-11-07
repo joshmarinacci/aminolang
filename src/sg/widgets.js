@@ -106,7 +106,8 @@ widgets.PushButton = amino.ComposeObject({
             return this;
         }
         this.markDirty = function() {
-            self.dirty = true;
+            this.dirty = true;
+            amino.dirtylist.push(this);
         }
         this.doLayout = function() {
             var textw = this.comps.label.font.calcStringWidth(this.getText(),this.getFontSize(),this.getFontWeight(),this.getFontStyle());
@@ -114,12 +115,10 @@ widgets.PushButton = amino.ComposeObject({
             var texth = this.comps.label.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             this.comps.label.setTy(Math.round(this.getH()/2 + texth/2));
         }
-        amino.getCore().on('validate',null,function() {
-            if(self.dirty) {
-                self.doLayout();
-                self.dirty = false;
-            }
-        });
+        this.validate = function() {
+            this.doLayout();
+            this.dirty = false;
+        }
     }
 });
 
@@ -195,7 +194,8 @@ widgets.ToggleButton = amino.ComposeObject({
             
         });
         this.markDirty = function() {
-            self.dirty = true;
+            this.dirty = true;
+            amino.dirtylist.push(this);
         }
         this.setFontSize(15);
         this.doLayout = function() {
@@ -204,12 +204,10 @@ widgets.ToggleButton = amino.ComposeObject({
             var texth = this.comps.label.font.getHeight(this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             this.comps.label.setTy(Math.round(this.getH()/2 + texth/2));
         }
-        amino.getCore().on('validate',null,function() {
-            if(self.dirty) {
-                self.doLayout();
-                self.dirty = false;
-            }
-        });
+        this.validate = function() {
+            this.doLayout();
+            this.dirty = false;
+        }
         /** @func onAction(cb) a function to call when this button fires an action. You can also listen for the 'action' event. */
         this.onAction = function(cb) {
             this.actioncb = cb;
@@ -665,7 +663,7 @@ widgets.ListView = amino.ComposeObject({
             value: "vertical",
             set: function(layout) {
                 this.props.layout = layout;
-                this.setDirty = true;
+                this.markDirty();
                 return this;
             }
         },
@@ -687,7 +685,7 @@ widgets.ListView = amino.ComposeObject({
                 this.props['w'] = w;
                 this.comps.base.setW(w);
                 this.comps.background.setW(w);
-                this.dirty = true;
+                this.markDirty();
                 this.cells.forEach(function(cell) {
                         cell.dirty = true;
                 });
@@ -701,7 +699,7 @@ widgets.ListView = amino.ComposeObject({
                 this.props['h'] = h;
                 this.comps.base.setH(h);
                 this.comps.background.setH(h);
-                this.dirty = true;
+                this.markDirty();
                 return this;
             }
         },
@@ -722,23 +720,25 @@ widgets.ListView = amino.ComposeObject({
         this.setModel = function(model) {
             this.listModel = model;
             this.cells = [];
-            this.dirty = true;
+            this.markDirty();
         }
         
         var self = this;
-        amino.getCore().on('validate',null,function() {
-            if(self.dirty) {
-                self.regenerateCells();
-                self.dirty = false;
-            }
-        });
+        this.markDirty = function() {
+            this.dirty = true;
+            amino.dirtylist.push(this);
+        }
+        this.validate = function() {
+            this.regenerateCells();
+            this.dirty = false;
+        }
         amino.getCore().on("mousewheelv",this,function(e) {
             self.scroll -= e.wheel*2;
             if(self.scroll < 0) self.scroll = 0;
             var max = self.listModel.length*self.getCellHeight() - self.getH();
             if(self.scroll > max) { self.scroll = max; }
             if(max < 0) { self.scroll = 0; }
-            self.dirty = true;
+            self.markDirty();
         });
         amino.getCore().on("drag",this,function(e) {
             self.scroll -= e.dy;
@@ -746,13 +746,13 @@ widgets.ListView = amino.ComposeObject({
             var max = self.listModel.length*self.getCellHeight() - self.getH();
             if(self.scroll > max) { self.scroll = max; }
             if(max < 0) { self.scroll = 0; }
-            self.dirty = true;
+            self.markDirty();
         });
         amino.getCore().on("press",this,function(e) {
             var y = e.y+self.scroll;
             var n = Math.floor(y/self.getCellHeight());
             self.setSelectedIndex(n);
-            self.dirty = true;
+            self.markDirty();
             var event = {type:'select',source:self};
             amino.getCore().fireEvent(event);
         });
@@ -771,7 +771,7 @@ widgets.ListView = amino.ComposeObject({
         this.setCellGenerator = function(cg) {
             this.cg = cg;
             this.cells = [];
-            this.dirty = true;
+            this.markDirty();
             return this;
         }
         
@@ -781,7 +781,7 @@ widgets.ListView = amino.ComposeObject({
         */
         this.setTextCellRenderer = function(textCellRenderer) {
             this.textCellRenderer = textCellRenderer;
-            this.dirty = true;
+            this.markDirty();
             this.cells = [];
             return this;
         }
@@ -922,7 +922,7 @@ widgets.ListView = amino.ComposeObject({
             }
         }
         
-        this.dirty = true;
+        this.markDirty();
     },
 });
 

@@ -400,6 +400,7 @@ function processEvent(core,e) {
         var dx = (mouseState.x - prevmouse.x);
         var dy = (mouseState.y - prevmouse.y);
         if(mouseState.pressed) {
+            //drag events
             var node = mouseState.pressTarget;
             //console.log("firing: " + (mouseState.x - prevmouse.x));
             if(node == null) {
@@ -426,6 +427,14 @@ function processEvent(core,e) {
                 );
             }
         }
+        //move events
+        core.fireEvent({
+            type: "move",
+            x:mouseState.x,
+            y:mouseState.y,
+            point:{x:mouseState.x, y:mouseState.y},
+            source:core,
+        });
         return;
     }
     if(e.type == "mousebutton" && mouseState.pressed) {
@@ -433,8 +442,7 @@ function processEvent(core,e) {
         if(node != null) {
             mouseState.pressTarget = node;
             var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-            core.fireEventAtTarget(
-                node,
+            core.fireEventAtTarget(node,
                 {
                     type:"press",
                     pressed:mouseState.pressed,
@@ -446,6 +454,34 @@ function processEvent(core,e) {
                     time:e.time,
                 }
             );
+        }
+        return;
+    } else {
+        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+        if(node != null) {
+            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+            core.fireEventAtTarget(node,
+                {
+                    type:"release",
+                    pressed:mouseState.pressed,
+                    x:pt.x,
+                    y:pt.y,
+                    point:pt,
+                    target:node,
+                    timestamp:e.timestamp,
+                    time:e.time,
+                }
+            );
+            if(node == mouseState.pressTarget) {
+                core.fireEventAtTarget(node,
+                    {
+                        type:"click",
+                        x:mouseState.x,
+                        y:mouseState.y,
+                        target:node
+                    }
+                    );
+            }
         }
         return;
     }

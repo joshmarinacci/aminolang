@@ -174,7 +174,7 @@ amino.native = {
         this.root.draw(g);
     },
     setImmediate: function(loop) {
-        setTimeout(loop,100);
+        requestAnimationFrame(loop);
     },
     setWindowSize: function(w,h) {
         //NO OP

@@ -164,6 +164,7 @@ amino.native = {
         this.root = root;
     },
     tick: function(core) {
+        this.sendValidate();
         this.processAnims(core);
         var w = this.domcanvas.width;
         var h = this.domcanvas.height;
@@ -190,6 +191,11 @@ amino.native = {
     processAnims: function(core) {
         core.anims.forEach(function(anim) {
             anim.update();
+        });
+    },
+    sendValidate: function() {
+        processEvent(Core._core,{
+            type: "validate"
         });
     }
 };

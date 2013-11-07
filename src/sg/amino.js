@@ -407,7 +407,7 @@ function processEvent(core,e) {
                 node = core.findNodeAtXY(mouseState.x,mouseState.y);
             }
             if(node != null) {
-                var t1 = process.hrtime();
+                //var t1 = process.hrtime();
 	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
                 //console.log('globalToLocal time',process.hrtime(t1)[1]/1e6);
                 core.fireEventAtTarget(
@@ -1627,7 +1627,7 @@ function Core() {
         exports.native.setEventCallback(function(e) {
             debug.eventCount++;
             e.time = new Date().getTime();
-            var t1 = process.hrtime();
+            //var t1 = process.hrtime();
             if(e.type == "mousebutton") {
                 mapNativeButton(e);
                 mouseState.pressed = (e.state == 1);
@@ -1707,9 +1707,9 @@ function Core() {
         this.root = node;
     }
     this.findNodeAtXY = function(x,y) {
-        var t1 = process.hrtime();
+        //var t1 = process.hrtime();
         var node = this.findNodeAtXY_helper(this.root,x,y);
-        console.log('search time',process.hrtime(t1)[1]/1e6);
+        //console.log('search time',process.hrtime(t1)[1]/1e6);
         return node;
     }
     this.findNodeAtXY_helper = function(root,x,y) {
@@ -1813,7 +1813,7 @@ function Core() {
     this.fireEvent = function(event) {
         if(!event.type) { console.log("WARNING. Event has no type!"); }
         
-        var t1 = process.hrtime();
+       // var t1 = process.hrtime();
         if(this.listeners[event.type]) {
             var arr = this.listeners[event.type];
             var len = arr.length;

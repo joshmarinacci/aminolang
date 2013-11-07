@@ -400,6 +400,21 @@ function processEvent(core,e) {
         });
         return;
     }
+    if(e.type == "mousewheelv") {
+        prevmouse.wheelv = mouseState.wheelv;
+        mouseState.wheelv = e.position;
+        var dwv = mouseState.wheelv - prevmouse.wheelv;
+        if(dwv==0) return;
+        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+        if(node != null) {
+            core.fireEventAtTarget(node, {
+                type:"mousewheelv",
+                wheel:dwv,
+                target:node,
+            });
+        }
+        return;
+    }
     if(e.type == "mouseposition") {
         prevmouse.x = mouseState.x;
         prevmouse.y = mouseState.y;

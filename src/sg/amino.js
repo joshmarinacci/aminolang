@@ -3,7 +3,6 @@
 @desc a dummy header to work around a doc generation bug. ignore
 */
 var deps = {
-    'bacon':'./Bacon',
     'fs':'fs',
     'sgtest':"./aminonative.node",
 }
@@ -24,7 +23,6 @@ if(typeof exports == 'undefined'){
 
 
 var fs = jrequire('fs');
-exports.bacon = jrequire('bacon');
 
 var OS = "BROWSER";
 if((typeof process) != 'undefined') {
@@ -224,7 +222,6 @@ var mouseState = {
     downSwipeInProgress:false,
     upSwipeInProgress:false,
  }
-var baconbus = null;
 
 
 //String extension
@@ -1623,7 +1620,6 @@ function Core() {
     var self = this;
     this.init = function() {
         exports.native.init(this);
-        setupBacon(this);
         exports.native.setEventCallback(function(e) {
             debug.eventCount++;
             e.time = new Date().getTime();

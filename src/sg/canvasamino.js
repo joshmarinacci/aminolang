@@ -341,33 +341,52 @@ amino.setupEventHandlers = function() {
     
     attachEvent(dom,'mousedown',function(e){
         mouseState.pressed = true;
-        baconbus.push({type:"mouseposition", x:e.x, y:e.y});
-        baconbus.push({type:"mousebutton", button:0, state:1});
+        processEvent(Core._core,{
+            type:"mouseposition", 
+            x:e.x, 
+            y:e.y,
+        });
+        processEvent(Core._core,{
+            type:"mousebutton", 
+            button:0, 
+            state:1,
+        });
     });
     attachEvent(dom,'mousemove',function(e){
-        baconbus.push({type:"mouseposition", x:e.x, y:e.y});
+        processEvent(Core._core,{
+            type:"mouseposition",
+            x:e.x,
+            y:e.y
+        });
     });
     attachEvent(dom,'mouseup',function(e){
         mouseState.pressed = false;
-        baconbus.push({type:"mouseposition", x:e.x, y:e.y});
-        baconbus.push({type:"mousebutton", button:0, state:0});
+        processEvent(Core._core,{
+            type:"mouseposition",
+            x:e.x, 
+            y:e.y
+        });
+        processEvent(Core._core,{
+            type:"mousebutton", 
+            button:0, 
+            state:0
+        });
     });
     attachEvent(window,'keydown',function(e){
         if(e.metaKey) return;
         e.preventDefault();
         console.log(e);
-        var evt = {
+        processEvent(Core._core,{
                 type:"keypress",
                 keycode: e.keyCode,
                 shift:   e.shiftKey?1:0,
                 control: e.ctrlKey?1:0,
                 system:  e.metaKey?1:0,
-        };
-        baconbus.push(evt);
+        });
     });
     attachEvent(window,'keyup',function(e){
         e.preventDefault();
-        baconbus.push({
+        processEvent(Core._core,{
                 type:"keyrelease",
                 keycode: e.keyCode,
         });
@@ -385,7 +404,6 @@ amino.setupEventHandlers = function() {
     
 }
 
-amino.bacon = Bacon;
 
 amino.setCanvas = function(id) {
     if(!id) throw new Error("ID parameter missing to start app");

@@ -940,6 +940,7 @@ var propsHash = {
     "geometry":24,
     "filled":25,
     "closed":26,
+    "dimension": 36,
     
     //rectangle texture
     "textureLeft":  30,
@@ -949,6 +950,7 @@ var propsHash = {
     
     //clipping
     "cliprect": 34,
+    
    
 }
 
@@ -1074,14 +1076,11 @@ exports.ProtoPoly = exports.ComposeObject({
         scaley: { value: 1 },
         /** @prop visible visible or not. 1 or 0, not true or false */
         visible: { value: 1 },
-        /** @prop w width of the rectangle. default value = 300 */
-        w: { value: 300 },
-        /** @prop h height of the rectangle. default value = 100 */
-        h: { value: 100 },
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
         geometry: { value: [0,0, 50,0, 50,50]},
+        dimension: { value: 2 },
         filled: { value: false },
         closed: { value: true  },
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */

@@ -33,6 +33,9 @@ void SimpleRenderer::render(GLContext* c, AminoNode* root) {
     case RECT:
         this->drawRect(c,(Rect*)root);
         break;
+    case POLY:
+        this->drawPoly(c,(PolyNode*)root);
+        break;
     case TEXT:
         this->drawText(c,(TextNode*)root);
         break;
@@ -150,6 +153,51 @@ void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
     }
 }
 
+void SimpleRenderer::drawPoly(GLContext* ctx, PolyNode* poly) {
+    int len = poly->geometry->size();
+    int dim = poly->dimension;
+    GLfloat verts[len][dim];// = malloc(sizeof(GLfloat[2])*len);
+    for(int i=0; i<len/dim; i++) {
+        verts[i][0] = poly->geometry->at(i*dim);
+        if(dim >=2) {
+            verts[i][1] = poly->geometry->at(i*dim+1);
+        }
+        if(dim >=3) {
+            verts[i][2] = poly->geometry->at(i*dim+2);
+        }
+    }
+    GLfloat colors[len][3];
+    for(int i=0; i<len/dim; i++) {
+        colors[i][0] = 0.0;
+        colors[i][1] = 1.0;
+        colors[i][2] = 1.0;
+    }
+    
+    ctx->useProgram(colorShader->prog);
+    glUniformMatrix4fv(colorShader->u_matrix, 1, GL_FALSE, modelView);
+    glUniformMatrix4fv(colorShader->u_trans,  1, GL_FALSE, ctx->globaltx);
+    glUniform1f(colorShader->u_opacity, poly->opacity);
+    
+    if(poly->opacity != 1.0) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    if(dim == 2) {
+        glVertexAttribPointer(colorShader->attr_pos,   2, GL_FLOAT, GL_FALSE, 0, verts);
+    }
+    if(dim == 3) {
+        glVertexAttribPointer(colorShader->attr_pos,   3, GL_FLOAT, GL_FALSE, 0, verts);
+    }
+    glVertexAttribPointer(colorShader->attr_color, 3, GL_FLOAT, GL_FALSE, 0, colors);
+    glEnableVertexAttribArray(colorShader->attr_pos);
+    glEnableVertexAttribArray(colorShader->attr_color);
+    
+    glDrawArrays(GL_LINE_LOOP, 0, len/dim);
+    
+    glDisableVertexAttribArray(colorShader->attr_pos);
+    glDisableVertexAttribArray(colorShader->attr_color);
+}
 void SimpleRenderer::drawRect(GLContext* c, Rect* rect) {
     c->save();
     float x =  rect->x;

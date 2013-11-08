@@ -282,6 +282,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("setWindowSize"),    FunctionTemplate::New(setWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("getWindowSize"),    FunctionTemplate::New(getWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("createRect"),       FunctionTemplate::New(createRect)->GetFunction());
+    exports->Set(String::NewSymbol("createPoly"),       FunctionTemplate::New(createPoly)->GetFunction());
     exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
     exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());
     exports->Set(String::NewSymbol("createAnim"),       FunctionTemplate::New(createAnim)->GetFunction());

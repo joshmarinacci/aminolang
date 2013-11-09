@@ -30,7 +30,7 @@ exports.WindowView = amino.ComposeObject({
             value: 300,
             set: function(w) {
                 this.props.w = w;
-                this.dirty = true;
+                this.markDirty();
                 this.updateChildrenSizes();
                 return this;
             }
@@ -39,7 +39,7 @@ exports.WindowView = amino.ComposeObject({
             value: 200,
             set: function(h) {
                 this.props.h = h;
-                this.dirty = true;                
+                this.markDirty();
                 this.updateChildrenSizes();
                 return this;
             }
@@ -103,12 +103,9 @@ exports.WindowView = amino.ComposeObject({
             
         }
         
-        amino.getCore().on('validate',null,function() {
-            if(self.dirty) {
-                self.updateChildrenSizes();
-                self.dirty = false;
-            }
-        });
+        this.validate = function() {
+            this.updateChildrenSizes();
+        };
         
         amino.getCore().on("drag",this.comps.grabber,function(e) {
             self.setW(self.getW()+e.dx);
@@ -125,6 +122,10 @@ exports.WindowView = amino.ComposeObject({
             self.setTy(self.getTy()+e.dy);
         });
         
+        this.markDirty = function() {
+            this.dirty = true;
+            amino.dirtylist.push(this);
+        }
 
         this.contains = undefined;
         this.children = [
@@ -143,7 +144,7 @@ exports.WindowView = amino.ComposeObject({
             tab.content = view;
             this.comps.tabholder.add(tab);
             tab.setTx(count*150);
-            this.dirty = true;
+            this.markDirty();
         };
         
         this.addExistingTab = function(tab) {
@@ -159,7 +160,7 @@ exports.WindowView = amino.ComposeObject({
             tab.window = this;
             this.comps.tabholder.add(tab);
             tab.setTx(count*150);
-            this.dirty = true;
+            this.markDirty();
         }
         
         this.layoutTabs = function() {
@@ -185,22 +186,22 @@ exports.WindowView = amino.ComposeObject({
             Global.windows.remove(this);
             var n = Global.windowlist.indexOf(this);
             Global.windowlist.splice(n,1);
-            this.dirty = true;
+            this.markDirty();
         }
         
         this.removeTab = function(tab) {
             this.comps.contents.remove(tab.content);
             this.comps.tabholder.remove(tab);
             this.layoutTabs();
-            this.dirty = true;
+            this.markDirty();
         }
         
         this.raiseContentToFront = function(content) {
             this.comps.contents.raiseToTop(content);
-            this.dirty = true;
+            this.markDirty();
         }
         
-        this.dirty = true;
+        this.markDirty();
     }
 });
 

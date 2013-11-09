@@ -381,7 +381,15 @@ function validateScene() {
     exports.dirtylist = [];
 }
 var prevmouse = {};
+var repeatEvent = null;
+var repeatTimeout = null;
 function processEvent(core,e) {
+    var repeatKey = function() {
+        if(repeatEvent) {
+            core.fireEventAtTarget(core.keyfocus,repeatEvent);
+            repeatTimeout = setTimeout(repeatKey, 20);
+        }
+    }
     function exitApp() { setTimeout(function() { process.exit(0); },10); };
     if(e.type == "validate") {
         validateScene();
@@ -459,6 +467,55 @@ function processEvent(core,e) {
             source:core,
         });
         return;
+    }
+    
+    
+
+
+    if(e.type == "keypress") {
+        
+    
+        if(repeatTimeout) {
+            clearTimeout(repeatTimeout);
+            repeatTimeout = null;
+            repeatEvent = null;
+        }
+        
+            
+        var event = {
+            type:"keypress",
+        }
+        event.keycode = e.keycode;
+        event.shift   = (e.shift == 1);
+        event.system  = (e.system == 1);
+        event.alt     = (e.alt == 1);
+        event.control = (e.control == 1);
+        event.printable = false;
+        event.printableChar = 0;
+        if(KEY_TO_CHAR_MAP[e.keycode]) {
+            event.printable = true;
+            var ch = KEY_TO_CHAR_MAP[e.keycode];
+            if(e.shift == 1) {
+                if(SHIFT_MAP[ch]) {
+                    ch = SHIFT_MAP[ch];
+                }
+            }
+            event.printableChar = ch;
+        }
+        if(core.keyfocus) {
+            event.target = core.keyfocus;
+            repeatTimeout = setTimeout(repeatKey,300)
+            repeatEvent = event;
+            //console.log("firing",event,"at",core.keyfocus);
+            core.fireEventAtTarget(core.keyfocus,event);
+        }
+    }
+    if(e.type == "keyrelease") {
+        if(repeatTimeout) {
+            clearTimeout(repeatTimeout);
+            repeatTimeout = null;
+            repeatEvent = null;
+        }
     }
     if(e.type == "mousebutton" && mouseState.pressed) {
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);

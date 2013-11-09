@@ -12,6 +12,7 @@ var fs = require('fs');
 var ChatApp = require('./ChatApp.js');
 var SettingsApp = require('./Settings.js');
 var ContentView = require('./ContentView.js');
+var os = require('os');
 
 var util = require('util');
 var twitter = require('twitter');
@@ -278,5 +279,8 @@ amino.startApp(function(core, stage) {
         cursor.setTy(e.y+1);
     });
     
-    
+    setInterval(function() {
+        console.log(util.inspect(process.memoryUsage()));
+        console.log(util.inspect(os.cpus()[0]));
+    },2000);
 });

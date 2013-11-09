@@ -97,7 +97,7 @@ exports.openView = function(item) {
         return;
     }
     
-    var view = new WindowView();
+    var view = new WindowView.WindowView();
     view.setFill("#ffffff");
     var text = new widgets.TextField()
         .setText(item.doc.content);

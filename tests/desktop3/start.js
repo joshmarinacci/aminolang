@@ -88,6 +88,38 @@ var apps = [
             return new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer);
         },
     },
+    {
+        title: "Geometry",
+        init: function() {
+            var poly = new amino.ProtoPoly();
+            var cos = function(th) {
+                return Math.cos(th/180.0*Math.PI);
+            }
+            var sin = function(th) {
+                return Math.sin(th/180.0*Math.PI);
+            }
+            
+            var points = [];
+            for(var i=0; i<360*2; i+=2) {
+                points.push(cos(i*5)*100);
+                points.push(sin(i*7)*100);
+                points.push(cos(i)*100);
+            }
+            poly.setGeometry(points);
+            poly.setDimension(3);
+            poly.setTx(200).setTy(200);
+            
+            amino.getCore().createPropAnim(poly,"rotateY",0,360,10000)
+            .setCount(-1);
+            var panel = new widgets.AnchorPanel();
+            panel.setFill("#555555");
+            panel.isApp = function() { return true; }
+            panel.getTitle = function() { return "Geometry"; }
+            panel.add(poly);
+            panel.setW(600).setH(600);
+            return panel;
+        },
+    }
 ];
 
 /*

@@ -94,6 +94,7 @@ public:
     virtual void render(GLContext* c, AminoNode* node);
     virtual void drawGroup(GLContext* c, Group* group);
     virtual void drawRect(GLContext* c, Rect* rect);
+    virtual void drawPoly(GLContext* c, PolyNode* poly);
     virtual void drawText(GLContext* c, TextNode* text);
     virtual ~SimpleRenderer() { }
 };

@@ -12,6 +12,8 @@ var fs = require('fs');
 var ChatApp = require('./ChatApp.js');
 var SettingsApp = require('./Settings.js');
 var ContentView = require('./ContentView.js');
+var OSStatus = require('./OSStatus.js');
+var os = require('os');
 
 var util = require('util');
 var twitter = require('twitter');
@@ -81,6 +83,10 @@ var apps = [
         init: function() {
             return new DocumentQueryFolder("Inbox", doctypes.email, Email.EmailViewCustomizer);
         },
+    },
+    {
+        title: "Status",
+        init: OSStatus.buildApp,
     },
     {
         title: "Music",
@@ -309,6 +315,5 @@ amino.startApp(function(core, stage) {
         cursor.setTx(e.x+1);
         cursor.setTy(e.y+1);
     });
-    
     
 });

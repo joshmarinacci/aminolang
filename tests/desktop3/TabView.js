@@ -70,9 +70,19 @@ exports.TabView = amino.ComposeObject({
             if(broken || self.window.getTabCount() == 1) {
                 //drag the whole window
                 var nx = self.window.getTx()+e.dx;
+                var ny = self.window.getTy()+e.dy;
                 if(nx < 0) nx = 0;
+                if(ny < 0) ny = 0;
+                var sw = amino.getCore().stage.getW();
+                var sh = amino.getCore().stage.getH();
+                if(nx + self.window.getW() > sw) {
+                    nx = sw - self.window.getW();
+                }
+                if(ny + self.window.getH() > sh) {
+                    ny = sh - self.window.getH();
+                }
                 self.window.setTx(nx);
-                self.window.setTy(self.window.getTy()+e.dy);
+                self.window.setTy(ny);
                 
                 var pt = amino.getCore().localToGlobal(e.point,e.target);
                 Global.windowlist.forEach(function(win) {

@@ -511,24 +511,8 @@ function processEvent(core,e) {
     
     //console.log(e);
 }
-function setupBacon(core) {
-    var bus = new exports.bacon.Bus();
-    baconbus = bus;
-    
-    var log = function(str) {return function(v) {console.log(str + " ", v); } }
-    var print = function(str) { return function(v) {  console.log(str);  } }
-    var typeIs = function(name) { return function(e) { return e.type == name; } };
-    
-    function exitApp() { setTimeout(function() { process.exit(0); },10); };
-    function sendValidate() {
-        core.fireEvent({ type:"validate", source:core});
-        //console.log("total events for this frame = " + debug.eventCount);
-        debug.eventCount = 0;
-    }
-    
-    function mousePressed() { return mouseState.pressed; }
-     
-    bus.filter(typeIs("windowclose")).onValue(exitApp);
+//    bus.filter(typeIs("windowclose")).onValue(exitApp);
+/*
     bus.filter(typeIs("windowsize"))
     .onValue(function(e) {
         core.fireEvent({
@@ -538,221 +522,12 @@ function setupBacon(core) {
                 height:e.height,
         });
     });
-    bus.filter(typeIs("validate")).onValue(sendValidate);
-    bus.filter(typeIs("mousewheelv"))
-        .diff(null,function(a,b) { 
-            if(!a) {
-                return 0;
-            } else {
-                return b.position-a.position;
-            }
-        })
-       .filter(function(v) { return v!= 0; })
-       .onValue(function(e) {
-           var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-           if(node != null) {
-                core.fireEventAtTarget(
-                    node,
-                    {
-                        type:"mousewheelv",
-                        wheel:e,
-                        target:node,
-                    }
-                );
-           }
-       });
-    
-    //mouse presses
-    pressStream = bus.filter(typeIs("mousebutton"))
-            .filter(function(e) { return e.state == 1; })
-            ;
-            
-    pressStream.onValue(function(e) {
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            mouseState.pressTarget = node;
-            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-            core.fireEventAtTarget(
-                node,
-                {
-                    type:"press",
-                    pressed:mouseState.pressed,
-                    x:pt.x,
-                    y:pt.y,
-                    point:pt,
-                    target:node,
-                }
-            );
-        }
-    });
-    
-    //mouse drags
-    bus.filter(typeIs("mouseposition"))
-        .onValue(function(e) {
-            mouseState.x = e.x;
-            mouseState.y = e.y;
-            core.fireEvent({
-                    type: "move",
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    point:{x:mouseState.x, y:mouseState.y},
-                    source:core,
-            });
-        });
-    var diffstream = bus.filter(typeIs("mouseposition"))
-        .diff(null,function(a,b) { 
-            if(!a) {
-                return {dx:0,dy:0,dtime:new Date().getTime()};
-            } else {
-                return {dx:b.x-a.x,dy:b.y-a.y, dtime: b.time-a.time};
-            }
-        });
-        
-    bus.filter(typeIs("mouseposition"))
-        .zip(diffstream,function(a,b) {
-                a.dx = b.dx;
-                a.dy = b.dy;
-                a.dtime = b.dtime;
-                return a;
-        })
-        .filter(function(e) {
-                return !(mouseState.downSwipeInProgress || mouseState.upSwipeInProgress);
-        })
-        .filter(mousePressed)
-        .onValue(function(e) {
-            var node = mouseState.pressTarget;
-            if(node == null) {
-                node = core.findNodeAtXY(mouseState.x,mouseState.y);
-            }
-            if(node != null) {
-	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-                core.fireEventAtTarget(
-                    node,
-                    {
-                        type:"drag",
-                        pressed:mouseState.pressed,
-                        x:pt.x,
-                        y:pt.y,
-                        dx:e.dx,
-                        dy:e.dy,
-	                    point:pt,
-                        target:node,
-                    }
-                );
-            }
-            core.fireEvent({
-                    type: "drag",
-                    type:"drag",
-                    pressed:mouseState.pressed,
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    dx:e.dx,
-                    dy:e.dy,
-                    point:{x:mouseState.x, y:mouseState.y},
-                    source:core,
-            });
-        });
-        
-    //mouse releases
-    var releaseStream = bus.filter(typeIs("mousebutton"))
-        .filter(function(e) { return e.state == 0; });
-        //        .onValue(log("mouse released"));
-    releaseStream.onValue(function(e) {
-        mouseState.downSwipeInProgress = false;
-        mouseState.upSwipeInProgress = false;
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            core.fireEventAtTarget(
-                node,
-                {
-                    type:"release",
-                    pressed:mouseState.pressed,
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    target:node,
-                }
-            );
-            if(mouseState.pressTarget == node) {
-            }
-        }
-    });
-
-    var swipeStream = bus.filter(typeIs("mouseposition"))
-        .filter(mousePressed)
-        .slidingWindow(5,2);
-        
-    var downSwipe = swipeStream
-        //make sure it y starts < 10
-        .filter(function(e) { return e[0].y < 10; })
-        .onValue(function(e) {
-            if(!mouseState.downSwipeInProgress) {
-                mouseState.downSwipeInProgress = true;
-                core.fireEvent({
-                    type:"edgeswipestart",
-                    direction:'down',
-                    source:core,
-                    x:e.x,
-                    y:e.y,
-                });
-            }
-        });
-    var upSwipe = swipeStream
-        .filter(function(e) { return e[0].y > core.stage.getH()-10; })
-        .onValue(function(e) {
-            if(!mouseState.upSwipeInProgress) {
-                mouseState.upSwipeInProgress = true;
-                core.fireEvent({
-                    type:"edgeswipestart",
-                    direction:'up',
-                    source:core,
-                    x:e.x,
-                    y:e.y,
-                });
-            }
-        });
-        
-    //issue swipe events
-    bus.filter(typeIs("mouseposition"))
-        .filter(function(e) { return mouseState.downSwipeInProgress || mouseState.upSwipeInProgress; })
-        .onValue(function(e) {
-            var dir = "down";
-            if(mouseState.upSwipeInProgress) dir = "up";
-            core.fireEvent({
-                type:"edgeswipedrag",
-                direction:dir,
-                source:core,
-                x:e.x,
-                y:e.y,
-            });
-        });
-        
-    //mouse clicks
-    clickStream = bus.filter(typeIs("mousebutton"))
-        .slidingWindow(2,2)
-        .filter(function(a) {
-                return (a[0].state == 1 && a[1].state == 0);
-        });
-        //    clickStream.onValue(log("mouse clicked"));
-    clickStream.onValue(function(e) {
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node && node == mouseState.pressTarget) {
-            core.fireEventAtTarget(node,
-                {
-                    type:"click",
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    target:node
-                }
-                );
-                    
-        }
-        mouseState.pressTarget = null;
-        
-    });
-    
+    */
+    /*
     bus.filter(typeIs("animend"))
         .onValue(core.notifyAnimEnd);
-
+        */
+/*
     var repeatEvent = null;
     var repeatTimeout = null;
     var repeatKey = function() {
@@ -807,7 +582,7 @@ function setupBacon(core) {
             }
         });
 }
-
+*/
 
 /** 
 @func ComposeObject transform the supplied prototype object into a constructor that can then be invoked with 'new'
@@ -1757,8 +1532,6 @@ function Core() {
         }
         return null;
     }
-    this.prevGlobalToLocal = null;
-    this.prevGlobalToLocalNode = null;
     function calcGlobalToLocalTransform(node) {
         if(node.parent) {
             var trans = calcGlobalToLocalTransform(node.parent);
@@ -1766,24 +1539,14 @@ function Core() {
             trans.y -= node.getTy();
             return trans;
         }
-        return {x:0,y:0};
+        return {x:-node.getTx(),y:-node.getTy()};
     }
     this.globalToLocal = function(pt, node) {
-        var trans = null;
-        if(node == this.prevGlobalToLocalNode) {
-            trans = this.prevGlobalToLocal;
-        } else {
-            trans = calcGlobalToLocalTransform(node);
-            this.prevGlobalToLocalNode = node;
-            this.prevGlobalToLocal = trans;
-        }
-        
+        var trans = calcGlobalToLocalTransform(node);
         var pt2 = {
-            x: pt.x-trans.x,
-            y: pt.y-trans.y,
+            x: pt.x+trans.x,
+            y: pt.y+trans.y,
         }
-//        var pt3 = this.globalToLocal_helper(pt,node);
-//        console.log(pt2,pt3);
         return pt2;
     }
     

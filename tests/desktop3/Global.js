@@ -97,12 +97,12 @@ exports.openView = function(item) {
         return;
     }
     
-    var view = new WindowView.WindowView();
+    var view = new ContentView.ContentView();
     view.setFill("#ffffff");
     var text = new widgets.TextField()
         .setText(item.doc.content);
     view.comps.contents.add(text);
-    var winview = new WindowView();
+    var winview = new WindowView.WindowView();
     winview.addTab(view,item.getTitle());
     exports.windows.add(winview);
     

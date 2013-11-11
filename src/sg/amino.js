@@ -412,6 +412,9 @@ function processEvent(core,e) {
         prevmouse.wheelv = mouseState.wheelv;
         mouseState.wheelv = e.position;
         var dwv = mouseState.wheelv - prevmouse.wheelv;
+        if(OS == "RPI") {
+            dwv = e.position;
+        }
         if(dwv==0) return;
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {

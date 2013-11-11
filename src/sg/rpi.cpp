@@ -333,6 +333,16 @@ static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
     Handle<Value> event_argv[] = {event_obj};
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
 }
+
+static void GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(int wheel) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousewheelv"));
+    event_obj->Set(String::NewSymbol("position"), Number::New(wheel));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
 int KEYBOARD = 5061;
 int MOUSE    = 5062;
 
@@ -362,6 +372,10 @@ void processInput(int fd, int type) {
             if(mouse_y > height) { mouse_y = height; }
             //printf("mouse moved to: %d %d\n", mouse_x, mouse_y);
             GLFW_MOUSE_POS_CALLBACK_FUNCTION(mouse_x, mouse_y);
+        }
+        //mouse wheel
+        if(ev[i].type == EV_REL && ev[i].code == 8) {
+            GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(ev[i].value);
         }
         
         if(ev[i].type == EV_KEY) {

@@ -335,10 +335,16 @@ widgets.Label = amino.ComposeObject({
         text: {
             proto: amino.ProtoText,
             /** @prop text  the text of this label */
+            /** @prop fontSize  the text of this label */
+            /** @prop fill  the text of this label */
+            /** @prop fontName  the text of this label */
+            /** @prop fontWeight  the text of this label */
+            /** @prop fontStyle  the text of this label */
             promote: ['text','fontSize','fill','fontName','fontWeight','fontStyle'],
         }
     },
     props: {
+        /** @prop w the width of this label. Used for alignment and hit detection */
         w: {
             value: 50,
             set: function(w) {
@@ -347,6 +353,7 @@ widgets.Label = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop h the height of this label. Used for alignment and hit detection */
         h: {
             value: 30,
             set: function(h) {
@@ -355,6 +362,7 @@ widgets.Label = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop align the horizontal alignment of this label. Can be 'left', 'right', or 'center' */
         align: {
             value: 'left',
             set: function(align) {
@@ -363,6 +371,7 @@ widgets.Label = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop valign the vertical alignment of this label. Can be 'top', 'bottom', or 'center' */
         valign: {
             value: "center",
             set: function(valign) {
@@ -418,6 +427,7 @@ widgets.AnchorPanel = amino.ComposeObject({
         }
     },
     props: {
+        /** @prop w the width of this anchor panel. Used for positioning the children. */
         w: {
             value: 300,
             set: function(w) {
@@ -427,6 +437,7 @@ widgets.AnchorPanel = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop h the height of this anchor panel. Used for positioning the children. */
         h: {
             value: 300,
             set: function(h) {
@@ -514,6 +525,9 @@ widgets.VerticalPanel = amino.ComposeObject({
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop w the width of this panel */
+            /** @prop h the height of this panel */
+            /** @prop fill color of this panel */
             promote: ['w','h','fill'],
         }
     },
@@ -555,9 +569,8 @@ widgets.VerticalPanel = amino.ComposeObject({
 });
 
 /**
-@class VerticalPanel
-@desc A panel which lays out it's children in a vertical box. All children will be given the width
-of the panel, minus pading.
+@class HorizontalPanel
+@desc A panel which lays out it's children in a horizontal  box. All children will be given the height of the panel, minus pading.
 */
 widgets.HorizontalPanel = amino.ComposeObject({
     type:"HorizontalPanel",
@@ -565,6 +578,9 @@ widgets.HorizontalPanel = amino.ComposeObject({
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop w the width of this panel */
+            /** @prop h the height of this panel */
+            /** @prop fill color of this panel */
             promote: ['w','h','fill'],
         }
     },
@@ -608,8 +624,7 @@ widgets.HorizontalPanel = amino.ComposeObject({
 
 /**
 @class ListViewCell
-@desc A panel which lays out it's children in a vertical box. All children will be given the width
-of the panel, minus pading.
+@desc A default cell for ListView. It has a background, size, and a single text label. 
 */
 widgets.ListViewCell = amino.ComposeObject({
     type: "ListViewCell",
@@ -617,6 +632,9 @@ widgets.ListViewCell = amino.ComposeObject({
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop w the width of this cell */
+            /** @prop h the height of this cell */
+            /** @prop fill color of this cell */
             promote: ['w','h','fill'],
         },
         label: {
@@ -647,6 +665,9 @@ widgets.ListView = amino.ComposeObject({
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop w the width of this ListView */
+            /** @prop h the height of this ListView */
+            /** @prop fill color of this ListView */
             promote: ['w','h','fill'],
         },
         cellholder: {
@@ -658,7 +679,7 @@ widgets.ListView = amino.ComposeObject({
         cellHeight: { value: 32 },
         /** @prop cellWidth the width of cells. Not currently used. */
         cellWidth: { value: 32 },
-        /** @prop layout the layout orientaiton of this list view. Currently only 'vertical' and 'flow' is supported. */
+        /** @prop layout the layout orientation of this list view. Currently only 'vertical' and 'flow' are supported. */
         layout: { 
             value: "vertical",
             set: function(layout) {
@@ -717,6 +738,7 @@ widgets.ListView = amino.ComposeObject({
         this.scroll = 0;
         this.dirty = false;
         
+        /** @func setModel(model) sets a new model for this list. Should be an array */
         this.setModel = function(model) {
             this.listModel = model;
             this.cells = [];
@@ -1755,12 +1777,17 @@ function TextControl() {
     }
 }
 
+/**
+@class TextField
+@desc An box holding editable text. It holds a single line of text by default.
+*/
 widgets.TextField = amino.ComposeObject({
     text: "TextField",
     extend: amino.ProtoWidget,
     comps: {
         background: {
             proto: amino.ProtoRect,
+            /** @prop fill the fill color of this text field */
             promote: ['w','h','fill'],
         },
         cursor: {
@@ -1768,10 +1795,12 @@ widgets.TextField = amino.ComposeObject({
         },
         text: {
             proto: amino.ProtoText,
+            /** @prop text the text of this text field */
             promote: ['text'],
         },
     },
     props: {
+        /** @prop w the width of this text field */
         w: {
             value: 100,
             set: function(w) {
@@ -1781,6 +1810,7 @@ widgets.TextField = amino.ComposeObject({
                 return this;
             },
         },
+        /** @prop h the height of this text field */
         h: {
             value: 30,
             set: function(h) {
@@ -1790,6 +1820,7 @@ widgets.TextField = amino.ComposeObject({
                 return this;
             }
         },
+        /** @prop fontSize the font size of this text field */
         fontSize: {
             value: 15,
             set: function(fontSize) {
@@ -1886,6 +1917,10 @@ widgets.TextField = amino.ComposeObject({
     }
 });
 
+/**
+@class SoftKeyboard
+@desc A software keyboard for use on mobile devices without physical keyboards.
+*/
 widgets.SoftKeyboard = amino.ComposeObject({
     type:"SoftKeyboard",
     extend: amino.ProtoWidget,

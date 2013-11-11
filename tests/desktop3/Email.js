@@ -27,6 +27,7 @@ exports.EmailListViewCell = amino.ComposeObject({
         this.comps.base.add(this.comps.line);
         
         this.comps.from.setText("from")
+            .setId("from")
             .setFill("#3498db")
             .setFontWeight(600)
             .setTx(8).setTy(22)
@@ -34,6 +35,7 @@ exports.EmailListViewCell = amino.ComposeObject({
         this.comps.base.add(this.comps.from);
 
         this.comps.subject.setText("subject")
+            .setId("subject")
             .setTx(8).setTy(42)
             .setFontSize(15);
         this.comps.base.add(this.comps.subject);
@@ -50,8 +52,11 @@ exports.EmailViewCustomizer = function(view,folder) {
     var lv = new widgets.ListView()
         .setFill("#ffffff")
         .setCellHeight(80)
+        .setId("EmailListView")
         ;
     view.comps.contents.add(lv);
+    lv.parent = view.comps.contents;
+
     
     lv.setModel(folder.getItems());
     lv.setCellGenerator(function() { return new exports.EmailListViewCell(); });
@@ -62,6 +67,9 @@ exports.EmailViewCustomizer = function(view,folder) {
         cell.comps.subject.setText(item.doc.subject.substring(0,30));
         cell.comps.desc.setText(item.doc.body.substring(0,50));
         cell.comps.background.setFill("#fffffa");
+        if(index == lv.getSelectedIndex()) {
+            cell.comps.background.setFill("#aaaafa");
+        }
         cell.comps.line.setFill("#f1ebeb");
         cell.comps.line.setH(1);
         cell.comps.line.setW(cell.getW());

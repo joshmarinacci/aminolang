@@ -237,7 +237,7 @@ amino.startApp(function(core, stage) {
     music.windoww = 300;
     music.windowh = 300;
         
-    root = new amino.ProtoGroup();
+    root = new amino.ProtoGroup().setId("root");
     stage.setRoot(root);
 //    Global.root = root;
     
@@ -273,7 +273,7 @@ amino.startApp(function(core, stage) {
     desktopview.comps.background.setVisible(false);
     
     
-    Global.windows = new amino.ProtoGroup();
+    Global.windows = new amino.ProtoGroup().setId("WindowsGroup");
     root.add(Global.windows);
     var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
         .setW(110).setH(30).setTx(5).setTy(150);

@@ -399,6 +399,13 @@ var repeatTimeout = null;
 var keyState = {
     shift:false,
 };
+function dumpToParent(node,inset) {
+    console.log(inset + "type = " + node.type + " " + node.getTx() + " " + node.getTy());
+    if(node.getId) { console.log(inset + "     id = " + node.getId()); }
+    if(node.parent) {
+        dumpToParent(node.parent, inset+"  ");
+    }
+}
 function processEvent(core,e) {
     var repeatKey = function() {
         if(repeatEvent) {
@@ -540,6 +547,7 @@ function processEvent(core,e) {
             repeatEvent = null;
         }
     }
+    
     if(e.type == "mousebutton" && mouseState.pressed) {
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {
@@ -949,6 +957,7 @@ exports.ProtoGroup = exports.ComposeObject({
         w: { value: 100 },
         h: { value: 100 },
         cliprect: { value: 0 },
+        id: { value: "no id" },
     },
     //replaces all setters
     set: function(name, value) {
@@ -1050,7 +1059,8 @@ exports.ProtoText = exports.ComposeObject({
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
         fill: {
             value: '#000000', 
-        }
+        },
+        id: { value: 'no id' },
     },
     //replaces all setters
     set: function(name, value) {

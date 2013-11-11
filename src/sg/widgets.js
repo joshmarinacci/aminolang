@@ -1159,6 +1159,7 @@ function TextView() {
     this.w = 0;
     this.lineheight = 50;
     this.endLine = function(n) {
+        var linegap = this.lineheight * 0.5;
         this.run.end = n+1;
         this.line.end = n+1;
         this.line.runs.push(this.run);
@@ -1166,7 +1167,7 @@ function TextView() {
         this.line.h = this.lineheight;
         this.line.w = this.control.getW();
         this.line = new LineBox();
-        this.y+= this.lineheight;
+        this.y+= (this.lineheight + linegap);
         this.line.y = this.y;
         this.line.start = n+1;
         this.run = new RunBox();
@@ -1179,8 +1180,7 @@ function TextView() {
         if(!this.font) return;
         this.lines = [];
         
-        this.lineheight = this.font.getHeight(this.getFontSize(),this.getFontWeight())*this.font.scale;
-        //this.lineheight = this.font.json.height*this.font.scale;
+        this.lineheight = this.font.getHeight(this.getFontSize(),this.getFontWeight());
         
         var n = 0;
         this.w = 0;
@@ -1220,7 +1220,7 @@ function TextView() {
         
         /*
         this.lines.forEach(function(line) {
-            //console.log("line");
+            console.log("line " + line.x + "," + line.y, line.h);
             line.runs.forEach(function(run) {
                 console.log("   "+run.toString());
             });
@@ -1793,10 +1793,8 @@ widgets.TextField = amino.ComposeObject({
         cursor: {
             proto: amino.ProtoRect,
         },
-        text: {
-            proto: amino.ProtoText,
-            /** @prop text the text of this text field */
-            promote: ['text'],
+        texts: {
+            proto: amino.ProtoGroup,
         },
     },
     props: {
@@ -1806,7 +1804,7 @@ widgets.TextField = amino.ComposeObject({
             set: function(w) {
                 this.props['w'] = w;
                 this.comps.background.setW(w);
-                this.tc.setW(w);
+                this.tc.setW(w-3*2); //inset
                 return this;
             },
         },
@@ -1824,8 +1822,16 @@ widgets.TextField = amino.ComposeObject({
         fontSize: {
             value: 15,
             set: function(fontSize) {
-                this.props['fontSize'] = fs;
-                this.tc.setFontSize(fs);
+                this.props['fontSize'] = fontSize;
+                this.tc.setFontSize(fontSize);
+                return this;
+            }
+        },
+        wrapping: {
+            value: false,
+            set: function(wrapping) {
+                this.props['wrapping'] = wrapping;
+                this.tc.setWrapping(wrapping);
                 return this;
             }
         }
@@ -1833,9 +1839,9 @@ widgets.TextField = amino.ComposeObject({
     init: function() {
         this.tc = new TextControl();
         this.comps.base.add(this.comps.background);
-        this.comps.base.add(this.comps.text);
+        this.comps.base.add(this.comps.texts);
         this.comps.base.add(this.comps.cursor);
-        this.comps.text.setTy(20);
+        this.comps.texts.setTy(5).setTx(3); //inset
         this.comps.cursor.setW(2).setH(20);
         this.comps.background.setH(30);
         this.setH(30);
@@ -1880,18 +1886,40 @@ widgets.TextField = amino.ComposeObject({
             var chx = 0;
             if(self.tc.cursor.bias == self.tc.cursor.FORWARD && ch.width)  { chx = ch.width; }
             if(self.tc.cursor.bias == self.tc.cursor.BACKWARD) { }
-            self.comps.cursor.setTx(pos.x+chx);
+            self.comps.cursor.setTx(pos.x+chx+3);
+            self.comps.cursor.setTy(pos.y+5);
         }
         this.tc.view.layout = function() {
+            var texts = self.comps.texts.children;
             self.tc.view.font = self.font;
+            //invoke the old layout routines
             oldlayout.call(self.tc.view);
+            //now change the text primitives to match the layout
             if(!this.lines || this.lines.length < 1) return;
-            var line = this.lines[0];
-            if(!line.runs || line.runs.length < 1) return;
-            var run = line.runs[0];
-            self.comps.text.setText(run.model.text.substring(run.start, run.end));
+            
+            var l = 0;
+            while(l < this.lines.length) {
+                var line = this.lines[l];
+                if(!line.runs || line.runs.length < 1) continue;
+                var run = line.runs[0];
+                if(texts.length-1 < l) {
+                    self.comps.texts.add(new amino.ProtoText());
+                }
+                var text = self.comps.texts.children[l];
+                text.setTy(Math.floor(line.y + line.h));
+                text.setFontSize(self.getFontSize());
+                text.setVisible(1);
+                text.setText(run.model.text.substring(run.start, run.end));                
+                l++;
+            }
+            if(texts.length > l) {
+                for(var i=l; i<texts.length; i++) {
+                    texts[i].setVisible(0);
+                }
+            }
             var pos = this.indexToXY(this.control.cursor.index);
-            self.comps.cursor.setTx(pos.x);
+            self.comps.cursor.setTx(pos.x+3);
+            self.comps.cursor.setTy(pos.y+5);
         }
         this.setText = function(text) {
             this.tc.model.setText(text);
@@ -1903,7 +1931,7 @@ widgets.TextField = amino.ComposeObject({
                 var event = {type:'change',source:self, name:'text', text:self.tc.model.getText()};
                 amino.getCore().fireEvent(event);
             },
-        });
+        });        
         this.setText("a text field");
         this.tc.setWrapping(false);
         
@@ -1912,8 +1940,7 @@ widgets.TextField = amino.ComposeObject({
             this.tc.cursor.advanceChar(+str.length);
         }
         
-        this.tc.setFontSize(15);
-        this.comps.text.setFontSize(15);
+        this.setFontSize(15);
     }
 });
 

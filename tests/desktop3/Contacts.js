@@ -25,8 +25,18 @@ exports.ContactsViewCustomizer = function(view,folder) {
     panel.add(new widgets.Label().setText('address')
         .setAnchorRight(true).setRight(230)
         .setAnchorTop(true).setTop(70));
+    var name = new widgets.Label().setText("----")
+        .setAnchorRight(true).setRight(130)
+        .setAnchorTop(true).setTop(10)
+        ;
+    panel.add(name);
         
     
+    amino.getCore().on("select",lv,function(e) {
+        var n = e.source.getSelectedIndex();
+        var item = folder.getItems()[n];
+        name.setText(item.doc.firstname + " " + item.doc.lastname);
+    });
     
     view.comps.toolbar
         .add(

@@ -13,7 +13,10 @@ exports.DocMetaEditor = function(item) {
         var value = item.doc[key];
         panel.add(new widgets.TextField().setText(value));
     }
-//    panel.add(
+    
+    panel.add(new widgets.PushButton()
+            .setText("Save").setW(100).setH(30));
+            
     return panel;
     
 }

@@ -125,7 +125,16 @@ var apps = [
             panel.setW(600).setH(600);
             return panel;
         },
-    }
+    },
+    {
+        title: "New Text Doc",
+        init: function() {
+            return new TextDocumentItem("foo",{
+                    title:"footitle",
+                  content:"asdf",
+            });
+        },
+    },
 ];
 
 /*
@@ -170,7 +179,7 @@ function DocumentItem(doc) {
 
 function TextDocumentItem(title,contents) {
     this.title    = title;
-    this.contents = contents;
+    this.doc = contents;
     this.type     = 'text';
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return false; }

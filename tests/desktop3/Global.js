@@ -99,8 +99,9 @@ exports.openView = function(item) {
     
     var view = new ContentView.ContentView();
     view.setFill("#ffffff");
-    var text = new widgets.TextField()
-        .setText(item.doc.content);
+    var text = new widgets.TextField().setText(item.doc.content);
+    text.tc.setWrapping(true);
+    text.setH(300);
     view.comps.contents.add(text);
     var winview = new WindowView.WindowView();
     winview.addTab(view,item.getTitle());

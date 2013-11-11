@@ -1,5 +1,7 @@
 
 #include "base.h"
+//#include "AbstractRenderer.h"
+#include "SimpleRenderer.h"
 #include "bcm_host.h"
 #include <linux/input.h>
 
@@ -29,27 +31,10 @@ static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
 static float near = 150;
 static float far = -300;
 static float eye = 600;
-//1000,250,-500
-//far = -eye/2.  near = -far/2;  ex: 800,200,-400.
-//400+200+600 = 1200
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
+
+
 
 /*
-static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
-    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
-    Local<Object> event_obj = Object::New();
-    if(action == 1) {
-        event_obj->Set(String::NewSymbol("type"), String::New("keypress"));
-    }
-    if(action == 0) {
-        event_obj->Set(String::NewSymbol("type"), String::New("keyrelease"));
-    }
-    event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
-    Handle<Value> event_argv[] = {event_obj};
-    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
-}
-
-
 static void GLFW_MOUSE_POS_CALLBACK_FUNCTION(int x, int y) {
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
@@ -186,6 +171,8 @@ static void init_ogl(PWindow *state)
 
 const char* mouse_device = "/dev/input/event0";
 int mouse_fd;
+const char* key_device   = "/dev/input/event1";
+int key_fd;
 
 void init_mouse() {
     char name[256] = "Unknown";
@@ -206,7 +193,21 @@ void init_mouse() {
 }
 
 void init_keyboard() {
+    char name[256] = "Unknown";
     printf("initting the keyboard\n");
+
+    if((getuid()) != 0) {
+        printf("you are not root. this might not work\n");
+    }
+    if((key_fd = open(key_device, O_RDONLY | O_NONBLOCK)) == -1) {
+        printf("this is not a valid device\n",key_device);
+        exit(0);
+    }
+    
+    ioctl(key_fd, EVIOCGNAME(sizeof (name)), name);
+    printf("Reading from: %s (%s)\n", key_device,name);
+    ioctl(key_fd, EVIOCGPHYS(sizeof (name)), name);
+    printf("Location %s (%s)\n", key_device,name);
 }
 
 Handle<Value> init(const Arguments& args) {
@@ -260,8 +261,8 @@ Handle<Value> setWindowSize(const Arguments& args) {
     HandleScope scope;
     int w  = args[0]->ToNumber()->NumberValue();
     int h  = args[1]->ToNumber()->NumberValue();
-    width = w;
-    height = h;
+//    width = w;
+//    height = h;
     printf("pretending to set the window size to: %d %d\n",width,height);
     return scope.Close(Undefined());
 }
@@ -305,11 +306,51 @@ static void GLFW_MOUSE_POS_CALLBACK_FUNCTION(int x, int y) {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
 }
 
-void processInput() {
+static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    if(action == 0) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keyrelease"));
+    }
+    if(action == 1) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keypress"));
+    }
+    if(action == 2) {
+        event_obj->Set(String::NewSymbol("type"), String::New("keyrepeat"));
+    }
+    event_obj->Set(String::NewSymbol("keycode"), Number::New(key));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+
+static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousebutton"));
+    event_obj->Set(String::NewSymbol("button"), Number::New(button));
+    event_obj->Set(String::NewSymbol("state"), Number::New(state));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+static void GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(int wheel) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousewheelv"));
+    event_obj->Set(String::NewSymbol("position"), Number::New(wheel));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
+
+int KEYBOARD = 5061;
+int MOUSE    = 5062;
+
+void processInput(int fd, int type) {
     int size = sizeof(struct input_event);
     struct input_event ev[64];
 //    printf("processing input\n");
-    int rd = read(mouse_fd, ev, size*64);
+    int rd = read(fd, ev, size*64);
     if(rd == -1) return;
     if(rd < size) {
         printf("read too little!!!  %d\n",rd);
@@ -325,54 +366,110 @@ void processInput() {
             if(ev[i].code == 1) {
                 mouse_y += ev[i].value;
             }
-            printf("mouse moved to: %d %d\n", mouse_x, mouse_y);
+            if(mouse_x < 0) mouse_x = 0;
+            if(mouse_y < 0) mouse_y = 0;
+            if(mouse_x > width)  { mouse_x = width;  }
+            if(mouse_y > height) { mouse_y = height; }
+            //printf("mouse moved to: %d %d\n", mouse_x, mouse_y);
             GLFW_MOUSE_POS_CALLBACK_FUNCTION(mouse_x, mouse_y);
+        }
+        //mouse wheel
+        if(ev[i].type == EV_REL && ev[i].code == 8) {
+            GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(ev[i].value);
+        }
+        
+        if(ev[i].type == EV_KEY) {
+            //printf("key or button pressed code = %d, state = %d\n",ev[i].code, ev[i].value);
+            if(type == MOUSE) {
+                //emit mouse event
+                GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(ev[i].code,ev[i].value);
+            }
+            if(type == KEYBOARD) {
+                //emit keyboard event
+                GLFW_KEY_CALLBACK_FUNCTION(ev[i].code, ev[i].value);
+            }
+            
         }
     }
 }
-void render() {
-    processInput();
 
+void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
+
+struct DebugEvent {
+    double inputtime;
+    double validatetime;
+    double updatestime;
+    double animationstime;
+    double rendertime;
+    double frametime;
+    double framewithsynctime;
+};
+
+void render() {
+    DebugEvent de;
+    double starttime = getTime();
+    
+    //process input
+    processInput(mouse_fd,MOUSE);
+    processInput(key_fd,KEYBOARD);
+    double postinput = getTime();
+    de.inputtime = postinput-starttime;
+    
+    //send the validate event
+    sendValidate();
+    double postvalidate = getTime();
+    de.validatetime = postvalidate-postinput;
+    
+    int updatecount = updates.size();
+    //apply the processed updates
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
+    double postupdates = getTime();
+    de.updatestime = postupdates-postvalidate;
     
+    //apply the animations
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+    double postanim = getTime();
+    de.animationstime = postanim-postupdates;
+
+    //set up the viewport
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
     make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
-    
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
-    
-    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
-    
     mul_matrix(modelView,pixelM,m4);
-    
-    
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    for(int j=0; j<anims.size(); j++) {
-        anims[j]->update();
-    }
     AminoNode* root = rects[rootHandle];
-    root->draw();
+    SimpleRenderer* rend = new SimpleRenderer();
+    double prerender = getTime();
+    rend->startRender(root);
+    delete rend;
+    double postrender = getTime();
+    de.rendertime = postrender-prerender;
+    de.frametime = postrender-starttime;
     eglSwapBuffers(state->display, state->surface);
+    double postswap = getTime();
+    de.framewithsynctime = postswap-starttime;
+//    printf("input = %.2f validate = %.2f update = %.2f update count %d ",  de.inputtime, de.validatetime, de.updatestime, updatecount);
+//    printf("animtime = %.2f render = %.2f frame = %.2f, full frame = %.2f\n", de.animationstime, de.rendertime, de.frametime, de.framewithsynctime);
 }
 
 Handle<Value> tick(const Arguments& args) {
@@ -456,7 +553,9 @@ Handle<Value> runTest(const Arguments& args) {
         }
         */
         AminoNode* root = rects[rootHandle];
-        root->draw();
+        SimpleRenderer* rend = new SimpleRenderer();
+        rend->startRender(root);
+        delete rend;
         if(sync) {
             eglSwapBuffers(state->display, state->surface);
         }
@@ -485,6 +584,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("setWindowSize"),    FunctionTemplate::New(setWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("getWindowSize"),    FunctionTemplate::New(getWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("createRect"),       FunctionTemplate::New(createRect)->GetFunction());
+    exports->Set(String::NewSymbol("createPoly"),       FunctionTemplate::New(createPoly)->GetFunction());
     exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
     exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());
     exports->Set(String::NewSymbol("createAnim"),       FunctionTemplate::New(createAnim)->GetFunction());

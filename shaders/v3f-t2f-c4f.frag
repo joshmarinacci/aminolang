@@ -38,7 +38,6 @@ varying vec2 uv;
 varying vec4 frontcolor;
 void main()
 {
-    //float a = texture2D(texture, gl_TexCoord[0].xy).a;
     float a = texture2D(texture, uv).a;
     gl_FragColor = vec4(frontcolor.rgb, frontcolor.a*a);
 }

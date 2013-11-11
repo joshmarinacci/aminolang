@@ -30,9 +30,8 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 mvp;
+uniform mat4 trans;
 
 attribute vec3 vertex;
 attribute vec2 tex_coord;
@@ -45,5 +44,5 @@ void main()
     uv = tex_coord;
     //gl_FrontColor     = color;
     frontcolor = color;
-    gl_Position       = projection*(view*(model*vec4(vertex,1.0)));
+    gl_Position       = mvp*(trans*vec4(vertex,1.0));
 }

@@ -7,11 +7,18 @@ amino.startApp(function(core, stage) {
     //    var text = new amino.ProtoText().setTx(100).setTy(100).setText("foo").setFill("#33cc44").setFontSize(10);
     stage.setRoot(group);
     
-    var rect = new amino.ProtoRect().setW(20).setH(20).setFill("#33cc44");
+    var button = new widgets.PushButton().setText("a button").setTx(50).setTy(50).setW(150).setH(30);
+    group.add(button);
+    
+    
+    var textfield = new widgets.TextField().setTx(50).setTy(100).setW(150).setH(30);
+    group.add(textfield);
+
+    var rect = new amino.ProtoRect().setW(10).setH(10).setFill("#33cc44");
     group.add(rect);
     core.on("move",null,function(e) {
-//        console.log("the mouse has moved",e);
-        rect.setTx(e.x);
-        rect.setTy(e.y);
+        rect.setTx(e.x+1);
+        rect.setTy(e.y+1);
     });
+    
 });

@@ -36,6 +36,14 @@ static RawEvent event_buffer[EVENT_BUFFER_SIZE];
 static sem_t event_run_semaphore;
 static android::sp<android::EventHub> mHub;
 static uint32_t dummy_tracking_id;
+
+//return the current time in msec
+static double KgetTime(void) {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + ((double) res.tv_nsec / 1e6);
+}
+
 static void * event_thread(void*arg)
 {
     mHub = new EventHub();
@@ -156,7 +164,7 @@ void event_process(void)
                     eventSingleton->touchEnd(point_data[jj].x, point_data[jj].y, 1);
                 } else if (point_data[jj].seen) {
                     sprintf(pstr, " %03d %03d.%04d", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
-                    eventSingleton->touchStart(point_data[jj].x, point_data[jj].y, 1);
+                    eventSingleton->touchStart(point_data[jj].x, point_data[jj].y, 1, KgetTime());
                     sprintf(pstr, " %03d %03d.%04d\n", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
                     //printf("handling touchpoint %03d\n",point_data[jj].x);
                 }

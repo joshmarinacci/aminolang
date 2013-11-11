@@ -24,6 +24,7 @@ const int GROUP = 1;
 const int RECT = 2;
 const int TEXT = 3;
 const int ANIM = 4;
+const int POLY = 5;
 const int INVALID = -1;
 
 
@@ -54,6 +55,7 @@ static const int ROTATEY = 20;
 static const int X_PROP = 21;
 static const int Y_PROP = 22;
 static const int TX = 23;
+static const int GEOMETRY = 24;
 
 static const int OPACITY_PROP = 27;
 static const int FONTID_PROP = 28;
@@ -67,6 +69,7 @@ static const int TEXTUREBOTTOM_PROP = 33;
 
 static const int CLIPRECT_PROP = 34;
 static const int AUTOREVERSE = 35;
+static const int DIMENSION = 36;
 
 using namespace v8;
 
@@ -112,8 +115,6 @@ public:
         visible = 1;
     }
     virtual ~AminoNode() {
-    }
-    virtual void draw() {
     }
 
 };
@@ -301,9 +302,32 @@ public:
     }
     virtual ~Rect() {
     }
-    void draw();
 };
 
+class PolyNode : public AminoNode {
+public:
+    float r;
+    float g;
+    float b;
+    float opacity;
+    std::vector<float>* geometry;
+    int dimension;
+    PolyNode() {
+        r = 0; g = 1; b = 0;
+        geometry = new std::vector<float>();
+        geometry->push_back(0);
+        geometry->push_back(0);
+        geometry->push_back(50);
+        geometry->push_back(0);
+        geometry->push_back(50);
+        geometry->push_back(50);
+        opacity = 1;
+        type = POLY;
+        dimension = 2;
+    }
+    virtual ~PolyNode() {
+    }
+};
 
 class TextNode : public AminoNode {
 public:
@@ -328,7 +352,6 @@ public:
     virtual ~TextNode() {
     }
     void refreshText();
-    void draw();
 };
 
 class Group : public AminoNode {
@@ -345,7 +368,6 @@ public:
     }
     ~Group() {
     }
-    void draw();
 };
 
 class Update {
@@ -355,12 +377,14 @@ public:
     int property;
     float value;
     std::wstring text;
-    Update(int Type, int Node, int Property, float Value, std::wstring Text) {
+    std::vector<float>* arr;
+    Update(int Type, int Node, int Property, float Value, std::wstring Text, std::vector<float>* Arr) {
         type = Type;
         node = Node;
         property = Property;
         value = Value;
         text = Text;
+        arr = Arr;
     }
     ~Update() { }
     void apply() {
@@ -424,6 +448,16 @@ public:
             if(property == FONTSIZE_PROP) textnode->fontsize = value;
             if(property == FONTID_PROP) textnode->fontid = value;
         }
+        
+        if(target->type == POLY) {
+            PolyNode* polynode = (PolyNode*)target;
+            if(property == GEOMETRY) {
+                polynode->geometry = arr;
+            }
+            if(property == DIMENSION) {
+                polynode->dimension = value;
+            }
+        }
     }
 };
 
@@ -434,6 +468,13 @@ inline Handle<Value> createRect(const Arguments& args) {
     Rect* rect = new Rect();
     rects.push_back(rect);
     rects.size();
+    Local<Number> num = Number::New(rects.size()-1);
+    return scope.Close(num);
+}
+inline Handle<Value> createPoly(const Arguments& args) {
+    HandleScope scope;
+    PolyNode* node = new PolyNode();
+    rects.push_back(node);
     Local<Number> num = Number::New(rects.size()-1);
     return scope.Close(num);
 }
@@ -493,6 +534,15 @@ static std::wstring GetWString(v8::Handle<v8::String> str) {
     return wstr;
 }
 
+static std::vector<float>* GetFloatArray(v8::Handle<v8::Array> obj) {
+    Handle<Array>  oarray = Handle<Array>::Cast(obj);
+    std::vector<float>* carray = new std::vector<float>();
+    for(int i=0; i<oarray->Length(); i++) {
+        carray->push_back((float)(oarray->Get(i)->ToNumber()->NumberValue()));
+    }
+    return carray;
+}
+
 inline Handle<Value> updateProperty(const Arguments& args) {
     HandleScope scope;
     int rectHandle   = args[0]->ToNumber()->NumberValue();
@@ -505,7 +555,11 @@ inline Handle<Value> updateProperty(const Arguments& args) {
     if(args[2]->IsString()) {
         wstr = GetWString(args[2]->ToString());
     }
-    updates.push_back(new Update(RECT, rectHandle, property, value, wstr));
+    std::vector<float>* arr = NULL;
+    if(args[2]->IsArray()) {
+        arr = GetFloatArray(v8::Handle<v8::Array>::Cast(args[2]));
+    }
+    updates.push_back(new Update(RECT, rectHandle, property, value, wstr,arr));
     return scope.Close(Undefined());
 }
 
@@ -523,7 +577,7 @@ inline Handle<Value> updateAnimProperty(const Arguments& args) {
        char* cstr = TO_CHAR(args[2]);
         wstr = GetWC(cstr);
     }
-    updates.push_back(new Update(ANIM, rectHandle, property, value, wstr));
+    updates.push_back(new Update(ANIM, rectHandle, property, value, wstr, NULL));
     return scope.Close(Undefined());
 }
 
@@ -621,7 +675,7 @@ inline static Handle<Value> loadPngToTexture(const Arguments& args) {
     return scope.Close(obj);
 }
 
-static float* toFloatArray(Local<Object> obj, char* name) {
+/*static float* toFloatArray(Local<Object> obj, char* name) {
     Handle<Array>  oarray = Handle<Array>::Cast(obj->Get(String::New(name)));
     float* carray = new float[oarray->Length()];
     for(int i=0; i<oarray->Length(); i++) {
@@ -629,7 +683,7 @@ static float* toFloatArray(Local<Object> obj, char* name) {
     }
     return carray;
 }
-
+*/
 
 typedef struct {
     float x, y, z;    // position
@@ -695,32 +749,12 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     //make a single font
     
     texture_font_t *font;
-    //preload some standard font sizes: 10, 12, 15, 20, 40
-    
-    font = texture_font_new(afont->atlas, filename, 10);
-    int bad = 0;
-    bad = texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[10] = font;
-    font = texture_font_new(afont->atlas, filename, 15);
-    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[15] = font;
-    font = texture_font_new(afont->atlas, filename, 20);
-    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[20] = font;
-    font = texture_font_new(afont->atlas, filename, 30);
-    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[30] = font;
-    
-    font = texture_font_new(afont->atlas, filename, 40);
-    texture_font_load_glyphs(font,text);
-    if(bad > 0) printf("bad glyphs = %d\n",bad);
-    afont->fonts[40] = font;
-    
-    
+    //preload some standard font sizes: 10, 12, 15, 20, 30, 40, 80
+    int fontsizes[] = {10,12,15,20,30,40,80};
+    for(int n = 0; n<7; n++) {
+        int fsize = fontsizes[n];
+        afont->fonts[fsize] = texture_font_new(afont->atlas, filename, fsize);
+    }
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
                          "shaders/v3f-t2f-c4f.frag");
     //texture_font_delete(afont->font);

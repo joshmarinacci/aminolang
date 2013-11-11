@@ -62,6 +62,7 @@ LOCAL_SRC_FILES:= \
     src/sg/base.cpp \
     src/sg/klaatu_events.cpp \
     src/sg/klaatu.cpp \
+    src/sg/SimpleRenderer.cpp \
     prebuilt/binaries/libfreetype-gl.a
 
 

@@ -316,6 +316,7 @@ texture_atlas_upload( texture_atlas_t * self )
     }
 
     glBindTexture( GL_TEXTURE_2D, self->id );
+    //JOSH: try this one
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -337,6 +338,21 @@ texture_atlas_upload( texture_atlas_t * self )
     }
     else
     {
+        /*
+        int i = 0;
+        int j = 0;
+        for(j=0; j<200; j++) {
+            for(i=0; i<300; i++) {
+                int d = self->data[i+j*self->width];
+                if(d == 0 ) {
+                    printf(" ");
+                } else {
+                    printf("X");
+                }
+            }
+            printf("\n");
+        }*/
+        //JOSH: try switching to RGB or RGBA instead of ALPHA
         glTexImage2D( GL_TEXTURE_2D, 0, GL_ALPHA, self->width, self->height,
                       0, GL_ALPHA, GL_UNSIGNED_BYTE, self->data );
     }

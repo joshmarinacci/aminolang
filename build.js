@@ -229,7 +229,6 @@ function desktop(cb) {
     var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
-    copyFileTo(src+"Bacon.js",out);
     copyFileTo("build/Release/aminonative.node",out);
     copyFileTo(src+"widgets.js",out);
     //copyFileTo("src/jscommon/textcontrol.js",out);
@@ -237,9 +236,10 @@ function desktop(cb) {
     copyFileTo("resources/font.json",out);
     jb.mkdir(out+"/fonts");
     jb.copyAllTo("fonts",out+"/fonts");
-    copyFileTo("fonts/Vera.ttf",out+"/fonts");
     copyFileTo("fonts/SourceSansPro-Regular.ttf",out+"/fonts");
     copyFileTo("fonts/fontawesome-webfont.ttf",out+"/fonts");
+    jb.mkdir(out+"/shaders");
+    jb.copyAllTo("shaders",out+"/shaders");
 }
 
 function canvas(cb) {
@@ -251,7 +251,6 @@ function canvas(cb) {
     //src files
     copyFileTo(src+"amino.js",out);
     copyFileTo(src+"canvasamino.js",out);
-    copyFileTo(src+"canvasbacon.js",out);
     copyFileTo(src+"widgets.js",out);
     //copyFileTo("src/jscommon/textcontrol.js",out);
 }
@@ -276,7 +275,6 @@ function androidjs(cb) {
     var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
-    copyFileTo(src+"Bacon.js",out);
     copyFileTo(src+"widgets.js",out);
     //resource files
     
@@ -291,6 +289,8 @@ function androidjs(cb) {
     jb.copyAllTo("fonts/",fonts);
     
     copyFileTo("tests/perf/drag1.js",out);
+    copyFileTo("tests/perf/textspeed.js",out);
+    copyFileTo("tests/perf/shaderswitch.js",out);
     
     copyFileTo("node_modules/Faker/Faker.js",out);
     copyFileTo("node_modules/moment/moment.js",out);

@@ -117,7 +117,7 @@ vertex_buffer_new( const char *format )
     self->vertices_id  = 0;
     self->GPU_vsize = 0;
 
-    self->indices = vector_new( sizeof(GLuint) );
+    self->indices = vector_new( sizeof(GLushort) );
     self->indices_id  = 0;
     self->GPU_isize = 0;
 
@@ -316,6 +316,14 @@ vertex_buffer_clear( vertex_buffer_t *self )
 }
 
 
+void gles_show_error()
+{
+	GLenum error = GL_NO_ERROR;
+    error = glGetError();
+    if (GL_NO_ERROR != error)
+        printf("GL Error %x encountered!\n", error);
+}
+
 
 // ----------------------------------------------------------------------------
 void
@@ -374,7 +382,7 @@ vertex_buffer_render_item ( vertex_buffer_t *self,
     {
         size_t start = item->istart;
         size_t count = item->icount;
-        glDrawElements( self->mode, count, GL_UNSIGNED_INT, (void *)(start*sizeof(GLuint)) );
+        glDrawElements( self->mode, count, GL_UNSIGNED_BYTE, (void *)(start*sizeof(GLushort)) );
     }
     else if( self->vertices->size )
     {
@@ -396,7 +404,7 @@ vertex_buffer_render ( vertex_buffer_t *self, GLenum mode )
     if( icount )
     {
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, self->indices_id );
-        glDrawElements( mode, icount, GL_UNSIGNED_INT, 0 );
+        glDrawElements( mode, icount, GL_UNSIGNED_SHORT, 0 );
     }
     else
     {
@@ -410,7 +418,7 @@ vertex_buffer_render ( vertex_buffer_t *self, GLenum mode )
 // ----------------------------------------------------------------------------
 void
 vertex_buffer_push_back_indices ( vertex_buffer_t * self,
-                                  const GLuint * indices,
+                                  const GLushort * indices,
                                   const size_t icount )
 {
     assert( self );
@@ -439,7 +447,7 @@ vertex_buffer_push_back_vertices ( vertex_buffer_t * self,
 void
 vertex_buffer_insert_indices ( vertex_buffer_t *self,
                                const size_t index,
-                               const GLuint *indices,
+                               const GLushort *indices,
                                const size_t count )
 {
     assert( self );
@@ -468,9 +476,9 @@ vertex_buffer_insert_vertices( vertex_buffer_t *self,
 
      for( i=0; i<self->indices->size; ++i )
     {
-        if( *(GLuint *)(vector_get( self->indices, i )) > index )
+        if( *(GLushort *)(vector_get( self->indices, i )) > index )
         {
-            *(GLuint *)(vector_get( self->indices, i )) += index;
+            *(GLushort *)(vector_get( self->indices, i )) += index;
         }
     }
 
@@ -512,9 +520,9 @@ vertex_buffer_erase_vertices( vertex_buffer_t *self,
     self->state |= DIRTY;
     for( i=0; i<self->indices->size; ++i )
     {
-        if( *(GLuint *)(vector_get( self->indices, i )) > first )
+        if( *(GLushort *)(vector_get( self->indices, i )) > first )
         {
-            *(GLuint *)(vector_get( self->indices, i )) -= (last-first);
+            *(GLushort *)(vector_get( self->indices, i )) -= (last-first);
         }
     }
     vector_erase_range( self->vertices, first, last );    
@@ -526,7 +534,7 @@ vertex_buffer_erase_vertices( vertex_buffer_t *self,
 size_t
 vertex_buffer_push_back( vertex_buffer_t * self,
                          const void * vertices, const size_t vcount,  
-                         const GLuint * indices, const size_t icount )
+                         const GLushort * indices, const size_t icount )
 {
     return vertex_buffer_insert( self, vector_size( self->items ),
                                  vertices, vcount, indices, icount );
@@ -536,7 +544,7 @@ vertex_buffer_push_back( vertex_buffer_t * self,
 size_t
 vertex_buffer_insert( vertex_buffer_t * self, const size_t index,
                       const void * vertices, const size_t vcount,  
-                      const GLuint * indices, const size_t icount )
+                      const GLushort * indices, const size_t icount )
 {
     size_t vstart, istart, i;
     ivec4 item;
@@ -557,7 +565,7 @@ vertex_buffer_insert( vertex_buffer_t * self, const size_t index,
     // Update indices within the vertex buffer
     for( i=0; i<icount; ++i )
     {
-        *(GLuint *)(vector_get( self->indices, istart+i )) += vstart;
+        *(GLushort *)(vector_get( self->indices, istart+i )) += vstart;
     }
     
     // Insert item

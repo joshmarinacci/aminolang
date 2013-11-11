@@ -1,6 +1,7 @@
 #include "base.h"
 #include "klaatu_events.h"
 #include <binder/ProcessState.h>
+#include "SimpleRenderer.h"
 
 
 static float near = 150;
@@ -107,7 +108,7 @@ public:
     EVDispatcher() {
         down = false;
     }
-    virtual void touchStart(float rx, float ry, unsigned int tap_count=0) { 
+    virtual void touchStart(float rx, float ry, unsigned int tap_count=0, double time=0) { 
         if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
         if(down) {
             //printf("touch moving\n");
@@ -115,6 +116,7 @@ public:
             event->Set(String::NewSymbol("type"), String::New("mouseposition"));
             event->Set(String::NewSymbol("x"), Number::New(rx));
             event->Set(String::NewSymbol("y"), Number::New(ry));
+            event->Set(String::NewSymbol("timestamp"), Number::New(time));
             Handle<Value> argv[] = {event};
             NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, argv);
         } else {
@@ -126,11 +128,15 @@ public:
             event->Set(String::NewSymbol("type"), String::New("mouseposition"));
             event->Set(String::NewSymbol("x"), Number::New(rx));
             event->Set(String::NewSymbol("y"), Number::New(ry));
+            event->Set(String::NewSymbol("timestamp"), Number::New(time));
             NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, argv);
             
+            event = Object::New();
+            argv[0] = event;
             event->Set(String::NewSymbol("type"), String::New("mousebutton"));
             event->Set(String::NewSymbol("button"), Number::New(0));
             event->Set(String::NewSymbol("state"), Number::New(1));
+            event->Set(String::NewSymbol("timestamp"), Number::New(time));
             NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, argv);
             
         }
@@ -187,9 +193,29 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
+void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    event->Set(String::NewSymbol("timestamp"), Number::New(getTime()));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
+
+struct DebugEvent {
+    double inputtime;
+    double validatetime;
+    double updatestime;
+    double animationstime;
+    double rendertime;
+    double frametime;
+    double framewithsynctime;
+};
 
 static const bool DEBUG_RENDER_LOOP = false;
 void render() {
+    DebugEvent de;
+    double starttime = getTime();
     double start = getTime();
     if(DEBUG_RENDER_LOOP) {    printf("processing events\n"); }
     if(event_indication) {
@@ -197,15 +223,89 @@ void render() {
         event_process();
     }
     
-    double mid = getTime();
-    if(DEBUG_RENDER_LOOP) { printf("processing updates\n"); }
+    double postinput = getTime();
+    de.inputtime = postinput-starttime;
+
+    sendValidate();
+    double postvalidate = getTime();
+    de.validatetime = postvalidate-postinput;
+    
+
+    int updatecount = updates.size();
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
-    double end = getTime();
+    double postupdates = getTime();
+    de.updatestime = postupdates-postvalidate;
 
 
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+
+    double postanim = getTime();
+    de.animationstime = postanim-postupdates;
+    
+    GLfloat* scaleM = new GLfloat[16];
+    make_scale_matrix(1,-1,1,scaleM);
+    GLfloat* transM = new GLfloat[16];
+    make_trans_matrix(-width/2,height/2,0,transM);
+    GLfloat* m4 = new GLfloat[16];
+    mul_matrix(m4, transM, scaleM); 
+    GLfloat* pixelM = new GLfloat[16];
+    loadPixelPerfect(pixelM, width, height, eye, near, far);
+    mul_matrix(modelView,pixelM,m4);
+    make_identity_matrix(globaltx);
+    glViewport(0,0,width, height);
+
+    glClearColor(1,1,1,1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    
+    AminoNode* root = rects[rootHandle];
+    SimpleRenderer* rend = new SimpleRenderer();
+    double prerender = getTime();
+    rend->startRender(root);
+    delete rend;
+    double postrender = getTime();
+    de.rendertime = postrender-prerender;
+    de.frametime = postrender-starttime;
+    eglSwapBuffers(mEglDisplay, mEglSurface);
+    double postswap = getTime();
+    de.framewithsynctime = postswap-starttime;
+    printf("input = %6.2f validate = %.2f update = %.2f update count %d ",  de.inputtime, de.validatetime, de.updatestime, updatecount);
+    printf("animtime = %.2f render = %.2f frame = %.2f, full frame = %.2f\n", de.animationstime, de.rendertime, de.frametime, de.framewithsynctime);
+}
+
+Handle<Value> runTest(const Arguments& args) {
+    HandleScope scope;
+    
+    double startTime = getTime();
+    int count = 100;
+    Local<v8::Object> opts = args[0]->ToObject();
+    count = (int)(opts
+        ->Get(String::NewSymbol("count"))
+        ->ToNumber()
+        ->NumberValue()
+        );
+    
+    
+    bool sync = false;
+    sync = opts
+        ->Get(String::NewSymbol("sync"))
+        ->ToBoolean()
+        ->BooleanValue();
+        
+    printf("rendering %d times, vsync = %d\n",count,sync);
+
+    printf("applying updates first\n");
+    for(int j=0; j<updates.size(); j++) {
+        updates[j]->apply();
+    }
+    updates.clear();
+    
+    printf("setting up the screen\n");
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
     //make_scale_matrix(1,1,1,scaleM);
@@ -234,25 +334,23 @@ void render() {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    
-    if(DEBUG_RENDER_LOOP) { printf("processing anims\n"); }
-
-    for(int j=0; j<anims.size(); j++) {
-        anims[j]->update();
+    printf("running %d times\n",count);
+    for(int i=0; i<count; i++) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        AminoNode* root = rects[rootHandle];
+        SimpleRenderer* rend = new SimpleRenderer();
+        rend->startRender(root);
+        delete rend;
+        if(sync) {
+            eglSwapBuffers(mEglDisplay, mEglSurface);
+        }
     }
     
-    if(DEBUG_RENDER_LOOP) { printf("processing drawing\n"); }
-
-    AminoNode* root = rects[rootHandle];
-    root->draw();
-    
-    //glfwSwapBuffers();
-    double post = getTime();
-    /*
-    printf("event time = %f   update time = %f   draw time = %f   total %f\n",
-        mid-start,end-mid,post-end, post-start);
-        */
-    eglSwapBuffers(mEglDisplay, mEglSurface);
+    double endTime = getTime();
+    Local<Object> ret = Object::New();
+    ret->Set(String::NewSymbol("count"),Number::New(count));
+    ret->Set(String::NewSymbol("totalTime"),Number::New(endTime-startTime));
+    return scope.Close(ret);
 }
 
 
@@ -301,6 +399,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("createNativeFont"), FunctionTemplate::New(createNativeFont)->GetFunction());
     exports->Set(String::NewSymbol("getCharWidth"),     FunctionTemplate::New(getCharWidth)->GetFunction());
     exports->Set(String::NewSymbol("getFontHeight"),    FunctionTemplate::New(getFontHeight)->GetFunction());
+    exports->Set(String::NewSymbol("runTest"),          FunctionTemplate::New(runTest)->GetFunction());
 }
 
 NODE_MODULE(aminonative, InitAll)

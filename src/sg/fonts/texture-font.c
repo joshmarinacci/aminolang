@@ -479,6 +479,7 @@ texture_font_load_glyphs( texture_font_t * self,
                 return 0;
             }
           
+            printf("depth = %d\n");
             if( depth == 1)
             {
                 error = FT_Glyph_To_Bitmap( &ft_glyph, FT_RENDER_MODE_NORMAL, 0, 1);
@@ -508,6 +509,7 @@ texture_font_load_glyphs( texture_font_t * self,
             ft_bitmap_glyph = (FT_BitmapGlyph) ft_glyph;
             ft_bitmap       = ft_bitmap_glyph->bitmap;
             ft_bitmap_width = ft_bitmap.width;
+            printf("bitmap width = %d\n",ft_bitmap.width);
             ft_bitmap_rows  = ft_bitmap.rows;
             ft_bitmap_pitch = ft_bitmap.pitch;
             ft_glyph_top    = ft_bitmap_glyph->top;

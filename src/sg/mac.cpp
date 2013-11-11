@@ -1,11 +1,14 @@
 
 #include "base.h"
+#include "SimpleRenderer.h"
 
 // ========== Event Callbacks ===========
 
+static bool windowSizeChanged = true;
 static void GLFW_WINDOW_SIZE_CALLBACK_FUNCTION(int newWidth, int newHeight) {
 	width = newWidth;
 	height = newHeight;
+	windowSizeChanged = true;
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
     event_obj->Set(String::NewSymbol("type"), String::New("windowsize"));
@@ -25,25 +28,8 @@ static int GLFW_WINDOW_CLOSE_CALLBACK_FUNCTION(void) {
 static float near = 150;
 static float far = -300;
 static float eye = 600;
-//1000,250,-500
-//far = -eye/2.  near = -far/2;  ex: 800,200,-400.
-//400+200+600 = 1200
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
-
 
 static void GLFW_KEY_CALLBACK_FUNCTION(int key, int action) {
-//    printf("callback key = %d action = %d\n",key,action);
-/*
-    switch(key) {
-        case 65: eye-=10; break;
-        case 81: eye+=10; break;
-        case 87: near+=5; break;
-        case 83: near-=5; break;
-        case 69: far-=5; break;
-        case 68: far+=5; break;
-    }
-    */
-//    printf("eye = %f near = %f far = %f\n",eye,near,far);
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
     if(action == 1) {
@@ -78,6 +64,15 @@ static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
 }
 
+static void GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(int wheel) {
+    if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
+//    printf("wheel = %d\n",wheel);
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("mousewheelv"));
+    event_obj->Set(String::NewSymbol("position"), Number::New(wheel));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);
+}
 
 Handle<Value> init(const Arguments& args) {
 	matrixStack = std::stack<void*>();
@@ -108,6 +103,7 @@ Handle<Value> createWindow(const Arguments& args) {
     glfwSetMousePosCallback(GLFW_MOUSE_POS_CALLBACK_FUNCTION);
     glfwSetMouseButtonCallback(GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION);
     glfwSetKeyCallback(GLFW_KEY_CALLBACK_FUNCTION);
+    glfwSetMouseWheelCallback(GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION);
     
     colorShader = new ColorShader();
     textureShader = new TextureShader();
@@ -117,7 +113,7 @@ Handle<Value> createWindow(const Arguments& args) {
     globaltx = new GLfloat[16];
     make_identity_matrix(globaltx);
     
-
+ 
     
     
     glViewport(0,0,width, height);
@@ -142,50 +138,57 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
+void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
 
 void render() {
+    //input updates happen at any time
+    
+    //send the validate event
+    sendValidate();
 
-
+    //apply processed updates
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
     
+    //apply animations
+    for(int j=0; j<anims.size(); j++) {
+        anims[j]->update();
+    }
+    
+    //set up the viewport
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
-    make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
-    
+    make_trans_matrix(-((float)width)/2,((float)height)/2,0,transM);
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
-    
-    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
-    
     mul_matrix(modelView,pixelM,m4);
-    
-    
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
-    for(int j=0; j<anims.size(); j++) {
-        anims[j]->update();
-    }
-    AminoNode* root = rects[rootHandle];
-    root->draw();
     
+    //draw
+    AminoNode* root = rects[rootHandle];
+
+    SimpleRenderer* rend = new SimpleRenderer();
+    rend->modelViewChanged = windowSizeChanged;
+    windowSizeChanged = false;
+    rend->startRender(root);
+    delete rend;
+    
+    //swap
     glfwSwapBuffers();
 }
 
@@ -233,44 +236,24 @@ Handle<Value> runTest(const Arguments& args) {
     printf("setting up the screen\n");
     GLfloat* scaleM = new GLfloat[16];
     make_scale_matrix(1,-1,1,scaleM);
-    //make_scale_matrix(1,1,1,scaleM);
     GLfloat* transM = new GLfloat[16];
     make_trans_matrix(-width/2,height/2,0,transM);
-    //make_trans_matrix(10,10,0,transM);
-    //make_trans_matrix(0,0,0,transM);
-    
     GLfloat* m4 = new GLfloat[16];
     mul_matrix(m4, transM, scaleM); 
-
-
     GLfloat* pixelM = new GLfloat[16];
-//    loadPixelPerfect(pixelM, width, height, 600, 100, -150);
     loadPixelPerfect(pixelM, width, height, eye, near, far);
-    //printf("eye = %f\n",eye);
-    //loadPerspectiveMatrix(pixelM, 45, 1, 10, -100);
-    
-    GLfloat* m5 = new GLfloat[16];
-    //transpose(m5,pixelM);
-    
     mul_matrix(modelView,pixelM,m4);
-    
-    
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
     glClearColor(1,1,1,1);
-    
-    
     glDisable(GL_DEPTH_TEST);
     printf("running %d times\n",count);
     for(int i=0; i<count; i++) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        /*
-        for(int j=0; j<anims.size(); j++) {
-            anims[j]->update();
-        }
-        */
         AminoNode* root = rects[rootHandle];
-        root->draw();
+        SimpleRenderer* rend = new SimpleRenderer();
+        rend->startRender(root);
+        delete rend;
         if(sync) {
             glfwSwapBuffers();
         }
@@ -299,6 +282,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("setWindowSize"),    FunctionTemplate::New(setWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("getWindowSize"),    FunctionTemplate::New(getWindowSize)->GetFunction());
     exports->Set(String::NewSymbol("createRect"),       FunctionTemplate::New(createRect)->GetFunction());
+    exports->Set(String::NewSymbol("createPoly"),       FunctionTemplate::New(createPoly)->GetFunction());
     exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
     exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());
     exports->Set(String::NewSymbol("createAnim"),       FunctionTemplate::New(createAnim)->GetFunction());

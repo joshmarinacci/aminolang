@@ -3,7 +3,6 @@
 @desc a dummy header to work around a doc generation bug. ignore
 */
 var deps = {
-    'bacon':'./Bacon',
     'fs':'fs',
     'sgtest':"./aminonative.node",
 }
@@ -24,7 +23,6 @@ if(typeof exports == 'undefined'){
 
 
 var fs = jrequire('fs');
-exports.bacon = jrequire('bacon');
 
 var OS = "BROWSER";
 if((typeof process) != 'undefined') {
@@ -37,6 +35,11 @@ if((typeof process) != 'undefined') {
     }
 }
 
+
+
+var debug = {
+    eventCount:0,
+}
 function d(str) {
     console.log("AMINO: ",str);
 }
@@ -114,7 +117,7 @@ var defaultFonts = {
         }
     },
 }
-var validFontSizes = {10:10,15:15,20:20,30:30,40:40};
+var validFontSizes = {10:10,15:15,20:20,30:30,40:40,80:80};
 
 function validateFontSize(fs) {
     if(validFontSizes[fs] == undefined) {
@@ -123,6 +126,8 @@ function validateFontSize(fs) {
     }
     return fs;
 }
+
+var propertyCount = 0;
 
 exports.native = {
     createNativeFont: function(path) {
@@ -147,6 +152,7 @@ exports.native = {
         return fontmap[name];
     },
     updateProperty: function(handle, name, value) {
+        propertyCount++;
         exports.sgtest.updateProperty(handle, propsHash[name], value);        
     },
     setRoot: function(handle) {
@@ -216,7 +222,6 @@ var mouseState = {
     downSwipeInProgress:false,
     upSwipeInProgress:false,
  }
-var baconbus = null;
 
 
 //String extension
@@ -301,19 +306,301 @@ SHIFT_MAP['.'] = '>';
 SHIFT_MAP['/'] = '?';
 //console.log(SHIFT_MAP);
 
-function setupBacon(core) {
-    var bus = new exports.bacon.Bus();
-    baconbus = bus;
+
+
+/* raspberry pi specific for now */
+function ascii(ch) {
+    return ch.charCodeAt(0);
+}
+//josh's mac keyboard. must replace with something obtained from the system
+var RPI_KEYCODE_MAP = {
+    57:ascii(' '),
+}
+
+function insertKeyboardRow(n, letters) {
+    for(var i=0; i<letters.length; i++) {
+        RPI_KEYCODE_MAP[n+i] = ascii(letters[i]);
+    }
+}
+
+insertKeyboardRow(2,'1234567890-=');
+insertKeyboardRow(16,'QWERTYUIOP[]');
+insertKeyboardRow(30,'ASDFGHJKL');
+insertKeyboardRow(44,'ZXCVBNM,./');
+RPI_KEYCODE_MAP[103] = 283; //up arrow
+RPI_KEYCODE_MAP[105] = 285; //left arrow
+RPI_KEYCODE_MAP[106] = 286; //right arrow
+RPI_KEYCODE_MAP[108] = 284; //down arrow
+
+/* end rpi keyboard stuff */
+
+function mapNativeButton(e) {
+    if(OS != "RPI") return;
+}
+function mapNativeKey(e) {
+    if(OS != "RPI") return;
     
-    var log = function(str) {return function(v) {console.log(str + " ", v); } }
-    var print = function(str) { return function(v) {  console.log(str);  } }
-    var typeIs = function(name) { return function(e) { return e.type == name; } };
+    //left and right shift
+    if(e.keycode == 42 || e.keycode == 54) {
+        e.shift = 1;
+    }
+    //left and right control
+    if(e.keycode == 29 || e.keycode == 97) {
+        e.control = 1;
+    }
+    //left and right option/alt
+    if(e.keycode == 56 || e.keycode == 100) {
+        e.alt = 1;
+    }
+    //left and right command
+    if(e.keycode == 125 || e.keycode == 126) {
+        e.system = 1;
+    }
     
+
+
+    if(e.shift == 1) {
+        if(e.type == "keypress") {
+            keyState.shift = true;
+        }
+        if(e.type == "keyrelease") {
+            keyState.shift = false;
+        }
+    }
+    if(!e.shift) {
+        e.shift = (keyState.shift?1:0);
+    }
+    
+    
+    var nc = RPI_KEYCODE_MAP[e.keycode];
+    if(nc) {
+        var ch = KEY_TO_CHAR_MAP[nc];
+        //console.log("mapping: " + e.keycode + " to " + nc + " which is char '"+ch+"'");
+        e.keycode = nc;
+    }
+    
+}
+
+exports.dirtylist = [];
+function validateScene() {
+    exports.dirtylist.forEach(function(node) {
+        if(node.dirty == true) {
+            if(node.validate) {
+                node.validate();
+            }
+            node.dirty = false;
+        }
+    });
+    exports.dirtylist = [];
+}
+var prevmouse = {};
+var repeatEvent = null;
+var repeatTimeout = null;
+var keyState = {
+    shift:false,
+};
+function dumpToParent(node,inset) {
+    console.log(inset + "type = " + node.type + " " + node.getTx() + " " + node.getTy());
+    if(node.getId) { console.log(inset + "     id = " + node.getId()); }
+    if(node.parent) {
+        dumpToParent(node.parent, inset+"  ");
+    }
+}
+function processEvent(core,e) {
+    var repeatKey = function() {
+        if(repeatEvent) {
+            core.fireEventAtTarget(core.keyfocus,repeatEvent);
+            repeatTimeout = setTimeout(repeatKey, 20);
+        }
+    }
     function exitApp() { setTimeout(function() { process.exit(0); },10); };
+    if(e.type == "validate") {
+        validateScene();
+        return;
+    }
+    if(e.type == "windowclose") {
+        exitApp();
+        return;
+    }
+    if(e.type == "windowsize") {
+        core.fireEvent({
+                type:"windowsize",
+                source:core.stage,
+                width:e.width,
+                height:e.height,
+        });
+        return;
+    }
+    if(e.type == "mousewheelv") {
+        prevmouse.wheelv = mouseState.wheelv;
+        mouseState.wheelv = e.position;
+        var dwv = mouseState.wheelv - prevmouse.wheelv;
+        if(OS == "RPI") {
+            dwv = e.position;
+        }
+        if(dwv==0) return;
+        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+        if(node != null) {
+            core.fireEventAtTarget(node, {
+                type:"mousewheelv",
+                wheel:dwv,
+                target:node,
+            });
+        }
+        return;
+    }
+    if(e.type == "mouseposition") {
+        prevmouse.x = mouseState.x;
+        prevmouse.y = mouseState.y;
+        mouseState.x = e.x;
+        mouseState.y = e.y;
+        var dx = (mouseState.x - prevmouse.x);
+        var dy = (mouseState.y - prevmouse.y);
+        if(mouseState.pressed) {
+            //drag events
+            var node = mouseState.pressTarget;
+            //console.log("firing: " + (mouseState.x - prevmouse.x));
+            if(node == null) {
+                node = core.findNodeAtXY(mouseState.x,mouseState.y);
+            }
+            if(node != null) {
+                //var t1 = process.hrtime();
+	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+                //console.log('globalToLocal time',process.hrtime(t1)[1]/1e6);
+                core.fireEventAtTarget(
+                    node,
+                    {
+                        type:"drag",
+                        pressed:mouseState.pressed,
+                        x:pt.x,
+                        y:pt.y,
+                        dx:dx,
+                        dy:dy,
+	                    point:pt,
+                        target:node,
+                        timestamp:e.timestamp,
+                        time:e.time,
+                    }
+                );
+            }
+        }
+        //move events
+        core.fireEvent({
+            type: "move",
+            x:mouseState.x,
+            y:mouseState.y,
+            point:{x:mouseState.x, y:mouseState.y},
+            source:core,
+        });
+        return;
+    }
     
-    function mousePressed() { return mouseState.pressed; }
-     
-    bus.filter(typeIs("windowclose")).onValue(exitApp);
+    
+
+
+    if(e.type == "keypress") {
+    
+        if(repeatTimeout) {
+            clearTimeout(repeatTimeout);
+            repeatTimeout = null;
+            repeatEvent = null;
+        }
+        
+            
+        var event = {
+            type:"keypress",
+        }
+        event.keycode = e.keycode;
+        event.shift   = (e.shift == 1);
+        event.system  = (e.system == 1);
+        event.alt     = (e.alt == 1);
+        event.control = (e.control == 1);
+        event.printable = false;
+        event.printableChar = 0;
+        if(KEY_TO_CHAR_MAP[e.keycode]) {
+            event.printable = true;
+            var ch = KEY_TO_CHAR_MAP[e.keycode];
+            if(e.shift == 1) {
+                if(SHIFT_MAP[ch]) {
+                    ch = SHIFT_MAP[ch];
+                }
+            }
+            event.printableChar = ch;
+        }
+        if(OS == "RPI") {
+            if(e.keycode == 42 || e.keycode == 54) {
+                event.printable = false;
+            }
+        }
+        if(core.keyfocus) {
+            event.target = core.keyfocus;
+            repeatTimeout = setTimeout(repeatKey,300)
+            repeatEvent = event;
+            //console.log("firing",event,"at",core.keyfocus);
+            core.fireEventAtTarget(core.keyfocus,event);
+        }
+    }
+    if(e.type == "keyrelease") {
+        if(repeatTimeout) {
+            clearTimeout(repeatTimeout);
+            repeatTimeout = null;
+            repeatEvent = null;
+        }
+    }
+    
+    if(e.type == "mousebutton" && mouseState.pressed) {
+        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+        if(node != null) {
+            mouseState.pressTarget = node;
+            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+            core.fireEventAtTarget(node,
+                {
+                    type:"press",
+                    pressed:mouseState.pressed,
+                    x:pt.x,
+                    y:pt.y,
+                    point:pt,
+                    target:node,
+                    timestamp:e.timestamp,
+                    time:e.time,
+                }
+            );
+        }
+        return;
+    } else {
+        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
+        if(node != null) {
+            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+            core.fireEventAtTarget(node,
+                {
+                    type:"release",
+                    pressed:mouseState.pressed,
+                    x:pt.x,
+                    y:pt.y,
+                    point:pt,
+                    target:node,
+                    timestamp:e.timestamp,
+                    time:e.time,
+                }
+            );
+            if(node == mouseState.pressTarget) {
+                core.fireEventAtTarget(node,
+                    {
+                        type:"click",
+                        x:mouseState.x,
+                        y:mouseState.y,
+                        target:node
+                    }
+                    );
+            }
+        }
+        return;
+    }
+    
+    //console.log(e);
+}
+//    bus.filter(typeIs("windowclose")).onValue(exitApp);
+/*
     bus.filter(typeIs("windowsize"))
     .onValue(function(e) {
         core.fireEvent({
@@ -323,255 +610,11 @@ function setupBacon(core) {
                 height:e.height,
         });
     });
-    
-    //mouse presses
-    pressStream = bus.filter(typeIs("mousebutton"))
-        .filter(function(e) { return e.state == 1; });
-        //        .onValue(log("mouse pressed"));
-
-    pressStream.onValue(function(e) {
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            mouseState.pressTarget = node;
-            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-            core.fireEventAtTarget(
-                node,
-                {
-                    type:"press",
-                    pressed:mouseState.pressed,
-                    x:pt.x,
-                    y:pt.y,
-                    point:pt,
-                    target:node,
-                }
-            );
-        }
-    });
-    
-    //mouse drags
-    bus.filter(typeIs("mouseposition"))
-        .onValue(function(e) {
-            mouseState.x = e.x;
-            mouseState.y = e.y;
-            core.fireEvent({
-                    type: "move",
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    point:{x:mouseState.x, y:mouseState.y},
-                    source:core,
-            });
-        });
-    var diffstream = bus.filter(typeIs("mouseposition"))
-        .diff(null,function(a,b) { 
-            if(!a) {
-                return {dx:0,dy:0,dtime:new Date().getTime()};
-            } else {
-                return {dx:b.x-a.x,dy:b.y-a.y, dtime: b.time-a.time};
-            }
-        });
-        
-    bus.filter(typeIs("mouseposition"))
-        .zip(diffstream,function(a,b) {
-                a.dx = b.dx;
-                a.dy = b.dy;
-                a.dtime = b.dtime;
-                return a;
-        })
-        .filter(function(e) {
-                return !(mouseState.downSwipeInProgress || mouseState.upSwipeInProgress);
-        })
-        .filter(mousePressed)
-        .onValue(function(e) {
-            var node = mouseState.pressTarget;
-            if(node == null) {
-                node = core.findNodeAtXY(mouseState.x,mouseState.y);
-            }
-            if(node != null) {
-	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-                core.fireEventAtTarget(
-                    node,
-                    {
-                        type:"drag",
-                        pressed:mouseState.pressed,
-                        x:pt.x,
-                        y:pt.y,
-                        dx:e.dx,
-                        dy:e.dy,
-	                    point:pt,
-                        target:node,
-                    }
-                );
-            }
-            core.fireEvent({
-                    type: "drag",
-                    type:"drag",
-                    pressed:mouseState.pressed,
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    dx:e.dx,
-                    dy:e.dy,
-                    point:{x:mouseState.x, y:mouseState.y},
-                    source:core,
-            });
-        });
-        
-        
-    //mouse releases
-    var releaseStream = bus.filter(typeIs("mousebutton"))
-        .filter(function(e) { return e.state == 0; });
-        //        .onValue(log("mouse released"));
-    releaseStream.onValue(function(e) {
-        mouseState.downSwipeInProgress = false;
-        mouseState.upSwipeInProgress = false;
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            core.fireEventAtTarget(
-                node,
-                {
-                    type:"release",
-                    pressed:mouseState.pressed,
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    target:node,
-                }
-            );
-            if(mouseState.pressTarget == node) {
-            }
-        }
-    });
-        
-    var swipeStream = bus.filter(typeIs("mouseposition"))
-        .filter(mousePressed)
-        .slidingWindow(5,2);
-        
-    var downSwipe = swipeStream
-        //make sure it y starts < 10
-        .filter(function(e) { return e[0].y < 10; })
-        .onValue(function(e) {
-            if(!mouseState.downSwipeInProgress) {
-                mouseState.downSwipeInProgress = true;
-                core.fireEvent({
-                    type:"edgeswipestart",
-                    direction:'down',
-                    source:core,
-                    x:e.x,
-                    y:e.y,
-                });
-            }
-        });
-    var upSwipe = swipeStream
-        .filter(function(e) { return e[0].y > core.stage.getH()-10; })
-        .onValue(function(e) {
-            if(!mouseState.upSwipeInProgress) {
-                mouseState.upSwipeInProgress = true;
-                core.fireEvent({
-                    type:"edgeswipestart",
-                    direction:'up',
-                    source:core,
-                    x:e.x,
-                    y:e.y,
-                });
-            }
-        });
-        
-    //issue swipe events
-    bus.filter(typeIs("mouseposition"))
-        .filter(function(e) { return mouseState.downSwipeInProgress || mouseState.upSwipeInProgress; })
-        .onValue(function(e) {
-            var dir = "down";
-            if(mouseState.upSwipeInProgress) dir = "up";
-            core.fireEvent({
-                type:"edgeswipedrag",
-                direction:dir,
-                source:core,
-                x:e.x,
-                y:e.y,
-            });
-        });
-        
-    //mouse clicks
-    clickStream = bus.filter(typeIs("mousebutton"))
-        .slidingWindow(2,2)
-        .filter(function(a) {
-                return (a[0].state == 1 && a[1].state == 0);
-        });
-        //    clickStream.onValue(log("mouse clicked"));
-    clickStream.onValue(function(e) {
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node && node == mouseState.pressTarget) {
-            core.fireEventAtTarget(node,
-                {
-                    type:"click",
-                    x:mouseState.x,
-                    y:mouseState.y,
-                    target:node
-                }
-                );
-                    
-        }
-        mouseState.pressTarget = null;
-        
-    });
-    
-    
+    */
+    /*
     bus.filter(typeIs("animend"))
         .onValue(core.notifyAnimEnd);
-
-    var repeatEvent = null;
-    var repeatTimeout = null;
-    var repeatKey = function() {
-        if(repeatEvent) {
-            core.fireEventAtTarget(core.keyfocus,repeatEvent);
-            repeatTimeout = setTimeout(repeatKey, 20);
-        }
-    }
-        
-    bus.filter(typeIs("keypress"))
-        .onValue(function(e) {
-            if(repeatTimeout) {
-                clearTimeout(repeatTimeout);
-                repeatTimeout = null;
-                repeatEvent = null;
-            }
-            
-            var event = {
-                type:"keypress",
-            }
-            event.keycode = e.keycode;
-            event.shift   = (e.shift == 1);
-            event.system  = (e.system == 1);
-            event.alt     = (e.alt == 1);
-            event.control = (e.control == 1);
-            event.printable = false;
-            event.printableChar = 0;
-            if(KEY_TO_CHAR_MAP[e.keycode]) {
-                event.printable = true;
-                var ch = KEY_TO_CHAR_MAP[e.keycode];
-                if(e.shift == 1) {
-                    if(SHIFT_MAP[ch]) {
-                        ch = SHIFT_MAP[ch];
-                    }
-                }
-                event.printableChar = ch;
-            }
-            if(core.keyfocus) {
-                event.target = core.keyfocus;
-                repeatTimeout = setTimeout(repeatKey,300)
-                repeatEvent = event;
-                //console.log("firing",event,"at",core.keyfocus);
-                core.fireEventAtTarget(core.keyfocus,event);
-            }
-        });
-    bus.filter(typeIs("keyrelease"))
-        .onValue(function(e) {
-            if(repeatTimeout) {
-                clearTimeout(repeatTimeout);
-                repeatTimeout = null;
-                repeatEvent = null;
-            }
-        });
-}
-
+        */
 
 /** 
 @func ComposeObject transform the supplied prototype object into a constructor that can then be invoked with 'new'
@@ -583,12 +626,10 @@ exports.ComposeObject = function(proto) {
             comp.promote.forEach(function(propname) {
                 obj["set"+camelize(propname)] = function(value) {
                     //delegate to the nested component
-                    //console.log('delegating ' + propname + ' to ',obj.comps[name]);
                     this.comps[name]["set"+camelize(propname)](value);
                     return this;
                 };
                 obj["get"+camelize(propname)] = function() {
-                    //console.log('delegating ' + propname + ' to ',obj.comps[name]);
                     return this.comps[name]["get"+camelize(propname)]();
                 };
             });
@@ -613,7 +654,6 @@ exports.ComposeObject = function(proto) {
     function generalizeProp(obj, name, prop) {
         obj["set"+camelize(name)] = function(value) {
             obj.set(name,value);
-            this.dirty = true;
             return this;
         };
     }
@@ -707,6 +747,7 @@ var propsHash = {
     "geometry":24,
     "filled":25,
     "closed":26,
+    "dimension": 36,
     
     //rectangle texture
     "textureLeft":  30,
@@ -716,6 +757,7 @@ var propsHash = {
     
     //clipping
     "cliprect": 34,
+    
    
 }
 
@@ -772,6 +814,7 @@ exports.ProtoRect = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         if(shortCircuit(this, this.props[name],value)) return;
+        this.dirty = true;
         this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
@@ -840,14 +883,11 @@ exports.ProtoPoly = exports.ComposeObject({
         scaley: { value: 1 },
         /** @prop visible visible or not. 1 or 0, not true or false */
         visible: { value: 1 },
-        /** @prop w width of the rectangle. default value = 300 */
-        w: { value: 300 },
-        /** @prop h height of the rectangle. default value = 100 */
-        h: { value: 100 },
         r: { value: 0},
         g: { value: 1},
         b: { value: 0},
         geometry: { value: [0,0, 50,0, 50,50]},
+        dimension: { value: 2 },
         filled: { value: false },
         closed: { value: true  },
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
@@ -858,6 +898,7 @@ exports.ProtoPoly = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
+        this.dirty = true;
         //mirror the property to the native side
         if(this.live) {
             if(propsHash[name]) {
@@ -916,10 +957,12 @@ exports.ProtoGroup = exports.ComposeObject({
         w: { value: 100 },
         h: { value: 100 },
         cliprect: { value: 0 },
+        id: { value: "no id" },
     },
     //replaces all setters
     set: function(name, value) {
         if(shortCircuit(this,this.props[name],value)) return;
+        this.dirty = true;
         this.props[name] = value;
         if(name == 'visible') {
             this.props[name] = (value?1:0);
@@ -1016,12 +1059,14 @@ exports.ProtoText = exports.ComposeObject({
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
         fill: {
             value: '#000000', 
-        }
+        },
+        id: { value: 'no id' },
     },
     //replaces all setters
     set: function(name, value) {
         if(shortCircuit(this,this.props[name],value)) return;
         this.props[name] = value;
+        this.markDirty();
         //mirror the property to the native side
         if(this.live) {
             if(name == 'fontName') {
@@ -1050,13 +1095,14 @@ exports.ProtoText = exports.ComposeObject({
     },
     init: function() {
         var self = this;
-        exports.getCore().on('validate',null,function() {
-            if(self.dirty) {
-                self.updateFont();
-                exports.native.updateProperty(self.handle, 'text', self.getText());
-                self.dirty = false;
-            }
-        });
+        this.markDirty = function() {
+            this.dirty = true;
+            exports.dirtylist.push(this);
+        }
+        this.validate = function() {
+            this.updateFont();
+            exports.native.updateProperty(this.handle, 'text', this.getText());
+        }
         this.live = true;
         this.handle = exports.native.createText();
         this.updateFont = function() {
@@ -1114,6 +1160,7 @@ exports.ProtoImageView = exports.ComposeObject({
     //replaces all setters
     set: function(name, value) {
         this.props[name] = value;
+        this.dirty = true;
         //mirror the property to the native side
         if(this.live) {
             exports.native.updateProperty(this.handle, name, value);
@@ -1224,17 +1271,15 @@ function SGStage(core) {
 	this.core = core;
 	/** @func setSize(w,h) set the width and height of the stage. Has no effect on mobile. */
 	this.setSize = function(width,height) {
-	    this.width = width;
-	    this.height = height;
-	    exports.native.setWindowSize(this.width,this.height);
+	    exports.native.setWindowSize(width,height);
 	}
 	/** @func getW returns the width of this stage. */
 	this.getW = function() {
-	    return this.width;
+	    return exports.native.getWindowSize().w;
 	}
 	/** @func getH returns the height of this stage. */
 	this.getH = function() {
-	    return this.height;
+	    return exports.native.getWindowSize().h;
 	}
 	/** @func on(name,node,cb) sets a callback for events matching the specified name on the 
 	specified node. Use null for the node to match global events. */
@@ -1289,7 +1334,7 @@ function JSFont(desc) {
         if(this.weights[weight] != undefined) {
             return this.weights[weight];
         }
-        console.log("ERROR. COULDN'T find the native for " + size + " " + weight + " " + style);
+        //console.log("ERROR. COULDN'T find the native for " + size + " " + weight + " " + style);
         return this.weights[400];
     }
     /** @func calcStringWidth(string, size)  returns the width of the specified string rendered at the specified size */
@@ -1407,15 +1452,19 @@ function Core() {
         }
     }
     
-    var ecount = 0;
+    var self = this;
     this.init = function() {
         exports.native.init(this);
-        setupBacon(this);
         exports.native.setEventCallback(function(e) {
-            ecount++;
+            debug.eventCount++;
             e.time = new Date().getTime();
+            //var t1 = process.hrtime();
             if(e.type == "mousebutton") {
+                mapNativeButton(e);
                 mouseState.pressed = (e.state == 1);
+            }
+            if(e.type == "keypress" || e.type == "keyrelease" || e.type == "keyrepeat") {
+                mapNativeKey(e);
             }
             if(e.x) e.x = e.x/Core.DPIScale;
             if(e.y) e.y = e.y/Core.DPIScale;
@@ -1423,23 +1472,25 @@ function Core() {
                 e.width = e.width/Core.DPIScale;
                 e.height = e.height/Core.DPIScale;
             }
-            baconbus.push(e);
+            processEvent(self,e);
+            if(e.type == "mousebutton" ||
+               e.type == "mouseposition") {
+               // console.log('done',e.type,process.hrtime(t1)[1]/1e6);
+            }
+            if(e.type == "validate") {
+               //console.log('done',e.type,process.hrtime(t1)[1]/1e6);
+            }
         });
     }
     
     this.root = null;
-    this.validate = function() {
-        this.fireEvent({ type:"validate", source:this});
-        //console.log("total events for this frame = " + ecount);
-        ecount = 0;
-    }
     this.start = function() {
         var core = this;
         //send a final window size event to make sure everything is lined up correctly
         var size = exports.native.getWindowSize();
         this.stage.width = size.w;
         this.stage.height = size.h;
-        baconbus.push({
+        processEvent(this,{
             type:"windowsize",
             width:size.w,
             height:size.h,
@@ -1447,19 +1498,19 @@ function Core() {
         if(!this.root) {
             throw new Error("ERROR. No root set on stage");
         }
-        // use setTimeout for looping
-        function tickLoop() {
-            exports.native.tick(core);
-            setTimeout(tickLoop,1);
-        }
         
         var self = this;
         function immediateLoop() {
             try {
-                //console.time("tick");
                 exports.native.tick(core);
-                self.validate();
-                //console.timeEnd("tick");
+                if(settimer) {
+                    console.timeEnd('start');
+                    settimer = false;
+                }
+                if(propertyCount > 0) {
+                    //console.log("propcount = " + propertyCount);
+                }
+                propertyCount = 0;
             } catch (ex) {
                 console.log(ex);
                 console.log(ex.stack);
@@ -1469,7 +1520,6 @@ function Core() {
             exports.native.setImmediate(immediateLoop);
         }
         setTimeout(immediateLoop,1);
-        //setTimeout(tickLoop,1);
     }
     
     /** @func createStage(w,h)  creates a new stage. Only applies on desktop. */
@@ -1488,7 +1538,10 @@ function Core() {
         this.root = node;
     }
     this.findNodeAtXY = function(x,y) {
-        	return this.findNodeAtXY_helper(this.root,x,y);
+        //var t1 = process.hrtime();
+        var node = this.findNodeAtXY_helper(this.root,x,y);
+        //console.log('search time',process.hrtime(t1)[1]/1e6);
+        return node;
     }
     this.findNodeAtXY_helper = function(root,x,y) {
         if(!root) return null;
@@ -1513,19 +1566,43 @@ function Core() {
         }
         return null;
     }
+    function calcGlobalToLocalTransform(node) {
+        if(node.parent) {
+            var trans = calcGlobalToLocalTransform(node.parent);
+            trans.x -= node.getTx();
+            trans.y -= node.getTy();
+            return trans;
+        }
+        return {x:-node.getTx(),y:-node.getTy()};
+    }
     this.globalToLocal = function(pt, node) {
+        var trans = calcGlobalToLocalTransform(node);
+        var pt2 = {
+            x: pt.x+trans.x,
+            y: pt.y+trans.y,
+        }
+        return pt2;
+    }
+    
+    this.globalToLocal_helper = function(pt, node) {
     	if(node.parent) {
-    		pt =  this.globalToLocal(pt,node.parent);
-            return {
-                x: (pt.x - node.getTx())/node.getScalex(),
-                y: (pt.y - node.getTy())/node.getScaley(),
-            }
-    	} else {
-    	    return {
-                x: (pt.x - node.getTx())/node.getScalex(),
-                y: (pt.y - node.getTy())/node.getScaley(),
-	    	}
-	    }
+    		pt =  this.globalToLocal_helper(pt,node.parent);
+    	}
+        return {
+            x: (pt.x - node.getTx())/node.getScalex(),
+            y: (pt.y - node.getTy())/node.getScaley(),
+        }
+    }
+    this.localToGlobal = function(pt, node) {
+        pt = {
+            x: pt.x + node.getTx(),
+            y: pt.y + node.getTy(),
+        };
+        if(node.parent) {
+            return this.localToGlobal(pt,node.parent);
+        } else {
+            return pt;
+        }
     }
     this.listeners = {};
     this.on = function(name, target, listener) {
@@ -1554,12 +1631,20 @@ function Core() {
     }
     this.fireEvent = function(event) {
         if(!event.type) { console.log("WARNING. Event has no type!"); }
+        
+       // var t1 = process.hrtime();
         if(this.listeners[event.type]) {
-            this.listeners[event.type].forEach(function(l) {
-                    if(l.target == event.source) {
-                        l.func(event);
-                    }
-            });
+            var arr = this.listeners[event.type];
+            var len = arr.length;
+            for(var i=0; i<len; i++) {
+                var listener = arr[i];
+                if(listener.target == event.source) {
+                    listener.func(event);
+                }
+            }
+        }
+        if(event.type == "validate") {
+            //console.log('validate time = ',process.hrtime(t1)[1]/1e6);
         }
     };
     
@@ -1577,6 +1662,12 @@ function Core() {
         console.log("running the test with options",opts);
         return exports.native.runTest(opts);
     }
+}
+
+var settimer = false;
+exports.startTime = function() {
+    console.time('start');
+    settimer = true;
 }
 
 Core.DPIScale = 1.0;

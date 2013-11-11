@@ -423,10 +423,18 @@ function processEvent(core,e) {
         return;
     }
     if(e.type == "windowsize") {
+        /**
+        @class windowsize
+        @desc an event fired whenever the window (stage) is resized.
+        */
         core.fireEvent({
+                /** @prop type windowsize */
                 type:"windowsize",
+                /** @prop source the source of this event. Always the window/stage that was resized. */
                 source:core.stage,
+                /** @prop width the new width of the window/stage that was resized. */
                 width:e.width,
+                /** @prop height the new height of the window/stage that was resized. */
                 height:e.height,
         });
         return;
@@ -441,6 +449,10 @@ function processEvent(core,e) {
         if(dwv==0) return;
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {
+            /**
+            @class mousewheelv
+            @desc an event fired whenever the mouse wheel is turned, if the user has a mouse with a wheel
+            */
             core.fireEventAtTarget(node, {
                 type:"mousewheelv",
                 wheel:dwv,
@@ -467,6 +479,10 @@ function processEvent(core,e) {
                 //var t1 = process.hrtime();
 	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
                 //console.log('globalToLocal time',process.hrtime(t1)[1]/1e6);
+                /**
+                @class drag
+                @desc an event fired whenever the mouse is dragged
+                */
                 core.fireEventAtTarget(
                     node,
                     {
@@ -485,6 +501,10 @@ function processEvent(core,e) {
             }
         }
         //move events
+        /**
+        @class move
+        @desc an event fired whenever the mouse is moved
+        */
         core.fireEvent({
             type: "move",
             x:mouseState.x,
@@ -498,6 +518,10 @@ function processEvent(core,e) {
     
 
 
+    /**
+    @class keypress
+    @desc an event fired whenever a key on the keyboard is pushed down. special keys like 'shift' are filtered out.
+    */
     if(e.type == "keypress") {
     
         if(repeatTimeout) {
@@ -540,6 +564,10 @@ function processEvent(core,e) {
             core.fireEventAtTarget(core.keyfocus,event);
         }
     }
+    /**
+    @class keyrelease
+    @desc an event fired whenever a key on the keyboard is released up. special keys like 'shift' are filtered out.
+    */
     if(e.type == "keyrelease") {
         if(repeatTimeout) {
             clearTimeout(repeatTimeout);
@@ -553,6 +581,10 @@ function processEvent(core,e) {
         if(node != null) {
             mouseState.pressTarget = node;
             var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+            /**
+            @class press
+            @desc an event fired whenever a mouse button is pressed.
+            */
             core.fireEventAtTarget(node,
                 {
                     type:"press",
@@ -571,6 +603,10 @@ function processEvent(core,e) {
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {
             var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+            /**
+            @class release
+            @desc an event fired whenever a mouse button is released
+            */
             core.fireEventAtTarget(node,
                 {
                     type:"release",
@@ -597,20 +633,7 @@ function processEvent(core,e) {
         return;
     }
     
-    //console.log(e);
 }
-//    bus.filter(typeIs("windowclose")).onValue(exitApp);
-/*
-    bus.filter(typeIs("windowsize"))
-    .onValue(function(e) {
-        core.fireEvent({
-                type:"windowsize",
-                source:core.stage,
-                width:e.width,
-                height:e.height,
-        });
-    });
-    */
     /*
     bus.filter(typeIs("animend"))
         .onValue(core.notifyAnimEnd);

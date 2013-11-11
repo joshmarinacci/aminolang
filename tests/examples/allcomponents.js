@@ -85,8 +85,10 @@ amino.startApp(function(core, stage) {
         title: "textfield example, field and area",
         content: new widgets.AnchorPanel().setW(400).setH(200),
     };
-    text.content.add(new widgets.TextField().setW(200).setH(30));
-    text.content.add(new widgets.TextField().setW(200).setH(30).setTy(40));
+    text.content.add(new widgets.TextField().setW(200).setH(30).setText("single line text field"));
+    text.content.add(new widgets.TextField().setW(200).setH(100).setWrapping(true).setTy(50)
+        .setText("multiline text field. It does proper wrapping so that you can type on multiple lines")
+        );
     tests.push(text);
     
     

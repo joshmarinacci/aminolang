@@ -357,6 +357,19 @@ function mapNativeKey(e) {
         e.system = 1;
     }
     
+
+
+    if(e.shift == 1) {
+        if(e.type == "keypress") {
+            keyState.shift = true;
+        }
+        if(e.type == "keyrelease") {
+            keyState.shift = false;
+        }
+    }
+    if(!e.shift) {
+        e.shift = (keyState.shift?1:0);
+    }
     
     
     var nc = RPI_KEYCODE_MAP[e.keycode];
@@ -383,6 +396,9 @@ function validateScene() {
 var prevmouse = {};
 var repeatEvent = null;
 var repeatTimeout = null;
+var keyState = {
+    shift:false,
+};
 function processEvent(core,e) {
     var repeatKey = function() {
         if(repeatEvent) {
@@ -476,7 +492,6 @@ function processEvent(core,e) {
 
 
     if(e.type == "keypress") {
-        
     
         if(repeatTimeout) {
             clearTimeout(repeatTimeout);
@@ -504,6 +519,11 @@ function processEvent(core,e) {
                 }
             }
             event.printableChar = ch;
+        }
+        if(OS == "RPI") {
+            if(e.keycode == 42 || e.keycode == 54) {
+                event.printable = false;
+            }
         }
         if(core.keyfocus) {
             event.target = core.keyfocus;
@@ -587,62 +607,6 @@ function processEvent(core,e) {
     bus.filter(typeIs("animend"))
         .onValue(core.notifyAnimEnd);
         */
-/*
-    var repeatEvent = null;
-    var repeatTimeout = null;
-    var repeatKey = function() {
-        if(repeatEvent) {
-            core.fireEventAtTarget(core.keyfocus,repeatEvent);
-            repeatTimeout = setTimeout(repeatKey, 20);
-        }
-    }
-    
-    bus.filter(typeIs("keypress"))
-        .onValue(function(e) {
-            if(repeatTimeout) {
-                clearTimeout(repeatTimeout);
-                repeatTimeout = null;
-                repeatEvent = null;
-            }
-            
-            var event = {
-                type:"keypress",
-            }
-            event.keycode = e.keycode;
-            event.shift   = (e.shift == 1);
-            event.system  = (e.system == 1);
-            event.alt     = (e.alt == 1);
-            event.control = (e.control == 1);
-            event.printable = false;
-            event.printableChar = 0;
-            if(KEY_TO_CHAR_MAP[e.keycode]) {
-                event.printable = true;
-                var ch = KEY_TO_CHAR_MAP[e.keycode];
-                if(e.shift == 1) {
-                    if(SHIFT_MAP[ch]) {
-                        ch = SHIFT_MAP[ch];
-                    }
-                }
-                event.printableChar = ch;
-            }
-            if(core.keyfocus) {
-                event.target = core.keyfocus;
-                repeatTimeout = setTimeout(repeatKey,300)
-                repeatEvent = event;
-                //console.log("firing",event,"at",core.keyfocus);
-                core.fireEventAtTarget(core.keyfocus,event);
-            }
-        });
-    bus.filter(typeIs("keyrelease"))
-        .onValue(function(e) {
-            if(repeatTimeout) {
-                clearTimeout(repeatTimeout);
-                repeatTimeout = null;
-                repeatEvent = null;
-            }
-        });
-}
-*/
 
 /** 
 @func ComposeObject transform the supplied prototype object into a constructor that can then be invoked with 'new'

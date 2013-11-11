@@ -2,6 +2,7 @@ var amino = require('../../build/desktop/amino.js');
 var widgets = require('../../build/desktop/widgets.js');
 var ContentView = require('./ContentView.js');
 var WindowView = require('./WindowView.js');
+var DocEditor = require('./DocEditor.js');
 exports.windowlist = [];
 
 exports.windows = null;
@@ -27,7 +28,10 @@ exports.mergeWindow = function (tab, window, gpt) {
     tab.window.addExistingTab(tab);
     exports.windows.raiseToTop(tab.window);
 }
-
+exports.openDocMetaEditor = function(doc) {
+    console.log("editing the document",doc);
+    exports.openView(DocEditor.DocMetaEditor(doc));
+}
 exports.openView = function(item) {
     if(item.isFolder && item.isFolder()) {
         var folder = item;
@@ -72,6 +76,16 @@ exports.openView = function(item) {
                     .setW(30).setH(20)
                     .setText("list").setFontSize(10)
                     )
+                .add(new widgets.PushButton()
+                    .setW(60).setH(20)
+                    .setText("(i)").setFontSize(10)
+                    .onAction(function() {
+                        var n = lv.getSelectedIndex();
+                        console.log("doing info of selected item: " + n);
+                        if(n >= 0) {
+                            exports.openDocMetaEditor(item.getItems()[n]);
+                        }
+                    }))
                 ;
                 
             view.comps.toolbar.redoLayout();

@@ -39,26 +39,21 @@ for(var i=0; i<10; i++) {
     }});
 }
 
-console.log("parsing the on disk database");
-var docs = JSON.parse(fs.readFileSync("DesktopDB/Music/songs.json")).documents;
-console.log(docs);
-docs.forEach(function(meta) {
-    meta.doc.file = "DesktopDB/Music/"+meta.doc.file;
-    db.insert({doctype:meta.type, doc: meta.doc});
-});
+function parseFile(filename) {
+    var docs = JSON.parse(fs.readFileSync(filename)).documents;
+    console.log(docs);
+    docs.forEach(function(meta) {
+        meta.doc.file = "DesktopDB/Music/"+meta.doc.file;
+        db.insert({doctype:meta.type, doc: meta.doc});
+    });
+}
+parseFile("DesktopDB/Music/songs.json");
+parseFile("DesktopDB/Contacts/contacts.json");
 
 for(var i=0; i<3; i++) {
     db.insert({doctype:doctypes.text, doc: {
         title: "Text " + i,
         content: "This is some contents in the text document",
-    }});
-}
-
-for(var i=0; i<20; i++) {
-    db.insert({doctype:doctypes.person, doc: {
-        title: "Bob Smith",
-        firstname: "Bob",
-        lastname: "Smith",
     }});
 }
 
@@ -83,10 +78,6 @@ var apps = [
         init: function() {
             return new DocumentQueryFolder("Inbox", doctypes.email, Email.EmailViewCustomizer);
         },
-    },
-    {
-        title: "Status",
-        init: OSStatus.buildApp,
     },
     {
         title: "Music",
@@ -234,6 +225,44 @@ function DesktopFolder() {
 }
 
 
+function setupDock(core,stage) {
+    var dock = new widgets.VerticalPanel();
+    dock.setFill("#ccffcc");
+    dock.setW(150).setH(500);
+    
+    OSStatus.buildApp(dock);
+    
+    var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
+        .setW(110).setH(30).setTx(5).setTy(150);
+    fakeNewEmail.onAction(function(e) {
+        db.insert({doctype:doctypes.email, doc: {
+            title:"an new email ",
+            from: "foo@bar.com",
+            to: "bar@foo.com",
+            subject:"Subjects are for the weak!"+Math.floor(Math.random()*100),
+            body: "Hah. You read the message! Foolish mortal.",
+        }});
+        
+    });
+    dock.add(fakeNewEmail);
+    
+    
+    var dy = 150;
+    apps.forEach(function(app) {
+        dy+= 5;
+        dy+= 30;
+        var button = new widgets.PushButton().setText(app.title)
+            .setW(110).setH(30).setTx(5).setTy(dy);
+        button.onAction(function(e) {
+            var ap = app.init(core,stage,db);
+            Global.openView(ap);
+        });
+        dock.add(button);
+    });
+    
+    return dock;
+}
+
 amino.startApp(function(core, stage) {
     var root;
     stage.setSize(1200,600);
@@ -248,19 +277,15 @@ amino.startApp(function(core, stage) {
         
     root = new amino.ProtoGroup().setId("root");
     stage.setRoot(root);
-//    Global.root = root;
     
     var desktopview = new WindowView.WindowView()
         .setId("desktop")
-        .setW(stage.getW()).setH(stage.getH())
+        .setW(stage.getW()-155).setH(stage.getH())
+        .setTx(155)
         .setDraggable(false)
         .setResizable(false)
         ;
-        /*
-    amino.getCore().on("windowsize",stage,function(size) {
-        console.log(size.width,size.height);
-    });
-    */
+    
     var items = desktopfolder.getItems();
     var cv = new amino.ProtoGroup();
     for(var i=0; i<items.length; i++) {
@@ -284,41 +309,17 @@ amino.startApp(function(core, stage) {
     
     Global.windows = new amino.ProtoGroup().setId("WindowsGroup");
     root.add(Global.windows);
-    var fakeNewEmail = new widgets.PushButton().setText("Receive Email")
-        .setW(110).setH(30).setTx(5).setTy(150);
-    fakeNewEmail.onAction(function(e) {
-        db.insert({doctype:doctypes.email, doc: {
-            title:"an new email ",
-            from: "foo@bar.com",
-            to: "bar@foo.com",
-            subject:"Subjects are for the weak!"+Math.floor(Math.random()*100),
-            body: "Hah. You read the message! Foolish mortal.",
-        }});
-        
-    });
-    root.add(fakeNewEmail);
     
     
-    var dy = 150;
-    apps.forEach(function(app) {
-        dy+= 5;
-        dy+= 30;
-        var button = new widgets.PushButton().setText(app.title)
-            .setW(110).setH(30).setTx(5).setTy(dy);
-        button.onAction(function(e) {
-            var ap = app.init(core,stage,db);
-            Global.openView(ap);
-        });
-        root.add(button);
-    });
+    root.add(setupDock(core,stage));
     
     setInterval(function() {
         db.processUpdates();
     },100);
 
 
-    var cursor = new amino.ProtoRect().setW(10).setH(10).setFill("#e0e0e0");
-//    var cursor = new amino.ProtoText().setFontName('awesome').setText('\uF124').setFill("#ffffff");
+//    var cursor = new amino.ProtoRect().setW(10).setH(10).setFill("#e0e0e0");
+    var cursor = new amino.ProtoText().setFontName('awesome').setText('\uF124').setFill("#ffffff");
     root.add(cursor);
     core.on("move",null,function(e) {
         cursor.setTx(e.x+1);

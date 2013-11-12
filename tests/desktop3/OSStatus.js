@@ -6,10 +6,7 @@ var moment = require('moment');
 
 var lasttime = null;
 
-exports.buildApp = function(core, stage, db) {
-    var panel = new widgets.VerticalPanel();
-    panel.isApp = function() { return true; }
-    panel.getTitle = function() { return "Status"; }
+exports.buildApp = function(panel, core, stage, db) {
     
     //date and time
     var time = new widgets.Label().setText("12:45pm").setFontSize(30);

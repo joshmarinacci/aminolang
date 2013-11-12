@@ -99,7 +99,7 @@ exports.openView = function(item) {
         var winview = new WindowView.WindowView();
         winview.addTab(view,folder.getTitle());
         exports.windows.add(winview);
-        winview.setTx(100).setTy(100).setW(500).setH(300);
+        winview.setTx(300).setTy(100).setW(500).setH(300);
         return;
     }
     
@@ -107,7 +107,7 @@ exports.openView = function(item) {
         var winview = new WindowView.WindowView();
         winview.addTab(item,item.getTitle());
         exports.windows.add(winview);
-        winview.setTx(100).setTy(100).setW(500).setH(300);
+        winview.setTx(300).setTy(100).setW(500).setH(300);
         return;
     }
     
@@ -121,6 +121,6 @@ exports.openView = function(item) {
     winview.addTab(view,item.getTitle());
     exports.windows.add(winview);
     
-    winview.setTx(100).setTy(100).setW(500).setH(300);
+    winview.setTx(300).setTy(100).setW(500).setH(300);
 }
 

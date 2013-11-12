@@ -1,0 +1,50 @@
+{
+    "documents":[
+        {
+            "type":"com.joshondesign.aminos.contacts.person",
+            "doc":{
+                "title":"Tom Jones",
+                "firstname":"Tom",
+                "lastname":"Jones",
+                "email":"tom@jones.com",
+                "web":"http://tomjones.com/",
+                "phone":"555-555-5555"
+            }
+        },
+        {
+            "type":"com.joshondesign.aminos.contacts.person",
+            "doc":{
+                "title":"Santa Claus",
+                "company":"Kringle Inc.",
+                "firstname":"Santa",
+                "lastname":"Claus",
+                "email":"bigguy@northpole.com",
+                "web":"http://seesyouwhenyouresleeping.com/",
+                "phone":"777-444-3333"
+            }
+        },
+        {
+            "type":"com.joshondesign.aminos.contacts.person",
+            "doc":{
+                "title":"Mrs Claus",
+                "company":"Kringle Inc.",
+                "firstname":"Anna",
+                "lastname":"Belle Claus",
+                "email":"lady@northpole.com",
+                "web":"http://seesyouwhenyouresleeping.com/",
+                "phone":"777-444-3334"
+            }
+        },
+        {
+            "type":"com.joshondesign.aminos.contacts.person",
+            "doc":{
+                "title":"Josh Marinacci",
+                "firstname":"Josh",
+                "lastname":"Marinacci",
+                "email":"joshua@marinacci.org",
+                "web":"http://joshondesign.com/",
+                "phone":"666-666-6666"
+            }
+        }
+    ]
+}

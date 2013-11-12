@@ -25,6 +25,7 @@ if((typeof process) != 'undefined') {
 }
 
 input.OS = OS;
+input.initOS();
 
 var debug = {
     eventCount:0,

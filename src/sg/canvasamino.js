@@ -309,6 +309,7 @@ input.KEY_MAP.RIGHT_ARROW  = 39; //browser right key
 input.KEY_MAP.DOWN_ARROW   = 40; //backspace key
 input.KEY_MAP.BACKSPACE    = 8; //backspace key
 input.KEY_MAP.ENTER        = 13; //backspace key
+input.KEY_MAP.LEFT_SHIFT   = 16; //backspace key
 
 function CanvasFont(g,name) {
     this.g = g;

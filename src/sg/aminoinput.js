@@ -4,6 +4,10 @@ if(typeof exports == 'undefined' || exports.inbrowser==true) {
     var input = exports;
 }
 
+var keyState = {
+    shift:false,
+};
+
 
 var mouseState = {
     pressed:false,
@@ -21,7 +25,11 @@ input.KEY_MAP = {
     LEFT_ARROW:    285,
     BACKSPACE:     295,
     ENTER:         294,
+    //mac
+    LEFT_SHIFT:    287,
+    RIGHT_SHIFT:    288,
 }
+
 var KEY_TO_CHAR_MAP = {};
 //lower symbols
 for(var i=32; i<=64; i++) {
@@ -69,6 +77,8 @@ SHIFT_MAP['.'] = '>';
 SHIFT_MAP['/'] = '?';
 //console.log(SHIFT_MAP);
 
+input.SHIFT_MAP = SHIFT_MAP;
+
 
 
 /* raspberry pi specific for now */
@@ -101,12 +111,17 @@ function mapNativeButton(e) {
     if(input.OS != "RPI") return;
 }
 function mapNativeKey(e) {
+    
+    if(e.keycode == input.KEY_MAP.LEFT_SHIFT || e.keycode == input.KEY_MAP.RIGHT_SHIFT) {
+        if(e.type == "keypress") {
+            keyState.shift = true;
+        }
+        if(e.type == "keyrelease") {
+            keyState.shift = false;
+        }
+    }
     if(input.OS != "RPI") return;
     
-    //left and right shift
-    if(e.keycode == 42 || e.keycode == 54) {
-        e.shift = 1;
-    }
     //left and right control
     if(e.keycode == 29 || e.keycode == 97) {
         e.control = 1;
@@ -120,21 +135,6 @@ function mapNativeKey(e) {
         e.system = 1;
     }
     
-
-
-    if(e.shift == 1) {
-        if(e.type == "keypress") {
-            keyState.shift = true;
-        }
-        if(e.type == "keyrelease") {
-            keyState.shift = false;
-        }
-    }
-    if(!e.shift) {
-        e.shift = (keyState.shift?1:0);
-    }
-    
-    
     var nc = RPI_KEYCODE_MAP[e.keycode];
     if(nc) {
         var ch = KEY_TO_CHAR_MAP[nc];
@@ -147,9 +147,6 @@ function mapNativeKey(e) {
 var prevmouse = {};
 var repeatEvent = null;
 var repeatTimeout = null;
-var keyState = {
-    shift:false,
-};
 
 function dumpToParent(node,inset) {
     console.log(inset + "type = " + node.type + " " + node.getTx() + " " + node.getTy());
@@ -159,7 +156,23 @@ function dumpToParent(node,inset) {
     }
 }
 
+input.initOS = function() {
+    console.log("initing OS specific input bindings for " + input.OS);
+    if(input.OS == "MAC") {
+        input.KEY_MAP.LEFT_SHIFT = 287;
+        input.KEY_MAP.RIGHT_SHIFT = 288;
+    }
+    if(input.OS == "RPI") {
+        input.KEY_MAP.LEFT_SHIFT = 42;
+        input.KEY_MAP.RIGHT_SHIFT = 54;
+    }
+}
 input.processEvent = function(core,e) {
+    if(e.type == "validate") {
+        input.validateScene();
+        return;
+    }
+
     if(e.type == "mousebutton") {
         mapNativeButton(e);
         mouseState.pressed = (e.state == 1);
@@ -175,10 +188,6 @@ input.processEvent = function(core,e) {
         }
     }
     function exitApp() { setTimeout(function() { process.exit(0); },10); };
-    if(e.type == "validate") {
-        input.validateScene();
-        return;
-    }
     if(e.type == "windowclose") {
         exitApp();
         return;
@@ -296,7 +305,7 @@ input.processEvent = function(core,e) {
             type:"keypress",
         }
         event.keycode = e.keycode;
-        event.shift   = (e.shift == 1);
+        event.shift   = keyState.shift;
         event.system  = (e.system == 1);
         event.alt     = (e.alt == 1);
         event.control = (e.control == 1);
@@ -305,7 +314,7 @@ input.processEvent = function(core,e) {
         if(KEY_TO_CHAR_MAP[e.keycode]) {
             event.printable = true;
             var ch = KEY_TO_CHAR_MAP[e.keycode];
-            if(e.shift == 1) {
+            if(event.shift) {
                 if(SHIFT_MAP[ch]) {
                     ch = SHIFT_MAP[ch];
                 }

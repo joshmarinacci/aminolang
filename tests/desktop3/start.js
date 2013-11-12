@@ -23,6 +23,7 @@ amino.colortheme.base = "#dddddd";
 
 var doctypes = {
     email:   'com.joshondesign.aminos.email.message',
+    photo:   'com.joshondesign.aminos.photo.jpeg',
     song:    'com.joshondesign.aminos.music.song',
     text:    'com.joshondesign.aminos.text.plain',
     person:  'com.joshondesign.aminos.contacts.person',
@@ -50,6 +51,7 @@ function parseFile(filename) {
 parseFile("DesktopDB/Music/songs.json");
 parseFile("DesktopDB/Contacts/contacts.json");
 parseFile("DesktopDB/Documents/documents.json");
+parseFile("DesktopDB/Photos/photos.json");
 
 
 var apps = [
@@ -203,7 +205,7 @@ function DesktopFolder() {
     this.getTitle = function() { return this.title; }
     this.items = [
         new DocumentQueryFolder("All Email",doctypes.email),
-        //new DocumentQueryFolder("Inbox", doctypes.email, Email.EmailViewCustomizer),
+        new DocumentQueryFolder("All Photos", doctypes.photo),
         new DocumentQueryFolder("All Music", doctypes.song),
         //new DocumentQueryFolder("Music", doctypes.song, Music.MusicViewCustomizer),
         new DocumentQueryFolder("All Text",doctypes.text),

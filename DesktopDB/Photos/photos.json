@@ -1,0 +1,34 @@
+{
+    "documents":[
+        {
+            "type":"com.joshondesign.aminos.photo.jpeg",
+            "doc":{
+                "title":"Clock",
+                "file":"clock.jpg",
+                "width":"1280",
+                "height":"851",
+                "format":"jpg"
+            }
+        },
+        {
+            "type":"com.joshondesign.aminos.photo.jpeg",
+            "doc":{
+                "title":"Mini Eiffel Tower",
+                "file":"minitower.jpg",
+                "width":"851",
+                "height":"1280",
+                "format":"jpg"
+            }
+        },
+        {
+            "type":"com.joshondesign.aminos.photo.jpeg",
+            "doc":{
+                "title":"Trees and Building",
+                "file":"trees.jpg",
+                "width":"851",
+                "height":"1280",
+                "format":"jpg"
+            }
+        }
+    ]
+}

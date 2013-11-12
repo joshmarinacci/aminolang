@@ -1,0 +1,18 @@
+{
+    "documents":[
+        {
+            "type":"com.joshondesign.aminos.text.plain",
+            "doc":{
+                "title":"Resume",
+                "content":"This is my resume"
+            }
+        },
+        {
+            "type":"com.joshondesign.aminos.text.plain",
+            "doc":{
+                "title":"Master Thesis",
+                "content":"This is my master thesis"
+            }
+        }
+    ]
+}

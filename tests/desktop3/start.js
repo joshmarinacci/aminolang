@@ -49,13 +49,7 @@ function parseFile(filename) {
 }
 parseFile("DesktopDB/Music/songs.json");
 parseFile("DesktopDB/Contacts/contacts.json");
-
-for(var i=0; i<3; i++) {
-    db.insert({doctype:doctypes.text, doc: {
-        title: "Text " + i,
-        content: "This is some contents in the text document",
-    }});
-}
+parseFile("DesktopDB/Documents/documents.json");
 
 
 var apps = [

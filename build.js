@@ -229,6 +229,7 @@ function desktop(cb) {
     var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
+    copyFileTo(src+"aminoinput.js",out);
     copyFileTo("build/Release/aminonative.node",out);
     copyFileTo(src+"widgets.js",out);
     //copyFileTo("src/jscommon/textcontrol.js",out);
@@ -250,6 +251,7 @@ function canvas(cb) {
     var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
+    copyFileTo(src+"aminoinput.js",out);
     copyFileTo(src+"canvasamino.js",out);
     copyFileTo(src+"widgets.js",out);
     //copyFileTo("src/jscommon/textcontrol.js",out);

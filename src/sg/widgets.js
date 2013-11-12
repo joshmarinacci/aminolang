@@ -5,10 +5,12 @@
 
 if(typeof exports == 'undefined' || exports.inbrowser==true) {
     var widgets = this['widgets'] = {};
-    var amino = this['mymodule'];
+    var amino = this['amino'];
+    var input = this['aminoinput'];
 } else {
-    var amino = require('./amino.js');
+    var amino = require('amino.js');
     var widgets = exports;
+    var input = require('aminoinput.js');
 }
 
 
@@ -1701,12 +1703,12 @@ function TextControl() {
     
     this.handlers = { };
     
-    this.handlers[amino.KEY_MAP.UP_ARROW] = keyHandlers.cursorPrevLine;
-    this.handlers[amino.KEY_MAP.DOWN_ARROW] = keyHandlers.cursorNextLine;
-    this.handlers[amino.KEY_MAP.LEFT_ARROW] = keyHandlers.moveCursorBackOneCharacter;
-    this.handlers[amino.KEY_MAP.RIGHT_ARROW] = keyHandlers.cursorForwardCharacter;
-    this.handlers[amino.KEY_MAP.BACKSPACE] = keyHandlers.cursorDeletePrevChar;
-    this.handlers[amino.KEY_MAP.ENTER] = function(kb) { // enter/return key
+    this.handlers[input.KEY_MAP.UP_ARROW] = keyHandlers.cursorPrevLine;
+    this.handlers[input.KEY_MAP.DOWN_ARROW] = keyHandlers.cursorNextLine;
+    this.handlers[input.KEY_MAP.LEFT_ARROW] = keyHandlers.moveCursorBackOneCharacter;
+    this.handlers[input.KEY_MAP.RIGHT_ARROW] = keyHandlers.cursorForwardCharacter;
+    this.handlers[input.KEY_MAP.BACKSPACE] = keyHandlers.cursorDeletePrevChar;
+    this.handlers[input.KEY_MAP.ENTER] = function(kb) { // enter/return key
             if(!kb.target.wrapping) {
                 amino.getCore().fireEvent({
                     type:"ACTION",

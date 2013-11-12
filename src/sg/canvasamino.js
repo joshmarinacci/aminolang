@@ -1,7 +1,8 @@
 console.log("inside the canvas amino");
 console.log("exported amino = ", this['mymodule']);
 
-var amino = this['mymodule'];
+var amino = this['amino'];
+var input = this['aminoinput'];
 amino.sgtest = {
 }
 var fontmap = {};
@@ -194,7 +195,7 @@ amino.native = {
         });
     },
     sendValidate: function() {
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
             type: "validate"
         });
     }
@@ -302,12 +303,12 @@ function CanvasPropAnim(target,prop,start,end,duration) {
 }
 
 
-amino.KEY_MAP.LEFT_ARROW   = 37; //browser right key
-amino.KEY_MAP.UP_ARROW     = 38; //backspace key
-amino.KEY_MAP.RIGHT_ARROW  = 39; //browser right key
-amino.KEY_MAP.DOWN_ARROW   = 40; //backspace key
-amino.KEY_MAP.BACKSPACE    = 8; //backspace key
-amino.KEY_MAP.ENTER        = 13; //backspace key
+input.KEY_MAP.LEFT_ARROW   = 37; //browser right key
+input.KEY_MAP.UP_ARROW     = 38; //backspace key
+input.KEY_MAP.RIGHT_ARROW  = 39; //browser right key
+input.KEY_MAP.DOWN_ARROW   = 40; //backspace key
+input.KEY_MAP.BACKSPACE    = 8; //backspace key
+input.KEY_MAP.ENTER        = 13; //backspace key
 
 function CanvasFont(g,name) {
     this.g = g;
@@ -341,19 +342,19 @@ amino.setupEventHandlers = function() {
     
     attachEvent(dom,'mousedown',function(e){
         mouseState.pressed = true;
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
             type:"mouseposition", 
             x:e.x, 
             y:e.y,
         });
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
             type:"mousebutton", 
             button:0, 
             state:1,
         });
     });
     attachEvent(dom,'mousemove',function(e){
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
             type:"mouseposition",
             x:e.x,
             y:e.y
@@ -361,12 +362,12 @@ amino.setupEventHandlers = function() {
     });
     attachEvent(dom,'mouseup',function(e){
         mouseState.pressed = false;
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
             type:"mouseposition",
             x:e.x, 
             y:e.y
         });
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
             type:"mousebutton", 
             button:0, 
             state:0
@@ -376,7 +377,7 @@ amino.setupEventHandlers = function() {
         if(e.metaKey) return;
         e.preventDefault();
         console.log(e);
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
                 type:"keypress",
                 keycode: e.keyCode,
                 shift:   e.shiftKey?1:0,
@@ -386,7 +387,7 @@ amino.setupEventHandlers = function() {
     });
     attachEvent(window,'keyup',function(e){
         e.preventDefault();
-        processEvent(Core._core,{
+        input.processEvent(Core._core,{
                 type:"keyrelease",
                 keycode: e.keyCode,
         });

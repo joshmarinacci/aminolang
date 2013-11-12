@@ -2,27 +2,16 @@
 @class dummy
 @desc a dummy header to work around a doc generation bug. ignore
 */
-var deps = {
-    'fs':'fs',
-    'sgtest':"./aminonative.node",
-}
 
-function jrequire(lib) {
-    return require(deps[lib]);
-}
-
-if(typeof exports == 'undefined'){
-    var exports = this['mymodule'] = {};
+if(typeof document == "undefined") {
+    exports.sgtest = require('./aminonative.node');
+    var input = require('aminoinput');
+} else {
+    var exports = this['amino'] = {};    
     exports.inbrowser = true;
-    //inside the browser.
-    jrequire = function(lib) {
-        console.log("faking loading lib: " + lib);
-        return this[lib];
-    }
+    var input = this['aminoinput'];
 }
 
-
-var fs = jrequire('fs');
 
 var OS = "BROWSER";
 if((typeof process) != 'undefined') {
@@ -35,7 +24,7 @@ if((typeof process) != 'undefined') {
     }
 }
 
-
+input.OS = OS;
 
 var debug = {
     eventCount:0,
@@ -75,7 +64,6 @@ exports.colortheme = {
 exports.SOFTKEYBOARD_ENABLED = false;
 
 
-exports.sgtest = jrequire('sgtest');
 
 var fontmap = {};
 
@@ -214,14 +202,6 @@ exports.native = {
 
 }
 
-var mouseState = {
-    pressed:false,
-    x:0,
-    y:0,
-    pressTarget:null,
-    downSwipeInProgress:false,
-    upSwipeInProgress:false,
- }
 
 
 //String extension
@@ -250,136 +230,7 @@ function ParseRGBString(Fill) {
     return Fill;
 }
 
-exports.KEY_MAP = {
-    UP_ARROW:      283,
-    DOWN_ARROW:    284,
-    RIGHT_ARROW:   286,
-    LEFT_ARROW:    285,
-    BACKSPACE:     295,
-    ENTER:         294,
-}
 
-var KEY_TO_CHAR_MAP = {};
-//lower symbols
-for(var i=32; i<=64; i++) {
-    KEY_TO_CHAR_MAP[i]= String.fromCharCode(i);
-}
-//letters
-for(var i=65; i<=90; i++) {
-    KEY_TO_CHAR_MAP[i]= String.fromCharCode(i+32);
-}
-//upper symbols
-KEY_TO_CHAR_MAP[91]=String.fromCharCode(91);
-KEY_TO_CHAR_MAP[92]=String.fromCharCode(92);
-KEY_TO_CHAR_MAP[93]=String.fromCharCode(93);
-KEY_TO_CHAR_MAP[96]=String.fromCharCode(96);
-//console.log(KEY_TO_CHAR_MAP);
-var SHIFT_MAP = {};
-//capital letters
-for(var i=97; i<=122; i++) {
-    SHIFT_MAP[String.fromCharCode(i)] = String.fromCharCode(i-32);
-}
-SHIFT_MAP['1'] = '!';
-SHIFT_MAP['2'] = '@';
-SHIFT_MAP['3'] = '#';
-SHIFT_MAP['4'] = '$';
-SHIFT_MAP['5'] = '%';
-SHIFT_MAP['6'] = '^';
-SHIFT_MAP['7'] = '&';
-SHIFT_MAP['8'] = '*';
-SHIFT_MAP['9'] = '(';
-SHIFT_MAP['0'] = ')';
-
-SHIFT_MAP['-'] = '_';
-SHIFT_MAP['='] = '+';
-SHIFT_MAP['['] = '{';
-SHIFT_MAP[']'] = '}';
-SHIFT_MAP['\\'] = '\|';
-SHIFT_MAP['`'] = '~';
-
-
-SHIFT_MAP[';'] = ':';
-SHIFT_MAP['\''] = '\"';
-
-SHIFT_MAP[','] = '<';
-SHIFT_MAP['.'] = '>';
-SHIFT_MAP['/'] = '?';
-//console.log(SHIFT_MAP);
-
-
-
-/* raspberry pi specific for now */
-function ascii(ch) {
-    return ch.charCodeAt(0);
-}
-//josh's mac keyboard. must replace with something obtained from the system
-var RPI_KEYCODE_MAP = {
-    57:ascii(' '),
-}
-
-function insertKeyboardRow(n, letters) {
-    for(var i=0; i<letters.length; i++) {
-        RPI_KEYCODE_MAP[n+i] = ascii(letters[i]);
-    }
-}
-
-insertKeyboardRow(2,'1234567890-=');
-insertKeyboardRow(16,'QWERTYUIOP[]');
-insertKeyboardRow(30,'ASDFGHJKL');
-insertKeyboardRow(44,'ZXCVBNM,./');
-RPI_KEYCODE_MAP[103] = 283; //up arrow
-RPI_KEYCODE_MAP[105] = 285; //left arrow
-RPI_KEYCODE_MAP[106] = 286; //right arrow
-RPI_KEYCODE_MAP[108] = 284; //down arrow
-
-/* end rpi keyboard stuff */
-
-function mapNativeButton(e) {
-    if(OS != "RPI") return;
-}
-function mapNativeKey(e) {
-    if(OS != "RPI") return;
-    
-    //left and right shift
-    if(e.keycode == 42 || e.keycode == 54) {
-        e.shift = 1;
-    }
-    //left and right control
-    if(e.keycode == 29 || e.keycode == 97) {
-        e.control = 1;
-    }
-    //left and right option/alt
-    if(e.keycode == 56 || e.keycode == 100) {
-        e.alt = 1;
-    }
-    //left and right command
-    if(e.keycode == 125 || e.keycode == 126) {
-        e.system = 1;
-    }
-    
-
-
-    if(e.shift == 1) {
-        if(e.type == "keypress") {
-            keyState.shift = true;
-        }
-        if(e.type == "keyrelease") {
-            keyState.shift = false;
-        }
-    }
-    if(!e.shift) {
-        e.shift = (keyState.shift?1:0);
-    }
-    
-    
-    var nc = RPI_KEYCODE_MAP[e.keycode];
-    if(nc) {
-        var ch = KEY_TO_CHAR_MAP[nc];
-        //console.log("mapping: " + e.keycode + " to " + nc + " which is char '"+ch+"'");
-        e.keycode = nc;
-    }
-    
-}
 
 exports.dirtylist = [];
 function validateScene() {
@@ -393,251 +244,12 @@ function validateScene() {
     });
     exports.dirtylist = [];
 }
-var prevmouse = {};
-var repeatEvent = null;
-var repeatTimeout = null;
-var keyState = {
-    shift:false,
-};
-function dumpToParent(node,inset) {
-    console.log(inset + "type = " + node.type + " " + node.getTx() + " " + node.getTy());
-    if(node.getId) { console.log(inset + "     id = " + node.getId()); }
-    if(node.parent) {
-        dumpToParent(node.parent, inset+"  ");
-    }
-}
-function processEvent(core,e) {
-    var repeatKey = function() {
-        if(repeatEvent) {
-            core.fireEventAtTarget(core.keyfocus,repeatEvent);
-            repeatTimeout = setTimeout(repeatKey, 20);
-        }
-    }
-    function exitApp() { setTimeout(function() { process.exit(0); },10); };
-    if(e.type == "validate") {
-        validateScene();
-        return;
-    }
-    if(e.type == "windowclose") {
-        exitApp();
-        return;
-    }
-    if(e.type == "windowsize") {
-        /**
-        @class windowsize
-        @desc an event fired whenever the window (stage) is resized.
-        */
-        core.fireEvent({
-                /** @prop type windowsize */
-                type:"windowsize",
-                /** @prop source the source of this event. Always the window/stage that was resized. */
-                source:core.stage,
-                /** @prop width the new width of the window/stage that was resized. */
-                width:e.width,
-                /** @prop height the new height of the window/stage that was resized. */
-                height:e.height,
-        });
-        return;
-    }
-    if(e.type == "mousewheelv") {
-        prevmouse.wheelv = mouseState.wheelv;
-        mouseState.wheelv = e.position;
-        var dwv = mouseState.wheelv - prevmouse.wheelv;
-        if(OS == "RPI") {
-            dwv = e.position;
-        }
-        if(dwv==0) return;
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            /**
-            @class mousewheelv
-            @desc an event fired whenever the mouse wheel is turned, if the user has a mouse with a wheel
-            */
-            core.fireEventAtTarget(node, {
-                type:"mousewheelv",
-                wheel:dwv,
-                target:node,
-            });
-        }
-        return;
-    }
-    if(e.type == "mouseposition") {
-        prevmouse.x = mouseState.x;
-        prevmouse.y = mouseState.y;
-        mouseState.x = e.x;
-        mouseState.y = e.y;
-        var dx = (mouseState.x - prevmouse.x);
-        var dy = (mouseState.y - prevmouse.y);
-        if(mouseState.pressed) {
-            //drag events
-            var node = mouseState.pressTarget;
-            //console.log("firing: " + (mouseState.x - prevmouse.x));
-            if(node == null) {
-                node = core.findNodeAtXY(mouseState.x,mouseState.y);
-            }
-            if(node != null) {
-                //var t1 = process.hrtime();
-	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-                //console.log('globalToLocal time',process.hrtime(t1)[1]/1e6);
-                /**
-                @class drag
-                @desc an event fired whenever the mouse is dragged
-                */
-                core.fireEventAtTarget(
-                    node,
-                    {
-                        type:"drag",
-                        pressed:mouseState.pressed,
-                        x:pt.x,
-                        y:pt.y,
-                        dx:dx,
-                        dy:dy,
-	                    point:pt,
-                        target:node,
-                        timestamp:e.timestamp,
-                        time:e.time,
-                    }
-                );
-            }
-        }
-        //move events
-        /**
-        @class move
-        @desc an event fired whenever the mouse is moved
-        */
-        core.fireEvent({
-            type: "move",
-            x:mouseState.x,
-            y:mouseState.y,
-            point:{x:mouseState.x, y:mouseState.y},
-            source:core,
-        });
-        return;
-    }
-    
-    
+input.validateScene = validateScene;
 
-
-    /**
-    @class keypress
-    @desc an event fired whenever a key on the keyboard is pushed down. special keys like 'shift' are filtered out.
+/*
+bus.filter(typeIs("animend"))
+    .onValue(core.notifyAnimEnd);
     */
-    if(e.type == "keypress") {
-    
-        if(repeatTimeout) {
-            clearTimeout(repeatTimeout);
-            repeatTimeout = null;
-            repeatEvent = null;
-        }
-        
-            
-        var event = {
-            type:"keypress",
-        }
-        event.keycode = e.keycode;
-        event.shift   = (e.shift == 1);
-        event.system  = (e.system == 1);
-        event.alt     = (e.alt == 1);
-        event.control = (e.control == 1);
-        event.printable = false;
-        event.printableChar = 0;
-        if(KEY_TO_CHAR_MAP[e.keycode]) {
-            event.printable = true;
-            var ch = KEY_TO_CHAR_MAP[e.keycode];
-            if(e.shift == 1) {
-                if(SHIFT_MAP[ch]) {
-                    ch = SHIFT_MAP[ch];
-                }
-            }
-            event.printableChar = ch;
-        }
-        if(OS == "RPI") {
-            if(e.keycode == 42 || e.keycode == 54) {
-                event.printable = false;
-            }
-        }
-        if(core.keyfocus) {
-            event.target = core.keyfocus;
-            repeatTimeout = setTimeout(repeatKey,300)
-            repeatEvent = event;
-            //console.log("firing",event,"at",core.keyfocus);
-            core.fireEventAtTarget(core.keyfocus,event);
-        }
-    }
-    /**
-    @class keyrelease
-    @desc an event fired whenever a key on the keyboard is released up. special keys like 'shift' are filtered out.
-    */
-    if(e.type == "keyrelease") {
-        if(repeatTimeout) {
-            clearTimeout(repeatTimeout);
-            repeatTimeout = null;
-            repeatEvent = null;
-        }
-    }
-    
-    if(e.type == "mousebutton" && mouseState.pressed) {
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            mouseState.pressTarget = node;
-            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-            /**
-            @class press
-            @desc an event fired whenever a mouse button is pressed.
-            */
-            core.fireEventAtTarget(node,
-                {
-                    type:"press",
-                    pressed:mouseState.pressed,
-                    x:pt.x,
-                    y:pt.y,
-                    point:pt,
-                    target:node,
-                    timestamp:e.timestamp,
-                    time:e.time,
-                }
-            );
-        }
-        return;
-    } else {
-        var node = core.findNodeAtXY(mouseState.x,mouseState.y);
-        if(node != null) {
-            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
-            /**
-            @class release
-            @desc an event fired whenever a mouse button is released
-            */
-            core.fireEventAtTarget(node,
-                {
-                    type:"release",
-                    pressed:mouseState.pressed,
-                    x:pt.x,
-                    y:pt.y,
-                    point:pt,
-                    target:node,
-                    timestamp:e.timestamp,
-                    time:e.time,
-                }
-            );
-            if(node == mouseState.pressTarget) {
-                core.fireEventAtTarget(node,
-                    {
-                        type:"click",
-                        x:mouseState.x,
-                        y:mouseState.y,
-                        target:node
-                    }
-                    );
-            }
-        }
-        return;
-    }
-    
-}
-    /*
-    bus.filter(typeIs("animend"))
-        .onValue(core.notifyAnimEnd);
-        */
 
 /** 
 @func ComposeObject transform the supplied prototype object into a constructor that can then be invoked with 'new'
@@ -1481,28 +1093,13 @@ function Core() {
         exports.native.setEventCallback(function(e) {
             debug.eventCount++;
             e.time = new Date().getTime();
-            //var t1 = process.hrtime();
-            if(e.type == "mousebutton") {
-                mapNativeButton(e);
-                mouseState.pressed = (e.state == 1);
-            }
-            if(e.type == "keypress" || e.type == "keyrelease" || e.type == "keyrepeat") {
-                mapNativeKey(e);
-            }
             if(e.x) e.x = e.x/Core.DPIScale;
             if(e.y) e.y = e.y/Core.DPIScale;
             if(e.type == "windowsize") {
                 e.width = e.width/Core.DPIScale;
                 e.height = e.height/Core.DPIScale;
             }
-            processEvent(self,e);
-            if(e.type == "mousebutton" ||
-               e.type == "mouseposition") {
-               // console.log('done',e.type,process.hrtime(t1)[1]/1e6);
-            }
-            if(e.type == "validate") {
-               //console.log('done',e.type,process.hrtime(t1)[1]/1e6);
-            }
+            input.processEvent(self,e);
         });
     }
     
@@ -1513,7 +1110,7 @@ function Core() {
         var size = exports.native.getWindowSize();
         this.stage.width = size.w;
         this.stage.height = size.h;
-        processEvent(this,{
+        input.processEvent(this,{
             type:"windowsize",
             width:size.w,
             height:size.h,
@@ -1724,8 +1321,5 @@ exports.Interpolators = {
 exports.setHiDPIScale = function(scale) {
     Core.DPIScale = scale;
 }
-
-
-
 
 

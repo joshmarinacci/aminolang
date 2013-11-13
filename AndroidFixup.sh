@@ -40,7 +40,6 @@ fi
 
 
 cp src/sg/amino.js $ANDROID_PRODUCT_OUT/$DESTDIR
-cp src/sg/Bacon.js $ANDROID_PRODUCT_OUT/$DESTDIR
 cp src/sg/widgets.js $ANDROID_PRODUCT_OUT/$DESTDIR
 cp resources/*.* $ANDROID_PRODUCT_OUT/$DESTDIR
 cp tests/phone/*.* $ANDROID_PRODUCT_OUT/$DESTDIR

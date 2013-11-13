@@ -277,6 +277,7 @@ function androidjs(cb) {
     var src = "src/sg/";
     //src files
     copyFileTo(src+"amino.js",out);
+    copyFileTo(src+"aminoinput.js",out);
     copyFileTo(src+"widgets.js",out);
     //resource files
     

@@ -82,7 +82,7 @@ inline int32_t scalep(int32_t data, RawAbsoluteAxisInfo *axisp, float scaling)
 }
 void event_process(void)
 {
-    //printf("checking: %d\n",event_indication);
+    int jcount = 0;
     for (size_t index = 0; index < event_indication; index++ ) {
         RawEvent *p = &event_buffer[index];
         if (p->type == EventHubInterface::DEVICE_ADDED) {
@@ -161,9 +161,11 @@ void event_process(void)
                 //printf("point up = %d\n",point_data[jj].up);
                 if (point_data[jj].up) {
                     sprintf(pstr, " %03d UUUUUUUU", point_data[jj].tracking_id);
+                    jcount++;
                     eventSingleton->touchEnd(point_data[jj].x, point_data[jj].y, 1);
                 } else if (point_data[jj].seen) {
                     sprintf(pstr, " %03d %03d.%04d", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
+                    jcount++;
                     eventSingleton->touchStart(point_data[jj].x, point_data[jj].y, 1, KgetTime());
                     sprintf(pstr, " %03d %03d.%04d\n", point_data[jj].tracking_id, point_data[jj].x, point_data[jj].y);
                     //printf("handling touchpoint %03d\n",point_data[jj].x);
@@ -192,6 +194,7 @@ void event_process(void)
             printf ("OTHER when %lx type %x deviceid %x code %x value %x\n", (unsigned long) p->when, p->type, p->deviceId, p->CODE_FIELD, p->value);
         }
     }
+    //printf("processed %d native events\n",jcount);
     event_indication = 0;
     sem_post(&event_run_semaphore);
 }

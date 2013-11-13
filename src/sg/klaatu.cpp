@@ -197,7 +197,7 @@ void sendValidate() {
     if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
     Local<Object> event_obj = Object::New();
     event_obj->Set(String::NewSymbol("type"), String::New("validate"));
-    event->Set(String::NewSymbol("timestamp"), Number::New(getTime()));
+    event_obj->Set(String::NewSymbol("timestamp"), Number::New(getTime()));
     Handle<Value> event_argv[] = {event_obj};
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
 }

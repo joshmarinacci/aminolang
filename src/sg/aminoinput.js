@@ -167,12 +167,52 @@ input.initOS = function() {
         input.KEY_MAP.RIGHT_SHIFT = 54;
     }
 }
+var queue = [];
+
+function compressQueue() {
+    var others = [];
+    var pos = [];
+    queue.forEach(function(e) {
+        if(e.type == "mouseposition") {
+            pos.push(e);
+        } else {
+            others.push(e);
+        }
+    });
+    
+    
+    //move the mouse positions to the beginning of the queue
+    if(pos.length >= 2) {
+        var first = pos[0];
+        var last = pos[pos.length-1];
+        others.unshift(first);
+        others.unshift(last);
+    } else {
+        pos.forEach(function(e) {
+            others.unshift(e);
+        });
+    }
+    
+    pos.forEach(function(e) {
+        others.push(e);
+    });
+    queue = others;
+}
+
 input.processEvent = function(core,e) {
     if(e.type == "validate") {
+        compressQueue();
+        queue.forEach(function(evt) {
+            input.processOneEvent(core,evt);
+        });
+        queue = [];
         input.validateScene();
         return;
     }
+    queue.push(e);
+}
 
+input.processOneEvent = function(core,e) {
     if(e.type == "mousebutton") {
         mapNativeButton(e);
         mouseState.pressed = (e.state == 1);

@@ -551,7 +551,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_SRC_ALPHA"), Number::New(GL_SRC_ALPHA));
     event_obj->Set(String::NewSymbol("GL_ONE_MINUS_SRC_ALPHA"), Number::New(GL_ONE_MINUS_SRC_ALPHA));
 //    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX_EXT));
-    event_obj->Set(String::NewSymbol("GL_ADD"), Number::New(GL_ADD));
+    //event_obj->Set(String::NewSymbol("GL_ADD"), Number::New(GL_ADD));
     event_obj->Set(String::NewSymbol("GL_POINTS"), Number::New(GL_POINTS));
     event_obj->Set(String::NewSymbol("GL_LINES"), Number::New(GL_LINES));
     
@@ -561,6 +561,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_INVALID_OPERATION"), Number::New(GL_INVALID_OPERATION));
     event_obj->Set(String::NewSymbol("GL_OUT_OF_MEMORY"), Number::New(GL_OUT_OF_MEMORY));
     
+
     event_obj->Set(String::NewSymbol("glGetString"), FunctionTemplate::New(node_glGetString)->GetFunction());
     event_obj->Set(String::NewSymbol("glGetError"), FunctionTemplate::New(node_glGetError)->GetFunction());
 //    event_obj->Set(String::NewSymbol("glGenVertexArrays"), FunctionTemplate::New(node_glGenVertexArrays)->GetFunction());

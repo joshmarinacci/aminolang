@@ -147,11 +147,14 @@ amino.startApp(function(core,stage) {
         checkError(gl);
         
         checkError(gl);
-     //   gl.glPointSize(10);
+        //hack to fix point sprites on mac
+        gl.glEnable(0x8861);
+        gl.glPointSize(50);
+        //end hack
+        
         gl.glEnable(gl.GL_BLEND);
         gl.glBlendFuncSeparate(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA, gl.GL_ONE, gl.GL_ONE);
         gl.glBlendEquation(gl.GL_FUNC_ADD);
-//        gl.glBlendEquation(gl.GL_MAX);
         checkError(gl);
     }
     

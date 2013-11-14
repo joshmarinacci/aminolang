@@ -776,6 +776,7 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
         int fsize = fontsizes[n];
         afont->fonts[fsize] = texture_font_new(afont->atlas, filename, fsize);
     }
+    printf("compiling the freetype gl shader\n");
     afont->shader = shader_load("shaders/v3f-t2f-c4f.vert",
                          "shaders/v3f-t2f-c4f.frag");
     //texture_font_delete(afont->font);

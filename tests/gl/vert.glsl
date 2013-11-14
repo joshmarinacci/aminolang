@@ -1,5 +1,6 @@
-#version 100
+#version 110
 
+//precision mediump float;
 uniform float time;
 uniform vec2 gravity;
 
@@ -23,7 +24,7 @@ void main() {
   float ty = position.y + delta.y*rtime + gravity.y*rtime*rtime;
   gl_Position = vec4(tx/3.0, ty/3.0, 0.0, 1.0);
 
-v_color = incolor;
+  v_color = incolor;
 //gl_Position = vec4(0,0,0,1);
 }
 

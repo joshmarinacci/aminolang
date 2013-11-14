@@ -303,20 +303,24 @@ Handle<Value> node_glGetError(const Arguments& args) {
   int val = glGetError();;
   return scope.Close(Number::New(val));
 }
+/*
 Handle<Value> node_glGenVertexArrays(const Arguments& args) {
   HandleScope scope;
   int val   = args[0]->ToNumber()->NumberValue();
   GLuint vao;
-  glGenVertexArraysOES(val, &vao);
+  glGenVertexArrays(val, &vao);
   Local<Number> str = Number::New(vao);
   return scope.Close(str);
 }
+
+
 Handle<Value> node_glBindVertexArray(const Arguments& args) {
   HandleScope scope;
   int val   = args[0]->ToNumber()->NumberValue();
-  glBindVertexArrayOES(val);
+  glBindVertexArray(val);
   return scope.Close(Undefined());
 }
+*/
 Handle<Value> node_glGenBuffers(const Arguments& args) {
   HandleScope scope;
   int val   = args[0]->ToNumber()->NumberValue();
@@ -536,7 +540,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_BLEND"), Number::New(GL_BLEND));
     event_obj->Set(String::NewSymbol("GL_SRC_ALPHA"), Number::New(GL_SRC_ALPHA));
     event_obj->Set(String::NewSymbol("GL_ONE_MINUS_SRC_ALPHA"), Number::New(GL_ONE_MINUS_SRC_ALPHA));
-    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX_EXT));
+//    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX_EXT));
     event_obj->Set(String::NewSymbol("GL_POINTS"), Number::New(GL_POINTS));
     event_obj->Set(String::NewSymbol("GL_LINES"), Number::New(GL_LINES));
     
@@ -548,8 +552,8 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     
     event_obj->Set(String::NewSymbol("glGetString"), FunctionTemplate::New(node_glGetString)->GetFunction());
     event_obj->Set(String::NewSymbol("glGetError"), FunctionTemplate::New(node_glGetError)->GetFunction());
-    event_obj->Set(String::NewSymbol("glGenVertexArrays"), FunctionTemplate::New(node_glGenVertexArrays)->GetFunction());
-    event_obj->Set(String::NewSymbol("glBindVertexArray"), FunctionTemplate::New(node_glBindVertexArray)->GetFunction());
+//    event_obj->Set(String::NewSymbol("glGenVertexArrays"), FunctionTemplate::New(node_glGenVertexArrays)->GetFunction());
+//    event_obj->Set(String::NewSymbol("glBindVertexArray"), FunctionTemplate::New(node_glBindVertexArray)->GetFunction());
     event_obj->Set(String::NewSymbol("glGenBuffers"), FunctionTemplate::New(node_glGenBuffers)->GetFunction());
     event_obj->Set(String::NewSymbol("glBindBuffer"), FunctionTemplate::New(node_glBindBuffer)->GetFunction());
     event_obj->Set(String::NewSymbol("glBufferData"), FunctionTemplate::New(node_glBufferData)->GetFunction());

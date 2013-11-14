@@ -92,13 +92,13 @@ Handle<Value> createWindow(const Arguments& args) {
     int h  = args[1]->ToNumber()->NumberValue();
     width = w;
     height = h;
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
-    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
+//    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     if(!glfwOpenWindow(800,600, 0,0,0,0,0,0, GLFW_WINDOW)) {
 //    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
-        printf("error. quitting\n");
+        printf("couldn't open a window. quitting\n");
         glfwTerminate();
         exit(EXIT_FAILURE);        
     }

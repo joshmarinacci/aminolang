@@ -58,15 +58,14 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 /* ==== Color Shader impl === */
 
 ColorShader::ColorShader() {
-   static const char *fragShaderText =
-     "#version 100\n" 
-      "varying vec4 v_color;\n"
-      "void main() {\n"
-      "   gl_FragColor = v_color;\n"
-      "}\n";
+    printf("compiling the color shader\n");
       
    static const char *vertShaderText =
-     "#version 100\n"
+   #ifdef MAC
+     "#version 110\n"
+   #else
+      "#version 100\n"
+   #endif
       "uniform mat4 modelviewProjection;\n"
       "uniform mat4 trans;\n"
       "uniform float opacity;\n"
@@ -78,6 +77,18 @@ ColorShader::ColorShader() {
       "   v_color = vec4(color.r,color.g,color.b,opacity)\n;"
       "}\n";
 
+   static const char *fragShaderText =
+   #ifdef MAC
+     "#version 110\n"
+   #else
+      "#version 100\n"
+      "precision mediump float;\n"
+   #endif
+      "varying vec4 v_color;\n"
+      "void main() {\n"
+      "   gl_FragColor = v_color;\n"
+      "}\n";
+      
    GLuint vert = compileVertShader(vertShaderText);
    GLuint frag = compileFragShader(fragShaderText);
    prog = compileProgram(vert,frag);
@@ -114,8 +125,13 @@ void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[
 
 
 TextureShader::TextureShader() {
+    printf("compiling the texture shader\n");
     static const char *vertShaderText =
-     "#version 100\n"
+  #ifdef MAC
+     "#version 110\n"
+   #else
+      "#version 100\n"
+   #endif
       "uniform mat4 modelviewProjection;\n"
       "uniform mat4 trans;\n"
       
@@ -128,8 +144,12 @@ TextureShader::TextureShader() {
       "}\n";
       
     static const char *fragShaderText =
-     "#version 100\n"
-     "precision mediump float;\n"
+   #ifdef MAC
+     "#version 110\n"
+   #else
+      "#version 100\n"
+      "precision mediump float;\n"
+   #endif
      "varying vec2 uv;\n"
      "uniform sampler2D tex;\n"
      "void main() {\n"

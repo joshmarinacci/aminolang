@@ -25,7 +25,7 @@ amino.startApp(function(core,stage) {
         return Math.random()*(max-min) + min;
     }
         
-    var pcount = 20;
+    var pcount = 200;
     var psize = 8;
     var first = true;
     var verts = [];
@@ -68,9 +68,6 @@ amino.startApp(function(core,stage) {
         console.log("the gl version",version);
         checkError(gl);
 
-//        vao = gl.glGenVertexArrays(1);
-//        gl.glBindVertexArray(vao);
-
         var vsource = fs.readFileSync('tests/gl/vert.glsl');
         var vshader = gl.glCreateShader(gl.GL_VERTEX_SHADER);
         gl.glShaderSource(vshader, 1, vsource, null);
@@ -112,7 +109,6 @@ amino.startApp(function(core,stage) {
         checkError(gl);
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo);
         checkError(gl);
-        checkError(gl);
         gl.glBufferData(gl.GL_ARRAY_BUFFER, verts, gl.GL_STATIC_DRAW);
         checkError(gl);
         
@@ -152,8 +148,8 @@ amino.startApp(function(core,stage) {
         
         checkError(gl);
         gl.glPointSize(10);
-//        gl.glEnable(gl.GL_BLEND);
-//        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glEnable(gl.GL_BLEND);
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
 //        gl.glBlendEquation(gl.GL_MAX);
         checkError(gl);
     }
@@ -164,7 +160,7 @@ amino.startApp(function(core,stage) {
         gl.glUniform1f(atts.timeuni,time);
         gl.glUniform2f(atts.gravuni,0.0,-0.5);
         checkError(gl);
-        gl.glDrawArrays(gl.GL_LINES, 0, pcount);
+        gl.glDrawArrays(gl.GL_POINTS, 0, pcount);
         checkError(gl);
     }
     gl.onrender = function(gl) {

@@ -453,7 +453,7 @@ void render() {
     mul_matrix(modelView,pixelM,m4);
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
-    glClearColor(1,1,1,1);
+    glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     AminoNode* root = rects[rootHandle];
@@ -586,6 +586,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("createPoly"),       FunctionTemplate::New(createPoly)->GetFunction());
     exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
     exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());
+    exports->Set(String::NewSymbol("createGLNode"),     FunctionTemplate::New(createGLNode)->GetFunction());
     exports->Set(String::NewSymbol("createAnim"),       FunctionTemplate::New(createAnim)->GetFunction());
     exports->Set(String::NewSymbol("stopAnim"),         FunctionTemplate::New(stopAnim)->GetFunction());
     exports->Set(String::NewSymbol("updateProperty"),   FunctionTemplate::New(updateProperty)->GetFunction());

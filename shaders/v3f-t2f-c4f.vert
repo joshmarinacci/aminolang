@@ -30,15 +30,16 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
-#version 150 core
+#version 100
+
 uniform mat4 mvp;
 uniform mat4 trans;
 
-in vec3 vertex;
-in vec2 tex_coord;
-in vec4 color;
-out vec2 uv;
-out vec4 frontcolor;
+attribute vec3 vertex;
+attribute vec2 tex_coord;
+attribute vec4 color;
+varying vec2 uv;
+varying vec4 frontcolor;
 void main()
 {
     // gl_TexCoord[0].xy = tex_coord.xy;

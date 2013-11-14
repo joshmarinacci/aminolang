@@ -37,6 +37,9 @@ static double getTime(void) {
 #endif
 
 #ifdef RPI
+#include "GLES/gl.h"
+#include "GLES2/gl2.h"
+#include "GLES2/gl2ext.h"
 //return the current time in msec
 static double getTime(void) {
     struct timespec res;

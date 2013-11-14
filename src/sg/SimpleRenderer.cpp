@@ -18,6 +18,7 @@ void SimpleRenderer::render(GLContext* c, AminoNode* root) {
         return;
     }
     
+    
     //skip non-visible nodes
     if(root->visible != 1) return;
     
@@ -280,7 +281,7 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
         }
         glUniform1i(font->texuni,0 );
         if(modelViewChanged) {
-//            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
+            //            glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
         }
         glUniformMatrix4fv(font->mvpuni,         1, 0,  modelView  );
         //only the global transform will change each time
@@ -297,18 +298,23 @@ Handle<Value> node_glGetString(const Arguments& args) {
   Local<String> str = String::New(version);
   return scope.Close(str);
 }
+Handle<Value> node_glGetError(const Arguments& args) {
+  HandleScope scope;
+  int val = glGetError();;
+  return scope.Close(Number::New(val));
+}
 Handle<Value> node_glGenVertexArrays(const Arguments& args) {
   HandleScope scope;
   int val   = args[0]->ToNumber()->NumberValue();
   GLuint vao;
-  glGenVertexArrays(val, &vao);
+  glGenVertexArraysOES(val, &vao);
   Local<Number> str = Number::New(vao);
   return scope.Close(str);
 }
 Handle<Value> node_glBindVertexArray(const Arguments& args) {
   HandleScope scope;
   int val   = args[0]->ToNumber()->NumberValue();
-  glBindVertexArray(val);
+  glBindVertexArrayOES(val);
   return scope.Close(Undefined());
 }
 Handle<Value> node_glGenBuffers(const Arguments& args) {
@@ -371,11 +377,26 @@ Handle<Value> node_glGetShaderiv(const Arguments& args) {
   glGetShaderiv(shader,flag,&status);
   return scope.Close(Number::New(status));  
 }
+Handle<Value> node_glGetProgramiv(const Arguments& args) {
+  HandleScope scope;
+  int prog   = args[0]->ToNumber()->NumberValue();
+  int flag   = args[1]->ToNumber()->NumberValue();
+  GLint status;
+  glGetProgramiv(prog,flag,&status);
+  return scope.Close(Number::New(status));  
+}
 Handle<Value> node_glGetShaderInfoLog(const Arguments& args) {
   HandleScope scope;
   int shader   = args[0]->ToNumber()->NumberValue();
   char buffer[513];
   glGetShaderInfoLog(shader,512,NULL,buffer);
+  return scope.Close(String::New(buffer,strlen(buffer)));
+}
+Handle<Value> node_glGetProgramInfoLog(const Arguments& args) {
+  HandleScope scope;
+  int shader   = args[0]->ToNumber()->NumberValue();
+  char buffer[513];
+  glGetProgramInfoLog(shader,512,NULL,buffer);
   return scope.Close(String::New(buffer,strlen(buffer)));
 }
 Handle<Value> node_glCreateProgram(const Arguments& args) {
@@ -508,15 +529,25 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_VERTEX_SHADER"), Number::New(GL_VERTEX_SHADER));
     event_obj->Set(String::NewSymbol("GL_FRAGMENT_SHADER"), Number::New(GL_FRAGMENT_SHADER));
     event_obj->Set(String::NewSymbol("GL_COMPILE_STATUS"), Number::New(GL_COMPILE_STATUS));
+    event_obj->Set(String::NewSymbol("GL_LINK_STATUS"), Number::New(GL_LINK_STATUS));
     event_obj->Set(String::NewSymbol("GL_TRUE"), Number::New(GL_TRUE));
     event_obj->Set(String::NewSymbol("GL_FALSE"), Number::New(GL_FALSE));
     event_obj->Set(String::NewSymbol("GL_FLOAT"), Number::New(GL_FLOAT));
     event_obj->Set(String::NewSymbol("GL_BLEND"), Number::New(GL_BLEND));
     event_obj->Set(String::NewSymbol("GL_SRC_ALPHA"), Number::New(GL_SRC_ALPHA));
     event_obj->Set(String::NewSymbol("GL_ONE_MINUS_SRC_ALPHA"), Number::New(GL_ONE_MINUS_SRC_ALPHA));
-    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX));
+    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX_EXT));
     event_obj->Set(String::NewSymbol("GL_POINTS"), Number::New(GL_POINTS));
+    event_obj->Set(String::NewSymbol("GL_LINES"), Number::New(GL_LINES));
+    
+    event_obj->Set(String::NewSymbol("GL_NO_ERROR"), Number::New(GL_NO_ERROR));
+    event_obj->Set(String::NewSymbol("GL_INVALID_ENUM"), Number::New(GL_INVALID_ENUM));
+    event_obj->Set(String::NewSymbol("GL_INVALID_VALUE"), Number::New(GL_INVALID_VALUE));
+    event_obj->Set(String::NewSymbol("GL_INVALID_OPERATION"), Number::New(GL_INVALID_OPERATION));
+    event_obj->Set(String::NewSymbol("GL_OUT_OF_MEMORY"), Number::New(GL_OUT_OF_MEMORY));
+    
     event_obj->Set(String::NewSymbol("glGetString"), FunctionTemplate::New(node_glGetString)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetError"), FunctionTemplate::New(node_glGetError)->GetFunction());
     event_obj->Set(String::NewSymbol("glGenVertexArrays"), FunctionTemplate::New(node_glGenVertexArrays)->GetFunction());
     event_obj->Set(String::NewSymbol("glBindVertexArray"), FunctionTemplate::New(node_glBindVertexArray)->GetFunction());
     event_obj->Set(String::NewSymbol("glGenBuffers"), FunctionTemplate::New(node_glGenBuffers)->GetFunction());
@@ -526,7 +557,9 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("glShaderSource"), FunctionTemplate::New(node_glShaderSource)->GetFunction());
     event_obj->Set(String::NewSymbol("glCompileShader"), FunctionTemplate::New(node_glCompileShader)->GetFunction());
     event_obj->Set(String::NewSymbol("glGetShaderiv"), FunctionTemplate::New(node_glGetShaderiv)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetProgramiv"), FunctionTemplate::New(node_glGetProgramiv)->GetFunction());
     event_obj->Set(String::NewSymbol("glGetShaderInfoLog"), FunctionTemplate::New(node_glGetShaderInfoLog)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetProgramInfoLog"), FunctionTemplate::New(node_glGetProgramInfoLog)->GetFunction());
     event_obj->Set(String::NewSymbol("glCreateProgram"), FunctionTemplate::New(node_glCreateProgram)->GetFunction());
     event_obj->Set(String::NewSymbol("glAttachShader"), FunctionTemplate::New(node_glAttachShader)->GetFunction());
     event_obj->Set(String::NewSymbol("glLinkProgram"), FunctionTemplate::New(node_glLinkProgram)->GetFunction());

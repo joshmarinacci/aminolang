@@ -59,21 +59,20 @@ int Shader::compileProgram(int vertShader, int fragShader) {
 
 ColorShader::ColorShader() {
    static const char *fragShaderText =
-     "#version 150 core\n"
-      "in vec4 v_color;\n"
-      "out vec4 outColor;\n"
+     "#version 100\n" 
+      "varying vec4 v_color;\n"
       "void main() {\n"
-      "   outColor = v_color;\n"
+      "   gl_FragColor = v_color;\n"
       "}\n";
       
    static const char *vertShaderText =
-     "#version 150 core\n"
+     "#version 100\n"
       "uniform mat4 modelviewProjection;\n"
       "uniform mat4 trans;\n"
       "uniform float opacity;\n"
-      "in vec4 pos;\n"
-      "in vec4 color;\n"
-      "out vec4 v_color;\n"
+      "attribute vec4 pos;\n"
+      "attribute vec4 color;\n"
+      "varying vec4 v_color;\n"
       "void main() {\n"
       "   gl_Position = modelviewProjection * trans * pos;\n"
       "   v_color = vec4(color.r,color.g,color.b,opacity)\n;"
@@ -116,26 +115,25 @@ void ColorShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[
 
 TextureShader::TextureShader() {
     static const char *vertShaderText =
-     "#version 150 core\n"
+     "#version 100\n"
       "uniform mat4 modelviewProjection;\n"
       "uniform mat4 trans;\n"
       
-      "in vec4 pos;\n"
-      "in vec2 texcoords;\n"
-      "out vec2 uv;\n"
+      "attribute vec4 pos;\n"
+      "attribute vec2 texcoords;\n"
+      "varying vec2 uv;\n"
       "void main() {\n"
       "   gl_Position = modelviewProjection * trans * pos;\n"
       "   uv = texcoords;\n"
       "}\n";
       
     static const char *fragShaderText =
-     "#version 150 core\n"
+     "#version 100\n"
      "precision mediump float;\n"
-     "in vec2 uv;\n"
+     "varying vec2 uv;\n"
      "uniform sampler2D tex;\n"
-     "out vec4 outColor;\n"
      "void main() {\n"
-     "   outColor = texture(tex,uv);\n"
+     "   gl_FragColor = texture2D(tex,uv);\n"
      "}\n";
       
     GLuint vert = compileVertShader(vertShaderText);

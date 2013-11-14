@@ -1,4 +1,3 @@
-#version 110
 
 //precision mediump float;
 uniform float time;

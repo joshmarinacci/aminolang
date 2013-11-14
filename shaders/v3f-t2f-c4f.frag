@@ -30,7 +30,6 @@
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Nicolas P. Rougier.
  * ========================================================================= */
-#version 110
 #ifdef GL_ES
     precision mediump float;
 #endif

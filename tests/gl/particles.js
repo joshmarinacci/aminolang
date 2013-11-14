@@ -25,7 +25,7 @@ amino.startApp(function(core,stage) {
         return Math.random()*(max-min) + min;
     }
         
-    var pcount = 200;
+    var pcount = 2000;
     var psize = 8;
     var first = true;
     var verts = [];
@@ -125,9 +125,9 @@ amino.startApp(function(core,stage) {
     }
     function postSetup(gl) {
         checkError(gl);
-        gl.glUseProgram(prog);
-        checkError(gl);
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, vbo);
+        checkError(gl);
+        gl.glUseProgram(prog);
         checkError(gl);
         gl.glVertexAttribPointer(atts.posatt, 2, gl.GL_FLOAT, gl.GL_FALSE, psize, 0);
         checkError(gl);
@@ -147,9 +147,10 @@ amino.startApp(function(core,stage) {
         checkError(gl);
         
         checkError(gl);
-        gl.glPointSize(10);
+     //   gl.glPointSize(10);
         gl.glEnable(gl.GL_BLEND);
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glBlendFuncSeparate(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA, gl.GL_ONE, gl.GL_ONE);
+        gl.glBlendEquation(gl.GL_FUNC_ADD);
 //        gl.glBlendEquation(gl.GL_MAX);
         checkError(gl);
     }
@@ -158,7 +159,7 @@ amino.startApp(function(core,stage) {
         time+=0.01;
         checkError(gl);
         gl.glUniform1f(atts.timeuni,time);
-        gl.glUniform2f(atts.gravuni,0.0,-0.5);
+        gl.glUniform2f(atts.gravuni,0.5,-0.2);
         checkError(gl);
         gl.glDrawArrays(gl.GL_POINTS, 0, pcount);
         checkError(gl);
@@ -179,7 +180,7 @@ amino.startApp(function(core,stage) {
     var group = new amino.ProtoGroup();
     group.add(new amino.ProtoRect().setW(200).setH(500));
     group.add(new amino.ProtoText().setTx(210).setTy(100).setFill("#ff00ff").setText("blah"));
-    group.add(gl);
     group.add(new amino.ProtoRect().setW(500).setH(500).setTx(520));
+    group.add(gl);
     stage.setRoot(group);
 });

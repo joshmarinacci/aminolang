@@ -347,7 +347,7 @@ Handle<Value> node_glBufferData(const Arguments& args) {
       verts[i] = array->Get(i)->ToNumber()->NumberValue();
   }
   int kind = args[2]->ToNumber()->NumberValue();
-  glBufferData(type,array->Length(),verts,kind);
+  glBufferData(type,sizeof(float)*array->Length(),verts,kind);
   return scope.Close(Undefined());
 }
 Handle<Value> node_glCreateShader(const Arguments& args) {
@@ -506,6 +506,16 @@ Handle<Value> node_glBlendFunc(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
+Handle<Value> node_glBlendFuncSeparate(const Arguments& args) {
+  HandleScope scope;
+  int a                 = args[0]->ToNumber()->NumberValue();
+  int b                 = args[1]->ToNumber()->NumberValue();
+  int c                 = args[2]->ToNumber()->NumberValue();
+  int d                = args[3]->ToNumber()->NumberValue();
+  glBlendFuncSeparate(a,b,c,d);
+  return scope.Close(Undefined());
+}
+
 Handle<Value> node_glBlendEquation(const Arguments& args) {
   HandleScope scope;
   int eq                 = args[0]->ToNumber()->NumberValue();
@@ -541,6 +551,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_SRC_ALPHA"), Number::New(GL_SRC_ALPHA));
     event_obj->Set(String::NewSymbol("GL_ONE_MINUS_SRC_ALPHA"), Number::New(GL_ONE_MINUS_SRC_ALPHA));
 //    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX_EXT));
+    event_obj->Set(String::NewSymbol("GL_ADD"), Number::New(GL_ADD));
     event_obj->Set(String::NewSymbol("GL_POINTS"), Number::New(GL_POINTS));
     event_obj->Set(String::NewSymbol("GL_LINES"), Number::New(GL_LINES));
     
@@ -577,7 +588,11 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("glPointSize"), FunctionTemplate::New(node_glPointSize)->GetFunction());
     event_obj->Set(String::NewSymbol("glEnable"), FunctionTemplate::New(node_glEnable)->GetFunction());
     event_obj->Set(String::NewSymbol("glBlendFunc"), FunctionTemplate::New(node_glBlendFunc)->GetFunction());
+    event_obj->Set(String::NewSymbol("glBlendFuncSeparate"), FunctionTemplate::New(node_glBlendFuncSeparate)->GetFunction());
     event_obj->Set(String::NewSymbol("glBlendEquation"), FunctionTemplate::New(node_glBlendEquation)->GetFunction());
+    event_obj->Set(String::NewSymbol("GL_FUNC_ADD"), Number::New(GL_FUNC_ADD));
+    event_obj->Set(String::NewSymbol("GL_ONE"), Number::New(GL_ONE));
+    event_obj->Set(String::NewSymbol("GL_ZERO"), Number::New(GL_ZERO));
     event_obj->Set(String::NewSymbol("glDrawArrays"), FunctionTemplate::New(node_glDrawArrays)->GetFunction());
     
     Handle<Value> event_argv[] = {event_obj};

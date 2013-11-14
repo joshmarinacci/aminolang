@@ -25,6 +25,7 @@ const int RECT = 2;
 const int TEXT = 3;
 const int ANIM = 4;
 const int POLY = 5;
+const int GLNODE = 6;
 const int INVALID = -1;
 
 
@@ -81,7 +82,6 @@ extern int height;
 
 extern ColorShader* colorShader;
 extern TextureShader* textureShader;
-extern FontShader* fontShader;
 extern GLfloat* modelView;
 extern GLfloat* globaltx;
 
@@ -370,6 +370,16 @@ public:
     }
 };
 
+class GLNode : public AminoNode {
+public:
+    Persistent<Function> callback;
+    GLNode() {
+        type = GLNODE;
+    }
+    ~GLNode() {
+    }
+};
+
 class Update {
 public:
     int type;
@@ -490,6 +500,17 @@ inline Handle<Value> createGroup(const Arguments& args) {
     HandleScope scope;
     
     Group* node = new Group();
+    rects.push_back(node);
+    rects.size();
+    
+    Local<Number> num = Number::New(rects.size()-1);
+    return scope.Close(num);
+}
+inline Handle<Value> createGLNode(const Arguments& args) {
+    HandleScope scope;
+    
+    GLNode* node = new GLNode();
+    node->callback = Persistent<Function>::New(Handle<Function>::Cast(args[0]));
     rects.push_back(node);
     rects.size();
     

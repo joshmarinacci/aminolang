@@ -5,6 +5,7 @@
 
 #ifdef MAC
 #include <GL/glfw.h>
+#include <stdlib.h>
 #include <sys/time.h>
 
 //return the current time in msec

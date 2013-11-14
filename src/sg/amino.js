@@ -159,6 +159,7 @@ exports.native = {
     createRect: function()  {          return exports.sgtest.createRect();    },
     createGroup: function() {          return exports.sgtest.createGroup();   },
     createPoly: function()  {          return exports.sgtest.createPoly();    },
+    createGLNode: function(cb)  {        return exports.sgtest.createGLNode(cb);  },
     addNodeToGroup: function(h1,h2) {
         exports.sgtest.addNodeToGroup(h1,h2);
     },
@@ -498,6 +499,29 @@ exports.ProtoRect = exports.ComposeObject({
         }
         
     }
+});
+
+
+exports.GLNode = exports.ComposeObject({
+    type:"GLNode",
+    props: {
+        /** @prop tx translate X */
+        tx: { value: 0 },
+        /** @prop ty translate Y */
+        ty: { value: 0 },
+        scalex: { value: 1 },
+        /** @prop scaley scale Y. @default 1*/
+        scaley: { value: 1 },
+        visible: { value: 1 },
+    },
+    init: function() {
+        var self = this;
+        this.handle = exports.native.createGLNode(function(gl) {
+            if(self.onrender) {
+                self.onrender(gl);
+            }
+        });
+    },
 });
 
 /**

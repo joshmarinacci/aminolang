@@ -39,7 +39,11 @@ void SimpleRenderer::render(GLContext* c, AminoNode* root) {
     case TEXT:
         this->drawText(c,(TextNode*)root);
         break;
+    case GLNODE:
+        this->drawGLNode(c, (GLNode*)root);
+        break;
     }
+    
     
     c->restore();
 }        
@@ -67,8 +71,8 @@ void colorShaderApply(GLContext *ctx, ColorShader* shader, GLfloat modelView[16]
 }
 
 void textureShaderApply(GLContext *ctx, TextureShader* shader, GLfloat modelView[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
-//void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
-//        textureShaderApply(c,textureShader, modelView, verts, texcoords, rect->texid);
+    //void TextureShader::apply(GLfloat modelView[16], GLfloat trans[16], GLfloat verts[][2], GLfloat texcoords[][2], int texid) {
+    //        textureShaderApply(c,textureShader, modelView, verts, texcoords, rect->texid);
 
     //printf("doing texture shader apply %d\n",texid);
     ctx->useProgram(shader->prog);
@@ -284,5 +288,264 @@ void SimpleRenderer::drawText(GLContext* c, TextNode* text) {
         vertex_buffer_render(text->buffer, GL_TRIANGLES );
     }
     c->restore();
+}
+
+Handle<Value> node_glGetString(const Arguments& args) {
+  HandleScope scope;
+  int val   = args[0]->ToNumber()->NumberValue();
+  const char * version = (const char*)glGetString(val);
+  Local<String> str = String::New(version);
+  return scope.Close(str);
+}
+Handle<Value> node_glGenVertexArrays(const Arguments& args) {
+  HandleScope scope;
+  int val   = args[0]->ToNumber()->NumberValue();
+  GLuint vao;
+  glGenVertexArrays(val, &vao);
+  Local<Number> str = Number::New(vao);
+  return scope.Close(str);
+}
+Handle<Value> node_glBindVertexArray(const Arguments& args) {
+  HandleScope scope;
+  int val   = args[0]->ToNumber()->NumberValue();
+  glBindVertexArray(val);
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glGenBuffers(const Arguments& args) {
+  HandleScope scope;
+  int val   = args[0]->ToNumber()->NumberValue();
+  GLuint vbo;
+  glGenBuffers(val, &vbo);
+  Local<Number> str = Number::New(vbo);
+  return scope.Close(str);
+}
+Handle<Value> node_glBindBuffer(const Arguments& args) {
+  HandleScope scope;
+  int type   = args[0]->ToNumber()->NumberValue();
+  int vbo    = args[1]->ToNumber()->NumberValue();
+  glBindBuffer(type,vbo);
+  return scope.Close(Undefined());
+}
+
+
+Handle<Value> node_glBufferData(const Arguments& args) {
+  HandleScope scope;
+  int type   = args[0]->ToNumber()->NumberValue();
+  Handle<Array> array = Handle<Array>::Cast(args[1]);
+  float* verts = new float[array->Length()];
+  for(int i=0; i<array->Length(); i++) {
+      verts[i] = array->Get(i)->ToNumber()->NumberValue();
+  }
+  int kind = args[2]->ToNumber()->NumberValue();
+  glBufferData(type,array->Length(),verts,kind);
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glCreateShader(const Arguments& args) {
+  HandleScope scope;
+  int type   = args[0]->ToNumber()->NumberValue();
+  int shader = glCreateShader(type);
+  return scope.Close(Number::New(shader));
+}
+
+
+Handle<Value> node_glShaderSource(const Arguments& args) {
+  HandleScope scope;
+  int shader   = args[0]->ToNumber()->NumberValue();
+  int count    = args[1]->ToNumber()->NumberValue();
+  v8::String::Utf8Value jsource(args[2]->ToString());
+  const char *source = *jsource;
+  glShaderSource(shader, count, &source, NULL);
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glCompileShader(const Arguments& args) {
+  HandleScope scope;
+  int shader   = args[0]->ToNumber()->NumberValue();
+  glCompileShader(shader);
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glGetShaderiv(const Arguments& args) {
+  HandleScope scope;
+  int shader   = args[0]->ToNumber()->NumberValue();
+  int flag   = args[1]->ToNumber()->NumberValue();
+  GLint status;
+  glGetShaderiv(shader,flag,&status);
+  return scope.Close(Number::New(status));  
+}
+Handle<Value> node_glGetShaderInfoLog(const Arguments& args) {
+  HandleScope scope;
+  int shader   = args[0]->ToNumber()->NumberValue();
+  char buffer[513];
+  glGetShaderInfoLog(shader,512,NULL,buffer);
+  return scope.Close(String::New(buffer,strlen(buffer)));
+}
+Handle<Value> node_glCreateProgram(const Arguments& args) {
+  HandleScope scope;
+  int prog = glCreateProgram();
+  return scope.Close(Number::New(prog));
+}
+Handle<Value> node_glAttachShader(const Arguments& args) {
+  HandleScope scope;
+  int prog     = args[0]->ToNumber()->NumberValue();
+  int shader   = args[1]->ToNumber()->NumberValue();
+  glAttachShader(prog,shader);
+  return scope.Close(Undefined());
+}
+
+int gprog;
+Handle<Value> node_glLinkProgram(const Arguments& args) {
+  HandleScope scope;
+  int prog     = args[0]->ToNumber()->NumberValue();
+  glLinkProgram(prog);
+  gprog = prog;
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glUseProgram(const Arguments& args) {
+  HandleScope scope;
+  int prog     = args[0]->ToNumber()->NumberValue();
+  glUseProgram(prog);
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glGetAttribLocation(const Arguments& args) {
+  HandleScope scope;
+  int prog                 = args[0]->ToNumber()->NumberValue();
+  v8::String::Utf8Value name(args[1]->ToString());
+  int loc = glGetAttribLocation(prog,*name);
+  return scope.Close(Number::New(loc));
+}
+
+Handle<Value> node_glGetUniformLocation(const Arguments& args) {
+  HandleScope scope;
+  int prog                 = args[0]->ToNumber()->NumberValue();
+  v8::String::Utf8Value name(args[1]->ToString());
+  int loc = glGetUniformLocation(prog,*name);
+  return scope.Close(Number::New(loc));
+}
+
+
+Handle<Value> node_glEnableVertexAttribArray(const Arguments& args) {
+  HandleScope scope;
+  int loc                 = args[0]->ToNumber()->NumberValue();
+  glEnableVertexAttribArray(loc);
+  return scope.Close(Number::New(loc));
+}
+
+
+Handle<Value> node_glVertexAttribPointer(const Arguments& args) {
+  HandleScope scope;
+  int loc                        = args[0]->ToNumber()->NumberValue();
+  int count                      = args[1]->ToNumber()->NumberValue();
+  int size                       = args[2]->ToNumber()->NumberValue();
+  int other                      = args[3]->ToNumber()->NumberValue();
+  int size2  = sizeof(float)*(int)(args[4]->ToNumber()->NumberValue());
+  int offset = sizeof(float)*(int)(args[5]->ToNumber()->NumberValue());
+  glVertexAttribPointer(loc,count,size,other,size2,(void*)offset);
+  return scope.Close(Undefined());
+}
+
+Handle<Value> node_glUniform1f(const Arguments& args) {
+  HandleScope scope;
+  int loc                 = args[0]->ToNumber()->NumberValue();
+  float value             = args[1]->ToNumber()->NumberValue();
+  glUniform1f(loc,value);
+  return scope.Close(Undefined());
+}
+Handle<Value> node_glUniform2f(const Arguments& args) {
+  HandleScope scope;
+  int loc                 = args[0]->ToNumber()->NumberValue();
+  float value             = args[1]->ToNumber()->NumberValue();
+  float value2            = args[2]->ToNumber()->NumberValue();
+  glUniform2f(loc,value,value2);
+  return scope.Close(Undefined());
+}
+
+
+Handle<Value> node_glPointSize(const Arguments& args) {
+  HandleScope scope;
+  float size                 = args[0]->ToNumber()->NumberValue();
+  glPointSize(size);
+  return scope.Close(Undefined());
+}
+
+Handle<Value> node_glEnable(const Arguments& args) {
+  HandleScope scope;
+  int var                 = args[0]->ToNumber()->NumberValue();
+  glEnable(var);
+  return scope.Close(Undefined());
+}
+
+Handle<Value> node_glBlendFunc(const Arguments& args) {
+  HandleScope scope;
+  int src                 = args[0]->ToNumber()->NumberValue();
+  int dst                 = args[1]->ToNumber()->NumberValue();
+  glBlendFunc(src,dst);
+  return scope.Close(Undefined());
+}
+
+Handle<Value> node_glBlendEquation(const Arguments& args) {
+  HandleScope scope;
+  int eq                 = args[0]->ToNumber()->NumberValue();
+  glBlendEquation(eq);
+  return scope.Close(Undefined());
+}
+
+
+Handle<Value> node_glDrawArrays(const Arguments& args) {
+  HandleScope scope;
+  int type               = args[0]->ToNumber()->NumberValue();
+  int c1                 = args[1]->ToNumber()->NumberValue();
+  int count              = args[2]->ToNumber()->NumberValue();
+  glDrawArrays(type,c1,count);
+  return scope.Close(Undefined());
+}
+
+void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
+    
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("glnode"));
+    event_obj->Set(String::NewSymbol("GL_SHADING_LANGUAGE_VERSION"), Number::New(GL_SHADING_LANGUAGE_VERSION));
+    event_obj->Set(String::NewSymbol("GL_ARRAY_BUFFER"), Number::New(GL_ARRAY_BUFFER));
+    event_obj->Set(String::NewSymbol("GL_STATIC_DRAW"), Number::New(GL_STATIC_DRAW));
+    event_obj->Set(String::NewSymbol("GL_VERTEX_SHADER"), Number::New(GL_VERTEX_SHADER));
+    event_obj->Set(String::NewSymbol("GL_FRAGMENT_SHADER"), Number::New(GL_FRAGMENT_SHADER));
+    event_obj->Set(String::NewSymbol("GL_COMPILE_STATUS"), Number::New(GL_COMPILE_STATUS));
+    event_obj->Set(String::NewSymbol("GL_TRUE"), Number::New(GL_TRUE));
+    event_obj->Set(String::NewSymbol("GL_FALSE"), Number::New(GL_FALSE));
+    event_obj->Set(String::NewSymbol("GL_FLOAT"), Number::New(GL_FLOAT));
+    event_obj->Set(String::NewSymbol("GL_BLEND"), Number::New(GL_BLEND));
+    event_obj->Set(String::NewSymbol("GL_SRC_ALPHA"), Number::New(GL_SRC_ALPHA));
+    event_obj->Set(String::NewSymbol("GL_ONE_MINUS_SRC_ALPHA"), Number::New(GL_ONE_MINUS_SRC_ALPHA));
+    event_obj->Set(String::NewSymbol("GL_MAX"), Number::New(GL_MAX));
+    event_obj->Set(String::NewSymbol("GL_POINTS"), Number::New(GL_POINTS));
+    event_obj->Set(String::NewSymbol("glGetString"), FunctionTemplate::New(node_glGetString)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGenVertexArrays"), FunctionTemplate::New(node_glGenVertexArrays)->GetFunction());
+    event_obj->Set(String::NewSymbol("glBindVertexArray"), FunctionTemplate::New(node_glBindVertexArray)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGenBuffers"), FunctionTemplate::New(node_glGenBuffers)->GetFunction());
+    event_obj->Set(String::NewSymbol("glBindBuffer"), FunctionTemplate::New(node_glBindBuffer)->GetFunction());
+    event_obj->Set(String::NewSymbol("glBufferData"), FunctionTemplate::New(node_glBufferData)->GetFunction());
+    event_obj->Set(String::NewSymbol("glCreateShader"), FunctionTemplate::New(node_glCreateShader)->GetFunction());
+    event_obj->Set(String::NewSymbol("glShaderSource"), FunctionTemplate::New(node_glShaderSource)->GetFunction());
+    event_obj->Set(String::NewSymbol("glCompileShader"), FunctionTemplate::New(node_glCompileShader)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetShaderiv"), FunctionTemplate::New(node_glGetShaderiv)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetShaderInfoLog"), FunctionTemplate::New(node_glGetShaderInfoLog)->GetFunction());
+    event_obj->Set(String::NewSymbol("glCreateProgram"), FunctionTemplate::New(node_glCreateProgram)->GetFunction());
+    event_obj->Set(String::NewSymbol("glAttachShader"), FunctionTemplate::New(node_glAttachShader)->GetFunction());
+    event_obj->Set(String::NewSymbol("glLinkProgram"), FunctionTemplate::New(node_glLinkProgram)->GetFunction());
+    event_obj->Set(String::NewSymbol("glUseProgram"), FunctionTemplate::New(node_glUseProgram)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetAttribLocation"), FunctionTemplate::New(node_glGetAttribLocation)->GetFunction());
+    event_obj->Set(String::NewSymbol("glGetUniformLocation"), FunctionTemplate::New(node_glGetUniformLocation)->GetFunction());
+    event_obj->Set(String::NewSymbol("glEnableVertexAttribArray"), FunctionTemplate::New(node_glEnableVertexAttribArray)->GetFunction());
+    event_obj->Set(String::NewSymbol("glVertexAttribPointer"), FunctionTemplate::New(node_glVertexAttribPointer)->GetFunction());
+    event_obj->Set(String::NewSymbol("glUniform1f"), FunctionTemplate::New(node_glUniform1f)->GetFunction());
+    event_obj->Set(String::NewSymbol("glUniform2f"), FunctionTemplate::New(node_glUniform2f)->GetFunction());
+    event_obj->Set(String::NewSymbol("glPointSize"), FunctionTemplate::New(node_glPointSize)->GetFunction());
+    event_obj->Set(String::NewSymbol("glEnable"), FunctionTemplate::New(node_glEnable)->GetFunction());
+    event_obj->Set(String::NewSymbol("glBlendFunc"), FunctionTemplate::New(node_glBlendFunc)->GetFunction());
+    event_obj->Set(String::NewSymbol("glBlendEquation"), FunctionTemplate::New(node_glBlendEquation)->GetFunction());
+    event_obj->Set(String::NewSymbol("glDrawArrays"), FunctionTemplate::New(node_glDrawArrays)->GetFunction());
+    
+    Handle<Value> event_argv[] = {event_obj};
+    glnode->callback->Call(Context::GetCurrent()->Global(),1,event_argv);
+    
+    
 }
 

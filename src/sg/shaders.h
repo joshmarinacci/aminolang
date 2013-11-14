@@ -30,17 +30,6 @@ public:
 };
 */
 
-class FontShader: public Shader {
-public:
-    FontShader();
-    virtual void apply(GLfloat modelView[16], GLfloat trans[16], char* text, float x, float y,  float r, float g, float b, float fsize, AminoFont* font);
-    int prog;
-    GLint u_matrix, u_trans, u_color;
-    GLint attr_pos;
-    GLint attr_texcoords, attr_tex, texID;
-};
-
-
 class TextureShader: public Shader {
 public:
     TextureShader();

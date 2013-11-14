@@ -37,7 +37,9 @@
                         "src/sg/mac.cpp",
                     ],
                     "defines": [
-                        "MAC"
+                        "MAC",
+                        "GLFW_NO_GLU",
+                        "GLFW_INCLUDE_GL3",
                     ]
                 }],
                 

@@ -163,7 +163,6 @@ Handle<Value> createWindow(const Arguments& args) {
     
     colorShader = new ColorShader();
     textureShader = new TextureShader();
-    fontShader = new FontShader();
     eventSingleton = new EVDispatcher();
     printf("enabling touch with screen size %d %d\n",width,height);
     enable_touch(width,height);

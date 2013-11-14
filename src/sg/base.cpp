@@ -6,7 +6,6 @@ using namespace v8;
 
 ColorShader* colorShader;
 TextureShader* textureShader;
-FontShader* fontShader;
 GLfloat* modelView;
 GLfloat* globaltx;
 int width = 640;

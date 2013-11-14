@@ -92,7 +92,12 @@ Handle<Value> createWindow(const Arguments& args) {
     int h  = args[1]->ToNumber()->NumberValue();
     width = w;
     height = h;
-    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    if(!glfwOpenWindow(800,600, 0,0,0,0,0,0, GLFW_WINDOW)) {
+//    if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
         printf("error. quitting\n");
         glfwTerminate();
         exit(EXIT_FAILURE);        
@@ -107,7 +112,6 @@ Handle<Value> createWindow(const Arguments& args) {
     
     colorShader = new ColorShader();
     textureShader = new TextureShader();
-    fontShader = new FontShader();
     modelView = new GLfloat[16];
 
     globaltx = new GLfloat[16];
@@ -150,6 +154,7 @@ void render() {
     //input updates happen at any time
     
     //send the validate event
+    
     sendValidate();
 
     //apply processed updates
@@ -175,7 +180,7 @@ void render() {
     mul_matrix(modelView,pixelM,m4);
     make_identity_matrix(globaltx);
     glViewport(0,0,width, height);
-    glClearColor(1,1,1,1);
+    glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     
@@ -285,6 +290,7 @@ void InitAll(Handle<Object> exports, Handle<Object> module) {
     exports->Set(String::NewSymbol("createPoly"),       FunctionTemplate::New(createPoly)->GetFunction());
     exports->Set(String::NewSymbol("createGroup"),      FunctionTemplate::New(createGroup)->GetFunction());
     exports->Set(String::NewSymbol("createText"),       FunctionTemplate::New(createText)->GetFunction());
+    exports->Set(String::NewSymbol("createGLNode"),     FunctionTemplate::New(createGLNode)->GetFunction());
     exports->Set(String::NewSymbol("createAnim"),       FunctionTemplate::New(createAnim)->GetFunction());
     exports->Set(String::NewSymbol("stopAnim"),         FunctionTemplate::New(stopAnim)->GetFunction());
     exports->Set(String::NewSymbol("updateProperty"),   FunctionTemplate::New(updateProperty)->GetFunction());

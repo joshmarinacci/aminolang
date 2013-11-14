@@ -245,7 +245,6 @@ Handle<Value> createWindow(const Arguments& args) {
     
     colorShader = new ColorShader();
     textureShader = new TextureShader();
-    fontShader = new FontShader();
     modelView = new GLfloat[16];
 
     globaltx = new GLfloat[16];

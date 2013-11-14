@@ -96,6 +96,7 @@ public:
     virtual void drawRect(GLContext* c, Rect* rect);
     virtual void drawPoly(GLContext* c, PolyNode* poly);
     virtual void drawText(GLContext* c, TextNode* text);
+    virtual void drawGLNode(GLContext* c, GLNode* glnode);
     virtual ~SimpleRenderer() { }
 };
 

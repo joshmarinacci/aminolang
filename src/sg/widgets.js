@@ -247,9 +247,13 @@ widgets.Slider = amino.ComposeObject({
         value: {
             value:"0", 
             set: function(value) {
+                if(value < this.getMin()) value = this.getMin();
+                if(value > this.getMax()) value = this.getMax();
                 this.props.value = value;
-                var thumbval = (value/100)*this.getW();
-                this.comps.thumb.setTx(thumbval);
+                var thumbval = this.valueToPoint(value);
+                this.comps.thumb.setTx(thumbval-10);
+                var event = {type:'change',source:this, value:this.props.value};
+                amino.getCore().fireEvent(event);
                 return this;
             }
         }
@@ -261,8 +265,16 @@ widgets.Slider = amino.ComposeObject({
         this.comps.thumb.setW(20);
         this.comps.thumb.setH(20);
         
+        this.valueToPoint = function(v) {
+            var range = this.getMax()-this.getMin();
+            v = ((v-this.getMin())/range)*this.getW();
+            return v;
+        }
+        
         this.pointToValue = function(x) {
-            return x/this.getW()*100;
+            var range = this.getMax()-this.getMin();
+            var v = x/this.getW();
+            return v * range + this.getMin();
         }
         
         var self = this;

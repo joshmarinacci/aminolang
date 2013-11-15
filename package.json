@@ -1,10 +1,7 @@
 {
-  "name": "SGTest",
+  "name": "Amino",
   "version": "0.0.1",
   "dependencies": {
-    "lame": "*",
-    "speaker": "*",
-    "baconjs": "*",
     "wrench": "*",
     "moment": "~2.2.1"
   }

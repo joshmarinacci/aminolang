@@ -25,7 +25,9 @@ exports.checkError = function(gl) {
     var err = gl.glGetError();
     if(err != gl.GL_NO_ERROR) {
         console.log("error = ", err,error_map[err], " line: ",__line);
+        return true;
     }
+    return false;
 }
 exports.loadShader = function(gl,def) {
     var version = gl.glGetString(gl.GL_SHADING_LANGUAGE_VERSION);
@@ -148,8 +150,10 @@ exports.loadShader = function(gl,def) {
                 gl.glVertexAttribPointer(atts[input.name], size, gl.GL_FLOAT, gl.GL_FALSE, totalsize, offset);
                 offset += size;
                 gl.glEnableVertexAttribArray(atts[input.name]);
+                if(exports.checkError(gl)) {
+                    console.log("problem with " + input.name);
+                }
             });
-            exports.checkError(gl);
         }
     }
 };

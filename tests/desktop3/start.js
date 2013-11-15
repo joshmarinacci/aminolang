@@ -18,6 +18,7 @@ var os = require('os');
 var util = require('util');
 var twitter = require('twitter');
 
+var particles = require('../gl/particles.js');
 
 amino.colortheme.base = "#dddddd";
 
@@ -121,6 +122,19 @@ var apps = [
                   content:"asdf",
             });
         },
+    },
+    {
+        title: "Particles",
+        init: function(core,stage,db) {
+            var parts = particles.makeApp(core,stage);
+            var panel = new widgets.AnchorPanel();
+            panel.setFill("#555555");
+            panel.isApp = function() { return true; }
+            panel.getTitle = function() { return "Geometry"; }
+            panel.add(parts);
+            panel.setW(600).setH(600);
+            return panel;
+        }
     },
 ];
 

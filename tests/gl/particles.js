@@ -6,13 +6,9 @@ function frand(min,max) {
     return Math.random()*(max-min) + min;
 }
 
-amino.startApp(function(core,stage) {
-    
+exports.makeApp = function(core,stage) {
     var gl = new amino.GLNode();
     var group = new amino.ProtoGroup();
-    group.add(new amino.ProtoRect().setW(200).setH(500));
-    group.add(new amino.ProtoText().setTx(210).setTy(100).setFill("#ff00ff").setText("blah"));
-    group.add(new amino.ProtoRect().setW(500).setH(500).setTx(520));
     
     var grav = new widgets.Slider()
         .setTy(100).setTx(20).setW(100).setH(20)
@@ -33,7 +29,6 @@ amino.startApp(function(core,stage) {
     group.add(windNode);
     
     group.add(gl);
-    stage.setRoot(group);
     
     
     
@@ -41,6 +36,7 @@ amino.startApp(function(core,stage) {
     var time = 0;
     var shader;
     gl.onrender = function(gl) {
+        
         shaderutils.checkError(gl);
         var pcount = 2000;
         if(first) {
@@ -62,8 +58,10 @@ amino.startApp(function(core,stage) {
             
             shader = shaderutils.loadShader(gl, {
                 uni: [ 
-                    { name: "time", type: "float" },
-                    { name: "gravity", type: "vec2" },
+                    { name: "time",     type: "float" },
+                    { name: "gravity",  type: "vec2" },
+                    { name: "mvp",      type: "mat4" },
+                    { name: "trans",    type: "mat4" },
                 ],
                 in: [
                     { name: "position", type: "vec2" },
@@ -81,7 +79,7 @@ amino.startApp(function(core,stage) {
                     "rtime = mod(rtime,4.0);",
                     "float tx = position.x + delta.x*rtime + gravity.x*rtime*rtime;",
                     "float ty = position.y + delta.y*rtime + gravity.y*rtime*rtime;",
-                    "gl_Position = vec4(tx/3.0, ty/3.0, 0.0, 1.0);",
+                    "gl_Position = mvp*trans*vec4(tx*100, ty*100, 0.0, 1.0);",
                     "v_color = incolor;",
                     "ftime = rtime;",
                     "gl_PointSize = 30.0;",
@@ -90,7 +88,7 @@ amino.startApp(function(core,stage) {
                     "vec4 color = vec4(v_color.r, v_color.g, v_color.b, 1.0);",
                     "float a = 1.0-ftime/3.0;",
                     "float b = max(0.0, 1.0-2.0*length(gl_PointCoord - 0.5));",
-                    "color.a = min(a,b);",
+                    "color.a = b;",
                     "gl_FragColor = color;",
                 ]
             });
@@ -115,11 +113,32 @@ amino.startApp(function(core,stage) {
         
         time+=0.01;
         gl.glUniform1f(shader.atts.time,time);
+        //gl.glUniform2f(shader.atts.gravity,wind,gravity);
         gl.glUniform2f(shader.atts.gravity,wind,gravity);
+
+
+        var x = this.getTx();
+        var y = this.getTy();
+        var t = this;
+        while(t.parent != null) {
+            t = t.parent;
+            x += t.getTx();
+            y += t.getTy();
+        }
+        
+        //console.log('trans = ',x,y);
+        gl.setModelView(shader.atts.mvp);
+        gl.setGlobalTransform(shader.atts.trans);
         gl.glDrawArrays(gl.GL_POINTS, 0, pcount);
         //turn off the buffer
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
     }
     
-    
-});
+    gl.setTx(200).setTy(100);
+    return group;
+    //stage.setRoot(group);
+}
+
+//amino.startApp(exports.makeApp);
+
+

@@ -1,5 +1,5 @@
-var amino = require('../../build/desktop/amino.js');
-var widgets = require('../../build/desktop/widgets.js');
+var amino = require('amino.js');
+var widgets = require('widgets.js');
 var db = require('../phone/database').makeDB();
 var Global = require('./Global.js');
 var Email = require('./Email.js');

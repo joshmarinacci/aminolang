@@ -1,24 +1,22 @@
-var amino = null;
-var widgets = null;
-var bottom = 0;
+var amino = require('amino.js');
+var widgets = require('widgets.js');
+//var fs = require('fs');
+//var bottom = 0;
+/*
 if(process.platform == 'darwin') {
-    amino = require('../../build/desktop/amino.js');
-    widgets = require('../../build/desktop/widgets.js');
-    bottom = 30;
 } else {
-    amino = require('./amino.js');    
-    widgets = require('./widgets.js');
     bottom = 0;
-}
+}*/
+var bottom = 30;
 
 
+console.log("doing the bottom");
 
 var data = require('./fakedata.js');
 var Switcher = require('./switcher.js').Switcher;
 var EmailApp = require('./emailapp.js').EmailApp;
 var LockScreen = require('./lockscreen.js').LockScreen;
 var dialer = require('./dialer.js');
-var fs = require('fs');
 
 amino.SOFTKEYBOARD_ENABLED = true;
 
@@ -496,7 +494,7 @@ function buildApp6(stage) {
 
 switcherPanel.add(scrim);
 
-if(process.platform == 'darwin') {
+//if(process.platform == 'darwin') {
     switcherPanel.add(new widgets.PushButton().setText("<")
         .setW(100).setH(30)
         .setBottom(0).setAnchorBottom(true)
@@ -514,7 +512,7 @@ if(process.platform == 'darwin') {
         .setBottom(0).setAnchorBottom(true)
         .onAction(switcher.slideNext)
         );
-}
+//}
 
 nav.insets.top = 0;
 nav.insets.bottom = 20+bottom;

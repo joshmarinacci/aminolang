@@ -514,6 +514,18 @@ exports.GLNode = exports.ComposeObject({
         scaley: { value: 1 },
         visible: { value: 1 },
     },
+    //replaces all setters
+    set: function(name, value) {
+        if(shortCircuit(this, this.props[name],value)) return;
+        this.dirty = true;
+        this.props[name] = value;
+        //mirror the property to the native side
+        if(this.live) {
+            if(propsHash[name]) {
+                exports.native.updateProperty(this.handle,name,value);
+            }
+        }
+    },
     init: function() {
         var self = this;
         this.handle = exports.native.createGLNode(function(gl) {
@@ -521,6 +533,7 @@ exports.GLNode = exports.ComposeObject({
                 self.onrender(gl);
             }
         });
+        this.live = true;
     },
 });
 

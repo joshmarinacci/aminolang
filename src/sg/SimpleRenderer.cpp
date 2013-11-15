@@ -533,8 +533,26 @@ Handle<Value> node_glDrawArrays(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
+Handle<Value> node_setModelView(const Arguments& args) {
+  HandleScope scope;
+  int id               = args[0]->ToNumber()->NumberValue();
+  //printf("setting to %d\n",id);
+  glUniformMatrix4fv(id, 1, GL_FALSE, modelView);
+//    glUniformMatrix4fv(u_trans,  1, GL_FALSE, trans);
+  return scope.Close(Undefined());
+}
+
+static GLContext* sctx;
+Handle<Value> node_setGlobalTransform(const Arguments& args) {
+  HandleScope scope;
+  int id               = args[0]->ToNumber()->NumberValue();
+//  sctx->dumpGlobalTransform();
+  glUniformMatrix4fv(id, 1, GL_FALSE, sctx->globaltx);
+  return scope.Close(Undefined());
+}
+
 void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
-    
+    sctx = ctx;
     Local<Object> event_obj = Object::New();
     event_obj->Set(String::NewSymbol("type"), String::New("glnode"));
     event_obj->Set(String::NewSymbol("GL_SHADING_LANGUAGE_VERSION"), Number::New(GL_SHADING_LANGUAGE_VERSION));
@@ -595,6 +613,9 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_ONE"), Number::New(GL_ONE));
     event_obj->Set(String::NewSymbol("GL_ZERO"), Number::New(GL_ZERO));
     event_obj->Set(String::NewSymbol("glDrawArrays"), FunctionTemplate::New(node_glDrawArrays)->GetFunction());
+
+    event_obj->Set(String::NewSymbol("setModelView"), FunctionTemplate::New(node_setModelView)->GetFunction());
+    event_obj->Set(String::NewSymbol("setGlobalTransform"), FunctionTemplate::New(node_setGlobalTransform)->GetFunction());
     
     Handle<Value> event_argv[] = {event_obj};
     glnode->callback->Call(Context::GetCurrent()->Global(),1,event_argv);

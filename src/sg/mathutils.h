@@ -66,7 +66,8 @@ static void
 print_matrix(GLfloat *m) {
     printf("matrix ");
     for(int i=0; i<16; i++) {
-        printf("%.2f ",m[i]);
+        printf("%.1f  ",m[i]);
+        if(i%4==3) printf(", ");
     }
     printf("\n");
 }

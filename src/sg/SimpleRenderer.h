@@ -21,6 +21,9 @@ public:
         this->globaltx = new GLfloat[16];
         make_identity_matrix(this->globaltx);
     }
+    void dumpGlobalTransform() {
+        print_matrix(this->globaltx);
+    }
     void translate(double x, double y) {
         GLfloat tr[16];
         GLfloat trans2[16];

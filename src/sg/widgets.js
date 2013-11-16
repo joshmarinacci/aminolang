@@ -1940,6 +1940,10 @@ widgets.TextField = amino.ComposeObject({
             this.tc.view.layout();
             return this;
         }
+        this.getText = function() {
+            return this.tc.getText();
+        }
+        
         this.tc.model.listen({
             notify:function() {
                 var event = {type:'change',source:self, name:'text', text:self.tc.model.getText()};

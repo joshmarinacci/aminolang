@@ -561,12 +561,17 @@ exports.ProtoPoly = exports.ComposeObject({
         b: { value: 0},
         geometry: { value: [0,0, 50,0, 50,50]},
         dimension: { value: 2 },
+        /** @prop fill fill color of the polygon, if filled. Should be a hex value like #af03b6 */
+        fill: {
+            value: '#ff0000', 
+        },
+        opacity: { value: 1},
         filled: { value: false },
         closed: { value: true  },
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
         fill: {
             value: '#ff0000', 
-        }
+        },
     },
     //replaces all setters
     set: function(name, value) {
@@ -586,6 +591,7 @@ exports.ProtoPoly = exports.ComposeObject({
             this.setB(color.b);
             return this;
         }
+        return this;
     },
     /*
     //replaces all getters
@@ -839,6 +845,7 @@ exports.ProtoImageView = exports.ComposeObject({
             exports.native.updateProperty(this.handle, name, value);
         }
         if(name == 'src' && value != null) {
+            console.log("trying to load " + value);
             var src = this.props.src;
             var self = this;
             if(src.toLowerCase().endsWith(".png")) {
@@ -869,6 +876,18 @@ exports.ProtoImageView = exports.ComposeObject({
         //invoke all setters once to push default values to the native side
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
+        }
+        /** @func contains  returns true if the rect contains the x and y. 
+        x and y should be in the coordinate space of the rectangle.
+        */
+        var rect = this;
+        this.contains = function(x,y) {
+            if(x >=  rect.getX()  && x <= rect.getX() + rect.getW()) {
+                if(y >= rect.getY() && y <= rect.getY() + rect.getH()) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 });

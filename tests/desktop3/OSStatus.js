@@ -9,17 +9,17 @@ var lasttime = null;
 exports.buildApp = function(panel, core, stage, db) {
     
     //date and time
-    var time = new widgets.Label().setText("12:45pm").setFontSize(30);
+    var time = new widgets.Label().setText("12:45pm").setFontSize(30).setH(15);
     panel.add(time);
-    var date = new widgets.Label().setText("10/11/13").setFontSize(15);
+    var date = new widgets.Label().setText("10/11/13").setFontSize(15).setH(15);
     panel.add(date);
     
     //weather
-    var weather = new widgets.Label().setText("65 cloudy").setFontSize(15);
+    var weather = new widgets.Label().setText("65 cloudy").setFontSize(15).setH(15);
     panel.add(weather);
     
     //cpu monitor
-    var cpu = new widgets.Label().setText("cpu").setFontSize(15);
+    var cpu = new widgets.Label().setText("cpu").setFontSize(15).setH(15);
     panel.add(cpu);
     
     lasttime = os.cpus()[0].times;

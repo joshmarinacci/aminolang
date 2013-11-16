@@ -136,6 +136,55 @@ var apps = [
             return panel;
         }
     },
+    
+    {
+        title: "New Query",
+        init: function(core,stage,db) {
+            var view = new ContentView.ContentView();
+            var lv = new widgets.ListView()
+                .setFill("#ffffff")
+                .setId("customlistview")
+                ;
+            lv.setTextCellRenderer(function(cell,index,item) {
+                if(item == null) {
+                    cell.setText("");
+                } else {
+                    var str = "";
+                    if(item.isFolder && item.isFolder()) {
+                        str += "folder: ";
+                    } else {
+                        str += "file: ";
+                    }
+                    if(item.getTitle) {
+                        str += item.getTitle();
+                    }
+                    cell.setText(str);
+                }
+            });
+            function search(query) {
+                console.log("searching for " + query);
+                if(doctypes[query]) {
+                    var type = doctypes[query];
+                    var items = [];
+                    db.query({doctype:type}).forEach(function(doc) {
+                        items.push(new DocumentItem(doc));
+                    });
+                    lv.setModel(items);
+                }
+            }
+            view.comps.contents.add(lv);
+            var tf = new widgets.TextField().setW(130).setH(30).setText("asdf");
+            view.comps.toolbar
+                .add(tf)
+                .add(new widgets.PushButton().setW(30).setH(30).setFontSize(20).setFontName('awesome')
+                    .setText("\uf112").onAction(function(e) {
+                        search(tf.getText());
+                    }));
+            view.isApp = function() { return true; }
+            view.getTitle = function() { return "Query"; }
+            return view;
+        }
+    },
 ];
 
 /*
@@ -238,7 +287,7 @@ function DesktopFolder() {
 function setupDock(core,stage) {
     var dock = new widgets.VerticalPanel();
     dock.setFill("#ccffcc");
-    dock.setW(150).setH(500);
+    dock.setW(150).setH(550);
     
     OSStatus.buildApp(dock);
     
@@ -329,11 +378,11 @@ amino.startApp(function(core, stage) {
 
 
 //    var cursor = new amino.ProtoRect().setW(10).setH(10).setFill("#e0e0e0");
-    var cursor = new amino.ProtoText().setFontName('awesome').setText('\uF124').setFill("#ffffff");
+    var cursor = new amino.ProtoText().setFontName('awesome').setText('\uF124').setFill("#ffffff").setScalex(-1);
     root.add(cursor);
     core.on("move",null,function(e) {
-        cursor.setTx(e.x+1);
-        cursor.setTy(e.y+1);
+        cursor.setTx(e.x+14);
+        cursor.setTy(e.y+12);
     });
     
 });

@@ -1,5 +1,5 @@
-var amino = require('../../build/desktop/amino.js');
-var widgets = require('../../build/desktop/widgets.js');
+var amino = require('amino.js');
+var widgets = require('widgets.js');
 
 exports.EmailListViewCell = amino.ComposeObject({
     type: "EmailListViewCell",

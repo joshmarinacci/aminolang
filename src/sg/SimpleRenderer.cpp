@@ -78,7 +78,7 @@ void textureShaderApply(GLContext *ctx, TextureShader* shader, GLfloat modelView
     //printf("doing texture shader apply %d\n",texid);
     ctx->useProgram(shader->prog);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glUniformMatrix4fv(shader->u_matrix, 1, GL_FALSE, modelView);
     glUniformMatrix4fv(shader->u_trans,  1, GL_FALSE, ctx->globaltx);
@@ -173,9 +173,9 @@ void SimpleRenderer::drawPoly(GLContext* ctx, PolyNode* poly) {
     }
     GLfloat colors[len][3];
     for(int i=0; i<len/dim; i++) {
-        colors[i][0] = 0.0;
-        colors[i][1] = 1.0;
-        colors[i][2] = 1.0;
+        colors[i][0] = poly->r;
+        colors[i][1] = poly->g;
+        colors[i][2] = poly->b;
     }
     
     ctx->useProgram(colorShader->prog);
@@ -198,7 +198,11 @@ void SimpleRenderer::drawPoly(GLContext* ctx, PolyNode* poly) {
     glEnableVertexAttribArray(colorShader->attr_pos);
     glEnableVertexAttribArray(colorShader->attr_color);
     
-    glDrawArrays(GL_LINE_LOOP, 0, len/dim);
+    if(poly->filled == 1) {
+        glDrawArrays(GL_TRIANGLE_FAN, 0, len/dim);
+    } else {
+        glDrawArrays(GL_LINE_LOOP, 0, len/dim);
+    }
     
     glDisableVertexAttribArray(colorShader->attr_pos);
     glDisableVertexAttribArray(colorShader->attr_color);

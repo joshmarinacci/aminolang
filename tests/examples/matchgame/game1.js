@@ -4,9 +4,6 @@ if(typeof document == "undefined") {
 }
 
 amino.startApp(function(core,stage) {
-//    runner.background = "black";
-//    runner.clearBackground = true;
-//    runner.fps = 30;
     stage.setSize(1024,740);
     
     var basepath = "tests/examples/matchgame/";
@@ -19,24 +16,23 @@ amino.startApp(function(core,stage) {
     block3.solved = false;
     
     
-    
-    var points = [0,109,0, 192,0,0, 192,219,0];
     var block1spot = new amino.ProtoPoly()
         .setFill("#000000").setOpacity(0.5)
-        .setFilled(true)
-        .setGeometry(points).setDimension(3)
+        .setFilled(1)
+        .setGeometry([0,109,0, 192,0,0, 192,219,0])
+        .setDimension(3)
         .setTx(105).setTy(60);
-    var points = [0,2,0, 112,2,0, 112,219,0, 0,219,0];
     var block2spot = new amino.ProtoPoly()
         .setFill("#000000").setOpacity(0.5)
-        .setFilled(true)
-        .setGeometry(points).setDimension(3)
+        .setFilled(1)
+        .setGeometry([0,2,0, 112,2,0, 112,219,0, 0,219,0])
+        .setDimension(3)
         .setTx(105).setTy(360);
-    var points = [0,0,0, 83*2,0,0, 83*2,83*2,0, 0,83*2,0];
     var block3spot = new amino.ProtoPoly()
         .setFill("#000000").setOpacity(0.5)
-        .setFilled(true)
-        .setGeometry(points).setDimension(3)
+        .setFilled(1)
+        .setGeometry([0,0,0, 83*2,0,0, 83*2,83*2,0, 0,83*2,0])
+        .setDimension(3)
         .setTx(705).setTy(60);
     block1.spot = block1spot;
     block2.spot = block2spot;
@@ -92,66 +88,7 @@ amino.startApp(function(core,stage) {
             solvedOverlay.setVisible(1);
         }
     }
-        /*
-    runner.addCallback(function(){
-        var s = true;
-        for(var i =0; i<blocks.length; i++) {
-            if(!blocks[i].solved) {
-                s = false;
-            }
-        }
-        if(s) {
-            if(!solvedOverlay.isVisible()) {
-                solvedOverlay.setVisible(true);
-            }
-        }
-    });
-    */
-//    runner.start();
-    /*
-    function Dragger(runner, target, spot) {
-        var sx = 0;
-        var sy = 0;
-        var started = false;
-        runner.listen("MOUSE_PRESS", null, function(e) {
-            if(e.node == target) {
-                started = true;
-                var p = target.getParent();
-                p.remove(target);
-                p.add(target);
-            }
-            sx = e.x;
-            sy = e.y;
-        });
-        runner.listen("MOUSE_DRAG", null, function(e) {
-            if(e.node && started) {
-                var dx = e.x-sx;
-                var dy = e.y-sy;
-                sx = e.x;
-                sy = e.y;
-                var x = e.node.getX() + dx;
-                var y = e.node.getY() + dy;
-                e.node.setX(x);
-                e.node.setY(y);
-                if(within(target.getX(),spot.getX(),10)) {
-                    if(within(target.getY(),spot.getY(),10)) {
-                        target.setX(spot.getX());
-                        target.setY(spot.getY());
-                    }
-                }
-            }
-        });
-        runner.listen("MOUSE_RELEASE", null, function(e) {
-            started = false;
-            if(within(target.getX(),spot.getX(),10)) {
-                if(within(target.getY(),spot.getY(),10)) {
-                    target.solved = true;
-                }
-            }
-        });
-        
-    };
-    */
+
     function within(a,b,thresh) {
         return Math.abs(b-a) <= thresh;
     }
@@ -194,14 +131,5 @@ amino.startApp(function(core,stage) {
           block3spot.setVisible(1);
           blocksGroup.setVisible(1);
     });
-    /*
-    runner.listen("MOUSE_PRESS", solvedOverlay, function(e) {
-            solvedOverlay.setVisible(false);
-            block1.setX(730).setY(450);
-            block1.solved = false;
-            block2.setX(550).setY(200).solved = false;
-            block3.setX(300).setY(500).solved = false;
-    });
-    */
     
 });

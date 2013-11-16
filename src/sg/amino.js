@@ -566,17 +566,15 @@ exports.ProtoPoly = exports.ComposeObject({
             value: '#ff0000', 
         },
         opacity: { value: 1},
-        filled: { value: false },
-        closed: { value: true  },
+        filled: { value: 0 },
+        closed: { value: 1  },
         /** @prop fill fill color of the rectangle. Should be a hex value like #af03b6 */
-        fill: {
-            value: '#ff0000', 
-        },
     },
     //replaces all setters
     set: function(name, value) {
-        this.props[name] = value;
+        if(shortCircuit(this, this.props[name],value)) return;
         this.dirty = true;
+        this.props[name] = value;
         //mirror the property to the native side
         if(this.live) {
             if(propsHash[name]) {
@@ -602,13 +600,13 @@ exports.ProtoPoly = exports.ComposeObject({
     init: function() {
         this.handle = exports.native.createPoly();
         this.live = true;
+        this.shortCircuit = false;
         //invoke all setters once to push default values to the native side
         for(var propname in this.props) {
             this.set(propname, this.props[propname]);
         }
-        this.type = "rect";
-        var rect = this;
-        
+        this.shortCircuit = true;
+        this.type = "poly";
         this.contains = function(x,y) {
             //dont calc containment for now
             return false;

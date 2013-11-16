@@ -57,6 +57,7 @@ static const int X_PROP = 21;
 static const int Y_PROP = 22;
 static const int TX = 23;
 static const int GEOMETRY = 24;
+static const int FILLED = 25;
 
 static const int OPACITY_PROP = 27;
 static const int FONTID_PROP = 28;
@@ -312,8 +313,11 @@ public:
     float opacity;
     std::vector<float>* geometry;
     int dimension;
+    int filled;
+    
     PolyNode() {
         r = 0; g = 1; b = 0;
+        filled = 0;
         geometry = new std::vector<float>();
         geometry->push_back(0);
         geometry->push_back(0);
@@ -461,11 +465,18 @@ public:
         
         if(target->type == POLY) {
             PolyNode* polynode = (PolyNode*)target;
+            if(property == R) polynode->r = value;
+            if(property == G) polynode->g = value;
+            if(property == B) polynode->b = value;
+            if(property == OPACITY_PROP) polynode->opacity = value;
             if(property == GEOMETRY) {
                 polynode->geometry = arr;
             }
             if(property == DIMENSION) {
                 polynode->dimension = value;
+            }
+            if(property == FILLED) {
+                polynode->filled = value;
             }
         }
     }

@@ -348,7 +348,7 @@ int MOUSE    = 5062;
 void processInput(int fd, int type) {
     int size = sizeof(struct input_event);
     struct input_event ev[64];
-//    printf("processing input\n");
+    //    printf("processing input\n");
     int rd = read(fd, ev, size*64);
     if(rd == -1) return;
     if(rd < size) {
@@ -400,15 +400,6 @@ void sendValidate() {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
 }
 
-struct DebugEvent {
-    double inputtime;
-    double validatetime;
-    double updatestime;
-    double animationstime;
-    double rendertime;
-    double frametime;
-    double framewithsynctime;
-};
 
 void render() {
     DebugEvent de;

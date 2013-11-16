@@ -150,23 +150,38 @@ void sendValidate() {
     NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
 }
 
+static int FPS_LEN = 100;
+static double frametimes[100];
+static double avg_frametime = 0;
+static int currentFrame = 0;
 void render() {
+    DebugEvent de;
+    double starttime = getTime();
     //input updates happen at any time
+    double postinput = getTime();
+    de.inputtime = postinput-starttime;
     
     //send the validate event
     
     sendValidate();
+    double postvalidate = getTime();
+    de.validatetime = postvalidate-postinput;
 
+    int updatecount = updates.size();
     //apply processed updates
     for(int j=0; j<updates.size(); j++) {
         updates[j]->apply();
     }
     updates.clear();
+    double postupdates = getTime();
+    de.updatestime = postupdates-postvalidate;
     
     //apply animations
     for(int j=0; j<anims.size(); j++) {
         anims[j]->update();
     }
+    double postanim = getTime();
+    de.animationstime = postanim-postupdates;
     
     //set up the viewport
     GLfloat* scaleM = new GLfloat[16];
@@ -188,13 +203,31 @@ void render() {
     AminoNode* root = rects[rootHandle];
 
     SimpleRenderer* rend = new SimpleRenderer();
+    double prerender = getTime();
     rend->modelViewChanged = windowSizeChanged;
     windowSizeChanged = false;
     rend->startRender(root);
     delete rend;
+    double postrender = getTime();
+    de.rendertime = postrender-prerender;
+    de.frametime = postrender-starttime;
     
     //swap
     glfwSwapBuffers();
+    double postswap = getTime();
+    de.framewithsynctime = postswap-starttime;
+    frametimes[currentFrame] = de.framewithsynctime;
+    if(currentFrame == FPS_LEN-1) {
+        double total = 0;
+        for(int i=0; i<FPS_LEN; i++) {
+            total += frametimes[i];
+        }
+        printf("avg frame len = %f \n",(total/FPS_LEN));
+        avg_frametime = total/FPS_LEN;
+    }
+    currentFrame = (currentFrame+1)%FPS_LEN;
+//    printf("input = %.2f validate = %.2f update = %.2f update count %d ",  de.inputtime, de.validatetime, de.updatestime, updatecount);
+//    printf("animtime = %.2f render = %.2f frame = %.2f, full frame = %.2f\n", de.animationstime, de.rendertime, de.frametime, de.framewithsynctime);
 }
 
 Handle<Value> tick(const Arguments& args) {

@@ -796,4 +796,14 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     return scope.Close(num);
 }
 
+struct DebugEvent {
+    double inputtime;
+    double validatetime;
+    double updatestime;
+    double animationstime;
+    double rendertime;
+    double frametime;
+    double framewithsynctime;
+};
+
 #endif

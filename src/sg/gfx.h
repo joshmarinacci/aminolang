@@ -12,7 +12,7 @@
 static double getTime(void) {
     timeval time;
     gettimeofday(&time, NULL);
-    double millis = (time.tv_sec * 1000) + (time.tv_usec / 1000);    
+    double millis = (time.tv_sec * 1000.0) + (time.tv_usec / 1000.0);    
     return millis;
 }
 

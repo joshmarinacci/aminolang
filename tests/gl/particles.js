@@ -79,7 +79,7 @@ exports.makeApp = function(core,stage) {
                     "rtime = mod(rtime,4.0);",
                     "float tx = position.x + delta.x*rtime + gravity.x*rtime*rtime;",
                     "float ty = position.y + delta.y*rtime + gravity.y*rtime*rtime;",
-                    "gl_Position = mvp*trans*vec4(tx*100, ty*100, 0.0, 1.0);",
+                    "gl_Position = mvp*trans*vec4(tx*100.0, ty*100.0, 0.0, 1.0);",
                     "v_color = incolor;",
                     "ftime = rtime;",
                     "gl_PointSize = 30.0;",
@@ -103,8 +103,10 @@ exports.makeApp = function(core,stage) {
         shader.mapMemory();
         
         //hack to fix point sprites on mac
-        gl.glEnable(0x8861);
-        gl.glPointSize(50);
+        if(process.platform == "darwin") {
+            gl.glEnable(0x8861);
+            gl.glPointSize(50);
+        }
         //end hack
         
         gl.glEnable(gl.GL_BLEND);

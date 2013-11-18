@@ -29,6 +29,13 @@ exports.checkError = function(gl) {
     }
     return false;
 }
+function printWithLines(src) {
+    var i = 1;
+    src.split("\n").forEach(function(s) {
+        console.log(i + "    " + s);
+        i++;
+    });
+}
 exports.loadShader = function(gl,def) {
     var version = gl.glGetString(gl.GL_SHADING_LANGUAGE_VERSION);
     console.log("the  real gl version",version);
@@ -51,6 +58,7 @@ exports.loadShader = function(gl,def) {
     vsource += "void main() {   \n";
     vsource += def.vert.join("\n   ");
     vsource += "\n}\n";
+    printWithLines(vsource);
     console.log("vsource = \n----\n",vsource,"----\n");
     
     var vshader = gl.glCreateShader(gl.GL_VERTEX_SHADER);

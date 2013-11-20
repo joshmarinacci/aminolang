@@ -170,13 +170,13 @@ function Switcher() {
         }
         self.zoomedin = !self.zoomedin;
         if(self.zoomedin) {
-        if(self.onZoomIn) {
-            self.onZoomIn();
-        }
+            if(self.onZoomIn) {
+                self.onZoomIn();
+            }
         } else {
-        if(self.onZoomOut) {
-            self.onZoomOut();
-        }
+            if(self.onZoomOut) {
+                self.onZoomOut();
+            }
         }
     }
     

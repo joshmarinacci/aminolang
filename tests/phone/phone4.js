@@ -1,16 +1,6 @@
 var amino = require('amino.js');
 var widgets = require('widgets.js');
-//var fs = require('fs');
-//var bottom = 0;
-/*
-if(process.platform == 'darwin') {
-} else {
-    bottom = 0;
-}*/
 var bottom = 30;
-
-
-console.log("doing the bottom");
 
 var data = require('./fakedata.js');
 var Switcher = require('./switcher.js').Switcher;
@@ -22,19 +12,16 @@ amino.SOFTKEYBOARD_ENABLED = true;
 
 amino.setHiDPIScale(2);
 amino.startApp(function(core, stage) {
-    stage.setSize(320,480);
+        
+stage.setSize(320,480);
 
-    var superroot = new amino.ProtoGroup();
-    stage.setRoot(superroot);
-    
-    var ww = 320;
-    function getWW() {
-        return ww;
-    }
-    var wh = 480;
-    function getWH() {
-        return wh;
-    }
+var superroot = new amino.ProtoGroup();
+stage.setRoot(superroot);
+
+var ww = 320;
+function getWW() { return ww; }
+var wh = 480;
+function getWH() { return wh; }
 
 var nav = new NavigationManager();
 

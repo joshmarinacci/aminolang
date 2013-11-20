@@ -6,7 +6,6 @@ var input = this['aminoinput'];
 amino.sgtest = {
 }
 var fontmap = {};
-
 amino.native = {
     list:[],
     
@@ -353,16 +352,23 @@ function attachEvent(node,name,func) {
     }
 };
 
+function toXY(e) {
+    return {
+        x:e.pageX-e.target.offsetLeft,
+        y:e.pageY-e.target.offsetTop,
+    }
+}
 amino.setupEventHandlers = function() {
     var self = this;
     var dom = amino.native.domcanvas;
     
     attachEvent(dom,'mousedown',function(e){
         mouseState.pressed = true;
+        var pt = toXY(e);
         input.processEvent(Core._core,{
             type:"mouseposition", 
-            x:e.x, 
-            y:e.y,
+            x:pt.x,
+            y:pt.y,
         });
         input.processEvent(Core._core,{
             type:"mousebutton", 
@@ -371,18 +377,20 @@ amino.setupEventHandlers = function() {
         });
     });
     attachEvent(dom,'mousemove',function(e){
+        var pt = toXY(e);
         input.processEvent(Core._core,{
             type:"mouseposition",
-            x:e.x,
-            y:e.y
+            x:pt.x,
+            y:pt.y,
         });
     });
     attachEvent(dom,'mouseup',function(e){
+        var pt = toXY(e);
         mouseState.pressed = false;
         input.processEvent(Core._core,{
             type:"mouseposition",
-            x:e.x, 
-            y:e.y
+            x:pt.x,
+            y:pt.y,
         });
         input.processEvent(Core._core,{
             type:"mousebutton", 

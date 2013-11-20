@@ -409,7 +409,8 @@ input.processOneEvent = function(core,e) {
             );
         }
         return;
-    } else {
+    }
+    if(e.type == "mousebutton" && !mouseState.pressed) {
         var node = core.findNodeAtXY(mouseState.x,mouseState.y);
         if(node != null) {
             var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);

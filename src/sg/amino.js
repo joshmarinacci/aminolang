@@ -1214,23 +1214,25 @@ function Core() {
     }
     this.findNodeAtXY = function(x,y) {
         //var t1 = process.hrtime();
-        var node = this.findNodeAtXY_helper(this.root,x,y);
+        var node = this.findNodeAtXY_helper(this.root,x,y,"");
         //console.log('search time',process.hrtime(t1)[1]/1e6);
         return node;
     }
-    this.findNodeAtXY_helper = function(root,x,y) {
+    this.findNodeAtXY_helper = function(root,x,y,tab) {
         if(!root) return null;
+        //console.log(tab + root.getId() + " " + root.getTx() + " " + root.getTy() + " " + (root.getW?root.getW():"-") + " x " + (root.getH?root.getH():"-"));
         if(!root.getVisible()) return null;
         
         var tx = x-root.getTx();
         var ty = y-root.getTy();
         tx = tx/root.getScalex();
         ty = ty/root.getScaley();
+        //console.log(tab + "   xy="+tx+","+ty);
     
         if(root.children) {
             for(var i=root.children.length-1; i>=0; i--) {
                 var node = root.children[i];
-                var found = this.findNodeAtXY_helper(node,tx,ty);
+                var found = this.findNodeAtXY_helper(node,tx,ty,tab+"  ");
                 if(found) {
                 	return found;
             	}

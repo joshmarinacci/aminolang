@@ -213,6 +213,10 @@ input.processEvent = function(core,e) {
 }
 
 input.processOneEvent = function(core,e) {
+    if(e.type == "animend") {
+        core.notifyAnimEnd(e);
+        return;
+    }
     if(e.type == "mousebutton") {
         mapNativeButton(e);
         mouseState.pressed = (e.state == 1);

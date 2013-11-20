@@ -201,7 +201,7 @@ function filterSearch(text) {
     }
 }
 
-var switcherPanel = new widgets.AnchorPanel();
+var switcherPanel = new widgets.AnchorPanel().setId("switcherpanel");
 switcherPanel.setW(getWW()).setH(getWH());
 switcherPanel.setFill("#333333");
 superroot.add(switcherPanel);
@@ -224,8 +224,8 @@ switcher.root = root;
 switcher.switcherPanel = switcherPanel;
 
 function buildDock(stage) {
-    var dock = new amino.ProtoGroup().setTy(480);
-    var bg = new amino.ProtoRect().setW(getWW()).setH(80)
+    var dock = new amino.ProtoGroup().setTy(480).setId("dock");
+    var bg = new amino.ProtoRect().setW(getWW()).setH(80).setId("dockbg")
         .setFill("#ffffff").setOpacity(0.5);
     var apps = [
         { icon:'\uF0E0', fill: "#ff5555", color: "#ffffff", gen: function() {  return new EmailApp(stage,nav,data); } },
@@ -244,6 +244,7 @@ function buildDock(stage) {
             .setFontName('awesome')
             .setTx(x*80+10).setTy(10)
             .setText(app.icon)
+            .setId("dockbutton"+app.icon)
             .onAction(function() {
                 var node = app.gen();
                 if(node.setW) node.setW(getWW());
@@ -263,7 +264,6 @@ function buildDock(stage) {
 var dock = buildDock(stage);
 
 
-switcherPanel.add(dock);
 var scrim = new amino.ProtoRect()
     .setW(getWW())
     .setH(getWH()-20-30- 80-30)
@@ -480,6 +480,7 @@ function buildApp6(stage) {
 
 
 switcherPanel.add(scrim);
+switcherPanel.add(dock);
 
 //if(process.platform == 'darwin') {
     switcherPanel.add(new widgets.PushButton().setText("<")

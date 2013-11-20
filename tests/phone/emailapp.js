@@ -56,7 +56,7 @@ var EmailListViewCell = amino.ComposeObject({
 
 function EmailApp(stage,nav,data) {
     var panel = new widgets.AnchorPanel()
-        .setFill(amino.bg_accent_color);
+        .setFill(amino.bg_accent_color).setId("emailapp");
     panel.add(new widgets.Label()
             .setText("Inbox")
             .setH(30)

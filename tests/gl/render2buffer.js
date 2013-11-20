@@ -11,46 +11,76 @@ exports.makeApp = function(core,stage) {
     var group = new amino.ProtoGroup();
     
     var slider = new widgets.Slider()
-        .setTy(10).setTx(10).setW(900).setH(20)
-        .setMin(0).setMax(1).setValue(0);
+        .setTy(0).setTx(0).setW(800).setH(20)
+        .setMin(0).setMax(1).setValue(1);
     var contrast = 0;
     stage.on("change",slider,function(e) {
         contrast = e.value;
-        console.log("contrast set to " + contrast);
     });
-//    group.add(slider);
     group.add(gl);
+    gl.setScaley(-1).setTy(600);
+    group.add(slider);
     
     var iv = new amino.ProtoImageView().setSrc("tests/images/beatles_01.jpg");
     
     var first = true;
     var shader;
+    var shader2;
     
     var shaderDef = {
         uni: [ 
 //            { name: "contrast", type: "float" },
             { name: "mvp",      type: "mat4" },
             { name: "trans",    type: "mat4" },
-//            { name: "tex",      type:"sampler2D" },
+            { name: "tex",      type:"sampler2D" },
         ],
         in: [
             { name: "position", type: "vec2" },
-//            { name: "texcoords", type:"vec2" },
+            { name: "texcoords", type:"vec2" },
         ],
         out: [
-//            { name:"uv", type:"vec2"},
+            { name:"uv", type:"vec2"},
         ],
         vert: [
             "gl_Position = mvp*trans*vec4(position.x,position.y,0.0,1.0);",
             "gl_PointSize = 30;",
-  //          "uv = texcoords;",
+            "uv = texcoords;",
         ],
         frag: [
-            "gl_FragColor = vec4(1.0,1.0,0.0,1.0);",
+//            "gl_FragColor = vec4(1.0,1.0,0.0,1.0);",
+            "gl_FragColor = texture2D(tex,uv);",
         ]
     };
 //    gl.setScaley(-1);
 //    gl.setTx(30).setTy(700);
+    var contrastDef = {
+        uni: [ 
+            { name: "contrast", type: "float" },
+            { name: "mvp",      type: "mat4" },
+            { name: "trans",    type: "mat4" },
+            { name: "tex",      type:"sampler2D" },
+        ],
+        in: [
+            { name: "position", type: "vec2" },
+            { name: "texcoords", type:"vec2" },
+        ],
+        out: [
+            { name:"uv", type:"vec2"},
+        ],
+        vert: [
+            "gl_Position = mvp*trans*vec4(position.x,position.y,0.0,1.0);",
+            "gl_PointSize = 30;",
+            "uv = texcoords;",
+        ],
+        frag: [
+            "vec4 c = texture2D(tex,uv);",
+            "float avg = 0.21*c.r + 0.71*c.g + 0.07*c.b;",
+            "float c1 = contrast;",
+            "float c2 = 1.0-contrast;",
+            "gl_FragColor = vec4(avg*c1 + c.r*c2,avg*c1+c.g*c2,avg*c1+c.b*c2,1.0); ",
+        ]
+    };
+    
     gl.onrender = function(gl) {
         
         shaderutils.checkError(gl);
@@ -59,7 +89,7 @@ exports.makeApp = function(core,stage) {
             first = false;
             
             shaderutils.checkError(gl);
-            /*
+            
             //make a framebuffer
             fb = gl.glGenFramebuffers(1);
             shaderutils.checkError(gl);
@@ -80,54 +110,74 @@ exports.makeApp = function(core,stage) {
                 gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D,
                 tex,0);
             shaderutils.checkError(gl);
-            */
+            
+            var w = 800;
+            var h = 600;
+            var pts = [0,0,  0,h,  w,h,  w,h, 0,0, w,0];
+            var tx =  [0,1,  0,0,  1,0,  1,0, 0,1, 1,1]; 
             var verts = [];
-            verts[0] = 10;   verts[1] = 10;
-            verts[2] = 100;  verts[3] = 10;
-            verts[4] = 100;  verts[5] = 100;
-            verts[6] = 55;   verts[7] = 55;
-            verts[8] = 10;   verts[9] = 100;
-            verts[10]= 10;   verts[11]= 10;
-            //verts[8] = 0;   verts[9] = 0;
+            for(var i=0; i<pts.length; i+=2) {
+                verts.push(pts[i]);
+                verts.push(pts[i+1]);
+                verts.push(tx[i]);
+                verts.push(tx[i+1]);
+            }
             shader = shaderutils.loadShader(gl, shaderDef);
             shader.use();
             shader.makeVBO(verts);
             shader.setupLocations();
             shaderutils.checkError(gl);
+            
+            
+            shader2 = shaderutils.loadShader(gl, contrastDef);
+            shader2.use();
+            shader2.makeVBO(verts);
+            shader2.setupLocations();
+            shaderutils.checkError(gl);
             console.log("did setup");
         }
+        
+        //bind to the custom framebuffer
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, fb);
+        //do first drawing
         shader.bind();
         shader.use();
         shader.mapMemory();
-        
-        //hack to fix point sprites on mac
-        if(process.platform == "darwin") {
-//            gl.glEnable(0x8861);
-//            gl.glEnable(0x8642);
-            //gl.glPointSize(5);
-        }
-        //end hack
-
-        //bind to the custom framebuffer
-//        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, fb);
-        
         shaderutils.checkError(gl);
-  
+        gl.glActiveTexture(gl.GL_TEXTURE0);
+        shaderutils.checkError(gl);
+        gl.glBindTexture(gl.GL_TEXTURE_2D, iv.image.texid);
         gl.glEnable(gl.GL_BLEND);
         gl.glBlendFuncSeparate(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA, gl.GL_ONE, gl.GL_ONE);
         gl.glBlendEquation(gl.GL_FUNC_ADD);
-        
-//        gl.glUniform1f(shader.atts.time,time);
-//        gl.glUniform2f(shader.atts.gravity,0,0);
-
-
         gl.setModelView(shader.atts.mvp);
         gl.setGlobalTransform(shader.atts.trans);
-        gl.glDrawArrays(gl.GL_TRIANGLE_FAN, 0, 6);
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6);
         shaderutils.checkError(gl);
-        //turn off the buffer
+        
+        //switch back to the main framebuffer and draw again
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
+        shaderutils.checkError(gl);
+        gl.glActiveTexture(gl.GL_TEXTURE0);
+        shaderutils.checkError(gl);
+        gl.glBindTexture(gl.GL_TEXTURE_2D, tex);
+        shaderutils.checkError(gl);
+        //do second draw
+        shader2.bind();
+        shaderutils.checkError(gl);
+        shader2.use();
+        shader2.mapMemory();
+        shaderutils.checkError(gl);
+        gl.glEnable(gl.GL_BLEND);
+        gl.glBlendFuncSeparate(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA, gl.GL_ONE, gl.GL_ONE);
+        gl.glBlendEquation(gl.GL_FUNC_ADD);
+        gl.glUniform1f(shader2.atts.contrast,contrast);
+        gl.setModelView(shader2.atts.mvp);
+        gl.setGlobalTransform(shader2.atts.trans);
+        gl.glDrawArrays(gl.GL_TRIANGLES, 0, 6);
+        
+        //turn off the vertex buffer
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
-//        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0);
     }
     
     stage.setRoot(group);

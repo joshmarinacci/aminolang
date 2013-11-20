@@ -395,6 +395,12 @@ Handle<Value> node_glBindTexture(const Arguments& args) {
   glBindTexture(type,tex);
   return scope.Close(Undefined());
 }
+Handle<Value> node_glActiveTexture(const Arguments& args) {
+  HandleScope scope;
+  int type   = args[0]->ToNumber()->NumberValue();
+  glActiveTexture(type);
+  return scope.Close(Undefined());
+}
 
 Handle<Value> node_glTexImage2D(const Arguments& args) {
   HandleScope scope;
@@ -656,6 +662,8 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_LINE_STRIP"), Number::New(GL_LINE_STRIP));
     event_obj->Set(String::NewSymbol("GL_LINE_LOOP"), Number::New(GL_LINE_LOOP));
     event_obj->Set(String::NewSymbol("GL_TRIANGLE_FAN"), Number::New(GL_TRIANGLE_FAN));
+    event_obj->Set(String::NewSymbol("GL_TRIANGLE_STRIP"), Number::New(GL_TRIANGLE_STRIP));
+    event_obj->Set(String::NewSymbol("GL_TRIANGLES"), Number::New(GL_TRIANGLES));
     
     event_obj->Set(String::NewSymbol("GL_NO_ERROR"), Number::New(GL_NO_ERROR));
     event_obj->Set(String::NewSymbol("GL_INVALID_ENUM"), Number::New(GL_INVALID_ENUM));
@@ -663,6 +671,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("GL_INVALID_OPERATION"), Number::New(GL_INVALID_OPERATION));
     event_obj->Set(String::NewSymbol("GL_OUT_OF_MEMORY"), Number::New(GL_OUT_OF_MEMORY));
     event_obj->Set(String::NewSymbol("GL_TEXTURE_2D"), Number::New(GL_TEXTURE_2D));
+    event_obj->Set(String::NewSymbol("GL_TEXTURE0"), Number::New(GL_TEXTURE0));
     event_obj->Set(String::NewSymbol("GL_RGB"), Number::New(GL_RGB));
     event_obj->Set(String::NewSymbol("GL_TEXTURE_MIN_FILTER"), Number::New(GL_TEXTURE_MIN_FILTER));
     event_obj->Set(String::NewSymbol("GL_TEXTURE_MAG_FILTER"), Number::New(GL_TEXTURE_MAG_FILTER));
@@ -713,6 +722,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("glCheckFramebufferStatus"), FunctionTemplate::New(node_glCheckFramebufferStatus)->GetFunction());
     event_obj->Set(String::NewSymbol("glGenTextures"), FunctionTemplate::New(node_glGenTextures)->GetFunction());
     event_obj->Set(String::NewSymbol("glBindTexture"), FunctionTemplate::New(node_glBindTexture)->GetFunction());
+    event_obj->Set(String::NewSymbol("glActiveTexture"), FunctionTemplate::New(node_glActiveTexture)->GetFunction());
     event_obj->Set(String::NewSymbol("glTexImage2D"), FunctionTemplate::New(node_glTexImage2D)->GetFunction());
     event_obj->Set(String::NewSymbol("glTexParameteri"), FunctionTemplate::New(node_glTexParameteri)->GetFunction());
     event_obj->Set(String::NewSymbol("glFramebufferTexture2D"), FunctionTemplate::New(node_glFramebufferTexture2D)->GetFunction());

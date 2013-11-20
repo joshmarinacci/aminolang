@@ -7,28 +7,42 @@ amino.startApp(function(core,stage) {
     stage.setSize(1024,740);
     
     var basepath = "tests/examples/matchgame/";
+    if(typeof document != "undefined") {
+        basepath = "./";
+    }
     var bg = new amino.ProtoImageView().setSrc(basepath+"background.png");
-    var block1 = new amino.ProtoImageView().setSrc(basepath+"block1.png").setTx(730).setTy(450);
+    var block1 = new amino.ProtoImageView().setSrc(basepath+"block1.png").setTx(730).setTy(450)
+        .setId("block1")
+    ;
     block1.solved = false;
-    var block2 = new amino.ProtoImageView().setSrc(basepath+"block2.png").setTx(550).setTy(200);
+    var block2 = new amino.ProtoImageView().setSrc(basepath+"block2.png")
+        .setTx(550).setTy(200)
+        .setId("block2")
+        ;
     block2.solved = false;
-    var block3 = new amino.ProtoImageView().setSrc(basepath+"block3.png").setTx(300).setTy(500);
+    var block3 = new amino.ProtoImageView().setSrc(basepath+"block3.png")
+        .setTx(300).setTy(500)
+        .setId("block3")
+        ;
     block3.solved = false;
     
     
     var block1spot = new amino.ProtoPoly()
+        .setId("block1spot")
         .setFill("#000000").setOpacity(0.5)
         .setFilled(1)
         .setGeometry([0,109,0, 192,0,0, 192,219,0])
         .setDimension(3)
         .setTx(105).setTy(60);
     var block2spot = new amino.ProtoPoly()
+        .setId("block2spot")
         .setFill("#000000").setOpacity(0.5)
         .setFilled(1)
         .setGeometry([0,2,0, 112,2,0, 112,219,0, 0,219,0])
         .setDimension(3)
         .setTx(105).setTy(360);
     var block3spot = new amino.ProtoPoly()
+        .setId("block3spot")
         .setFill("#000000").setOpacity(0.5)
         .setFilled(1)
         .setGeometry([0,0,0, 83*2,0,0, 83*2,83*2,0, 0,83*2,0])

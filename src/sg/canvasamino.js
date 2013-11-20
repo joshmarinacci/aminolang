@@ -67,15 +67,19 @@ amino.native = {
             r:0.5,
             g:0.5,
             b:0.5,
+            geometry:[0,0,0,  100,0,0,  100,100,0],
             draw: function(g) {
                 if(this.visible != 1) return;
                 g.save();
+                if(this.opacity != 1.0) {
+                    g.globalAlpha = this.opacity;
+                }
                 g.translate(this.tx,this.ty);
                 g.scale(this.scalex,this.scaley);
                 g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
                 g.beginPath();
                 var gm = this.geometry;
-                for(var i=0; i<this.geometry.length; i+=2) {
+                for(var i=0; i<this.geometry.length; i+=3) {
                     if(i == 0) {
                         g.moveTo(gm[i],gm[i+1]);
                     } else {
@@ -148,11 +152,23 @@ amino.native = {
         h2.children.splice(n,1);
     },
     
+    loadPngToTexture:  function(path,cb) {
+        var img = new Image();
+        img.onload = function() {
+            img.texid = img;
+            img.w = img.width;
+            img.h = img.height;
+            cb(img);
+        }
+        img.src = path;
+    },
     
     loadJpegToTexture: function(path,cb) {
         var img = new Image();
         img.onload = function() {
             img.texid = img;
+            img.w = img.width;
+            img.h = img.height;
             cb(img);
         }
         img.src = path;

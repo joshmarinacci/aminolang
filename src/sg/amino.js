@@ -803,6 +803,8 @@ exports.ProtoText = exports.ComposeObject({
 */
 exports.ProtoImageView = exports.ComposeObject({
     props: {
+        /** @prop id id of the rectangle. might not be unique */
+        id: { value: "no id" },
         /** @prop tx translate X. @default 0 */
         tx: { value: 0   },
         /** @prop ty translate Y. @default 0 */
@@ -1220,7 +1222,9 @@ function Core() {
     }
     this.findNodeAtXY_helper = function(root,x,y,tab) {
         if(!root) return null;
-        //console.log(tab + root.getId() + " " + root.getTx() + " " + root.getTy() + " " + (root.getW?root.getW():"-") + " x " + (root.getH?root.getH():"-"));
+        //console.log(tab + 
+        //    (root.getId?root.getId():"-") + " " + root.getTx() + " " + root.getTy() + " " 
+        //    + (root.getW?root.getW():"-") + " x " + (root.getH?root.getH():"-"));
         if(!root.getVisible()) return null;
         
         var tx = x-root.getTx();

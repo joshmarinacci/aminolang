@@ -1,4 +1,5 @@
 #include "SimpleRenderer.h"
+#include <node_buffer.h>
 
 
 SimpleRenderer::SimpleRenderer() {
@@ -437,6 +438,30 @@ Handle<Value> node_glFramebufferTexture2D(const Arguments& args) {
     return scope.Close(Undefined());
 }
 
+using node::Buffer;
+Handle<Value> node_glReadPixels(const Arguments& args) {
+    HandleScope scope;
+    int x     = args[0]->ToNumber()->NumberValue();
+    int y     = args[1]->ToNumber()->NumberValue();
+    int w     = args[2]->ToNumber()->NumberValue();
+    int h     = args[3]->ToNumber()->NumberValue();
+    int format= args[4]->ToNumber()->NumberValue();
+    int type  = args[5]->ToNumber()->NumberValue();
+    
+    int length = w*h*3;
+    char* data = (char*)malloc(length);
+    glReadPixels(x,y,w,h, format, type, data);
+    Buffer *slowBuffer = Buffer::New(length);
+    memcpy(Buffer::Data(slowBuffer), data, length);
+    Local<Object> globalObj = Context::GetCurrent()->Global();
+    Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(String::New("Buffer")));
+    Handle<Value> constructorArgs[3] = { slowBuffer->handle_, v8::Integer::New(length), v8::Integer::New(0) };
+    Local<Object> actualBuffer = bufferConstructor->NewInstance(3, constructorArgs);
+    return scope.Close(actualBuffer);
+}
+
+
+
 Handle<Value> node_glCreateShader(const Arguments& args) {
   HandleScope scope;
   int type   = args[0]->ToNumber()->NumberValue();
@@ -726,6 +751,7 @@ void SimpleRenderer::drawGLNode(GLContext* ctx, GLNode* glnode) {
     event_obj->Set(String::NewSymbol("glTexImage2D"), FunctionTemplate::New(node_glTexImage2D)->GetFunction());
     event_obj->Set(String::NewSymbol("glTexParameteri"), FunctionTemplate::New(node_glTexParameteri)->GetFunction());
     event_obj->Set(String::NewSymbol("glFramebufferTexture2D"), FunctionTemplate::New(node_glFramebufferTexture2D)->GetFunction());
+    event_obj->Set(String::NewSymbol("glReadPixels"), FunctionTemplate::New(node_glReadPixels)->GetFunction());
 
 
     event_obj->Set(String::NewSymbol("setModelView"), FunctionTemplate::New(node_setModelView)->GetFunction());

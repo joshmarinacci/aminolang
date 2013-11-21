@@ -41,18 +41,19 @@ for(var i=0; i<10; i++) {
     }});
 }
 
-function parseFile(filename) {
+function parseFile(filename,prefix) {
     var docs = JSON.parse(fs.readFileSync(filename)).documents;
     console.log(docs);
     docs.forEach(function(meta) {
-        meta.doc.file = "DesktopDB/Music/"+meta.doc.file;
+        meta.doc.file = prefix+meta.doc.file;
+        console.log("type = " + meta.type);
         db.insert({doctype:meta.type, doc: meta.doc});
     });
 }
-parseFile("DesktopDB/Music/songs.json");
+parseFile("DesktopDB/Music/songs.json","DesktopDB/Music/");
 parseFile("DesktopDB/Contacts/contacts.json");
 parseFile("DesktopDB/Documents/documents.json");
-parseFile("DesktopDB/Photos/photos.json");
+parseFile("DesktopDB/Photos/photos.json","DesktopDB/Photos/");
 
 
 var apps = [
@@ -241,7 +242,6 @@ function DocumentQueryFolder(title,doctype,customizer) {
     this.title = title;
     this.customizer = null;
     if(customizer) this.customizer = customizer;
-    console.log("adding a monitor");
     var self = this;
     db.monitor({doctype:doctypes.email, action:"insert"}, function(db,data) {
         var count = db.query({doctype:doctypes.email}).length;
@@ -253,7 +253,9 @@ function DocumentQueryFolder(title,doctype,customizer) {
     this.getItems = function() { 
         var items = [];
         db.query({doctype:doctype}).forEach(function(doc) {
-            items.push(new DocumentItem(doc));
+            var di = new DocumentItem(doc);
+            di.type = doctype;
+            items.push(di);
         });
         return items; 
     }

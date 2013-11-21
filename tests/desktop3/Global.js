@@ -3,6 +3,7 @@ var widgets = require('../../build/desktop/widgets.js');
 var ContentView = require('./ContentView.js');
 var WindowView = require('./WindowView.js');
 var DocEditor = require('./DocEditor.js');
+var DocViewer = require('./DocViewer.js');
 exports.windowlist = [];
 
 exports.windows = null;
@@ -31,6 +32,10 @@ exports.mergeWindow = function (tab, window, gpt) {
 exports.openDocMetaEditor = function(doc) {
     console.log("editing the document",doc);
     exports.openView(DocEditor.DocMetaEditor(doc));
+}
+exports.openDocViewer = function(doc) {
+    console.log("viewing the document",doc);
+    exports.openView(DocViewer.getDocViewer(doc));
 }
 exports.openView = function(item) {
     if(item.isFolder && item.isFolder()) {
@@ -85,6 +90,15 @@ exports.openView = function(item) {
                         if(n >= 0) {
                             exports.openDocMetaEditor(item.getItems()[n]);
                         }
+                    }))
+                .add(new widgets.PushButton()
+                    .setW(60).setH(20)
+                    .setText("(v)").setFontSize(10)
+                    .onAction(function() {
+                        var n = lv.getSelectedIndex();
+                        var doc = item.getItems()[n];
+                        console.log("viewing: ",doc);
+                        exports.openDocViewer(doc);
                     }))
                 ;
                 

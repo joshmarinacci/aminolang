@@ -2,7 +2,7 @@ var amino   = require('amino.js');
 var widgets = require('widgets.js');
 
 exports.getDocViewer = function(doc) {
-    var panel = new widgets.VerticalPanel();
+    var panel = new widgets.AnchorPanel();
     panel.isApp = function() { return true; }
     panel.getTitle = function() { return "viewing"; }
     
@@ -19,6 +19,15 @@ exports.getDocViewer = function(doc) {
         img.setH(doc.doc.height/3.0);
         return img;
 //        panel.add(img);
+    }
+    
+    if(doc.getType() == 'com.joshondesign.aminos.text.plain') {
+        console.log("doing a plain doc");
+        var tf = new widgets.TextField().setText(doc.doc.content);
+        tf.tc.setWrapping(true);
+        tf.setAnchorLeft(true).setAnchorTop(true).setAnchorBottom(true).setAnchorRight(true);
+        panel.add(tf);
+        panel.setFill("#ff0000");
     }
     
     

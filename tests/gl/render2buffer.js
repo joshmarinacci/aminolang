@@ -2,6 +2,8 @@ var amino = require('amino');
 var widgets = require('widgets');
 var shaderutils = require('./shaderutils.js');
 
+var fs = require('fs');
+
 function frand(min,max) {
     return Math.random()*(max-min) + min;
 }
@@ -12,7 +14,7 @@ exports.makeApp = function(core,stage) {
     
     var slider = new widgets.Slider()
         .setTy(0).setTx(0).setW(800).setH(20)
-        .setMin(0).setMax(1).setValue(1);
+        .setMin(0).setMax(1).setValue(0);
     var contrast = 0;
     stage.on("change",slider,function(e) {
         contrast = e.value;
@@ -26,6 +28,7 @@ exports.makeApp = function(core,stage) {
     var first = true;
     var shader;
     var shader2;
+    var written = false;
     
     var shaderDef = {
         uni: [ 
@@ -178,6 +181,18 @@ exports.makeApp = function(core,stage) {
         
         //turn off the vertex buffer
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
+        
+        
+        var buf = gl.glReadPixels(0,0,800,600,  gl.GL_RGB, gl.GL_UNSIGNED_BYTE);
+        if(!written) {
+            written = true;
+            var Png = require('png').Png;
+            var png = new Png(buf, 800, 600, 'rgb');
+            var png_image = png.encodeSync();
+            
+            fs.writeFileSync('./png.png', png_image.toString('binary'), 'binary');
+            console.log("wrote out png");
+        }
     }
     
     stage.setRoot(group);

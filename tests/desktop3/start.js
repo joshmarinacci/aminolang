@@ -46,8 +46,8 @@ function parseFile(filename,prefix) {
     console.log(docs);
     docs.forEach(function(meta) {
         meta.doc.file = prefix+meta.doc.file;
-        console.log("type = " + meta.type);
-        db.insert({doctype:meta.type, doc: meta.doc});
+        var id = "id_"+Math.random();
+        db.insert({doctype:meta.type, doc: meta.doc, id:id});
     });
 }
 parseFile("DesktopDB/Music/songs.json","DesktopDB/Music/");
@@ -218,23 +218,25 @@ twit
 
 */
 
-function DocumentItem(doc) {
-    this.title = doc.title;
+function DocumentItem(doc,db) {
+    this.title = doc.doc.title;
     this.doc = doc;
     this.type = 'generic';
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return false; }
     this.getType  = function() { return this.type; }
+    this.db = db;
     return this;
 }
 
-function TextDocumentItem(title,contents) {
+function TextDocumentItem(title,contents,db) {
     this.title    = title;
     this.doc = contents;
     this.type     = 'text';
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return false; }
     this.getType  = function() { return this.type; }
+    this.db = db;
     return this;
 }
 
@@ -253,7 +255,8 @@ function DocumentQueryFolder(title,doctype,customizer) {
     this.getItems = function() { 
         var items = [];
         db.query({doctype:doctype}).forEach(function(doc) {
-            var di = new DocumentItem(doc);
+                console.log('returned doc = ',doc);
+            var di = new DocumentItem(doc,db);
             di.type = doctype;
             items.push(di);
         });

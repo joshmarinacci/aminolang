@@ -33,9 +33,8 @@ exports.openDocMetaEditor = function(doc) {
     console.log("editing the document",doc);
     exports.openView(DocEditor.DocMetaEditor(doc));
 }
-exports.openDocViewer = function(doc) {
-    console.log("viewing the document",doc);
-    exports.openView(DocViewer.getDocViewer(doc));
+exports.openDocViewer = function(db,doc) {
+    exports.openView(DocViewer.getDocViewer(db,doc));
 }
 exports.openView = function(item) {
     if(item.isFolder && item.isFolder()) {
@@ -98,7 +97,9 @@ exports.openView = function(item) {
                         var n = lv.getSelectedIndex();
                         var doc = item.getItems()[n];
                         console.log("viewing: ",doc);
-                        exports.openDocViewer(doc);
+                        var id = doc.doc.id;
+                        console.log("id = ",id);
+                        exports.openDocViewer(doc.db,doc.db.get(id));
                     }))
                 ;
                 

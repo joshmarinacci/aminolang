@@ -115,7 +115,7 @@ void SimpleRenderer::drawGroup(GLContext* c, Group* group) {
         glStencilMask(0xFF);
         glColorMask( GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE );
         glDepthMask( GL_FALSE );
-        //glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //draw the stencil
         float x = 0;

@@ -57,15 +57,15 @@ exports.EmailViewCustomizer = function(view,folder) {
     view.comps.contents.add(lv);
     lv.parent = view.comps.contents;
 
-    
     lv.setModel(folder.getItems());
     lv.setCellGenerator(function() { return new exports.EmailListViewCell(); });
     
     lv.setTextCellRenderer(function(cell,index,item) {
         if(item == null) return;
-        cell.comps.from.setText(item.from);
-        cell.comps.subject.setText(item.doc.subject.substring(0,30));
-        cell.comps.desc.setText(item.doc.body.substring(0,50));
+        console.log('item = ',item);
+        cell.comps.from.setText(item.doc.from);
+        cell.comps.subject.setText(item.doc.doc.subject.substring(0,30));
+        cell.comps.desc.setText(item.doc.doc.body.substring(0,50));
         cell.comps.background.setFill("#fffffa");
         if(index == lv.getSelectedIndex()) {
             cell.comps.background.setFill("#aaaafa");

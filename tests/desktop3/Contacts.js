@@ -10,7 +10,7 @@ exports.ContactsViewCustomizer = function(view,folder) {
     lv.setModel(folder.getItems());
     lv.setTextCellRenderer(function(cell,index,item) {
         if(item == null) return;
-        cell.comps.label.setText(item.doc.title);
+        cell.comps.label.setText(item.doc.doc.title);
     });
     lv.setAnchorLeft(true).setAnchorBottom(true).setAnchorTop(true);
     lv.setAnchorRight(true).setRight(300);
@@ -35,7 +35,7 @@ exports.ContactsViewCustomizer = function(view,folder) {
     amino.getCore().on("select",lv,function(e) {
         var n = e.source.getSelectedIndex();
         var item = folder.getItems()[n];
-        name.setText(item.doc.firstname + " " + item.doc.lastname);
+        name.setText(item.doc.doc.firstname + " " + item.doc.doc.lastname);
     });
     
     view.comps.toolbar

@@ -23,11 +23,11 @@ var db = {
         this.markUpdate({doctype:def.doctype,doc:def});
     },
     query: function(def) {
-        //console.log("DB querying for: ",def);
         if(def.doctype == undefined) {
             console.log("ERROR. missing doctype");
             return [];
         }
+        console.log("data = ",this.data[def.doctype]);
         if(this.data[def.doctype] == undefined) return [];
         return this.data[def.doctype];
     },

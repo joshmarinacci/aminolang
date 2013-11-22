@@ -7,10 +7,10 @@ exports.DocMetaEditor = function(item) {
     
     
     console.log(item.doc);
-    for(var key in item.doc) {
+    for(var key in item.doc.doc) {
         console.log(key);
         panel.add(new widgets.Label().setText(key));
-        var value = item.doc[key];
+        var value = item.doc.doc[key];
         panel.add(new widgets.TextField().setText(value));
     }
     

@@ -1,32 +1,45 @@
 var amino = require('amino');
 var widgets = require('widgets');
 var shaderutils = require('./shaderutils.js');
-
 function frand(min,max) {
     return Math.random()*(max-min) + min;
 }
+
+var Voices = require('./voices.js');
+
+var v = new Voices.VoicesServer({
+    server:"dev",
+    username:"marinacci",
+    password:"n0kia456",
+    debug:true,
+});
+
+var fstrength = 0;
 
 exports.makeApp = function(core,stage) {
     var gl = new amino.GLNode();
     var group = new amino.ProtoGroup();
     
+    var gravity = 0;
+    /*
     var grav = new widgets.Slider()
         .setTy(100).setTx(20).setW(100).setH(20)
         .setMin(-100).setMax(100).setValue(0);
-    var gravity = 0;
     stage.on("change",grav,function(e) {
         gravity = e.value/30.0;
     });
     group.add(grav);
-    
+    */
+    var wind = 0;
+    /*
     var windNode = new widgets.Slider()
         .setTy(130).setTx(20).setW(100).setH(20)
         .setMin(-100).setMax(100).setValue(0);
-    var wind = 0;
     stage.on("change",windNode,function(e) {
         wind = e.value/30.0;
     });
     group.add(windNode);
+    */
     
     group.add(gl);
     
@@ -51,7 +64,7 @@ exports.makeApp = function(core,stage) {
                 verts[i+3] = frand(0.9,1); //green
                 verts[i+4] = frand(0.9,1); //blue
                 verts[i+5] = frand(-0.5,0.5); //delta x
-                verts[i+6] = frand(-0.5,0.5); //delta y
+                verts[i+6] = -6;//frand(-0.5,-3); //delta y
                 verts[i+7] = delay; //time delay
                 delay += 0.01;
             }
@@ -115,19 +128,9 @@ exports.makeApp = function(core,stage) {
         
         time+=0.01;
         gl.glUniform1f(shader.atts.time,time);
-        //gl.glUniform2f(shader.atts.gravity,wind,gravity);
-        gl.glUniform2f(shader.atts.gravity,wind,gravity);
+        gl.glUniform2f(shader.atts.gravity,0.0,10-fstrength);
 
 
-        var x = this.getTx();
-        var y = this.getTy();
-        var t = this;
-        while(t.parent != null) {
-            t = t.parent;
-            x += t.getTx();
-            y += t.getTy();
-        }
-        
         //console.log('trans = ',x,y);
         gl.setModelView(shader.atts.mvp);
         gl.setGlobalTransform(shader.atts.trans);
@@ -136,11 +139,40 @@ exports.makeApp = function(core,stage) {
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
     }
     
-    gl.setTx(200).setTy(100);
-    return group;
-//    stage.setRoot(group);
+    gl.setTx(400)
+      .setTy(500);
+//    return group;
+    stage.setRoot(group);
 }
 
-//amino.startApp(exports.makeApp);
+amino.startApp(exports.makeApp);
+
+var device = null;
+v.login(function() {
+    v.listDevices(function(devices) {
+            
+        //find a device that's ON
+        var targetDevice = null;
+        devices.forEach(function(dev) {
+            console.log("device",dev);
+            if(dev.status == 'ON') {
+                targetDevice = dev;
+            }
+        });
+        
+        //listen for all button events
+        /*
+        targetDevice.monitorEvents("peripheral.temperature",function(event) {
+            console.log("temp",event.meta.value);
+        });
+        */
+        targetDevice.monitorEvents("peripheral.light_sensor",function(event) {
+            console.log("light",event.meta.value);
+            fstrength = event.meta.value/150;
+            console.log("set strength to : " + fstrength);
+        });
+    });
+});
+
 
 

@@ -32,7 +32,10 @@ var doctypes = {
 }
 
 for(var i=0; i<10; i++) {
-    db.insert({doctype:doctypes.email, doc: {
+    db.insert({
+        doctype:doctypes.email, 
+        id: "id_"+Math.random(),
+        doc: {
         title:"an email "+i,
         from: "foo@bar.com",
         to: "bar@foo.com",
@@ -253,9 +256,10 @@ function DocumentQueryFolder(title,doctype,customizer) {
     this.getTitle = function() { return this.title; }
     this.isFolder = function() { return true; }
     this.getItems = function() { 
+        console.log("getting items");
         var items = [];
         db.query({doctype:doctype}).forEach(function(doc) {
-                console.log('returned doc = ',doc);
+            console.log('returned doc = ',doc);
             var di = new DocumentItem(doc,db);
             di.type = doctype;
             items.push(di);

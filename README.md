@@ -1,12 +1,12 @@
-Amino Lang
-=========
+Amino
+=====
 
 
-Amino is a light weight NodeJS scene graph API backed by OpenGLES2. It can also
-run in the browser with HTML Canvas. Amino is focused on being portable,
+Amino is a light weight NodeJS scene graph API backed by OpenGL ES 2.0. It can
+also run in the browser with HTML Canvas. Amino is focused on being portable,
 hardware accelerated, and easy to use.
 
-Amino runs on Mac, Linux, Raspberry Pi, and headless Android. On RPi it does not
+Amino runs on Mac, Linux, Raspberry Pi, and headless Android. On the Pi it does not
 use X Windows, but rather works fullscreen directly with hardware for maximum
 performance.
 
@@ -64,7 +64,7 @@ install Brew [link=http://brew.sh/], the package manager for Mac that you've
 always wanted. Then install libpng, libjpeg, and libglfw with it like so.
 
 ```
-brew install libglfw libpng libjpeg
+brew install glfw2 libpng libjpeg
 ```
 
 compile the native module
@@ -97,6 +97,7 @@ sudo apt-get install libpng libjpeg
 ```
 
 If you don't have node installed on the Pi yet, follow these instructions here.
+http://joshondesign.com/2013/10/23/noderpi
 
 
 Now build the native module. Note the `--OS` setting.

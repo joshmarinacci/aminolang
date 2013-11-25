@@ -56,6 +56,17 @@ amino.startApp(function(core, stage) {
 });
 ```
 
+Status and Roadmap
+==================
+
+Amino is still in alpha and does not have pre-built binaries. You will have to build
+from source. The current release is version 0.5
+
+* 0.5
+** docs
+* 0.6
+
+
 
 Build for Mac
 ==============

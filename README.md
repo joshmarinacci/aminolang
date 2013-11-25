@@ -63,9 +63,17 @@ Amino is still in alpha and does not have pre-built binaries. You will have to b
 from source. The current release is version 0.5
 
 * 0.5
-** docs
+ * docs
 * 0.6
-
+ * generalize input support on Raspberry Pi
+ * refactor font support
+ * expose direct OpenGL access
+ * switch to depth buffer rendering for greater speed
+* 0.7
+ * flesh out the widget set
+ * support two themes for widgets (light and dark)
+* 1.0
+ * downloadable binary builds
 
 
 Build for Mac

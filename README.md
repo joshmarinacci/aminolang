@@ -25,6 +25,7 @@ code simpler. All properties have reasonable defaults. For example
 `rect.setTx(0)` is not needed since the default for tx is already zero.
 
 Read the API docs for details on each of the widgets.
+http://joshondesign.com:9001/job/aminolang%20docs/lastSuccessfulBuild/artifact/build/docs/index.html
 
 
 ```

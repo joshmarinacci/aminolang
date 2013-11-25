@@ -1,74 +1,149 @@
 Amino Lang
 =========
 
-Amino Lang is a multi-language 2d/3d scene graph library for multiple target
-languages. It lets you build applications out of reusable widgets, shapes, and
-transitions that animate smoothly. It currently targets JavaScript in the
-browser (canvas), Mac desktop, and headless Android using direct OpenGL and
-NodeJS, as well as nascent Java2D and JOGL versions using Java. Scenes can be
-created with clean hand coding or by loading a JSON description file. A desktop
-GUI builder to generate the JSON files is forthcoming.
 
-To see the build targets run
+Amino is a light weight NodeJS scene graph API backed by OpenGLES2. It can also
+run in the browser with HTML Canvas. Amino is focused on being portable,
+hardware accelerated, and easy to use.
 
-```
-node build
-```
+Amino runs on Mac, Linux, Raspberry Pi, and headless Android. On RPi it does not
+use X Windows, but rather works fullscreen directly with hardware for maximum
+performance.
 
-Amino in the browser
-=====================
+Amino is not an application framework. It is simply a graphics and input api to
+quickly build your apps on top of. Amino can be used for data visualization,
+games, photo manipulation, particle effects, and (to a limited extent) form
+driven applications. Amino comes with a simple widget set (buttons, sliders,
+lists, etc.), but it is optional and can be replaced.
 
-```
-node build jscanvasgen
-```
+Example
+=======
 
-This will generate `build/jscanvas/out.js` scene graph bindings. You must
-currently load that file along with the `src/jscanvas` files to have a valid
-library. See `tests/general.html` for an example of loading the file and putting
-some shapes and widgets on the screen.
+This code creates a group holding a button, textfield, and rectangle. The
+rectangle will follow the cursor. Notice that you can chain setters to make your
+code simpler. All properties have reasonable defaults. For example
+`rect.setTx(0)` is not needed since the default for tx is already zero.
 
-Amino on the Mac desktop
-========================
+Read the API docs for details on each of the widgets.
 
-Amino on the Mac desktop use NodeJS we use GLWF and a native add-on. To build it first install Brew.
-It's the package manager for Mac that you've always wanted. Then install libpng, libjpeg, and libglfw with
-it. Finally generate the native node module:
 
 ```
+var amino = require('amino.js');
+var widgets= require('widgets.js'); 
+amino.startApp(function(core, stage) {
+    var group = new amino.ProtoGroup();
+    stage.setRoot(group);
+    
+    var button = new widgets.PushButton()
+        .setText("a button")
+        .setTx(50).setTy(50).setW(150).setH(30);
+    group.add(button);
+    
+    
+    var textfield = new widgets.TextField()
+        .setTx(50).setTy(100).setW(150).setH(30);
+    group.add(textfield);
+
+    var rect = new amino.ProtoRect()
+        .setW(10).setH(10).setFill("#33cc44");
+    group.add(rect);
+    core.on("move",null,function(e) {
+        rect.setTx(e.x+1);
+        rect.setTy(e.y+1);
+    });
+    
+});
+```
+
+
+Build for Mac
+==============
+
+Amino on the Mac desktop uses GLWF and a native add-on. To build it first
+install Brew [link=http://brew.sh/], the package manager for Mac that you've
+always wanted. Then install libpng, libjpeg, and libglfw with it like so.
+
+```
+brew install libglfw libpng libjpeg
+```
+
+compile the native module
+```
+cd aminolang
 node-gyp clean configure build
 ```
 
-put in the missing pure js deps
+build the Javascript parts
 ```
-sudo npm-install wrench
-```
-
-build the pure js parts
-```
-node build desktopbuild
+node build desktop
 ```
 
-Then run the test app with
+Run a test app to make sure everything is in place.
 
 ```
-node tests/general.js
+export NODE_PATH=build/desktop
+node tests/examples/simple.js
 ```
 
 
-Amino on Android
+Build for Raspberry Pi
+=======================
+
+Amino on Raspberry Pi uses RPi specific bindings to the screen and input events. You need
+libpng, libjpeg, and of course NodeJS installed.
+
+```
+sudo apt-get install libpng libjpeg
+```
+
+If you don't have node installed on the Pi yet, follow these instructions here.
+
+
+Now build the native module. Note the `--OS` setting.
+
+```
+cd aminolang
+node-gyp clean configure --OS=raspberrypi build
+```
+
+The native build will take a while. Go get some coffee. A big coffee.
+
+Now build the JS parts and run a test app.
+
+```
+node build desktop
+export NODE_PATH=build/desktop
+node tests/examples/simple.js
+```
+
+Note that XWindows cannot be running when you do this. Amino works directly with
+the screen. You may need to configure your Raspberry Pi to give you a plain
+console at boot.
+
+
+Build for Linux
+================
+
+
+Build for Browser
+=================
+
+
+Amino on Headless Android
 =========================
 
-Amino can be run with NodeJS on Android from the command line on developer
-unlocked devices running Android 4.1.x. It does not use Java/Dalvik and does not
-require the full Android stack. It uses OpenGL directly. Node and V8 are tricky
-to build so I've put pre-built binaries in the `prebuilt` directory. To build
-the native module you must have the Android OS source setup and built on your
-machine. Copy or link `aminolang` into `android_src/external`. Cd to
-`external/aminolang/` and run `mm` to build it. You may need to link in the
-NodeJS source as well for the header files. Copy the resulting generated `.so`
-file to the aminolang project root directory as `aminonative.node`. Run `node
-build androidtest` to push everything over to your USB attached Android phone using
-ADB.
+Amino can be run with NodeJS on Android / ASOP from the command line on developer
+unlocked devices running Android 4.x.x. It does not use Java/Dalvik and does not
+require the full Android stack. It uses OpenGL directly. 
+
+Node and V8 are tricky to build for Android so I've put pre-built binaries in
+the `prebuilt` directory. To build the native module you must have the Android
+OS source setup and built on your machine. Copy or link `aminolang` into
+`android_src/external`. Cd to `external/aminolang/` and run `mm` to build it.
+You may need to link in the NodeJS source as well for the header files. Copy the
+resulting generated `.so` file to the aminolang project root directory as
+`aminonative.node`. Run `node build androidtest` to push everything over to your
+USB attached Android phone using ADB.
 
 Run the demo app (a phone UI mockup) with:
 
@@ -82,23 +157,8 @@ chmod 755 node
 ```
 
 
-Amino on Linux
-=========================
 
-install node.
-
-```
-https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
-```
-
-install node-gyp
-
-```
-sudo npm install -g node-gyp
-```
-
-
-install glfw
+linux
 
 ```
 sudo apt-get install libglfw2 libglfw-dev ﻿libpng12-dev libjpeg-dev
@@ -109,26 +169,6 @@ we need GLFW version 2.7.5 or greater. Unfortunately Ubuntu still ships with a m
 remove the default and build/install GLFW from source. Once that is done it should work.
 
 Install git and check out the code.  build it with node-gyp
-
-```
-node-gyp clean configure build
-```
-
-put in the missing pure js deps
-```
-sudo npm-install wrench
-```
-
-build the pure js parts
-```
-node build desktopbuild
-```
-
-run the test app
-```
-node tests/general.js
-```
-
 
 
 Usage
@@ -182,13 +222,6 @@ Core.startApp(function(core,stage) {
     
 });
 ```
-
-Notice that you can chain setters to make your code simpler. All properties
-have reasonable defaults so you don't need to set them all. In the code
-above the `setTx(0)` on the rect is unecessary since the default for tx is
-already zero.
-
-Read the API docs for details on each of the widgets.
 
 ### ListView
 
@@ -305,45 +338,6 @@ var label = new widgets.Label()
 ```
 
 
-### Canvas
-
-The canvas implementation is the most immature.  It shares the same JS code with the
-rest of Amino but has no native back end. Instead it runs in the browser using
-the HTML Canvas 2D apis.  This means you will not get any 3D transforms.
-
-The API for Canvas is the same as desktop and mobile, but initialized slightly
-differently. Also, animation does not currently work.
-
-Build the canvas version with `node build canvas` then create an html page
-with code like this:
-
-```
-<html>
-<head>
-<script src='../build/canvas/amino.js'></script>
-<script src='../build/canvas/widgets.js'></script>
-<script src='../build/canvas/canvasbacon.js'></script>
-<script src='../build/canvas/canvasamino.js'></script>
-<script src='generalutil.js'></script>
-<style type="text/css">
-canvas { border: 1px solid black; }
-</style>
-</head>
-<body>
-<canvas id='mycanvas' width='600' height='300'></canvas>
-<script language="JavaScript">
-amino.startApp("mycanvas",function(core,stage) {
-    var root = new amino.ProtoGroup();
-    stage.setRoot(root);
-});
-</script>
-</body>
-</html>
-```
-
-Notice the path must be correct for the script imports. Also notice that
-amino.startApp has an extra parameter: the ID of the canvas to attach to.
-Other than that the API should be the same. 
 
 
 

@@ -64,6 +64,7 @@ from source. The current release is version 0.5
 
 * 0.5
  * docs
+ * hook up more demos
 * 0.6
  * generalize input support on Raspberry Pi
  * refactor font support

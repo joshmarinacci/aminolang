@@ -66,7 +66,6 @@ static void GLFW_MOUSE_BUTTON_CALLBACK_FUNCTION(int button, int state) {
 
 static void GLFW_MOUSE_WHEEL_CALLBACK_FUNCTION(int wheel) {
     if(!eventCallbackSet) warnAbort("ERROR. Event callback not set");
-//    printf("wheel = %d\n",wheel);
     Local<Object> event_obj = Object::New();
     event_obj->Set(String::NewSymbol("type"), String::New("mousewheelv"));
     event_obj->Set(String::NewSymbol("position"), Number::New(wheel));
@@ -96,7 +95,7 @@ Handle<Value> createWindow(const Arguments& args) {
     glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
     //glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     //glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//    if(!glfwOpenWindow(800,600, 0,0,0,0,0,0, GLFW_WINDOW)) {
+    //    if(!glfwOpenWindow(800,600, 0,0,0,0,0,0, GLFW_WINDOW)) {
     if(!glfwOpenWindow(width,height, 8, 8, 8, 0, 24, 8, GLFW_WINDOW)) {
         printf("couldn't open a window. quitting\n");
         glfwTerminate();
@@ -142,13 +141,6 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
-void sendValidate() {
-    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
-    Local<Object> event_obj = Object::New();
-    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
-    Handle<Value> event_argv[] = {event_obj};
-    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
-}
 
 static int FPS_LEN = 100;
 static double frametimes[100];

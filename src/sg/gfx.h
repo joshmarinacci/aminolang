@@ -34,6 +34,14 @@ static double getTime(void) {
 #ifdef LINUX
 #include <GL/glfw.h>
 #include <GL/glext.h>
+#include <sys/time.h>
+//return the current time in msec
+static double getTime(void) {
+    timeval time;
+    gettimeofday(&time, NULL);
+    double millis = (time.tv_sec * 1000.0) + (time.tv_usec / 1000.0);    
+    return millis;
+}
 #endif
 
 #ifdef RPI

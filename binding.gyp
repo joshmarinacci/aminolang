@@ -17,10 +17,8 @@
                 "src/sg/SimpleRenderer.cpp"
             ],
             "include_dirs": [
-                    "src/sg/",
-                    "src/sg/fonts/",
-                    "/usr/local/Cellar/freetype/2.4.11/include/freetype2",
-                    "/usr/local/Cellar/freetype/2.4.11/include",
+                "src/sg/",
+                "src/sg/fonts/",
             ],
             
             'conditions': [
@@ -74,14 +72,22 @@
 
                 ['OS=="linux"', {
                     "libraries":[
+                        '<!@(freetype-config --libs)',
                         "-lglfw",
                         "-lpng",
-                        "-ljpeg",
+                        "-ljpeg"
+                    ],
+                    "sources": [
+                        "src/sg/mac.cpp",
                     ],
                     "defines": [
                         "GL_GLEXT_PROTOTYPES",
                         "LINUX"
-                    ]
+		    ],
+                    "include_dirs": [
+                        "/usr/include/freetype2",
+                        '<!@(freetype-config --cflags)'
+                    ],
                 }]
             ]
 

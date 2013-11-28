@@ -1,7 +1,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdio.h>
-
+#include <string.h>
 
 //these should probably move into the NodeStage class or a GraphicsUtils class
 #define ASSERT_EQ(A, B) {if ((A) != (B)) {printf ("ERROR: %d\n", __LINE__); exit(9); }}

@@ -8,10 +8,12 @@
 #include "mathutils.h"
 #include "image.h"
 #include <stdio.h>
+#include <string.h>
 #include <vector>
 #include <stack>
 #include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <map>
 
 #include "freetype-gl.h"

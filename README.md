@@ -146,6 +146,29 @@ console at boot.
 Build for Linux
 ================
 
+First you need node, npm, and node-gyp installed. Then you'll need glfw,
+freetype, libpng, and libjpeg. Install them with:
+
+```
+apt-get install libglfw2 libglfw-dev libfreetype6-dev libjpeg-dev libpng-dev
+```
+
+Check out the source then build the native module:
+```
+cd aminolang
+node-gyp clean configure build
+```
+
+If that succeeds then build JS parts and run the test app
+```
+node build desktop
+export NODE_PATH=build/desktop
+node tests/examples/simple.js
+```
+
+That's it. This will run under X-Windows, though I can't say how fast it will
+be. Depends on having OpenGL configured properly on your Linux box.
+
 
 Build for Browser
 =================

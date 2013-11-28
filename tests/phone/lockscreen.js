@@ -1,15 +1,6 @@
-var amino = null;
-var widgets = null;
-var moment = null;
-if(process.platform == 'darwin') {
-    amino = require('../../build/desktop/amino.js');
-    widgets = require('../../build/desktop/widgets.js');
-    moment = require('moment');
-} else {
-    amino = require('./amino.js');    
-    widgets = require('./widgets.js');
-    moment = require('./moment.js');
-}
+var amino = require('amino.js');
+var moment = require('moment');
+var widgets = require('widgets.js');
 
 
 function LockScreen(core,stage) {

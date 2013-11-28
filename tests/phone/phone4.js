@@ -1,5 +1,5 @@
-var amino = require('amino.js');
-var widgets = require('widgets.js');
+var amino = require('amino');
+var widgets = require('widgets');
 var bottom = 30;
 
 var data = require('./fakedata.js');

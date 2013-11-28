@@ -1,12 +1,5 @@
-var amino = null;
-var widgets = null;
-if(process.platform == 'darwin') {
-    amino = require('../../build/desktop/amino.js');
-    widgets = require('../../build/desktop/widgets.js');
-} else {
-    amino = require('./amino.js');    
-    widgets = require('./widgets.js');
-}
+var amino = require('amino.js');    
+var widgets = require('widgets.js');
 
 exports.Dialer = function(stage,nav,data) {
 

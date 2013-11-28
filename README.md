@@ -173,6 +173,15 @@ be. Depends on having OpenGL configured properly on your Linux box.
 Build for Browser
 =================
 
+There's no native part or extra deps. Just build the canvas module.
+
+```
+node build canvas
+```
+
+Then open the test/examples/simple.js file in your browser. Depending on your
+security settings you may need to run through a local webserver.
+
 
 Amino on Headless Android
 =========================

@@ -508,7 +508,6 @@ inline Handle<Value> createText(const Arguments& args) {
     Local<Number> num = Number::New(rects.size()-1);
     return scope.Close(num);
 }
-    
 inline Handle<Value> createGroup(const Arguments& args) {
     HandleScope scope;
     
@@ -797,6 +796,15 @@ inline static Handle<Value> createNativeFont(const Arguments& args) {
     Local<Number> num = Number::New(id);
     return scope.Close(num);
 }
+
+static void sendValidate() {
+    if(!eventCallbackSet) warnAbort("WARNING. Event callback not set");
+    Local<Object> event_obj = Object::New();
+    event_obj->Set(String::NewSymbol("type"), String::New("validate"));
+    Handle<Value> event_argv[] = {event_obj};
+    NODE_EVENT_CALLBACK->Call(Context::GetCurrent()->Global(), 1, event_argv);    
+}
+
 
 struct DebugEvent {
     double inputtime;

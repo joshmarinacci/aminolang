@@ -450,6 +450,7 @@ exports.ProtoRect = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(name == 'visible') value = (value?1:0);
         if(shortCircuit(this, this.props[name],value)) return;
         this.dirty = true;
         this.props[name] = value;
@@ -516,6 +517,7 @@ exports.GLNode = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(name == 'visible') value = (value?1:0);
         if(shortCircuit(this, this.props[name],value)) return;
         this.dirty = true;
         this.props[name] = value;
@@ -572,6 +574,11 @@ exports.ProtoPoly = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        //remap booleans
+        if(name == 'visible') value = (value?1:0);
+        if(name == 'filled')  value = (value?1:0);
+        if(name == 'closed')  value = (value?1:0);
+        
         if(shortCircuit(this, this.props[name],value)) return;
         this.dirty = true;
         this.props[name] = value;
@@ -638,12 +645,11 @@ exports.ProtoGroup = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(name == 'visible') value = (value?1:0);
+        if(name == 'cliprect') value = (value?1:0);
         if(shortCircuit(this,this.props[name],value)) return;
         this.dirty = true;
         this.props[name] = value;
-        if(name == 'visible') {
-            this.props[name] = (value?1:0);
-        }
         //mirror the property to the native side
         if(this.live) {
             exports.native.updateProperty(this.handle, name, this.props[name]);
@@ -741,6 +747,7 @@ exports.ProtoText = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(name == 'visible') value = (value?1:0);
         if(shortCircuit(this,this.props[name],value)) return;
         this.props[name] = value;
         this.markDirty();
@@ -761,7 +768,7 @@ exports.ProtoText = exports.ComposeObject({
             }
             exports.native.updateProperty(this.handle, name, value);
         }
-        
+                
         if(name == 'fill') {
             var color = ParseRGBString(value);
             this.setR(color.r);
@@ -838,6 +845,7 @@ exports.ProtoImageView = exports.ComposeObject({
     },
     //replaces all setters
     set: function(name, value) {
+        if(name == 'visible') value = (value?1:0);
         this.props[name] = value;
         this.dirty = true;
         //mirror the property to the native side

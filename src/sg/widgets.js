@@ -742,7 +742,7 @@ widgets.ListView = amino.ComposeObject({
     init: function() {
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.cellholder);
-        this.comps.base.setCliprect(1);
+        this.comps.base.setCliprect(true);
         this.setFill(amino.colortheme.listview.cell.fillOdd);
 
         this.listModel = [];

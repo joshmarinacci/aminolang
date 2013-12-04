@@ -6,6 +6,10 @@ var input = this['aminoinput'];
 amino.sgtest = {
 }
 var fontmap = {};
+var dprint_text = "";
+function dprint(str) {
+    dprint_text = str;
+}
 amino.native = {
     list:[],
     
@@ -188,6 +192,13 @@ amino.native = {
         g.fillStyle = "white";
         g.fillRect(0,0,w,h);
         this.root.draw(g);
+        //draw debug overlay
+        /*
+        g.fillStyle = "white";
+        g.fillRect(0,0,200,30);
+        g.fillStyle = "black";
+        g.fillText(dprint_text,30,10);
+        */
     },
     setImmediate: function(loop) {
         requestAnimationFrame(loop);
@@ -364,6 +375,7 @@ amino.setupEventHandlers = function() {
     
     attachEvent(dom,'mousedown',function(e){
         mouseState.pressed = true;
+        e.preventDefault();
         var pt = toXY(e);
         input.processEvent(Core._core,{
             type:"mouseposition", 
@@ -378,6 +390,7 @@ amino.setupEventHandlers = function() {
     });
     attachEvent(dom,'mousemove',function(e){
         var pt = toXY(e);
+        e.preventDefault();
         input.processEvent(Core._core,{
             type:"mouseposition",
             x:pt.x,
@@ -386,6 +399,7 @@ amino.setupEventHandlers = function() {
     });
     attachEvent(dom,'mouseup',function(e){
         var pt = toXY(e);
+        e.preventDefault();
         mouseState.pressed = false;
         input.processEvent(Core._core,{
             type:"mouseposition",
@@ -398,6 +412,51 @@ amino.setupEventHandlers = function() {
             state:0
         });
     });
+    
+    attachEvent(window, 'touchstart', function(e) {
+        var pt = toXY(e.touches[0]);
+        //dprint("touchstart: " + pt.x + " " + pt.y);
+        e.preventDefault();
+        input.processEvent(Core._core, {
+            type: "mouseposition",
+            x:pt.x,
+            y:pt.y,
+        });
+        input.processEvent(Core._core,{
+            type:"mousebutton", 
+            button:0,
+            state:1,
+        });
+    });
+    
+    attachEvent(dom,'touchmove',function(e){
+        var pt = toXY(e.touches[0]);
+        //dprint("touchmove: " + pt.x + " " + pt.y);
+        e.preventDefault();
+        input.processEvent(Core._core,{
+            type:"mouseposition",
+            x:pt.x,
+            y:pt.y,
+        });
+    });
+    
+    attachEvent(dom,'touchend',function(e){
+        var pt = toXY(e.changedTouches[0]);
+        //dprint("touchend: " + pt.x + " " + pt.y);
+        e.preventDefault();
+        mouseState.pressed = false;
+        input.processEvent(Core._core,{
+            type:"mouseposition",
+            x:pt.x,
+            y:pt.y,
+        });
+        input.processEvent(Core._core,{
+            type:"mousebutton", 
+            button:0, 
+            state:0
+        });
+    });
+    
     attachEvent(window,'keydown',function(e){
         if(e.metaKey) return;
         e.preventDefault();

@@ -280,8 +280,6 @@ input.processOneEvent = function(core,e) {
         prevmouse.y = mouseState.y;
         mouseState.x = e.x;
         mouseState.y = e.y;
-        var dx = (mouseState.x - prevmouse.x);
-        var dy = (mouseState.y - prevmouse.y);
         if(mouseState.pressed) {
             //drag events
             var node = mouseState.pressTarget;
@@ -292,6 +290,9 @@ input.processOneEvent = function(core,e) {
             if(node != null) {
                 //var t1 = process.hrtime();
 	            var pt = core.globalToLocal({x:mouseState.x,y:mouseState.y},node);
+                var prevLocal = core.globalToLocal(prevmouse,node);
+                var dx = pt.x - prevLocal.x;
+                var dy = pt.y - prevLocal.y;
                 //console.log('globalToLocal time',process.hrtime(t1)[1]/1e6);
                 /**
                 @class drag

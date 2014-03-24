@@ -27,7 +27,8 @@ amino.native = {
         fontmap['source']  = new CanvasFont(this.domctx,'source');//_dirname+"/fonts/SourceSansPro-Regular.ttf");
         fontmap['awesome'] = new CanvasFont(this.domctx,'awesome');//__dirname+"/fonts/fontawesome-webfont.ttf");
         core.defaultFont = fontmap['source'];
-        console.log("pretending to open an window:",w,h);
+        this.domcanvas.width = this.domcanvas.clientWidth;
+        this.domcanvas.height = this.domcanvas.clientHeight;
     },
     createRect: function() {
         var rect = {
@@ -363,16 +364,51 @@ function attachEvent(node,name,func) {
     }
 };
 
+function getOffset( elem )
+{
+    var offset = {x:0,y:0};
+    do {
+      if ( !isNaN( elem.offsetLeft ) )
+      {
+          offset.x += elem.offsetLeft;
+          offset.y += elem.offsetTop;
+      }
+    } while( elem = elem.offsetParent );
+    return offset;
+}
+
 function toXY(e) {
+    var offset = getOffset(e.target);
     return {
-        x:e.pageX-e.target.offsetLeft,
-        y:e.pageY-e.target.offsetTop,
+        x: e.pageX-offset.x,
+        y: e.pageY-offset.y,
     }
 }
+
+amino.forceRedraw = function() {
+    console.log("forcing a redraw");
+    var dom = amino.native.domcanvas;
+    dom.width = dom.clientWidth;
+    dom.height = dom.clientHeight;
+        input.processEvent(Core._core,{
+            type:"windowsize",
+            width:dom.width,
+            height:dom.height,
+        });
+}
+
 amino.setupEventHandlers = function() {
     var self = this;
     var dom = amino.native.domcanvas;
-    
+    attachEvent(window,'resize',function(e) {
+        dom.width = dom.clientWidth;
+        dom.height = dom.clientHeight;
+        input.processEvent(Core._core,{
+            type:"windowsize",
+            width:dom.width,
+            height:dom.height,
+        });
+    });    
     attachEvent(dom,'mousedown',function(e){
         mouseState.pressed = true;
         e.preventDefault();
@@ -457,20 +493,29 @@ amino.setupEventHandlers = function() {
         });
     });
     
+    var keyRemap = {
+        190:46, // period
+        188:44, // comma
+    };
+    
     attachEvent(window,'keydown',function(e){
         if(e.metaKey) return;
-        e.preventDefault();
+        //e.preventDefault();
         console.log(e);
+        var key = e.keyCode;
+        if(keyRemap[key]) {
+            key = keyRemap[key];
+        }
         input.processEvent(Core._core,{
                 type:"keypress",
-                keycode: e.keyCode,
+                keycode: key,
                 shift:   e.shiftKey?1:0,
                 control: e.ctrlKey?1:0,
                 system:  e.metaKey?1:0,
         });
     });
     attachEvent(window,'keyup',function(e){
-        e.preventDefault();
+        //e.preventDefault();
         input.processEvent(Core._core,{
                 type:"keyrelease",
                 keycode: e.keyCode,

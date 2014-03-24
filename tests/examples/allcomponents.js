@@ -54,7 +54,7 @@ amino.startApp(function(core, stage) {
         .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(false).setTy(200).setTx(100))
         */
         .add(new amino.ProtoText().setText("image scaled 0.5x").setTx(300).setTy(0))
-        .add(new amino.ProtoImageView().setSrc("tests/images/keane_01.jpg").setTx(300).setTy(20).setScalex(0.5).setScaley(0.5))
+        .add(new amino.ProtoImageView().setSrc("../images/keane_01.jpg").setTx(300).setTy(20).setScalex(0.5).setScaley(0.5))
     };
     tests.push(shapes);
     

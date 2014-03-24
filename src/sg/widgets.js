@@ -565,6 +565,12 @@ widgets.VerticalPanel = amino.ComposeObject({
             node.parent = this;
             this.redoLayout();
         }
+        this.clear = function() {
+            this.children = [];
+            this.comps.base.clear();
+            this.comps.base.add(this.comps.background);
+            this.redoLayout();
+        }
         this.live = true;
         this.setFill(amino.colortheme.base);
         this.redoLayout = function() {
@@ -1614,7 +1620,7 @@ function TextControl() {
     this.install = function(stage) {
         self.notify = function(sender) {
             amino.getCore().fireEvent({
-                type:"CHANGED",
+                type:"changed",
                 target:this
             });            
         }
@@ -1723,8 +1729,9 @@ function TextControl() {
     this.handlers[input.KEY_MAP.ENTER] = function(kb) { // enter/return key
             if(!kb.target.wrapping) {
                 amino.getCore().fireEvent({
-                    type:"ACTION",
-                    target:kb.target
+                    type:"action",
+                    target:kb.target,
+                    source:kb.target,
                 });
                 return;
             }
@@ -1796,7 +1803,7 @@ function TextControl() {
 @desc An box holding editable text. It holds a single line of text by default.
 */
 widgets.TextField = amino.ComposeObject({
-    text: "TextField",
+    type: "TextField",
     extend: amino.ProtoWidget,
     comps: {
         background: {
@@ -1865,8 +1872,10 @@ widgets.TextField = amino.ComposeObject({
         amino.getCore().on("press",this,function() {
             amino.getCore().requestFocus(self);
         });
+        self.comps.cursor.setVisible(false);
         amino.getCore().on("focusgain",this,function() {
             self.setFill(amino.colortheme.textfield.bg.focused);
+            self.comps.cursor.setVisible(true);
             if(amino.SOFTKEYBOARD_ENABLED) {
                 var stage = amino.getCore().stage;
                 console.log(stage);
@@ -1879,6 +1888,7 @@ widgets.TextField = amino.ComposeObject({
             
         });
         amino.getCore().on("focusloss",this,function() {
+            self.comps.cursor.setVisible(false);
             self.setFill(amino.colortheme.textfield.bg.unfocused);
             console.log("lost the focus");
             if(self.kb) {

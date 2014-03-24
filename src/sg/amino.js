@@ -1258,6 +1258,10 @@ function Core() {
     function calcGlobalToLocalTransform(node) {
         if(node.parent) {
             var trans = calcGlobalToLocalTransform(node.parent);
+            if(node.getScalex() != 1) {
+                trans.x / node.getScalex();
+                trans.y / node.getScaley();
+            }
             trans.x -= node.getTx();
             trans.y -= node.getTy();
             return trans;
@@ -1265,12 +1269,7 @@ function Core() {
         return {x:-node.getTx(),y:-node.getTy()};
     }
     this.globalToLocal = function(pt, node) {
-        var trans = calcGlobalToLocalTransform(node);
-        var pt2 = {
-            x: pt.x+trans.x,
-            y: pt.y+trans.y,
-        }
-        return pt2;
+        return this.globalToLocal_helper(pt,node);
     }
     
     this.globalToLocal_helper = function(pt, node) {

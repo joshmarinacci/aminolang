@@ -72,6 +72,7 @@ amino.native = {
             g:0.5,
             b:0.5,
             geometry:[0,0,0,  100,0,0,  100,100,0],
+            dimension: -1,
             draw: function(g) {
                 if(this.visible != 1) return;
                 g.save();
@@ -83,7 +84,7 @@ amino.native = {
                 g.fillStyle = 'rgb('+this.r*255+','+this.g*255+','+this.b*255+')';
                 g.beginPath();
                 var gm = this.geometry;
-                for(var i=0; i<this.geometry.length; i+=3) {
+                for(var i=0; i<this.geometry.length; i+=this.dimension) {
                     if(i == 0) {
                         g.moveTo(gm[i],gm[i+1]);
                     } else {

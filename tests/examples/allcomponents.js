@@ -47,12 +47,12 @@ amino.startApp(function(core, stage) {
         
         
         .add(new amino.ProtoText().setText("polys w/ & w/o opacity").setTx(0).setTy(100))
-        /*
-        .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(true).setTy(120))
+        .add(new amino.ProtoPoly()
+                .setGeometry([0,0, 50,0,  50,50, 25,45]).setDimension(2)
+                .setClosed(true).setFilled(true).setTy(120))
         .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(true).setFilled(false).setTx(100).setTy(120))
         .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(true).setTy(200))
         .add(new amino.ProtoPoly().setGeometry([0,0, 50,0,  50,50, 25,45]).setClosed(false).setFilled(false).setTy(200).setTx(100))
-        */
         .add(new amino.ProtoText().setText("image scaled 0.5x").setTx(300).setTy(0))
         .add(new amino.ProtoImageView().setSrc("../images/keane_01.jpg").setTx(300).setTy(20).setScalex(0.5).setScaley(0.5))
     };
@@ -149,6 +149,6 @@ amino.startApp(function(core, stage) {
     
     tests.push(textlayout);
     
-    switchTest(4);
+    switchTest(0);
         
 });

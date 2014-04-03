@@ -149,6 +149,24 @@ amino.native = {
         };
         return text;
     },
+    createCanvasDirectNode: function() {
+        var node = {
+            'kind':'CanvasDirectNode',
+            tx:0,
+            ty:0,
+            w:100,
+            h:100,
+            drawFunc: null,
+            draw: function(g) {
+                if(this.drawFunc) {
+                    this.drawFunc(g);
+                }
+                //console.log("drawing the canvas node");
+            }
+        }
+        this.list.push(node);
+        return node;
+    },
     addNodeToGroup: function(h1,h2) {
         h2.children.push(h1);
     },
@@ -387,7 +405,6 @@ function toXY(e) {
 }
 
 amino.forceRedraw = function() {
-    console.log("forcing a redraw");
     var dom = amino.native.domcanvas;
     dom.width = dom.clientWidth;
     dom.height = dom.clientHeight;
@@ -411,7 +428,6 @@ amino.setupEventHandlers = function() {
         });
     });    
     attachEvent(dom,'mousedown',function(e){
-        mouseState.pressed = true;
         e.preventDefault();
         var pt = toXY(e);
         input.processEvent(Core._core,{
@@ -501,8 +517,7 @@ amino.setupEventHandlers = function() {
     
     attachEvent(window,'keydown',function(e){
         if(e.metaKey) return;
-        //e.preventDefault();
-        console.log(e);
+        e.preventDefault();
         var key = e.keyCode;
         if(keyRemap[key]) {
             key = keyRemap[key];
@@ -516,7 +531,7 @@ amino.setupEventHandlers = function() {
         });
     });
     attachEvent(window,'keyup',function(e){
-        //e.preventDefault();
+        e.preventDefault();
         input.processEvent(Core._core,{
                 type:"keyrelease",
                 keycode: e.keyCode,

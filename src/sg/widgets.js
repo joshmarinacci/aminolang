@@ -397,7 +397,6 @@ widgets.Label = amino.ComposeObject({
     },
     init: function() {
         this.comps.base.add(this.comps.text);
-        this.contains = function() { return false; }
         this.doHLayout = function() {
             var textw = this.font.calcStringWidth(this.getText(),this.getFontSize(),this.getFontWeight(),this.getFontStyle());
             if(this.props.align == 'left') {
@@ -479,6 +478,14 @@ widgets.AnchorPanel = amino.ComposeObject({
             return this;
         }
         this.live = true;
+        /** @func remove(target)  remove the target child */
+        this.remove = function(target) {
+            this.comps.base.remove(target);
+            var n = this.children.indexOf(target);
+            this.children.splice(n,1);
+            this.redoLayout();
+            return this;
+        }
         
         this.setFill(amino.colortheme.base);
         this.redoLayout = function() {

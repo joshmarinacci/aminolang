@@ -1009,7 +1009,13 @@ function SGStage(core) {
         }
         return null;
     }
-    
+
+    var self = this;
+    this.core.on('windowsize',this,function(e) {
+        var root = self.getRoot();
+        if(root.setW) root.setW(self.getW());
+        if(root.setH) root.setH(self.getH());
+    });
 }
 
 /**

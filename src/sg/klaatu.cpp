@@ -192,6 +192,7 @@ Handle<Value> getWindowSize(const Arguments& args) {
     return scope.Close(obj);
 }
 
+#if 0
 struct DebugEvent {
     double inputtime;
     double validatetime;
@@ -201,6 +202,7 @@ struct DebugEvent {
     double frametime;
     double framewithsynctime;
 };
+#endif
 
 static const bool DEBUG_RENDER_LOOP = false;
 void render() {

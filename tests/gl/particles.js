@@ -9,7 +9,7 @@ function frand(min,max) {
 exports.makeApp = function(core,stage) {
     var gl = new amino.GLNode();
     var group = new amino.ProtoGroup();
-    
+
     var grav = new widgets.Slider()
         .setTy(100).setTx(20).setW(100).setH(20)
         .setMin(-100).setMax(100).setValue(0);
@@ -18,7 +18,7 @@ exports.makeApp = function(core,stage) {
         gravity = e.value/30.0;
     });
     group.add(grav);
-    
+
     var windNode = new widgets.Slider()
         .setTy(130).setTx(20).setW(100).setH(20)
         .setMin(-100).setMax(100).setValue(0);
@@ -27,16 +27,16 @@ exports.makeApp = function(core,stage) {
         wind = e.value/30.0;
     });
     group.add(windNode);
-    
+
     group.add(gl);
-    
-    
-    
+
+
+
     var first = true;
     var time = 0;
     var shader;
     gl.onrender = function(gl) {
-        
+
         shaderutils.checkError(gl);
         var pcount = 2000;
         if(first) {
@@ -55,9 +55,9 @@ exports.makeApp = function(core,stage) {
                 verts[i+7] = delay; //time delay
                 delay += 0.01;
             }
-            
+
             shader = shaderutils.loadShader(gl, {
-                uni: [ 
+                uni: [
                     { name: "time",     type: "float" },
                     { name: "gravity",  type: "vec2" },
                     { name: "mvp",      type: "mat4" },
@@ -92,8 +92,8 @@ exports.makeApp = function(core,stage) {
                     "gl_FragColor = color;",
                 ]
             });
-                        
-            
+
+
             shader.use();
             shader.makeVBO(verts);
             shader.setupLocations();
@@ -101,18 +101,18 @@ exports.makeApp = function(core,stage) {
         shader.bind();
         shader.use();
         shader.mapMemory();
-        
+
         //hack to fix point sprites on mac
         if(process.platform == "darwin") {
             gl.glEnable(0x8861);
             gl.glPointSize(50);
         }
         //end hack
-        
+
         gl.glEnable(gl.GL_BLEND);
         gl.glBlendFuncSeparate(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA, gl.GL_ONE, gl.GL_ONE);
         gl.glBlendEquation(gl.GL_FUNC_ADD);
-        
+
         time+=0.01;
         gl.glUniform1f(shader.atts.time,time);
         //gl.glUniform2f(shader.atts.gravity,wind,gravity);
@@ -127,7 +127,7 @@ exports.makeApp = function(core,stage) {
             x += t.getTx();
             y += t.getTy();
         }
-        
+
         //console.log('trans = ',x,y);
         gl.setModelView(shader.atts.mvp);
         gl.setGlobalTransform(shader.atts.trans);
@@ -135,12 +135,10 @@ exports.makeApp = function(core,stage) {
         //turn off the buffer
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0);
     }
-    
+
     gl.setTx(200).setTy(100);
     return group;
 //    stage.setRoot(group);
 }
 
 //amino.startApp(exports.makeApp);
-
-

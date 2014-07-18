@@ -7,10 +7,10 @@
                 "src/sg/fonts/vertex-buffer.c",
                 "src/sg/fonts/vertex-attribute.c",
                 "src/sg/fonts/texture-atlas.c",
-                "src/sg/fonts/texture-font.c",    
-                "src/sg/fonts/shader.c",    
+                "src/sg/fonts/texture-font.c",
+                "src/sg/fonts/shader.c",
                 "src/sg/fonts/mat4.c",
-                
+
                 "src/sg/base.cc",
                 "src/sg/shaders.cpp",
                 "src/sg/image.cpp",
@@ -20,9 +20,12 @@
                 "src/sg/",
                 "src/sg/fonts/",
             ],
-            
+
             'conditions': [
                 ['OS=="mac"', {
+                    "include_dirs": [
+                        " <!@(freetype-config --cflags)"
+                    ],
                     "libraries": [
                         "-lglfw",
                         "-ljpeg",
@@ -40,7 +43,7 @@
                         "GLFW_INCLUDE_GL3",
                     ]
                 }],
-                
+
                 ['OS=="klaatu"', {
                     "defines": [
                         "KLAATU"

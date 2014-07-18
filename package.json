@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "wrench": "*",
-    "moment": "~2.2.1"
+    "moment": "~2.2.1",
+    "png": "^3.0.3"
   }
 }

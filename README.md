@@ -30,17 +30,17 @@ http://joshondesign.com:9001/job/aminolang%20docs/lastSuccessfulBuild/artifact/b
 
 ```
 var amino = require('amino.js');
-var widgets= require('widgets.js'); 
+var widgets= require('widgets.js');
 amino.startApp(function(core, stage) {
     var group = new amino.ProtoGroup();
     stage.setRoot(group);
-    
+
     var button = new widgets.PushButton()
         .setText("a button")
         .setTx(50).setTy(50).setW(150).setH(30);
     group.add(button);
-    
-    
+
+
     var textfield = new widgets.TextField()
         .setTx(50).setTy(100).setW(150).setH(30);
     group.add(textfield);
@@ -52,7 +52,7 @@ amino.startApp(function(core, stage) {
         rect.setTx(e.x+1);
         rect.setTy(e.y+1);
     });
-    
+
 });
 ```
 
@@ -188,7 +188,7 @@ Amino on Headless Android
 
 Amino can be run with NodeJS on Android / ASOP from the command line on developer
 unlocked devices running Android 4.x.x. It does not use Java/Dalvik and does not
-require the full Android stack. It uses OpenGL directly. 
+require the full Android stack. It uses OpenGL directly.
 
 Node and V8 are tricky to build for Android so I've put pre-built binaries in
 the `prebuilt` directory. To build the native module you must have the Android
@@ -204,7 +204,7 @@ Run the demo app (a phone UI mockup) with:
 ```
 adb root
 adb shell
-cd /data/phonetest 
+cd /data/phonetest
 export LD_LIBRARY_PATH=/data/phonetest
 chmod 755 node
 ./node phone3.js
@@ -239,12 +239,12 @@ var Core = require('./amino.js'); //change to wherever you end up putting amino
 
 //stage will be created for us already
 Core.startApp(function(core,stage) {
-        
+
     //always use a group for your scene root
     var group = core.createGroup();
     core.setRoot(group);
-    
-    
+
+
     //button
     var button = core.createPushButton();
     button.setText("Activate!");
@@ -262,8 +262,8 @@ Core.startApp(function(core,stage) {
         .setTy(300)
         .setFill("#33FFDD");
     group.add(rect);
-        
-    
+
+
     core.on("action",button, function() {
         console.log("you activated the button");
         //create an animation
@@ -272,8 +272,8 @@ Core.startApp(function(core,stage) {
         //optional
         anim.setInterpolator(Core.Interpolators.CubicInOut);
     });
-    
-    
+
+
 });
 ```
 
@@ -281,8 +281,8 @@ Core.startApp(function(core,stage) {
 
 Most widgets are pretty simple. Create them, set a few properties, add them to your scene.  
 `ListView` is not. You'll have to do some customization to make it useful. For example,
-assume you had an array called `people` which contains simple objects, each with `first` and 
-`last` properties. To show this array in a ListView you would set the listModel variable, 
+assume you had an array called `people` which contains simple objects, each with `first` and
+`last` properties. To show this array in a ListView you would set the listModel variable,
 then set a TextCellRenderer to populate each cell of the list. ex:
 
 ```
@@ -336,7 +336,7 @@ var EmailListViewCell = amino.ComposeObject({
         this.comps.base.add(this.comps.background);
         this.comps.base.add(this.comps.from);
         this.comps.base.add(this.comps.subject);
-        
+
         this.comps.from.setText("from");
         this.comps.from.setTx(5);
         this.comps.from.setTy(5);
@@ -394,5 +394,17 @@ var label = new widgets.Label()
 
 
 
+### build notes
 
+to get better details on native build failures
 
+```
+node-gyp rebuild --verbose
+```
+
+```
+node-gyp rebuild
+node build desktop
+export NODE_PATH=~/projects/aminolang/build/desktop
+node tests/desktop3/start.js
+```

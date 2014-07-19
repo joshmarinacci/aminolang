@@ -3,10 +3,15 @@ var widgets= require('widgets.js');
 
 var data = require('./countries.js');
 
+var w = 1920;
+var h = 1080;
 amino.startApp(function(core, stage) {
+//http://mbostock.github.io/protovis/ex/countries.js
 
     // set up the stage
-    stage.setSize(1280,720);
+//    stage.setSize(1280,720);
+//console.log(stage.getW());
+    stage.setSize(w,h);
     var group = new amino.ProtoGroup();
     stage.setRoot(group);
 
@@ -58,12 +63,12 @@ amino.startApp(function(core, stage) {
         poly.setDimension(3);
         group.add(poly);
     }
-    
+
     //add a line at portland
     addLine(45.52, -122.681944, 300);
 
     // center
-    group.setTx(1280/2).setTy(720/2);
+    group.setTx(w/2).setTy(h/2);
     //turn earth upright
     group.setRotateX(90);
     group.setRotateY(0);

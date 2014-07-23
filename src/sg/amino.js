@@ -118,6 +118,10 @@ function validateFontSize(fs) {
 
 var propertyCount = 0;
 
+exports.registerFont = function(name, font) {
+    fontmap[name] = new JSFont(font);
+}
+
 exports.native = {
     createNativeFont: function(path) {
         //console.log('creating native font ' + path);

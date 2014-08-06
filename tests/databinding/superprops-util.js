@@ -1,33 +1,42 @@
 var amino = require('amino.js');
 
+
+var remap = {
+    'x':'tx',
+    'rx':'rotateX',
+    'ry':'rotateY',
+};
+
 function PropAnim(target,name) {
     this._from = null;
     this._to = null;
     this._duration = 1000;
     this._loop = 1;
-    if(name == 'x') {
-        name = 'tx';
+    this._delay = 0;
+    if(remap[name]) {
+        name = remap[name];
     }
     this._then_fun = null;
 
     this.from = function(val) {  this._from = val;        return this;  }
     this.to   = function(val) {  this._to = val;          return this;  }
     this.dur  = function(val) {  this._duration = val;    return this;  }
+    this.delay= function(val) {  this._delay = val;       return this;  }
     this.loop = function(val) {  this._loop = val;        return this;  }
     this.then = function(fun) {  this._then_fun = fun;    return this;  }
 
     this.start = function() {
-        this.handle = amino.native.createAnim(
-            target.handle,
-            name,
-            this._from,this._to,this._duration);
-        amino.native.updateAnimProperty(this.handle, "count", this._loop);
-        amino.getCore().anims.push(this);
-
+        var self = this;
+        setTimeout(function(){
+            self.handle = amino.native.createAnim(
+                target.handle,
+                name,
+                self._from,self._to,self._duration);
+            amino.native.updateAnimProperty(self.handle, 'count', self._loop);
+            amino.getCore().anims.push(self);
+        },this._delay);
         return this;
     }
-
-
 
     this.finish = function() {
         if(this._then_fun != null) {

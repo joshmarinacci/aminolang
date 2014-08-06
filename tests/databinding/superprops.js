@@ -122,6 +122,12 @@ function Text() {
         var id = this.font.getNative(20, 400, 'normal');
         amino.native.updateProperty(this.handle, 'fontId', id);
     }
+    this.calcWidth = function() {
+        return this.font.calcStringWidth(this.text(), 20, 400, 'normal');
+    }
+    this.calcHeight = function() {
+        return this.font.getHeight(20, 400, 'normal');
+    }
     this.updateFont();
 }
 
@@ -184,11 +190,16 @@ function Button() {
     this.label = new Text().fill("#ffffff").y(20);
     this.add(this.label);
     this.label.text.match(this.text);
-    this.label.y.match(this.h);
     this.text('a button');
+    var self = this;
+    this.w.watch(function() {
+        var textw = self.label.calcWidth()*2;
+        var texth = self.label.calcHeight()*2;
+        self.label.x((self.w()-textw)/2);
+        self.label.y((self.h()-texth)/2 + texth);
+    });
 
     this.contains = function(x,y) {
-        console.log('calling button contains',x,y);
         if(x >= 0 && x <= this.w()) {
             if(y >= 0 && y <= this.h()) {
                 return true;

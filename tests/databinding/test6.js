@@ -5,63 +5,28 @@ var Rect = require('./superprops.js').Rect;
 var Text = require('./superprops.js').Text;
 var Button = require('./superprops.js').Button;
 
-function Adsr() {
-    ou.makeProps(this, {
-        a:0,
-        d:0,
-        s:0,
-        r:0
-    });
-    return this;
-};
-
-
 amino.startApp(function(core, stage) {
+
+    //simple RSS viewer
+
     var g = new Group().id('g1');
+    var titles = ['foo','bar','baz'];// async init for the list of headlines
+    var text = new Text().fill("#ff00ff").text('no text').y(100).x(100);
+    g.add(text);
+    var count = -1;
+    function flipOut() {
+        g.ry.anim().from(0).to(180).dur(1000).delay(1000).then(flipIn).start();
+    }
+    function flipIn() {
+        count = (count+1)%titles.length;
+        text.text(titles[count]);
+        g.ry.anim().from(180).to(360).dur(1000).delay(0).then(flipOut).start();
+    }
+    flipOut();
     stage.setRoot(g);
 
-    var r2 = new Rect().x(100).y(100).w(100).h(50).fill('#ff00ff').id('r2'); //purple rect
-    g.add(r2);
+/*
 
-    var adsr = new Adsr();
-    r2.x.match(adsr.a);
-
-    core.on('press', r2, function(e) {
-        adsr.a(e.target.getTx());
-    })
-    core.on('drag', r2, function(e) {
-        adsr.a(adsr.a()+e.dx);
-    });
-
-    var r3 = new Rect().x(100).y(300).w(50).h(50).fill("#00ff00").id('r3');
-    g.add(r3);
-    r3.x.anim().from(0).to(300).dur(3000).loop(5).then(function() {
-        console.log("we are finished");
-    }).start();
-
-    g.add(new Text().fill("#ffffff").id("textid").text('some text').y(100));
-
-    g.add(new Button().h(100).w(300).visible(true));
-    /*
-    //how could we add validators and formatters?
-
-    //build a simple layout using binding?
-    var gray = '#cccccc';
-    var box = new Panel().w(300).h(300).fill(gray);
-    var button = new Button().text('lower right');
-    button.x.match(box.w).minus(button.w);
-    button.y.match(box.h).minus(button.h);
-
-    //CSS style selection
-    root.select('rect').fill('#000000');
-    root.select('.awesome').stroke('#ffdd44');
-    root.select('#title').text('the title');
-    */
-
-
-    /*
-    //simple RSS viewer
-    var titles = [];// async init for the list of headlines.
     text.rx.anim().from(0).to(90).dur(1000)
     .then(function() {
         count = (count+1)%titles.length;

@@ -1245,7 +1245,7 @@ function Core() {
         if(!root) return null;
         //console.log(tab +
         //    (root.getId?root.getId():"-") + " " + root.getTx() + " " + root.getTy() + " "
-        //    + (root.getW?root.getW():"-") + " x " + (root.getH?root.getH():"-"));
+        //    + (root.getW?root.getW():"-") + " x " + (root.getH?root.getH():"-"));            
         if(!root.getVisible()) return null;
 
         var tx = x-root.getTx();
@@ -1253,8 +1253,8 @@ function Core() {
         tx = tx/root.getScalex();
         ty = ty/root.getScaley();
         //console.log(tab + "   xy="+tx+","+ty);
-
         if(root.children) {
+            //console.log(tab+"children = ",root.children.length);
             for(var i=root.children.length-1; i>=0; i--) {
                 var node = root.children[i];
                 var found = this.findNodeAtXY_helper(node,tx,ty,tab+"  ");
@@ -1263,7 +1263,9 @@ function Core() {
             	}
             }
         }
+        //console.log(tab+"contains " + tx+' '+ty);
         if(root.contains && root.contains(tx,ty)) {
+            //console.log(tab,"inside!",root.getId());
            return root;
         }
         return null;

@@ -1,90 +1,12 @@
 var amino = require('amino.js');
-
-function makeProps(obj,props) {
-    for(var name in props) {
-        makeProp(obj,name,props[name]);
-    }
-}
-function makeProp(obj,name,val) {
-    obj[name] = function(v) {
-        if(v != undefined) {
-            return obj[name].set(v);
-        } else {
-            return obj[name].get();
-        }
-    }
-    obj[name].listeners = [];
-    obj[name].value = val;
-    obj[name].set = function(v) {
-        this.value = v;
-        for(var i=0; i<this.listeners.length; i++) {
-            this.listeners[i](this.value,this);
-        }
-        return obj;
-    }
-    obj[name].get = function(v) {
-        return this.value;
-    }
-    obj[name].match = function(prop) {
-        var set = this;
-        prop.listeners.push(function(v) {
-            set(v);
-        });
-    }
-    obj[name].watch = function(fun) {
-        obj[name].listeners.push(function(v) {
-            fun(v);
-        });
-    }
-}
-
-function mirrorAmino(me,mirrorprops) {
-    function camelize(s) {
-    	return s.substring(0,1).toUpperCase() + s.substring(1);
-    }
-    function ParseRGBString(Fill) {
-        if(typeof Fill == "string") {
-            //strip off any leading #
-            if(Fill.substring(0,1) == "#") {
-                Fill = Fill.substring(1);
-            }
-            //pull out the components
-            var r = parseInt(Fill.substring(0,2),16);
-            var g = parseInt(Fill.substring(2,4),16);
-            var b = parseInt(Fill.substring(4,6),16);
-            return {
-                r:r/255,
-                g:g/255,
-                b:b/255
-            };
-        }
-        return Fill;
-    }
-
-    function mirrorProp(obj,old,native) {
-        obj[old].watch(function(newval,oldval){
-            if(native == 'fill') {
-                var color = ParseRGBString(newval);
-                amino.native.updateProperty(obj.handle,'r',color.r);
-                amino.native.updateProperty(obj.handle,'g',color.g);
-                amino.native.updateProperty(obj.handle,'b',color.b);
-                return;
-            }
-
-            amino.native.updateProperty(obj.handle, native,newval);
-        });
-        obj['get'+camelize(native)] = function() {
-            return obj[old]();
-        }
-    }
-
-    for(var name in mirrorprops) {
-        mirrorProp(me,name,mirrorprops[name]);
-    }
-}
+var ou = require('./superprops-util.js');
+var Group = require('./superprops.js').Group;
+var Rect = require('./superprops.js').Rect;
+var Text = require('./superprops.js').Text;
+var Button = require('./superprops.js').Button;
 
 function Adsr() {
-    makeProps(this, {
+    ou.makeProps(this, {
         a:0,
         d:0,
         s:0,
@@ -93,54 +15,12 @@ function Adsr() {
     return this;
 };
 
-function Rect() {
-    makeProps(this,{
-        x:0,
-        y:0,
-        w:50,
-        h:50,
-        visible:true,
-        fill:'#ffffff',
-        sx:1,
-        sy:1,
-    })
-    makeProp(this,'x',0);
-    makeProp(this,'y',0);
-    makeProp(this,'w',50);
-    makeProp(this,'h',50);
-    makeProp(this,'visible',true);
-    makeProp(this,'fill','#ffffff');
-    makeProp(this,'sx',1);
-    makeProp(this,'sy',1);
-    this.handle = amino.native.createRect();
-    mirrorAmino(this,{
-        x:'tx',
-        y:'ty',
-        w:'w',
-        h:'h',
-        visible:'visible',
-        sx:'scalex',
-        sy:'scaley',
-        fill:'fill',
-    });
-    var rect = this;
-    this.contains = function(x,y) {
-        if(x >= 0 && x <= this.w()) {
-            if(y >= 0 && y <= this.h()) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
-
 
 amino.startApp(function(core, stage) {
-    var g = new amino.ProtoGroup();
+    var g = new Group().id('g1');
     stage.setRoot(g);
 
-    var r2 = new Rect().x(100).y(100).w(100).h(50).fill('#ff00ff'); //purple rect
+    var r2 = new Rect().x(100).y(100).w(100).h(50).fill('#ff00ff').id('r2'); //purple rect
     g.add(r2);
 
     var adsr = new Adsr();
@@ -153,16 +33,16 @@ amino.startApp(function(core, stage) {
         adsr.a(adsr.a()+e.dx);
     });
 
-    var r3 = new Rect().x(100).y(300).w(50).h(50).fill("#00ff00");
+    var r3 = new Rect().x(100).y(300).w(50).h(50).fill("#00ff00").id('r3');
     g.add(r3);
+    r3.x.anim().from(0).to(300).dur(3000).loop(5).then(function() {
+        console.log("we are finished");
+    }).start();
 
-    core.createPropAnim(r3, 'tx',0,300, 3000);
+    g.add(new Text().fill("#ffffff").id("textid").text('some text').y(100));
 
-    //animation idea
-    r3.x.anim().from(100).to(50).dur(5000).repeat(3).lerp('linear').then(function(){
-        console.log("we are done here");
-    });
-
+    g.add(new Button().w(200).h(100).visible(true));
+    /*
     //how could we add validators and formatters?
 
     //build a simple layout using binding?
@@ -176,8 +56,10 @@ amino.startApp(function(core, stage) {
     root.select('rect').fill('#000000');
     root.select('.awesome').stroke('#ffdd44');
     root.select('#title').text('the title');
+    */
 
 
+    /*
     //simple RSS viewer
     var titles = [];// async init for the list of headlines.
     text.rx.anim().from(0).to(90).dur(1000)
@@ -188,8 +70,9 @@ amino.startApp(function(core, stage) {
     .thenAnim().from(90).to(0).dur(1000)
     .thenWait(5000)
     .repeat(-1);
+    */
 
-
+    /*
     //particles for galaxy
     var parts = [];
     fornums(0,1000).map(function(i) {
@@ -230,5 +113,6 @@ amino.startApp(function(core, stage) {
 
     //big countdown timer
     letter[0]
+    */
 
 });

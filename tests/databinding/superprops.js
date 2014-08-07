@@ -53,6 +53,14 @@ function mirrorAmino(me,mirrorprops) {
     }
 }
 
+function contains(x,y) {
+    if(x >= 0 && x <= this.w()) {
+        if(y >= 0 && y <= this.h()) {
+            return true;
+        }
+    }
+    return false;
+}
 
 function Rect() {
     ou.makeProps(this,{
@@ -80,14 +88,7 @@ function Rect() {
         fill:'fill',
         id:'id',
     });
-    this.contains = function(x,y) {
-        if(x >= 0 && x <= this.w()) {
-            if(y >= 0 && y <= this.h()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    this.contains = contains;
 }
 
 function Text() {
@@ -199,14 +200,7 @@ function Button() {
         self.label.y((self.h()-texth)/2 + texth);
     });
 
-    this.contains = function(x,y) {
-        if(x >= 0 && x <= this.w()) {
-            if(y >= 0 && y <= this.h()) {
-                return true;
-            }
-        }
-        return false;
-    }
+    this.contains = contains;
     var self = this;
     amino.getCore().on('press', this.background, function(e) {
         self.background.fill('#44ccff');

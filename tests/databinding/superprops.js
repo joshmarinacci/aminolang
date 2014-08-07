@@ -130,7 +130,9 @@ function Text() {
         return this.font.getHeight(20, 400, 'normal');
     }
     this.updateFont();
+    //this.prototype = Text.prototype;
 }
+
 
 function Group() {
     ou.makeProps(this, {
@@ -161,7 +163,7 @@ function Group() {
     });
 
     this.children = [];
-    this.add = function(node) {
+    this.addSingle = function(node) {
         if(node == undefined) throw new Error("can't add a null child to a group");
         if(node.handle == undefined) throw new Error("the child doesn't have a handle");
         this.children.push(node);
@@ -169,9 +171,42 @@ function Group() {
         amino.native.addNodeToGroup(node.handle,this.handle);
         return this;
     }
+    this.add = function() {
+        for(var i=0; i<arguments.length; i++) {
+            this.addSingle(arguments[i]);
+        }
+        return this;
+    }
     this.isParent = function() { return true; }
 
     this.getVisible = this.visible;
+
+    this.find = function(pattern) {
+        var results = new FindResults();
+        this.children.forEach(function(child) {
+            if(child.constructor.name == pattern) {
+                results.children.push(child);
+            }
+        });
+        console.log("returned",results.children.length);
+        return results;
+    }
+}
+
+function FindResults() {
+    this.children = [];
+    function makefindprop(obj, name) {
+        obj[name] = function(val) {
+            this.children.forEach(function(child) {
+                if(child[name]) child[name](val);
+            });
+            return this;
+        }
+    }
+
+    makefindprop(this,'fill');
+    makefindprop(this,'x');
+    makefindprop(this,'y');
 }
 
 

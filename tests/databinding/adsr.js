@@ -3,6 +3,7 @@ var mirrorAmino = require('./superprops.js').mirrorAmino;
 var ou = require('./superprops-util.js');
 var Group = require('./superprops.js').Group;
 var Rect = require('./superprops.js').Rect;
+var Text = require('./superprops.js').Text;
 
 function Adsr() {
     ou.makeProps(this, {
@@ -47,23 +48,31 @@ function Polygon() {
 
 
 amino.startApp(function(core, stage) {
+    var gg = new Group();
     var adsr = new Adsr();
     var g = new Group();
-    stage.setRoot(g);
+    gg.add(g);
+    stage.setRoot(gg);
+
+    function minus(coeff) {
+        return function(val) {
+            return val-coeff;
+        }
+    };
 
     var A = new Rect().fill("#ff0000").w(20).h(20).y(50-10);
-    A.x.minus(adsr.a,10);
+    A.x.bindto(adsr.a,minus(10));
 
     core.on('press', A, function(e) {
-        adsr.a(e.target.getTx());
+        adsr.a(e.target.x());
     })
     core.on('drag', A, function(e) {
         adsr.a(adsr.a()+e.dx);
     });
 
     var D = new Rect().fill("#ff0000").w(20).h(20).y(50).x(100);
-    D.x.minus(adsr.d,10);
-    D.y.minus(adsr.s,10);
+    D.x.bindto(adsr.d,minus(10));
+    D.y.bindto(adsr.s,minus(10));
 
     core.on('press', D, function(e) {
         adsr.d(e.target.getTx());
@@ -76,8 +85,8 @@ amino.startApp(function(core, stage) {
 
 
     var R = new Rect().fill("#ff0000").w(20).h(20).y(50).x(200);
-    R.y.minus(adsr.s,10);
-    R.x.minus(adsr.r,10);
+    R.y.bindto(adsr.s,minus(10));
+    R.x.bindto(adsr.r,minus(10));
 
     core.on('press', R, function(e) {
         adsr.s(e.target.getTy());
@@ -105,12 +114,35 @@ amino.startApp(function(core, stage) {
     adsr.d.watch(updatePoly);
     adsr.s.watch(updatePoly);
     adsr.r.watch(updatePoly);
+
+    g.add(A,D,R);
+
+
+    function StringFormat(str) {
+        return function(v) {
+            return str.replace("%",v);
+        }
+    }
+
+    var format = StringFormat;
+
+    var label1 = new Text().y(40*1);
+    label1.text.bindto(adsr.a, format("A: %"));
+
+    var label2 = new Text().y(40*2);
+    label2.text.bindto(adsr.d, format("D: %"));
+
+    var label3 = new Text().y(40*3);
+    label3.text.bindto(adsr.s, format("S: %"));
+
+    var label4 = new Text().y(40*4);
+    label4.text.bindto(adsr.r, format("% => R"));
+    gg.add(label1,label2,label3,label4);
+
+
+    gg.find('Text').x(10).fill("#ffffff");
+
+    g.x(100).y(130);
+
     adsr.a(50).d(100).s(100).r(250);
-
-    g.add(A);
-    g.add(D);
-    g.add(R);
-
-    g.x(100).y(100);
-
 });

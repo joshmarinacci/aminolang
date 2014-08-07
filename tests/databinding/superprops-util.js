@@ -74,27 +74,6 @@ var ou = {
         obj[name].get = function(v) {
             return this.value;
         }
-        obj[name].match = function(prop) {
-            var set = this;
-            prop.listeners.push(function(v) {
-                set(v);
-            });
-            return this;
-        }
-        obj[name].plus = function(prop, val) {
-            var set = this;
-            prop.listeners.push(function(v) {
-                set(v+val);
-            });
-            return this;
-        }
-        obj[name].minus = function(prop, val) {
-            var set = this;
-            prop.listeners.push(function(v) {
-                set(v-val);
-            });
-            return this;
-        }
         obj[name].watch = function(fun) {
             obj[name].listeners.push(function(v) {
                 fun(v);
@@ -103,6 +82,14 @@ var ou = {
         }
         obj[name].anim = function() {
             return new PropAnim(obj,name);
+        }
+        obj[name].bindto = function(prop, fun) {
+            var set = this;
+            prop.listeners.push(function(v) {
+                if(fun) set(fun(v));
+                    else set(v);
+            });
+            return this;
         }
     }
 }

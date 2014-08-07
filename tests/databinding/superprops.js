@@ -39,6 +39,11 @@ function mirrorAmino(me,mirrorprops) {
                 amino.native.updateProperty(obj.handle,native, newval?1:0);
                 return;
             }
+            if(native == 'filled') {
+                //console.log("doing visible prop");
+                amino.native.updateProperty(obj.handle,native, newval?1:0);
+                return;
+            }
 
             //console.log("update property",obj.handle,native,newval);
             amino.native.updateProperty(obj.handle, native,newval);
@@ -188,7 +193,6 @@ function Group() {
                 results.children.push(child);
             }
         });
-        console.log("returned",results.children.length);
         return results;
     }
 }
@@ -205,8 +209,11 @@ function FindResults() {
     }
 
     makefindprop(this,'fill');
+    makefindprop(this,'filled');
     makefindprop(this,'x');
     makefindprop(this,'y');
+    makefindprop(this,'w');
+    makefindprop(this,'h');
 }
 
 
@@ -246,8 +253,41 @@ function Button() {
 }
 
 
+function Polygon() {
+    ou.makeProps(this, {
+        id:'polygon',
+        visible:true,
+        x:0,
+        y:0,
+        sx:1,
+        sy:1,
+        closed:true,
+        filled:true,
+        fill:'#ff0000',
+        opacity:1.0,
+        dimension:2,
+        geometry:[0,0, 50,0, 0,0],
+    });
+    this.handle = amino.native.createPoly();
+    mirrorAmino(this,{
+        x:'tx',
+        y:'ty',
+        visible:'visible',
+        sx:'scalex',
+        sy:'scaley',
+        fill:'fill',
+        id:'id',
+        filled:'filled',
+        geometry:'geometry',
+    });
+    this.contains = function() { return false };
+    return this;
+}
+
+
 exports.Group = Group;
 exports.Rect = Rect;
 exports.Text = Text;
 exports.Button = Button;
 exports.mirrorAmino = mirrorAmino;
+exports.Polygon = Polygon;

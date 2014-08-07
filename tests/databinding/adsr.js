@@ -4,6 +4,7 @@ var ou = require('./superprops-util.js');
 var Group = require('./superprops.js').Group;
 var Rect = require('./superprops.js').Rect;
 var Text = require('./superprops.js').Text;
+var sp = require('./superprops.js');
 
 function Adsr() {
     ou.makeProps(this, {
@@ -16,53 +17,83 @@ function Adsr() {
 };
 
 
-function Polygon() {
-    ou.makeProps(this, {
-        id:'polygon',
-        visible:true,
-        x:0,
-        y:0,
-        sx:1,
-        sy:1,
-        closed:true,
-        filled:true,
-        fill:'#ff0000',
-        opacity:1.0,
-        dimension:2,
-        geometry:[0,0, 50,0, 0,0],
-    });
-    this.handle = amino.native.createPoly();
-    mirrorAmino(this,{
-        x:'tx',
-        y:'ty',
-        visible:'visible',
-        sx:'scalex',
-        sy:'scaley',
-        fill:'fill',
-        id:'id',
-        geometry:'geometry',
-    });
-    this.contains = function() { return false };
-    return this;
-}
 
 
 amino.startApp(function(core, stage) {
-    var gg = new Group();
-    var adsr = new Adsr();
-    var g = new Group();
-    gg.add(g);
-    stage.setRoot(gg);
 
+    //create the model
+    var adsr = new Adsr();
+
+    //root for the whole window
+    var root = new Group();
+    stage.setRoot(root);
+
+    //group for the polygons and controls (not the text labels)
+    var g = new Group();
+    root.add(g);
+
+
+    //4 polygons, each a different color
+    var aPoly = new sp.Polygon().fill("#00eecc");
+    var dPoly = new sp.Polygon().fill("#00cccc");
+    var sPoly = new sp.Polygon().fill("#00aacc");
+    var rPoly = new sp.Polygon().fill("#0088aa");
+    g.add(aPoly,dPoly,sPoly,rPoly);
+    g.find('Polygon').filled(true);
+
+    //5th polygon for the border, not filled
+    var border = new sp.Polygon().fill("#ffffff").filled(false);
+    g.add(border);
+
+
+    //update the polygons when the model changes
+    function updatePolys() {
+        border.geometry([0,200,
+            adsr.a(),50,
+            adsr.d(),adsr.s(),
+            adsr.r(),adsr.s(),
+            300,200]);
+        aPoly.geometry([
+            0,200,
+            adsr.a(),50,
+            adsr.a(),200
+            ]);
+        dPoly.geometry([
+            adsr.a(),200,
+            adsr.a(),50,
+            adsr.d(),adsr.s(),
+            adsr.d(),200,
+            ]);
+        sPoly.geometry([
+            adsr.d(),200,
+            adsr.d(),adsr.s(),
+            adsr.r(),adsr.s(),
+            adsr.r(),200,
+            ])
+        rPoly.geometry([
+            adsr.r(),200,
+            adsr.r(),adsr.s(),
+            300,200
+            ]);
+
+    }
+
+    adsr.a.watch(updatePolys);
+    adsr.d.watch(updatePolys);
+    adsr.s.watch(updatePolys);
+    adsr.r.watch(updatePolys);
+
+
+    //util function
     function minus(coeff) {
         return function(val) {
             return val-coeff;
         }
     };
 
-    var A = new Rect().fill("#ff0000").w(20).h(20).y(50-10);
+    //make a handle bound to the adsr.a value
+    var A = new Rect().y(50-10);
     A.x.bindto(adsr.a,minus(10));
-
     core.on('press', A, function(e) {
         adsr.a(e.target.x());
     })
@@ -70,7 +101,8 @@ amino.startApp(function(core, stage) {
         adsr.a(adsr.a()+e.dx);
     });
 
-    var D = new Rect().fill("#ff0000").w(20).h(20).y(50).x(100);
+    //make a handle bound to the adsr.d value
+    var D = new Rect();
     D.x.bindto(adsr.d,minus(10));
     D.y.bindto(adsr.s,minus(10));
 
@@ -84,10 +116,10 @@ amino.startApp(function(core, stage) {
     });
 
 
-    var R = new Rect().fill("#ff0000").w(20).h(20).y(50).x(200);
+    //make a handle bound to the adsr.r value
+    var R = new Rect();
     R.y.bindto(adsr.s,minus(10));
     R.x.bindto(adsr.r,minus(10));
-
     core.on('press', R, function(e) {
         adsr.s(e.target.getTy());
         adsr.r(e.target.getTx());
@@ -97,52 +129,39 @@ amino.startApp(function(core, stage) {
         adsr.r(adsr.r()+e.dx);
     })
 
-    var poly = new Polygon().x(0).y(0);
-    poly.geometry([0,100, 50,50, 0,100]);
-    g.add(poly);
 
-
-    function updatePoly() {
-        poly.geometry([0,200,
-            adsr.a(),50,
-            adsr.d(),adsr.s(),
-            adsr.r(),adsr.s(),
-            300,200])
-    }
-
-    adsr.a.watch(updatePoly);
-    adsr.d.watch(updatePoly);
-    adsr.s.watch(updatePoly);
-    adsr.r.watch(updatePoly);
-
+    //add and style the handles
     g.add(A,D,R);
+    g.find('Rect').fill("#00ffff").w(20).h(20);
 
 
-    function StringFormat(str) {
+    //util function for formatted strings
+    function format(str) {
         return function(v) {
             return str.replace("%",v);
         }
     }
 
-    var format = StringFormat;
-
-    var label1 = new Text().y(40*1);
+    //make 4 text labels, each bound to an adsr value
+    var label1 = new Text().y(50*1);
     label1.text.bindto(adsr.a, format("A: %"));
 
-    var label2 = new Text().y(40*2);
+    var label2 = new Text().y(50*2);
     label2.text.bindto(adsr.d, format("D: %"));
 
-    var label3 = new Text().y(40*3);
+    var label3 = new Text().y(50*3);
     label3.text.bindto(adsr.s, format("S: %"));
 
-    var label4 = new Text().y(40*4);
-    label4.text.bindto(adsr.r, format("% => R"));
-    gg.add(label1,label2,label3,label4);
+    var label4 = new Text().y(50*4);
+    label4.text.bindto(adsr.r, format("R: %"));
 
+    //add them all and style them
+    root.add(label1,label2,label3,label4);
+    root.find('Text').x(10).fill("#ffffff");
 
-    gg.find('Text').x(10).fill("#ffffff");
+    //move the whole thing 200px right
+    g.x(200).y(0);
 
-    g.x(100).y(130);
-
+    //set intial values of the model, forces an update of everything
     adsr.a(50).d(100).s(100).r(250);
 });

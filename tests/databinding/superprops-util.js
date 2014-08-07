@@ -75,7 +75,7 @@ var ou = {
             return this.value;
         }
         obj[name].watch = function(fun) {
-            obj[name].listeners.push(function(v) {
+            this.listeners.push(function(v) {
                 fun(v);
             });
             return this;

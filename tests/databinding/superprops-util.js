@@ -67,7 +67,7 @@ var ou = {
         obj[name].set = function(v) {
             this.value = v;
             for(var i=0; i<this.listeners.length; i++) {
-                this.listeners[i](this.value,this);
+                this.listeners[i](this.value,this,obj);
             }
             return obj;
         }
@@ -75,8 +75,8 @@ var ou = {
             return this.value;
         }
         obj[name].watch = function(fun) {
-            this.listeners.push(function(v) {
-                fun(v);
+            this.listeners.push(function(v,v2,v3) {
+                fun(v,v2,v3);
             });
             return this;
         }

@@ -139,6 +139,66 @@ function Text() {
 }
 
 
+function ImageView() {
+    ou.makeProps(this,{
+        id: 'unknown id',
+        visible:true,
+        x:0,
+        y:0,
+        sx:1,
+        sy:1,
+        w:100,
+        h:100,
+        opacity: 1.0,
+        fill:'#ffffff',
+        src:null,
+        textureLeft: 0,
+        textureRight: 1,
+        textureTop:  0,
+        textureBottom: 1,
+        image:null,
+    });
+    var self = this;
+
+    //actually load the image
+    this.src.watch(function(src) {
+        if(src.toLowerCase().endsWith(".png")) {
+            return amino.native.loadPngToTexture(src, self.image);
+        }
+        if(src.toLowerCase().endsWith(".jpg")) {
+            return amino.native.loadJpegToTexture(src, self.image);
+        }
+        console.log("ERROR! Invalid image",src);
+    })
+
+    //when the image is loaded, update the texture id and dimensions
+    this.image.watch(function(image) {
+        self.w(image.w);
+        self.h(image.h);
+        amino.native.updateProperty(self.handle, 'texid', self.image().texid);
+    });
+
+
+    this.handle = amino.native.createRect();
+    mirrorAmino(this,{
+        x:'tx',
+        y:'ty',
+        w:'w',
+        h:'h',
+        visible:'visible',
+        sx:'scalex',
+        sy:'scaley',
+        fill:'fill',
+        id:'id',
+        textureLeft:'textureLeft',
+        textureRight: 'textureRight',
+        textureTop: 'textureTop',
+        textureBottom: 'textureBottom',
+    });
+    //this.contains = contains;
+}
+
+
 function Group() {
     ou.makeProps(this, {
         id: 'unknown id',
@@ -313,3 +373,4 @@ exports.Button = Button;
 exports.mirrorAmino = mirrorAmino;
 exports.Polygon = Polygon;
 exports.Circle = Circle;
+exports.ImageView = ImageView;

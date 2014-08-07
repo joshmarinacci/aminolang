@@ -33,6 +33,7 @@ function PropAnim(target,name) {
                 name,
                 self._from,self._to,self._duration);
             amino.native.updateAnimProperty(self.handle, 'count', self._loop);
+            amino.native.updateAnimProperty(self.handle, 'lerpprop', 17); //17 is cubic in out
             amino.getCore().anims.push(self);
         },this._delay);
         return this;

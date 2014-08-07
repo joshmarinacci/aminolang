@@ -79,11 +79,27 @@ var ou = {
             prop.listeners.push(function(v) {
                 set(v);
             });
+            return this;
+        }
+        obj[name].plus = function(prop, val) {
+            var set = this;
+            prop.listeners.push(function(v) {
+                set(v+val);
+            });
+            return this;
+        }
+        obj[name].minus = function(prop, val) {
+            var set = this;
+            prop.listeners.push(function(v) {
+                set(v-val);
+            });
+            return this;
         }
         obj[name].watch = function(fun) {
             obj[name].listeners.push(function(v) {
                 fun(v);
             });
+            return this;
         }
         obj[name].anim = function() {
             return new PropAnim(obj,name);

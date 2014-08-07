@@ -215,3 +215,4 @@ exports.Group = Group;
 exports.Rect = Rect;
 exports.Text = Text;
 exports.Button = Button;
+exports.mirrorAmino = mirrorAmino;

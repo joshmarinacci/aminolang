@@ -285,9 +285,31 @@ function Polygon() {
 }
 
 
+function Circle() {
+    Polygon.call(this);
+    ou.makeProps(this, {
+        radius:50,
+        steps:30,
+    });
+    var self = this;
+    this.radius.watch(function() {
+        var r = self.radius();
+        var points = [];
+        var steps = self.steps();
+        for(var i=0; i<steps; i++) {
+            var theta = Math.PI*2/steps * i;
+            points.push(Math.sin(theta)*r);
+            points.push(Math.cos(theta)*r);
+        }
+        self.geometry(points);
+    })
+}
+
+
 exports.Group = Group;
 exports.Rect = Rect;
 exports.Text = Text;
 exports.Button = Button;
 exports.mirrorAmino = mirrorAmino;
 exports.Polygon = Polygon;
+exports.Circle = Circle;

@@ -19,6 +19,7 @@ static double getTime(void) {
 #endif
 
 #ifdef KLAATU
+#include <GLES/gl.h>
 #include <ui/DisplayInfo.h>
 #include <ui/FramebufferNativeWindow.h>
 #include <gui/SurfaceComposerClient.h>
